@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Aqui definimos a tabela de Transações (Entradas e Saídas)
+model Transacao {
+  id            String    @id @default(uuid())
+  descricao     String
+  valor         Float
+  tipo          String
+  categoria     String?
+  status        String    @default("PENDENTE") // <-- Campo Novo
+  dataPagamento DateTime? // <-- Campo Novo (O ? significa que aceita vazio)
+  data          DateTime  @default(now())
+
+  @@map("transacoes")
+}

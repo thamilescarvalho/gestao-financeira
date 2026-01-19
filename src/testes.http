@@ -1,0 +1,79 @@
+### ROTA 1: Criar uma conta a receber (Salário)
+POST http://localhost:3000/transacoes
+Content-Type: application/json
+
+{
+    "descricao": "Salário Mensal",
+    "valor": 5000.00,
+    "tipo": "RECEITA",
+    "categoria": "Trabalho"
+}
+
+### ROTA 2: Criar uma conta a pagar (Internet)
+POST http://localhost:3000/transacoes
+Content-Type: application/json
+
+{
+    "descricao": "Conta de Internet",
+    "valor": 120.50,
+    "tipo": "DESPESA",
+    "categoria": "Infraestrutura"
+}
+
+### ROTA 3: Listar todas as transações
+GET http://localhost:3000/transacoes
+
+### ROTA 4: Baixar uma conta (Marcar como PAGO)
+PATCH http://localhost:3000/transacoes/297c62b1-19ed-43a6-bb45-fcf21c20494f
+
+### ROTA 5: Deletar uma conta
+DELETE http://localhost:3000/transacoes/297c62b1-19ed-43a6-bb45-fcf21c20494f
+
+### ROTA 6: Ver Resumo (Saldo)
+GET http://localhost:3000/resumo
+
+
+### SIMULAÇÃO 1: Clique na aba "Contas a Pagar"
+# O sistema deve trazer apenas DESPESAS que estão PENDENTES
+GET http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE
+
+### SIMULAÇÃO 2: Clique na aba "Contas a Receber"
+# O sistema deve trazer apenas RECEITAS (Salários, vendas) PENDENTES
+GET http://localhost:3000/transacoes?tipo=RECEITA&status=PENDENTE
+
+### SIMULAÇÃO 3: Clique na aba "Movimento Financeiro" (Extrato)
+# Aqui queremos ver tudo que já foi PAGO ou RECEBIDO de fato
+GET http://localhost:3000/transacoes?status=PAGO
+
+### SIMULAÇÃO 4: Ver tudo (Sem filtros)
+GET http://localhost:3000/transacoes
+
+### PREPARAÇÃO: Criar conta pendente para teste
+POST http://localhost:3000/transacoes
+Content-Type: application/json
+
+{
+    "descricao": "Hospedagem de Site",
+    "valor": 99.90,
+    "tipo": "DESPESA",
+    "categoria": "Tecnologia"
+}
+
+### SIMULAÇÃO: O Robô de Conciliação
+POST http://localhost:3000/conciliacao
+Content-Type: application/json
+
+[
+    {
+        "data": "2026-01-19",
+        "descricao": "PGTO HOSTGATOR",
+        "valor": 99.90,
+        "tipo": "DESPESA"
+    },
+    {
+        "data": "2026-01-19",
+        "descricao": "COMPRA PADARIA",
+        "valor": 15.00,
+        "tipo": "DESPESA"
+    }
+]
