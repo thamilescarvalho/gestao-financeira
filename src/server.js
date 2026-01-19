@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client'; // 1. Importamos o conector do banco
 
 const prisma = new PrismaClient(); // 2. Iniciamos a conexão
@@ -142,6 +143,57 @@ app.post('/conciliacao', async (req, res) => {
     }
 
     return res.json(relatorio);
+});
+
+// --- ROTA DE CADASTRO (CRIAR CONTA) ---
+app.post('/registro', async (req, res) => {
+    const { nome, email, senha } = req.body;
+
+    // 1. Verifica se já existe esse email
+    const usuarioExistente = await prisma.usuario.findUnique({ where: { email } });
+    if (usuarioExistente) {
+        return res.status(400).json({ erro: "Email já cadastrado!" });
+    }
+
+    // 2. Criptografa a senha (segurança máxima)
+    const hashSenha = await bcrypt.hash(senha, 10);
+
+    // 3. Salva no banco
+    const novoUsuario = await prisma.usuario.create({
+        data: {
+            nome,
+            email,
+            senha: hashSenha
+        }
+    });
+
+    return res.json({ sucesso: true, usuario: novoUsuario });
+});
+
+// --- ROTA DE LOGIN (ENTRAR) ---
+app.post('/login', async (req, res) => {
+    const { email, senha } = req.body;
+
+    // 1. Procura o usuário pelo email
+    const usuario = await prisma.usuario.findUnique({ where: { email } });
+
+    if (!usuario) {
+        return res.status(400).json({ sucesso: false, erro: "Usuário não encontrado!" });
+    }
+
+    // 2. Compara a senha digitada com a criptografada do banco
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+
+    if (!senhaValida) {
+        return res.status(401).json({ sucesso: false, erro: "Senha incorreta!" });
+    }
+
+    // 3. Deu certo! Retorna os dados (sem a senha, claro)
+    return res.json({ 
+        sucesso: true, 
+        token: "TOKEN_SECRET_" + usuario.id, // Simulação de token
+        usuario: { nome: usuario.nome, email: usuario.email }
+    });
 });
 
 const PORT = process.env.PORT || 3000;

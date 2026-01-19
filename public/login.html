@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso - Gestão Financeira</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #1a202c; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
+        
+        .auth-container { background: white; width: 350px; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        
+        /* Abas (Login / Cadastro) */
+        .tabs { display: flex; background: #eee; }
+        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #666; transition: 0.3s; }
+        .tab.active { background: white; color: #3182ce; border-bottom: 3px solid #3182ce; }
+        
+        /* Formulários */
+        .form-box { padding: 30px; display: none; }
+        .form-box.active { display: block; }
+
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #3182ce; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background-color: #2c5282; }
+        
+        .google-btn { background-color: #db4437; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .google-btn:hover { background-color: #c53929; }
+        
+        .erro { color: red; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+        .sucesso { color: green; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="tabs">
+            <div class="tab active" onclick="abrirAba('login')">Entrar</div>
+            <div class="tab" onclick="abrirAba('cadastro')">Criar Conta</div>
+        </div>
+
+        <div id="login" class="form-box active">
+            <h2 style="text-align: center; color: #333;">Bem-vindo</h2>
+            <input type="email" id="loginEmail" placeholder="Seu E-mail">
+            <input type="password" id="loginSenha" placeholder="Sua Senha">
+            <button onclick="fazerLogin()">ENTRAR</button>
+            <p id="msgLogin" class="erro"></p>
+            
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+            <button class="google-btn" onclick="alert('Funcionalidade Google em breve!')">
+                <i class="fab fa-google"></i> Entrar com Google
+            </button>
+        </div>
+
+        <div id="cadastro" class="form-box">
+            <h2 style="text-align: center; color: #333;">Criar Conta</h2>
+            <input type="text" id="cadNome" placeholder="Nome Completo">
+            <input type="email" id="cadEmail" placeholder="Seu E-mail">
+            <input type="password" id="cadSenha" placeholder="Crie uma Senha">
+            <button onclick="fazerCadastro()">CADASTRAR</button>
+            <p id="msgCadastro" class="sucesso"></p>
+        </div>
+    </div>
+
+    <script>
+        // Troca de Abas
+        function abrirAba(aba) {
+            document.querySelectorAll('.form-box').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(aba).classList.add('active');
+            
+            // Ativa a aba visualmente
+            event.target.classList.add('active');
+        }
+
+        async function fazerCadastro() {
+            const nome = document.getElementById('cadNome').value;
+            const email = document.getElementById('cadEmail').value;
+            const senha = document.getElementById('cadSenha').value;
+            const msg = document.getElementById('msgCadastro');
+
+            if(!nome || !email || !senha) return alert("Preencha tudo!");
+
+            const res = await fetch('/registro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, email, senha })
+            });
+            const dados = await res.json();
+
+            if(dados.erro) {
+                msg.innerText = dados.erro;
+                msg.style.color = 'red';
+            } else {
+                msg.innerText = "Conta criada! Faça login agora.";
+                msg.style.color = 'green';
+                setTimeout(() => abrirAba('login'), 2000); // Vai para login sozinho
+            }
+            msg.style.display = 'block';
+        }
+
+        async function fazerLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginSenha').value;
+            const msg = document.getElementById('msgLogin');
+
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            });
+            const dados = await res.json();
+
+            if(dados.sucesso) {
+                localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
+                window.location.href = 'index.html';
+            } else {
+                msg.innerText = dados.erro;
+                msg.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
