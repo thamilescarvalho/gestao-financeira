@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Movimento Financeiro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Financeiro</h2>
+        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
+        <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
+        <a href="movimento.html" class="ativo"><i class="fas fa-list"></i> Movimento</a>
+        <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <h1>📜 Extrato / Movimento Realizado</h1>
+            <button onclick="window.print()" class="btn-acao" style="background-color: #718096;">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data Pagto</th>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Tipo</th>
+                    <th>Valor</th>
+                    <th>Ações</th> </tr>
+            </thead>
+            <tbody id="lista"></tbody>
+            <tfoot>
+                <tr style="background-color: #f8f9fa; font-weight: bold;">
+                    <td colspan="4" style="text-align: right;">TOTAL DO PERÍODO:</td>
+                    <td id="total-movimento">R$ 0,00</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+        const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        async function carregar() {
+            // BUSCA INTELIGENTE: Traz apenas o que já foi PAGO
+            const res = await fetch('http://localhost:3000/transacoes?status=PAGO');
+            const dados = await res.json();
+            
+            const lista = document.getElementById('lista');
+            lista.innerHTML = '';
+
+            let totalCalculado = 0;
+
+            dados.forEach(item => {
+                // Soma ou subtrai para o totalizador do rodapé
+                if(item.tipo === 'RECEITA') totalCalculado += item.valor;
+                else totalCalculado -= item.valor;
+
+                // Formata a data de pagamento (ou usa a data de criação se não tiver a de pagto)
+                const dataExibicao = item.dataPagamento ? item.dataPagamento : item.data;
+                const dataFormatada = new Date(dataExibicao).toLocaleDateString('pt-BR');
+
+                lista.innerHTML += `
+                    <tr>
+                        <td>${dataFormatada}</td>
+                        <td>${item.descricao}</td>
+                        <td>${item.categoria || '-'}</td>
+                        <td><span class="badge ${item.tipo.toLowerCase()}">${item.tipo}</span></td>
+                        
+                        <td style="color: ${item.tipo === 'RECEITA' ? 'green' : 'red'}; font-weight: bold;">
+                            ${item.tipo === 'DESPESA' ? '- ' : ''}${formatarMoeda(item.valor)}
+                        </td>
+                        
+                        <td>
+                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar" title="Estornar Lançamento"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Atualiza o total lá embaixo
+            document.getElementById('total-movimento').innerText = formatarMoeda(totalCalculado);
+            
+            // Muda a cor do total se for negativo
+            if(totalCalculado < 0) document.getElementById('total-movimento').style.color = 'red';
+            else document.getElementById('total-movimento').style.color = 'green';
+        }
+
+        async function deletar(id) {
+            if(confirm('Tem certeza que deseja apagar esse registro histórico?')) {
+                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
+                carregar();
+            }
+        }
+
+        carregar();
+    </script>
+</body>
+</html>

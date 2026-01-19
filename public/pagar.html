@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Contas a Pagar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css"> </head>
+<body>
+    <div class="sidebar">
+        <h2>Financeiro</h2>
+        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
+        <a href="pagar.html" class="ativo"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
+        <a href="movimento.html"><i class="fas fa-list"></i> Movimento</a>
+        <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <h1>🔴 Contas a Pagar</h1>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Valor</th>
+                    <th>Vencimento</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="lista"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        async function carregar() {
+            // AQUI ESTÁ O SEGREDINHO: O Filtro na URL
+            const res = await fetch('http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE');
+            const dados = await res.json();
+            
+            const lista = document.getElementById('lista');
+            lista.innerHTML = '';
+
+            dados.forEach(item => {
+                lista.innerHTML += `
+                    <tr>
+                        <td>${item.descricao}</td>
+                        <td>${item.categoria || '-'}</td>
+                        <td style="color: #e53e3e; font-weight: bold;">${formatarMoeda(item.valor)}</td>
+                        <td>${new Date(item.data).toLocaleDateString()}</td>
+                        <td>
+                            <button onclick="baixar('${item.id}')" class="btn-acao btn-pagar" title="Pagar Agora"><i class="fas fa-check"></i> Pagar</button>
+                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function baixar(id) {
+            if(confirm('Confirmar pagamento?')) {
+                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' });
+                carregar();
+            }
+        }
+
+        async function deletar(id) {
+            if(confirm('Apagar conta?')) {
+                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
+                carregar();
+            }
+        }
+
+        carregar();
+    </script>
+</body>
+</html>

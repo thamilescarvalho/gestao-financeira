@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Financeira</title>
+    <link rel="stylesheet" href="style.css">
+    div class="sidebar">
+        <h2>Financeiro</h2>
+        <a href="index.html" class="ativo"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
+        <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
+        <a href="movimento.html"><i class="fas fa-list"></i> Movimento</a>
+        <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
+    </div>
+
+    <style>
+        /* ESTILO (CSS) - A "Maquiagem" do site */
+        body { font-family: sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Cards do Dashboard */
+        .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .card h3 { margin: 0 0 10px 0; color: #666; font-size: 14px; }
+        .card p { margin: 0; font-size: 24px; font-weight: bold; color: #333; }
+        .card.saldo { background-color: #2e7d32; color: white; }
+        .card.saldo h3 { color: #e8f5e9; }
+        .card.saldo p { color: white; }
+
+        /* Tabela de Transações */
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f8f9fa; color: #333; font-weight: 600; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .receita { color: #2e7d32; background-color: #e8f5e9; }
+        .despesa { color: #c62828; background-color: #ffebee; }
+
+        /* Botões de Ação */
+        .btn-acao { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-left: 5px; color: white; }
+        .btn-pagar { background-color: #2e7d32; }
+        .btn-pagar:hover { background-color: #1b5e20; }
+        .btn-deletar { background-color: #c62828; }
+        .btn-deletar:hover { background-color: #b71c1c; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="card">
+                <h3>Entradas</h3>
+                <p id="valor-receitas">R$ 0,00</p>
+            </div>
+            <div class="card">
+                <h3>Saídas</h3>
+                <p id="valor-despesas">R$ 0,00</p>
+            </div>
+            <div class="card saldo">
+                <h3>Saldo Total</h3>
+                <p id="valor-saldo">R$ 0,00</p>
+            </div>
+        </div>
+
+        <h2>Movimentações Recentes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Categoria</th>
+                    <th>Valor</th>
+                    <th>Tipo</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="lista-transacoes">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        // LÓGICA (JAVASCRIPT) - O "Cérebro" da tela
+        
+        // Função para formatar dinheiro (Ex: 5000 -> R$ 5.000,00)
+    const formatarMoeda = (valor) => {
+        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+    }
+
+    async function carregarResumo() {
+        const resposta = await fetch('http://localhost:3000/resumo');
+        const dados = await resposta.json();
+
+        document.getElementById('valor-receitas').innerText = formatarMoeda(dados.receitas);
+        document.getElementById('valor-despesas').innerText = formatarMoeda(dados.despesas);
+        document.getElementById('valor-saldo').innerText = formatarMoeda(dados.saldo);
+    }
+
+    async function carregarLista() {
+        const resposta = await fetch('http://localhost:3000/transacoes');
+        const dados = await resposta.json();
+        
+        const tabela = document.getElementById('lista-transacoes');
+        tabela.innerHTML = '';
+
+        dados.forEach(item => {
+            // Define se mostra o botão de "Pagar" (só se estiver PENDENTE e for DESPESA)
+            let botaoPagar = '';
+            if (item.status === 'PENDENTE' && item.tipo === 'DESPESA') {
+                botaoPagar = `<button onclick="baixar('${item.id}')" class="btn-acao btn-pagar" title="Pagar"><i class="fas fa-check"></i></button>`;
+            }
+
+            const linha = `
+                <tr>
+                    <td>${item.descricao}</td>
+                    <td>${item.categoria || '-'}</td>
+                    <td>${formatarMoeda(item.valor)}</td>
+                    <td><span class="badge ${item.tipo.toLowerCase()}">${item.tipo}</span></td>
+                    <td>${item.status}</td>
+                    <td>
+                        ${botaoPagar}
+                        <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar" title="Excluir"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+            tabela.innerHTML += linha;
+        });
+    }
+
+    // --- NOVAS FUNÇÕES DE AÇÃO ---
+
+    async function deletar(id) {
+        if(confirm('Tem certeza que deseja apagar?')) {
+            await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
+            atualizarTela(); // Recarrega tudo
+        }
+    }
+
+    async function baixar(id) {
+        if(confirm('Confirmar pagamento desta conta?')) {
+            await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' });
+            atualizarTela(); // Recarrega tudo
+        }
+    }
+
+    function atualizarTela() {
+        carregarResumo();
+        carregarLista();
+    }
+
+    // Inicia tudo
+    atualizarTela();
+    </script>
+</body>
+</html>

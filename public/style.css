@@ -1,0 +1,26 @@
+/* public/style.css */
+body { font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; height: 100vh; background-color: #f0f2f5; }
+
+/* MENU LATERAL */
+.sidebar { width: 250px; background-color: #1a202c; color: white; padding: 20px; display: flex; flex-direction: column; }
+.sidebar h2 { margin-bottom: 30px; font-size: 22px; text-align: center; border-bottom: 1px solid #4a5568; padding-bottom: 10px; }
+.sidebar a { text-decoration: none; color: #cbd5e0; padding: 15px; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; display: block; }
+.sidebar a:hover { background-color: #2d3748; color: white; transform: translateX(5px); }
+.sidebar a.ativo { background-color: #3182ce; color: white; }
+.sidebar i { margin-right: 10px; width: 20px; }
+
+/* CONTEÚDO PRINCIPAL */
+.content { flex: 1; padding: 30px; overflow-y: auto; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+h1 { color: #2d3748; margin: 0; }
+
+/* TABELAS E BADGES */
+table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+th { background-color: #f8f9fa; color: #4a5568; }
+.badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+.receita { color: #22543d; background-color: #c6f6d5; }
+.despesa { color: #742a2a; background-color: #fed7d7; }
+.btn-acao { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-left: 5px; color: white; }
+.btn-pagar { background-color: #38a169; }
+.btn-deletar { background-color: #e53e3e; }

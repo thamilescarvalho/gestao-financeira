@@ -8,6 +8,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// --- LINHA NOVA: Servir arquivos estáticos (HTML, CSS, Imagens) ---
+// Isso diz: "Tudo que estiver na pasta 'public', pode mostrar pro navegador"
+app.use(express.static('public'));
+
 // --- ROTA 1: CRIAR UMA CONTA (POST) ---
 app.post('/transacoes', async (req, res) => {
     // Pegamos os dados que foram enviados no "corpo" da requisição
@@ -82,7 +86,6 @@ app.delete('/transacoes/:id', async (req, res) => {
     return res.status(204).send(); // 204 = Sucesso, mas sem conteúdo para mostrar
 });
 
-const PORT = 3000;
 
 // --- ROTA 5: RESUMO FINANCEIRO (DASHBOARD) ---
 app.get('/resumo', async (req, res) => {
@@ -141,6 +144,8 @@ app.post('/conciliacao', async (req, res) => {
     return res.json(relatorio);
 });
 
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
+    console.log(`Servidor rodando na porta ${PORT}`);
 });

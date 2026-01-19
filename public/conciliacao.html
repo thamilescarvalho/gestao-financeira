@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Conciliação</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        textarea { width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; font-family: monospace; }
+        .btn-conciliar { background: #3182ce; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Financeiro</h2>
+        <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
+        <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
+        <a href="movimento.html"><i class="fas fa-list"></i> Movimento</a>
+        <a href="conciliacao.html" class="ativo"><i class="fas fa-search-dollar"></i> Conciliação</a>
+    </div>
+
+    <div class="content">
+        <h1>🔎 Conciliação Bancária</h1>
+        <p>Cole o JSON do extrato bancário abaixo para verificar:</p>
+        
+        <textarea id="jsonInput" placeholder='Exemplo: [{"descricao": "TESTE", "valor": 100, "tipo": "DESPESA"}]'></textarea>
+        <button onclick="conciliar()" class="btn-conciliar">Verificar Extrato</button>
+
+        <h3 style="margin-top: 30px">Resultado da Análise</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item do Banco</th>
+                    <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ação Recomendada</th>
+                </tr>
+            </thead>
+            <tbody id="resultado"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        async function conciliar() {
+            const jsonTexto = document.getElementById('jsonInput').value;
+            
+            try {
+                const dadosBanco = JSON.parse(jsonTexto); // Transforma texto em Objeto
+                
+                const res = await fetch('http://localhost:3000/conciliacao', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dadosBanco)
+                });
+
+                const relatorio = await res.json();
+                const tabela = document.getElementById('resultado');
+                tabela.innerHTML = '';
+
+                relatorio.forEach(item => {
+                    const corStatus = item.status_conciliacao === 'ENCONTRADO' ? 'color: green; font-weight: bold' : 'color: orange';
+                    
+                    tabela.innerHTML += `
+                        <tr>
+                            <td>${item.transacao_banco}</td>
+                            <td>${formatarMoeda(item.valor)}</td>
+                            <td style="${corStatus}">${item.status_conciliacao}</td>
+                            <td>${item.acao_sugerida}</td>
+                        </tr>
+                    `;
+                });
+
+            } catch (erro) {
+                alert("Erro no JSON! Verifique se você colou o texto corretamente.");
+            }
+        }
+    </script>
+</body>
+</html>
