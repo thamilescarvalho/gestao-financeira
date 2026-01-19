@@ -13,23 +13,48 @@ app.use(cors());
 // Isso diz: "Tudo que estiver na pasta 'public', pode mostrar pro navegador"
 app.use(express.static('public'));
 
-// --- ROTA 1: CRIAR UMA CONTA (POST) ---
+// --- ROTA 1: CRIAR UMA TRABSAÇÃO (COM PARCELAS) ---
 app.post('/transacoes', async (req, res) => {
-    // Pegamos os dados que foram enviados no "corpo" da requisição
-    const { descricao, valor, tipo, categoria } = req.body;
+    // Recebe os dados novos do formulário
+    const { 
+        descricao, valor, tipo, categoria, 
+        data, dataVencimento, formaPagamento, 
+        parcelas = 1, // Se não vier nada, assume 1
+        bancoId 
+    } = req.body;
 
-    // Mandamos o Prisma salvar no banco
-    const transacaoCriada = await prisma.transacao.create({
-        data: {
-            descricao,
-            valor,
-            tipo,
-            categoria
-        }
-    });
+    const listaCriada = [];
+    
+    // Converte as datas de texto para objeto Date
+    let dataVencimentoAtual = new Date(dataVencimento);
+    const dataCompetencia = new Date(data);
 
-    // Devolvemos a transação criada como confirmação
-    return res.status(201).json(transacaoCriada);
+    // LOOP DAS PARCELAS
+    for (let i = 0; i < parcelas; i++) {
+        // Se for parcelado, adiciona (1/12) na descrição
+        const sufixo = parcelas > 1 ? ` (${i + 1}/${parcelas})` : '';
+        
+        const novaTransacao = await prisma.transacao.create({
+            data: {
+                descricao: descricao + sufixo,
+                valor: parseFloat(valor), // Garante que é número
+                tipo,
+                categoria,
+                status: "PENDENTE",
+                data: dataCompetencia,
+                dataVencimento: dataVencimentoAtual,
+                formaPagamento,
+                bancoId
+            }
+        });
+        
+        listaCriada.push(novaTransacao);
+
+        // Avança 1 mês para a próxima parcela
+        dataVencimentoAtual.setMonth(dataVencimentoAtual.getMonth() + 1);
+    }
+
+    return res.json(listaCriada);
 });
 
 // --- ROTA 2: LISTAR COM FILTROS (AS "ABAS") ---
@@ -194,6 +219,37 @@ app.post('/login', async (req, res) => {
         token: "TOKEN_SECRET_" + usuario.id, // Simulação de token
         usuario: { nome: usuario.nome, email: usuario.email }
     });
+});
+
+// --- ROTAS DE BANCOS ---
+
+// 1. Listar meus bancos
+app.get('/bancos', async (req, res) => {
+    // Pegar o ID do usuário que virá do frontend (vamos implementar isso já já)
+    const { usuarioId } = req.query; 
+    
+    if(!usuarioId) return res.json([]);
+
+    const bancos = await prisma.banco.findMany({
+        where: { usuarioId }
+    });
+    return res.json(bancos);
+});
+
+// 2. Criar novo banco
+app.post('/bancos', async (req, res) => {
+    const { nome, cor, usuarioId } = req.body;
+    
+    const novoBanco = await prisma.banco.create({
+        data: { nome, cor, usuarioId }
+    });
+    return res.json(novoBanco);
+});
+
+// 3. Deletar banco
+app.delete('/bancos/:id', async (req, res) => {
+    await prisma.banco.delete({ where: { id: req.params.id } });
+    return res.status(200).send();
 });
 
 const PORT = process.env.PORT || 3000;

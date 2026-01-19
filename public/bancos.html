@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Bancos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+</head>
+<body>
+    <div class="content">
+        <h2>🏦 Minhas Contas / Bancos</h2>
+        
+        <button class="btn-acao btn-add" onclick="criarBanco()">
+            <i class="fas fa-plus"></i> Adicionar Novo Banco
+        </button>
+
+        <div id="lista-bancos">
+            </div>
+    </div>
+
+    <script>
+        const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
+
+        async function carregarBancos() {
+            const res = await fetch(`/bancos?usuarioId=${usuario.id}`); // Note que não precisa do http://localhost se estiver no mesmo servidor, mas localmente ajuda
+            // CORREÇÃO: Vamos usar a URL relativa para funcionar no Deploy também
+            // const res = await fetch(`/bancos?usuarioId=${usuario.id}`); // Isso pode dar erro se não tratar a URL base no frontend
+            
+            // Vamos usar URL completa por enquanto para garantir localmente:
+            const res2 = await fetch(`http://localhost:3000/bancos?usuarioId=${usuario.id || ''}`); // Ajuste a URL se estiver no Render
+            const bancos = await res2.json();
+            
+            const lista = document.getElementById('lista-bancos');
+            lista.innerHTML = '';
+
+            bancos.forEach(banco => {
+                lista.innerHTML += `
+                    <div class="card-banco" style="border-left-color: ${banco.cor}">
+                        <div>
+                            <strong>${banco.nome}</strong>
+                            <br><small style="color: #666">Saldo Inicial: R$ 0,00</small>
+                        </div>
+                        <button onclick="deletar('${banco.id}')" class="btn-acao" style="background: #e53e3e"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        async function criarBanco() {
+            const nome = prompt("Nome do Banco (Ex: Nubank, Carteira):");
+            if(!nome) return;
+            
+            // Sorteia uma cor aleatória para o banco
+            const cor = '#' + Math.floor(Math.random()*16777215).toString(16);
+
+            await fetch('http://localhost:3000/bancos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, cor, usuarioId: usuario.id })
+            });
+            carregarBancos();
+        }
+
+        async function deletar(id) {
+            if(confirm("Apagar este banco?")) {
+                await fetch(`http://localhost:3000/bancos/${id}`, { method: 'DELETE' });
+                carregarBancos();
+            }
+        }
+
+        carregarBancos();
+    </script>
+</body>
+</html>

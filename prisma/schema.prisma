@@ -9,23 +9,52 @@ datasource db {
 
 // Aqui definimos a tabela de Transações (Entradas e Saídas)
 model Transacao {
-  id            String    @id @default(uuid())
-  descricao     String
-  valor         Float
-  tipo          String
-  categoria     String?
-  status        String    @default("PENDENTE") // <-- Campo Novo
-  dataPagamento DateTime? // <-- Campo Novo (O ? significa que aceita vazio)
-  data          DateTime  @default(now())
+  id             String    @id @default(uuid())
+  descricao      String    // Vamos usar isso como "Fornecedor"
+  valor          Float
+  tipo           String
+  categoria      String?
+  status         String    @default("PENDENTE")
+  
+  // DATAS
+  data           DateTime  @default(now()) // Data de Competência (Registro)
+  dataPagamento  DateTime? // Quando realmente foi pago
+  dataVencimento DateTime? // NOVO: Para contas a pagar
+
+  // EXTRAS
+  formaPagamento String?   // NOVO: Boleto, Pix, Cartão...
+  bancoId        String?
+  banco          Banco?    @relation(fields: [bancoId], references: [id])
+  
+  // Vínculo com Usuário (Importante para segurança)
+  usuarioId      String?   // Vamos adicionar para filtrar por usuário depois
+  usuario        Usuario?  @relation(fields: [usuarioId], references: [id])
 
   @@map("transacoes")
 }
 
+
+// Aqui definimos a tabela de Usuários
 model Usuario {
-  id    String @id @default(uuid())
-  nome  String
-  email String @unique
-  senha String
+  id         String      @id @default(uuid())
+  nome       String
+  email      String      @unique
+  senha      String
+  
+  bancos     Banco[]     // Já tinha
+  transacoes Transacao[] // <--- ADICIONE ESTA LINHA NOVA!
 
   @@map("usuarios")
+}
+
+// Aqui definimos a tabela de Bancos
+model Banco {
+  id        String   @id @default(uuid())
+  nome      String   // Ex: Nubank, Carteira, Cofre
+  cor       String   @default("#000000") // Para ficar bonito no card
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  transacoes Transacao[]
+
+  @@map("bancos")
 }
