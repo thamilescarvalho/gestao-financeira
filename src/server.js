@@ -13,75 +13,76 @@ app.use(cors());
 // Isso diz: "Tudo que estiver na pasta 'public', pode mostrar pro navegador"
 app.use(express.static('public'));
 
-// --- ROTA 1: CRIAR UMA TRABSAÇÃO (COM PARCELAS) ---
+// --- ROTA DE CRIAR TRANSAÇÃO (VINCULADA AO USUÁRIO) ---
 app.post('/transacoes', async (req, res) => {
-    // Recebe os dados novos do formulário
     const { 
         descricao, valor, tipo, categoria, 
         data, dataVencimento, formaPagamento, 
-        parcelas = 1, // Se não vier nada, assume 1
-        bancoId 
+        parcelas = 1, 
+        bancoId,
+        usuarioId // <--- AGORA RECEBEMOS O ID DO USUÁRIO
     } = req.body;
 
+    if (!usuarioId) {
+        return res.status(400).json({ erro: "Usuário não identificado." });
+    }
+
     const listaCriada = [];
-    
-    // Converte as datas de texto para objeto Date
     let dataVencimentoAtual = new Date(dataVencimento);
     const dataCompetencia = new Date(data);
 
-    // LOOP DAS PARCELAS
-    for (let i = 0; i < parcelas; i++) {
-        // Se for parcelado, adiciona (1/12) na descrição
-        const sufixo = parcelas > 1 ? ` (${i + 1}/${parcelas})` : '';
-        
-        const novaTransacao = await prisma.transacao.create({
-            data: {
-                descricao: descricao + sufixo,
-                valor: parseFloat(valor), // Garante que é número
-                tipo,
-                categoria,
-                status: "PENDENTE",
-                data: dataCompetencia,
-                dataVencimento: dataVencimentoAtual,
-                formaPagamento,
-                bancoId
-            }
-        });
-        
-        listaCriada.push(novaTransacao);
+    try {
+        for (let i = 0; i < parcelas; i++) {
+            const sufixo = parcelas > 1 ? ` (${i + 1}/${parcelas})` : '';
+            
+            const novaTransacao = await prisma.transacao.create({
+                data: {
+                    descricao: descricao + sufixo,
+                    valor: parseFloat(valor),
+                    tipo,
+                    categoria,
+                    status: "PENDENTE",
+                    data: dataCompetencia,
+                    dataVencimento: dataVencimentoAtual,
+                    formaPagamento,
+                    // Conexões importantes:
+                    usuario: { connect: { id: usuarioId } }, // Vincula ao Usuário
+                    ...(bancoId && { banco: { connect: { id: bancoId } } }) // Se tiver banco, vincula também
+                }
+            });
+            
+            listaCriada.push(novaTransacao);
+            dataVencimentoAtual.setMonth(dataVencimentoAtual.getMonth() + 1);
+        }
 
-        // Avança 1 mês para a próxima parcela
-        dataVencimentoAtual.setMonth(dataVencimentoAtual.getMonth() + 1);
+        return res.json(listaCriada);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ erro: "Erro ao criar transação." });
     }
-
-    return res.json(listaCriada);
 });
 
-// --- ROTA 2: LISTAR COM FILTROS (AS "ABAS") ---
+// --- ROTA DE LISTAR TRANSAÇÕES (ATUALIZADA) ---
 app.get('/transacoes', async (req, res) => {
-    // 1. Capturamos os filtros que vêm na URL (Ex: ?tipo=DESPESA)
-    const { tipo, status } = req.query;
+    const { tipo, status, usuarioId } = req.query;
 
-    // 2. Montamos a regra de pesquisa dinamicamente
-    const filtros = {};
-    
-    // Se o usuário pediu um tipo específico, adicionamos ao filtro
-    if (tipo) {
-        filtros.tipo = tipo;
-    }
+    const filtro = {};
+    if (tipo) filtro.tipo = tipo;
+    if (status) filtro.status = status;
+    // Se mandar o ID do usuário, filtra. Se não, traz tudo (cuidado em produção!)
+    if (usuarioId) filtro.usuarioId = usuarioId; 
 
-    // Se o usuário pediu um status específico, adicionamos
-    if (status) {
-        filtros.status = status;
-    }
-
-    // 3. Buscamos no banco usando os filtros
-    const lista = await prisma.transacao.findMany({
-        where: filtros,
-        orderBy: { data: 'desc' } // Ordena do mais recente para o antigo
+    const transacoes = await prisma.transacao.findMany({
+        where: filtro,
+        include: {
+            banco: true // <--- ISSO É O SEGREDO! Traz os dados do Banco junto
+        },
+        orderBy: {
+            data: 'desc' // Ordena do mais recente para o mais antigo
+        }
     });
-    
-    return res.json(lista);
+
+    return res.json(transacoes);
 });
 
 // --- ROTA 3: BAIXAR UMA CONTA (MARCAR COMO PAGO) ---
@@ -217,7 +218,7 @@ app.post('/login', async (req, res) => {
     return res.json({ 
         sucesso: true, 
         token: "TOKEN_SECRET_" + usuario.id, // Simulação de token
-        usuario: { nome: usuario.nome, email: usuario.email }
+        usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email }
     });
 });
 
@@ -236,14 +237,58 @@ app.get('/bancos', async (req, res) => {
     return res.json(bancos);
 });
 
-// 2. Criar novo banco
+// --- ROTA DE CRIAR BANCO ---
 app.post('/bancos', async (req, res) => {
-    const { nome, cor, usuarioId } = req.body;
-    
-    const novoBanco = await prisma.banco.create({
-        data: { nome, cor, usuarioId }
-    });
-    return res.json(novoBanco);
+    // Pegamos todos os campos novos do formulário
+    const { nome, cor, usuarioId, agencia, conta, saldoInicial, dataSaldo, inativo } = req.body;
+
+    if (!usuarioId) {
+        return res.status(400).json({ erro: "Usuário não identificado." });
+    }
+
+    try {
+        const novoBanco = await prisma.banco.create({
+            data: { 
+                nome, 
+                cor,
+                agencia,
+                conta,
+                saldoInicial: parseFloat(saldoInicial || 0), // Converte para número
+                dataSaldo: dataSaldo ? new Date(dataSaldo) : new Date(),
+                inativo: inativo === 'sim', // Se vier "sim" vira true, senão false
+                usuario: { connect: { id: usuarioId } }
+            }
+        });
+        return res.json(novoBanco);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ erro: "Erro ao criar banco." });
+    }
+});
+
+// --- ROTA DE ATUALIZAR BANCO (EDITAR) ---
+app.put('/bancos/:id', async (req, res) => {
+    const { id } = req.params;
+    // Pega os dados novos
+    const { nome, agencia, conta, saldoInicial, dataSaldo, inativo } = req.body;
+
+    try {
+        const bancoAtualizado = await prisma.banco.update({
+            where: { id: id },
+            data: {
+                nome,
+                agencia,
+                conta,
+                saldoInicial: parseFloat(saldoInicial || 0),
+                dataSaldo: dataSaldo ? new Date(dataSaldo) : undefined,
+                inativo: inativo === 'sim' // Converte texto para booleano
+            }
+        });
+        return res.json(bancoAtualizado);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ erro: "Erro ao atualizar banco." });
+    }
 });
 
 // 3. Deletar banco

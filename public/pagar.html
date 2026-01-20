@@ -31,23 +31,31 @@
         <div></div>
     </nav>
     <div class="sidebar" id="sidebar">
-        <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
-        <hr>
-        <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
-        <a href="bancos.html"><i class="fas fa-wallet"></i> Meus Bancos</a>
-        <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
-        <a href="pagar.html" class="ativo"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
-        <a href="movimento.html"><i class="fas fa-list"></i> Extrato</a>
-        <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
-    </div>
+    <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
+    <hr>
+    <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
+    <a href="bancos.html"><i class="fas fa-wallet"></i> Meus Bancos</a> <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
+    <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
+    <a href="movimento.html"><i class="fas fa-list"></i> Extrato</a>
+    <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
+    <hr>
+    <a href="#" onclick="alert('Editar Perfil em breve!')"><i class="fas fa-user-edit"></i> Editar Perfil</a>
+    <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
+</div>
 
     <div class="content">
         <div class="header">
-            <h1>🔴 Contas a Pagar</h1>
-            <button class="btn-acao btn-add" style="width: auto; background: #c53030;" onclick="abrirModal()">
-                <i class="fas fa-plus"></i> Nova Conta
-            </button>
-        </div>
+    <div style="display: flex; align-items: center;">
+        <a href="index.html" class="btn-voltar" title="Voltar">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1>🔴 Contas a Pagar</h1>
+    </div>
+    
+    <button class="btn-acao btn-add" style="width: auto; background: #c53030;" onclick="abrirModal()">
+        <i class="fas fa-plus"></i> Nova Conta
+    </button>
+</div>
 
         <table>
             <thead>
@@ -111,24 +119,28 @@
     </div>
 
     <script>
-        // Configura datas iniciais (Hoje)
+        // 1. Configura datas iniciais
         document.getElementById('dataComp').valueAsDate = new Date();
         document.getElementById('dataVenc').valueAsDate = new Date();
+
+        // 2. Pega o usuário logado (ESSENCIAL)
+        const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
 
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
         function abrirModal() { document.getElementById('modalConta').style.display = 'flex'; }
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
 
         async function carregar() {
-            // Busca apenas despesas pendentes
-            const res = await fetch('http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE');
+            if(!usuario) return; // Segurança extra
+
+            // Filtra também pelo usuarioId
+            const res = await fetch(`http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`);
             const dados = await res.json();
             
             const lista = document.getElementById('lista');
             lista.innerHTML = '';
 
             dados.forEach(item => {
-                // Se tiver dataVencimento usa ela, se não usa a data normal
                 const vencimento = item.dataVencimento ? new Date(item.dataVencimento) : new Date(item.data);
                 
                 lista.innerHTML += `
@@ -157,7 +169,8 @@
                 dataVencimento: document.getElementById('dataVenc').value,
                 formaPagamento: document.getElementById('formaPagto').value,
                 tipo: 'DESPESA',
-                categoria: 'Geral' // Você pode criar um campo para categoria depois
+                categoria: 'Geral',
+                usuarioId: usuario.id // <--- O PULO DO GATO ESTÁ AQUI
             };
 
             if(!dados.descricao || !dados.valor) return alert("Preencha fornecedor e valor!");
@@ -172,7 +185,6 @@
             carregar();
         }
         
-        // Funções de Ação (Baixar/Deletar)
         async function baixar(id) {
             if(confirm('Confirmar pagamento?')) {
                 await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' });

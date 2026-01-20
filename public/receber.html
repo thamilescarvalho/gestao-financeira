@@ -4,17 +4,53 @@
     <meta charset="UTF-8">
     <title>Contas a Receber</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css"> </head>
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <style>
+        /* Estilos do Modal (Iguais ao de Pagar, mas preparados para reuso) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 25px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal h2 { margin-top: 0; color: #2f855a; } /* Verde Escuro */
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+
+        .btn-salvar { background: #2f855a; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .btn-cancelar { background: #ccc; color: #333; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+
+        /* Botão de Voltar Redondinho */
+        .btn-voltar {
+            background-color: #e2e8f0; /* Cinza claro */
+            color: #4a5568;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%; /* Faz ficar redondo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none; /* Tira o sublinhado do link */
+            margin-right: 15px;
+            transition: 0.2s;
+            font-size: 16px;
+        }
+        .btn-voltar:hover {
+            background-color: #cbd5e0; /* Escurece ao passar o mouse */
+            transform: translateX(-3px); /* Efeito de mover para a esquerda */
+        }
+    </style>
+</head>
 <body>
     <div class="overlay" onclick="toggleMenu()"></div>
-
-<nav class="navbar">
-    <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-    <div class="logo">Gestão Financeira</div>
-    <div id="usuarioNome" style="font-size: 12px;">Olá, Usuário</div>
-</nav>
-
-<div class="sidebar" id="sidebar">
+    <nav class="navbar">
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+        <div class="logo">Contas a Receber</div>
+        <div></div>
+    </nav>
+    <div class="sidebar" id="sidebar">
     <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
     <hr>
     <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
@@ -27,30 +63,26 @@
     <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
 </div>
 
-<script>
-    // Script do Menu
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('aberto');
-        document.querySelector('.overlay').classList.toggle('ativo');
-    }
-    
-    // Mostrar nome do usuário logado
-    const user = JSON.parse(localStorage.getItem('usuario_logado'));
-    if(user) document.getElementById('usuarioNome').innerText = 'Olá, ' + user.nome.split(' ')[0];
-</script>
-
     <div class="content">
         <div class="header">
-            <h1>🔴 Contas a Receber</h1>
-        </div>
+    <div style="display: flex; align-items: center;">
+        <a href="index.html" class="btn-voltar" title="Voltar para o Início">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1>🟢 Contas a Receber</h1>
+    </div>
+
+    <button class="btn-acao btn-add" style="width: auto; background: #2f855a;" onclick="abrirModal()">
+        <i class="fas fa-plus"></i> Nova Receita
+    </button>
+</div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Descrição</th>
-                    <th>Categoria</th>
-                    <th>Valor</th>
                     <th>Vencimento</th>
+                    <th>Cliente / Descrição</th>
+                    <th>Valor</th>
                     <th>Ações</th>
                 </tr>
             </thead>
@@ -58,26 +90,85 @@
         </table>
     </div>
 
+    <div class="modal-overlay" id="modalConta">
+        <div class="modal">
+            <h2>Nova Receita</h2>
+            
+            <div class="form-group">
+                <label>Cliente / Descrição</label>
+                <input type="text" id="desc" placeholder="Ex: Cliente João, Venda de Site...">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="valor" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Parcelas</label>
+                    <input type="number" id="parcelas" value="1" min="1">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data Competência</label>
+                    <input type="date" id="dataComp">
+                </div>
+                <div class="form-group">
+                    <label>Data Vencimento</label>
+                    <input type="date" id="dataVenc">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Forma de Recebimento</label>
+                <select id="formaPagto">
+                    <option value="Pix">Pix</option>
+                    <option value="Boleto">Boleto</option>
+                    <option value="Cartão Crédito">Cartão de Crédito</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Transferência">Transferência</option>
+                </select>
+            </div>
+
+            <button class="btn-salvar" onclick="salvarConta()">SALVAR RECEITA</button>
+            <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+        </div>
+    </div>
+
     <script>
-        const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+        document.getElementById('dataComp').valueAsDate = new Date();
+        document.getElementById('dataVenc').valueAsDate = new Date();
+
+        // Pega usuário
+        const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
+
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
+        function abrirModal() { document.getElementById('modalConta').style.display = 'flex'; }
+        function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
 
         async function carregar() {
-            // AQUI ESTÁ O SEGREDINHO: O Filtro na URL
-            const res = await fetch('http://localhost:3000/transacoes?tipo=RECEITA&status=PENDENTE');
+            if(!usuario) return;
+            // Filtra por usuarioId
+            const res = await fetch(`http://localhost:3000/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}`);
             const dados = await res.json();
             
             const lista = document.getElementById('lista');
             lista.innerHTML = '';
 
             dados.forEach(item => {
+                const vencimento = item.dataVencimento ? new Date(item.dataVencimento) : new Date(item.data);
+                
                 lista.innerHTML += `
                     <tr>
+                        <td>${vencimento.toLocaleDateString('pt-BR')}</td>
                         <td>${item.descricao}</td>
-                        <td>${item.categoria || '-'}</td>
-                        <td style="color: #38a169; font-weight: bold;">${formatarMoeda(item.valor)}</td>
-                        <td>${new Date(item.data).toLocaleDateString()}</td>
+                        <td style="color: #2f855a; font-weight: bold;">
+                            ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valor)}
+                        </td>
                         <td>
-                            <button onclick="baixar('${item.id}')" class="btn-acao btn-pagar" title="Pagar Agora"><i class="fas fa-check"></i> Pagar</button>
+                            <button onclick="receber('${item.id}')" class="btn-acao btn-pagar" style="background-color: #2f855a"><i class="fas fa-check"></i></button>
                             <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
@@ -85,15 +176,40 @@
             });
         }
 
-        async function baixar(id) {
-            if(confirm('Confirmar pagamento?')) {
+        async function salvarConta() {
+            const dados = {
+                descricao: document.getElementById('desc').value,
+                valor: document.getElementById('valor').value,
+                parcelas: document.getElementById('parcelas').value,
+                data: document.getElementById('dataComp').value,
+                dataVencimento: document.getElementById('dataVenc').value,
+                formaPagamento: document.getElementById('formaPagto').value,
+                tipo: 'RECEITA',
+                categoria: 'Vendas',
+                usuarioId: usuario.id // <--- IMPORTANTE
+            };
+
+            if(!dados.descricao || !dados.valor) return alert("Preencha descrição e valor!");
+
+            await fetch('http://localhost:3000/transacoes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            fecharModal();
+            carregar();
+        }
+        
+        async function receber(id) {
+            if(confirm('Confirmar recebimento?')) {
                 await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' });
                 carregar();
             }
         }
 
         async function deletar(id) {
-            if(confirm('Apagar conta?')) {
+            if(confirm('Apagar lançamento?')) {
                 await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
                 carregar();
             }

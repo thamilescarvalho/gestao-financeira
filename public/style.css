@@ -43,3 +43,23 @@ body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--l
 }
 .btn-acao { border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; color: white; }
 .btn-add { background-color: var(--primary); width: 100%; padding: 15px; font-size: 16px; margin-bottom: 20px; }
+
+/* --- BOTÃO VOLTAR (Global) --- */
+.btn-voltar {
+    background-color: #e2e8f0;
+    color: #4a5568;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    margin-right: 15px;
+    transition: 0.2s;
+    font-size: 16px;
+}
+.btn-voltar:hover {
+    background-color: #cbd5e0;
+    transform: translateX(-3px);
+}

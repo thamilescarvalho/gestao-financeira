@@ -3,17 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Financeira</title>
+    <title>Dashboard - Gestão Financeira</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <style>
+        /* Ajustes específicos do Dashboard */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 5px solid #ccc; }
+        .card h3 { margin: 0 0 10px 0; color: #666; font-size: 14px; text-transform: uppercase; }
+        .card p { margin: 0; font-size: 24px; font-weight: bold; color: #333; }
+        
+        .card.receita { border-left-color: #2f855a; }
+        .card.receita p { color: #2f855a; }
+        
+        .card.despesa { border-left-color: #c53030; }
+        .card.despesa p { color: #c53030; }
+        
+        .card.saldo { background-color: #2e7d32; color: white; border: none; }
+        .card.saldo h3 { color: #e8f5e9; }
+        .card.saldo p { color: white; }
+    </style>
+</head>
+<body>
+
     <div class="overlay" onclick="toggleMenu()"></div>
 
-<nav class="navbar">
-    <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-    <div class="logo">Gestão Financeira</div>
-    <div id="usuarioNome" style="font-size: 12px;">Olá, Usuário</div>
-</nav>
+    <nav class="navbar">
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+        <div class="logo">Visão Geral</div>
+        <div id="usuarioNome" style="font-size: 12px;">Olá, Usuário</div>
+    </nav>
 
-<div class="sidebar" id="sidebar">
+    <div class="sidebar" id="sidebar">
     <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
     <hr>
     <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
@@ -26,60 +48,14 @@
     <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
 </div>
 
-<script>
-    // Script do Menu
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('aberto');
-        document.querySelector('.overlay').classList.toggle('ativo');
-    }
-    
-    // Mostrar nome do usuário logado
-    const user = JSON.parse(localStorage.getItem('usuario_logado'));
-    if(user) document.getElementById('usuarioNome').innerText = 'Olá, ' + user.nome.split(' ')[0];
-</script>
-
-    <style>
-        /* ESTILO (CSS) - A "Maquiagem" do site */
-        body { font-family: sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
-        
-        .container { max-width: 1000px; margin: 0 auto; }
-        
-        /* Cards do Dashboard */
-        .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .card h3 { margin: 0 0 10px 0; color: #666; font-size: 14px; }
-        .card p { margin: 0; font-size: 24px; font-weight: bold; color: #333; }
-        .card.saldo { background-color: #2e7d32; color: white; }
-        .card.saldo h3 { color: #e8f5e9; }
-        .card.saldo p { color: white; }
-
-        /* Tabela de Transações */
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background-color: #f8f9fa; color: #333; font-weight: 600; }
-        
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .receita { color: #2e7d32; background-color: #e8f5e9; }
-        .despesa { color: #c62828; background-color: #ffebee; }
-
-        /* Botões de Ação */
-        .btn-acao { border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-left: 5px; color: white; }
-        .btn-pagar { background-color: #2e7d32; }
-        .btn-pagar:hover { background-color: #1b5e20; }
-        .btn-deletar { background-color: #c62828; }
-        .btn-deletar:hover { background-color: #b71c1c; }
-    </style>
-</head>
-<body>
-
-    <div class="container">
+    <div class="content">
         <div class="dashboard">
-            <div class="card">
-                <h3>Entradas</h3>
+            <div class="card receita">
+                <h3>Entradas (Mês)</h3>
                 <p id="valor-receitas">R$ 0,00</p>
             </div>
-            <div class="card">
-                <h3>Saídas</h3>
+            <div class="card despesa">
+                <h3>Saídas (Mês)</h3>
                 <p id="valor-despesas">R$ 0,00</p>
             </div>
             <div class="card saldo">
@@ -93,7 +69,6 @@
             <thead>
                 <tr>
                     <th>Descrição</th>
-                    <th>Categoria</th>
                     <th>Valor</th>
                     <th>Tipo</th>
                     <th>Status</th>
@@ -105,76 +80,65 @@
     </div>
 
     <script>
-        // LÓGICA (JAVASCRIPT) - O "Cérebro" da tela
-        
-        // Função para formatar dinheiro (Ex: 5000 -> R$ 5.000,00)
-    const formatarMoeda = (valor) => {
-        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
-    }
+        // --- LÓGICA DO MENU ---
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('aberto');
+            document.querySelector('.overlay').classList.toggle('ativo');
+        }
 
-    async function carregarResumo() {
-        const resposta = await fetch('http://localhost:3000/resumo');
-        const dados = await resposta.json();
+        // Mostrar nome do usuário
+        const user = JSON.parse(localStorage.getItem('usuario_logado'));
+        if(user) document.getElementById('usuarioNome').innerText = 'Olá, ' + user.nome.split(' ')[0];
 
-        document.getElementById('valor-receitas').innerText = formatarMoeda(dados.receitas);
-        document.getElementById('valor-despesas').innerText = formatarMoeda(dados.despesas);
-        document.getElementById('valor-saldo').innerText = formatarMoeda(dados.saldo);
-    }
+        // --- LÓGICA DO DASHBOARD ---
+        const formatarMoeda = (valor) => {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+        }
 
-    async function carregarLista() {
-        const resposta = await fetch('http://localhost:3000/transacoes');
-        const dados = await resposta.json();
-        
-        const tabela = document.getElementById('lista-transacoes');
-        tabela.innerHTML = '';
+        async function carregarResumo() {
+            try {
+                const resposta = await fetch('http://localhost:3000/resumo');
+                const dados = await resposta.json();
 
-        dados.forEach(item => {
-            // Define se mostra o botão de "Pagar" (só se estiver PENDENTE e for DESPESA)
-            let botaoPagar = '';
-            if (item.status === 'PENDENTE' && item.tipo === 'DESPESA') {
-                botaoPagar = `<button onclick="baixar('${item.id}')" class="btn-acao btn-pagar" title="Pagar"><i class="fas fa-check"></i></button>`;
+                document.getElementById('valor-receitas').innerText = formatarMoeda(dados.receitas);
+                document.getElementById('valor-despesas').innerText = formatarMoeda(dados.despesas);
+                document.getElementById('valor-saldo').innerText = formatarMoeda(dados.saldo);
+            } catch (e) {
+                console.error("Erro ao carregar resumo", e);
             }
-
-            const linha = `
-                <tr>
-                    <td>${item.descricao}</td>
-                    <td>${item.categoria || '-'}</td>
-                    <td>${formatarMoeda(item.valor)}</td>
-                    <td><span class="badge ${item.tipo.toLowerCase()}">${item.tipo}</span></td>
-                    <td>${item.status}</td>
-                    <td>
-                        ${botaoPagar}
-                        <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar" title="Excluir"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-            tabela.innerHTML += linha;
-        });
-    }
-
-    // --- NOVAS FUNÇÕES DE AÇÃO ---
-
-    async function deletar(id) {
-        if(confirm('Tem certeza que deseja apagar?')) {
-            await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
-            atualizarTela(); // Recarrega tudo
         }
-    }
 
-    async function baixar(id) {
-        if(confirm('Confirmar pagamento desta conta?')) {
-            await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' });
-            atualizarTela(); // Recarrega tudo
+        async function carregarLista() {
+            try {
+                // Pega as últimas 5 transações
+                const resposta = await fetch('http://localhost:3000/transacoes');
+                const dados = await resposta.json();
+                
+                const tabela = document.getElementById('lista-transacoes');
+                tabela.innerHTML = '';
+
+                // Mostra só as 5 primeiras para não poluir
+                dados.slice(0, 5).forEach(item => {
+                    const linha = `
+                        <tr>
+                            <td>${item.descricao}</td>
+                            <td style="color: ${item.tipo === 'RECEITA' ? 'green' : 'red'}; font-weight: bold">
+                                ${formatarMoeda(item.valor)}
+                            </td>
+                            <td><span class="badge ${item.tipo.toLowerCase()}">${item.tipo}</span></td>
+                            <td>${item.status}</td>
+                        </tr>
+                    `;
+                    tabela.innerHTML += linha;
+                });
+            } catch (e) {
+                console.error("Erro ao carregar lista", e);
+            }
         }
-    }
 
-    function atualizarTela() {
+        // Inicia tudo
         carregarResumo();
         carregarLista();
-    }
-
-    // Inicia tudo
-    atualizarTela();
     </script>
 </body>
 </html>

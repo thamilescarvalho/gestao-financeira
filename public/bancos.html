@@ -2,69 +2,245 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meus Bancos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="auth.js"></script>
+    <style>
+        /* Estilos do Modal (Padrão do Sistema) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 25px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .modal h2 { margin-top: 0; color: #3182ce; } /* Azul do Banco */
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; color: #666; }
+        
+        /* Grid para colocar Agência e Conta lado a lado */
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+
+        .btn-salvar { background: #3182ce; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .btn-cancelar { background: #ccc; color: #333; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+
+        /* Badge de Inativo */
+        .badge-inativo { background: #cbd5e0; color: #4a5568; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+    </style>
 </head>
 <body>
+    <div class="overlay" onclick="toggleMenu()"></div>
+    <nav class="navbar">
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+        <div class="logo">Cadastros</div>
+        <div></div>
+    </nav>
+    <div class="sidebar" id="sidebar">
+    <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
+    <hr>
+    <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
+    <a href="bancos.html"><i class="fas fa-wallet"></i> Meus Bancos</a> <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
+    <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
+    <a href="movimento.html"><i class="fas fa-list"></i> Extrato</a>
+    <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
+    <hr>
+    <a href="#" onclick="alert('Editar Perfil em breve!')"><i class="fas fa-user-edit"></i> Editar Perfil</a>
+    <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
+</div>
+
     <div class="content">
-        <h2>🏦 Minhas Contas / Bancos</h2>
-        
-        <button class="btn-acao btn-add" onclick="criarBanco()">
-            <i class="fas fa-plus"></i> Adicionar Novo Banco
-        </button>
+        <div class="header">
+            <div style="display: flex; align-items: center;">
+                <a href="index.html" class="btn-voltar" title="Voltar">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1>🏦 Meus Bancos</h1>
+            </div>
+    
+            <button class="btn-acao btn-add" style="width: auto; background: #3182ce;" onclick="abrirModal()">
+                <i class="fas fa-plus"></i> Novo Banco
+            </button>
+        </div>
 
         <div id="lista-bancos">
             </div>
     </div>
 
+    <div class="modal-overlay" id="modalBanco">
+        <div class="modal">
+            <h2 id="tituloModal">Novo Banco</h2>
+            
+            <input type="hidden" id="editId">
+
+            <div class="form-group">
+                <label>Nome do banco</label>
+                <input type="text" id="nomeBanco" placeholder="Qual o nome do banco">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Agência</label>
+                    <input type="text" id="agencia" placeholder="Agência">
+                </div>
+                <div class="form-group">
+                    <label>Conta</label>
+                    <input type="text" id="conta" placeholder="Conta">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Saldo inicial (R$)</label>
+                <input type="number" id="saldoInicial" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label>Data do saldo inicial</label>
+                <input type="date" id="dataSaldo">
+            </div>
+
+            <div class="form-group">
+                <label>Inativo</label>
+                <select id="inativo">
+                    <option value="nao">Não</option>
+                    <option value="sim">Sim</option>
+                </select>
+            </div>
+
+            <button class="btn-salvar" onclick="salvarBanco()">SALVAR</button>
+            <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+        </div>
+    </div>
+
     <script>
+        // Variável global para guardar a lista de bancos
+        let bancosGlobais = [];
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
 
-        async function carregarBancos() {
-            const res = await fetch(`/bancos?usuarioId=${usuario.id}`); // Note que não precisa do http://localhost se estiver no mesmo servidor, mas localmente ajuda
-            // CORREÇÃO: Vamos usar a URL relativa para funcionar no Deploy também
-            // const res = await fetch(`/bancos?usuarioId=${usuario.id}`); // Isso pode dar erro se não tratar a URL base no frontend
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
+        
+        // --- FUNÇÕES DO MODAL ---
+        
+        // Abre para CRIAR UM NOVO (Limpa tudo)
+        function abrirModal() {
+            document.getElementById('modalBanco').style.display = 'flex';
+            document.getElementById('tituloModal').innerText = 'Novo Banco';
+            document.getElementById('editId').value = ''; // Garante que não tem ID
             
-            // Vamos usar URL completa por enquanto para garantir localmente:
-            const res2 = await fetch(`http://localhost:3000/bancos?usuarioId=${usuario.id || ''}`); // Ajuste a URL se estiver no Render
-            const bancos = await res2.json();
+            // Limpa os campos
+            document.getElementById('nomeBanco').value = '';
+            document.getElementById('agencia').value = '';
+            document.getElementById('conta').value = '';
+            document.getElementById('saldoInicial').value = '';
+            document.getElementById('dataSaldo').valueAsDate = new Date();
+            document.getElementById('inativo').value = 'nao';
+        }
+
+        // Abre para EDITAR (Preenche os dados)
+        function editar(id) {
+            // Procura o banco na nossa lista global
+            const banco = bancosGlobais.find(b => b.id === id);
+            if(!banco) return;
+
+            document.getElementById('modalBanco').style.display = 'flex';
+            document.getElementById('tituloModal').innerText = 'Editar Banco';
+            document.getElementById('editId').value = id; // SALVA O ID AQUI!
+
+            // Preenche os campos
+            document.getElementById('nomeBanco').value = banco.nome;
+            document.getElementById('agencia').value = banco.agencia || '';
+            document.getElementById('conta').value = banco.conta || '';
+            document.getElementById('saldoInicial').value = banco.saldoInicial;
+            document.getElementById('dataSaldo').value = banco.dataSaldo ? banco.dataSaldo.split('T')[0] : '';
+            document.getElementById('inativo').value = banco.inativo ? 'sim' : 'nao';
+        }
+
+        function fecharModal() { document.getElementById('modalBanco').style.display = 'none'; }
+
+        // --- FUNÇÕES PRINCIPAIS ---
+
+        const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+
+        async function carregarBancos() {
+            if(!usuario || !usuario.id) return;
+
+            const res = await fetch(`http://localhost:3000/bancos?usuarioId=${usuario.id}`);
+            bancosGlobais = await res.json(); // Salva na variável global
             
             const lista = document.getElementById('lista-bancos');
             lista.innerHTML = '';
 
-            bancos.forEach(banco => {
+            bancosGlobais.forEach(banco => {
+                const badgeInativo = banco.inativo ? '<span class="badge-inativo">INATIVO</span>' : '';
+                
+                let detalhesConta = '';
+                if(banco.agencia || banco.conta) {
+                    detalhesConta = `<small style="color: #666; display: block; margin-top: 5px;">
+                                        Ag: ${banco.agencia || '-'} | CC: ${banco.conta || '-'}
+                                     </small>`;
+                }
+
                 lista.innerHTML += `
-                    <div class="card-banco" style="border-left-color: ${banco.cor}">
+                    <div class="card-banco" style="border-left-color: ${banco.cor}; opacity: ${banco.inativo ? 0.6 : 1}">
                         <div>
-                            <strong>${banco.nome}</strong>
-                            <br><small style="color: #666">Saldo Inicial: R$ 0,00</small>
+                            <strong style="font-size: 18px;">${banco.nome} ${badgeInativo}</strong>
+                            ${detalhesConta}
+                            <div style="margin-top: 5px; font-weight: bold; color: #3182ce;">
+                                Saldo Inicial: ${formatarMoeda(banco.saldoInicial)}
+                            </div>
                         </div>
-                        <button onclick="deletar('${banco.id}')" class="btn-acao" style="background: #e53e3e"><i class="fas fa-trash"></i></button>
+                        
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="editar('${banco.id}')" class="btn-acao" style="background: #ecc94b; color: #744210" title="Editar">
+                                <i class="fas fa-pencil-alt"></i>
+                            </button>
+                            <button onclick="deletar('${banco.id}')" class="btn-acao" style="background: #e53e3e" title="Excluir">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
                 `;
             });
         }
 
-        async function criarBanco() {
-            const nome = prompt("Nome do Banco (Ex: Nubank, Carteira):");
-            if(!nome) return;
-            
-            // Sorteia uma cor aleatória para o banco
-            const cor = '#' + Math.floor(Math.random()*16777215).toString(16);
+        async function salvarBanco() {
+            const idEdicao = document.getElementById('editId').value;
+            const nome = document.getElementById('nomeBanco').value;
+            if(!nome) return alert("Digite o nome do banco!");
 
-            await fetch('http://localhost:3000/bancos', {
-                method: 'POST',
+            // Prepara os dados
+            const dados = {
+                nome: nome,
+                agencia: document.getElementById('agencia').value,
+                conta: document.getElementById('conta').value,
+                saldoInicial: document.getElementById('saldoInicial').value,
+                dataSaldo: document.getElementById('dataSaldo').value,
+                inativo: document.getElementById('inativo').value,
+                usuarioId: usuario.id
+            };
+
+            // Se tiver cor aleatória (só para novos)
+            if(!idEdicao) dados.cor = '#' + Math.floor(Math.random()*16777215).toString(16);
+
+            let url = 'http://localhost:3000/bancos';
+            let metodo = 'POST';
+
+            // SE TEM ID, MUDA PARA MODO EDIÇÃO (PUT)
+            if (idEdicao) {
+                url = `http://localhost:3000/bancos/${idEdicao}`;
+                metodo = 'PUT';
+            }
+
+            await fetch(url, {
+                method: metodo,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, cor, usuarioId: usuario.id })
+                body: JSON.stringify(dados)
             });
+
+            fecharModal();
             carregarBancos();
         }
 
         async function deletar(id) {
-            if(confirm("Apagar este banco?")) {
+            if(confirm("Apagar este banco e todo o histórico dele?")) {
                 await fetch(`http://localhost:3000/bancos/${id}`, { method: 'DELETE' });
                 carregarBancos();
             }

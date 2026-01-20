@@ -2,20 +2,19 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Movimento Financeiro</title>
+    <title>Extrato - Movimento</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
 </head>
 <body>
     <div class="overlay" onclick="toggleMenu()"></div>
-
-<nav class="navbar">
-    <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-    <div class="logo">Gestão Financeira</div>
-    <div id="usuarioNome" style="font-size: 12px;">Olá, Usuário</div>
-</nav>
-
-<div class="sidebar" id="sidebar">
+    <nav class="navbar">
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+        <div class="logo">Extrato Financeiro</div>
+        <div></div>
+    </nav>
+    <div class="sidebar" id="sidebar">
     <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
     <hr>
     <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
@@ -28,22 +27,16 @@
     <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
 </div>
 
-<script>
-    // Script do Menu
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('aberto');
-        document.querySelector('.overlay').classList.toggle('ativo');
-    }
-    
-    // Mostrar nome do usuário logado
-    const user = JSON.parse(localStorage.getItem('usuario_logado'));
-    if(user) document.getElementById('usuarioNome').innerText = 'Olá, ' + user.nome.split(' ')[0];
-</script>
-
     <div class="content">
         <div class="header">
-            <h1>📜 Extrato / Movimento Realizado</h1>
-            <button onclick="window.print()" class="btn-acao" style="background-color: #718096;">
+            <div style="display: flex; align-items: center;">
+                <a href="index.html" class="btn-voltar" title="Voltar">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <h1>📜 Movimentações</h1>
+            </div>
+            
+            <button onclick="window.print()" class="btn-acao" style="background-color: #718096; width: auto;">
                 <i class="fas fa-print"></i> Imprimir
             </button>
         </div>
@@ -51,30 +44,32 @@
         <table>
             <thead>
                 <tr>
-                    <th>Data Pagto</th>
+                    <th>Data</th>
                     <th>Descrição</th>
-                    <th>Categoria</th>
-                    <th>Tipo</th>
-                    <th>Valor</th>
-                    <th>Ações</th> </tr>
+                    <th>Detalhes</th> <th>Valor</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
             </thead>
             <tbody id="lista"></tbody>
             <tfoot>
                 <tr style="background-color: #f8f9fa; font-weight: bold;">
-                    <td colspan="4" style="text-align: right;">TOTAL DO PERÍODO:</td>
+                    <td colspan="3" style="text-align: right;">SALDO DO PERÍODO:</td>
                     <td id="total-movimento">R$ 0,00</td>
-                    <td></td>
+                    <td colspan="2"></td>
                 </tr>
             </tfoot>
         </table>
     </div>
 
     <script>
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
         const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
         async function carregar() {
-            // BUSCA INTELIGENTE: Traz apenas o que já foi PAGO
-            const res = await fetch('http://localhost:3000/transacoes?status=PAGO');
+            // Traz TUDO (Receitas e Despesas, Pagas e Pendentes)
+            // Se quiser filtrar só o que foi PAGO, use: .../transacoes?status=PAGO
+            const res = await fetch('http://localhost:3000/transacoes');
             const dados = await res.json();
             
             const lista = document.getElementById('lista');
@@ -83,38 +78,54 @@
             let totalCalculado = 0;
 
             dados.forEach(item => {
-                // Soma ou subtrai para o totalizador do rodapé
-                if(item.tipo === 'RECEITA') totalCalculado += item.valor;
-                else totalCalculado -= item.valor;
+                // Cálculo do Total (Só soma se estiver PAGO)
+                if(item.status === 'PAGO') {
+                    if(item.tipo === 'RECEITA') totalCalculado += item.valor;
+                    else totalCalculado -= item.valor;
+                }
 
-                // Formata a data de pagamento (ou usa a data de criação se não tiver a de pagto)
-                const dataExibicao = item.dataPagamento ? item.dataPagamento : item.data;
-                const dataFormatada = new Date(dataExibicao).toLocaleDateString('pt-BR');
+                // Data Inteligente: Usa Pagamento -> Vencimento -> Criação
+                const dataRef = item.dataPagamento || item.dataVencimento || item.data;
+                const dataFormatada = new Date(dataRef).toLocaleDateString('pt-BR');
+
+                // Tenta pegar o nome do banco (se existir)
+                const nomeBanco = item.banco ? item.banco.nome : '-';
+                const formaPagto = item.formaPagamento || 'Outros';
+
+                // Cor do Valor
+                const corValor = item.tipo === 'RECEITA' ? 'green' : '#c53030';
+                const sinal = item.tipo === 'DESPESA' ? '- ' : '';
 
                 lista.innerHTML += `
                     <tr>
                         <td>${dataFormatada}</td>
-                        <td>${item.descricao}</td>
-                        <td>${item.categoria || '-'}</td>
-                        <td><span class="badge ${item.tipo.toLowerCase()}">${item.tipo}</span></td>
-                        
-                        <td style="color: ${item.tipo === 'RECEITA' ? 'green' : 'red'}; font-weight: bold;">
-                            ${item.tipo === 'DESPESA' ? '- ' : ''}${formatarMoeda(item.valor)}
-                        </td>
-                        
                         <td>
-                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar" title="Estornar Lançamento"><i class="fas fa-trash"></i></button>
+                            <strong>${item.descricao}</strong>
+                            <div style="font-size: 12px; color: #666;">${item.categoria || 'Geral'}</div>
+                        </td>
+                        <td style="font-size: 13px;">
+                            <i class="fas fa-university"></i> ${nomeBanco}<br>
+                            <i class="fas fa-money-bill-wave"></i> ${formaPagto}
+                        </td>
+                        <td style="color: ${corValor}; font-weight: bold;">
+                            ${sinal}${formatarMoeda(item.valor)}
+                        </td>
+                        <td>
+                            <span class="badge" style="background:${item.status === 'PAGO' ? '#c6f6d5' : '#fed7d7'}; color:${item.status === 'PAGO' ? '#22543d' : '#742a2a'}">
+                                ${item.status}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
 
-            // Atualiza o total lá embaixo
-            document.getElementById('total-movimento').innerText = formatarMoeda(totalCalculado);
-            
-            // Muda a cor do total se for negativo
-            if(totalCalculado < 0) document.getElementById('total-movimento').style.color = 'red';
-            else document.getElementById('total-movimento').style.color = 'green';
+            // Atualiza Rodapé
+            const elTotal = document.getElementById('total-movimento');
+            elTotal.innerText = formatarMoeda(totalCalculado);
+            elTotal.style.color = totalCalculado >= 0 ? 'green' : 'red';
         }
 
         async function deletar(id) {

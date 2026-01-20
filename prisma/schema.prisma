@@ -49,12 +49,19 @@ model Usuario {
 
 // Aqui definimos a tabela de Bancos
 model Banco {
-  id        String   @id @default(uuid())
-  nome      String   // Ex: Nubank, Carteira, Cofre
-  cor       String   @default("#000000") // Para ficar bonito no card
-  usuarioId String
-  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
-  transacoes Transacao[]
+  id           String   @id @default(uuid())
+  nome         String
+  cor          String   @default("#000000")
+  usuarioId    String
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
+  transacoes   Transacao[]
+
+  // NOVOS CAMPOS
+  agencia      String?  // Pode ser nulo (opcional)
+  conta        String?
+  saldoInicial Float    @default(0)
+  dataSaldo    DateTime @default(now())
+  inativo      Boolean  @default(false) // false = Ativo, true = Inativo
 
   @@map("bancos")
 }
