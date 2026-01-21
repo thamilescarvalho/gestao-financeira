@@ -151,7 +151,7 @@
         async function carregar() {
             if(!usuario) return;
             // Filtra por usuarioId
-            const res = await fetch(`http://localhost:3000/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}`);
+            const res = await fetch(`/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}`);
             const dados = await res.json();
             
             const lista = document.getElementById('lista');
@@ -191,7 +191,7 @@
 
             if(!dados.descricao || !dados.valor) return alert("Preencha descrição e valor!");
 
-            await fetch('http://localhost:3000/transacoes', {
+            await fetch('/transacoes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dados)
@@ -203,14 +203,14 @@
         
         async function receber(id) {
             if(confirm('Confirmar recebimento?')) {
-                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' });
+                await fetch(`/transacoes/${id}`, { method: 'PATCH' });
                 carregar();
             }
         }
 
         async function deletar(id) {
             if(confirm('Apagar lançamento?')) {
-                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
+                await fetch(`/transacoes/${id}`, { method: 'DELETE' });
                 carregar();
             }
         }

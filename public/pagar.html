@@ -220,7 +220,7 @@
             }
 
             try {
-                const url = `http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`;
+                const url = `/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`;
                 const res = await fetch(url);
                 
                 if (!res.ok) throw new Error(`Erro no servidor: ${res.status}`);
@@ -302,7 +302,7 @@
                 return alert("Erro: O campo Fornecedor e o Valor são obrigatórios!");
             }
 
-            await fetch('http://localhost:3000/transacoes', {
+            await fetch('/transacoes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dados)
@@ -338,7 +338,7 @@
         async function carregarSelectBancos() {
             const select = document.getElementById('baixaBanco');
             select.innerHTML = '<option value="">Selecione o Banco...</option>';
-            const res = await fetch(`http://localhost:3000/bancos?usuarioId=${usuario.id}`);
+            const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
             const bancos = await res.json();
             bancos.forEach(b => {
                 select.innerHTML += `<option value="${b.id}">${b.nome}</option>`;
@@ -365,7 +365,7 @@
 
             if(!bancoId) return alert("Selecione o Banco de onde saiu o dinheiro!");
 
-            await fetch(`http://localhost:3000/transacoes/${id}/pagar`, {
+            await fetch(`/transacoes/${id}/pagar`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ bancoId, dataPagamento, juros, desconto, valorFinal })
@@ -377,7 +377,7 @@
 
         async function deletar(id) {
             if(confirm("Deseja realmente excluir esta conta?")) {
-                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
+                await fetch(`/transacoes/${id}`, { method: 'DELETE' });
                 carregar();
             }
         }

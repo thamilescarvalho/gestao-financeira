@@ -69,7 +69,7 @@
         async function carregar() {
             // Traz TUDO (Receitas e Despesas, Pagas e Pendentes)
             // Se quiser filtrar só o que foi PAGO, use: .../transacoes?status=PAGO
-            const res = await fetch('http://localhost:3000/transacoes');
+            const res = await fetch('/transacoes');
             const dados = await res.json();
             
             const lista = document.getElementById('lista');
@@ -130,7 +130,7 @@
 
         async function deletar(id) {
             if(confirm('Tem certeza que deseja apagar esse registro histórico?')) {
-                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
+                await fetch(`/transacoes/${id}`, { method: 'DELETE' });
                 carregar();
             }
         }

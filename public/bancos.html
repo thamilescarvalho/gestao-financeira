@@ -162,7 +162,7 @@
         async function carregarBancos() {
             if(!usuario || !usuario.id) return;
 
-            const res = await fetch(`http://localhost:3000/bancos?usuarioId=${usuario.id}`);
+            const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
             bancosGlobais = await res.json(); // Salva na variável global
             
             const lista = document.getElementById('lista-bancos');
@@ -220,12 +220,12 @@
             // Se tiver cor aleatória (só para novos)
             if(!idEdicao) dados.cor = '#' + Math.floor(Math.random()*16777215).toString(16);
 
-            let url = 'http://localhost:3000/bancos';
+            let url = '/bancos';
             let metodo = 'POST';
 
             // SE TEM ID, MUDA PARA MODO EDIÇÃO (PUT)
             if (idEdicao) {
-                url = `http://localhost:3000/bancos/${idEdicao}`;
+                url = `/bancos/${idEdicao}`;
                 metodo = 'PUT';
             }
 
@@ -241,7 +241,7 @@
 
         async function deletar(id) {
             if(confirm("Apagar este banco e todo o histórico dele?")) {
-                await fetch(`http://localhost:3000/bancos/${id}`, { method: 'DELETE' });
+                await fetch(`/bancos/${id}`, { method: 'DELETE' });
                 carregarBancos();
             }
         }

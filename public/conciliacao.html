@@ -75,7 +75,7 @@
             try {
                 const dadosBanco = JSON.parse(jsonTexto); // Transforma texto em Objeto
                 
-                const res = await fetch('http://localhost:3000/conciliacao', {
+                const res = await fetch('/conciliacao', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(dadosBanco)

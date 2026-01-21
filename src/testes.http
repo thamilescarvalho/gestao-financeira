@@ -1,5 +1,5 @@
 ### ROTA 1: Criar uma conta a receber (Salário)
-POST http://localhost:3000/transacoes
+POST /transacoes
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ### ROTA 2: Criar uma conta a pagar (Internet)
-POST http://localhost:3000/transacoes
+POST /transacoes
 Content-Type: application/json
 
 {
@@ -21,35 +21,35 @@ Content-Type: application/json
 }
 
 ### ROTA 3: Listar todas as transações
-GET http://localhost:3000/transacoes
+GET /transacoes
 
 ### ROTA 4: Baixar uma conta (Marcar como PAGO)
-PATCH http://localhost:3000/transacoes/297c62b1-19ed-43a6-bb45-fcf21c20494f
+PATCH /transacoes/297c62b1-19ed-43a6-bb45-fcf21c20494f
 
 ### ROTA 5: Deletar uma conta
-DELETE http://localhost:3000/transacoes/297c62b1-19ed-43a6-bb45-fcf21c20494f
+DELETE /transacoes/297c62b1-19ed-43a6-bb45-fcf21c20494f
 
 ### ROTA 6: Ver Resumo (Saldo)
-GET http://localhost:3000/resumo
+GET /resumo
 
 
 ### SIMULAÇÃO 1: Clique na aba "Contas a Pagar"
 # O sistema deve trazer apenas DESPESAS que estão PENDENTES
-GET http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE
+GET /transacoes?tipo=DESPESA&status=PENDENTE
 
 ### SIMULAÇÃO 2: Clique na aba "Contas a Receber"
 # O sistema deve trazer apenas RECEITAS (Salários, vendas) PENDENTES
-GET http://localhost:3000/transacoes?tipo=RECEITA&status=PENDENTE
+GET /transacoes?tipo=RECEITA&status=PENDENTE
 
 ### SIMULAÇÃO 3: Clique na aba "Movimento Financeiro" (Extrato)
 # Aqui queremos ver tudo que já foi PAGO ou RECEBIDO de fato
-GET http://localhost:3000/transacoes?status=PAGO
+GET /transacoes?status=PAGO
 
 ### SIMULAÇÃO 4: Ver tudo (Sem filtros)
-GET http://localhost:3000/transacoes
+GET /transacoes
 
 ### PREPARAÇÃO: Criar conta pendente para teste
-POST http://localhost:3000/transacoes
+POST /transacoes
 Content-Type: application/json
 
 {
@@ -60,7 +60,7 @@ Content-Type: application/json
 }
 
 ### SIMULAÇÃO: O Robô de Conciliação
-POST http://localhost:3000/conciliacao
+POST /conciliacao
 Content-Type: application/json
 
 [

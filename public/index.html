@@ -97,7 +97,7 @@
 
         async function carregarResumo() {
             try {
-                const resposta = await fetch('http://localhost:3000/resumo');
+                const resposta = await fetch('/resumo');
                 const dados = await resposta.json();
 
                 document.getElementById('valor-receitas').innerText = formatarMoeda(dados.receitas);
@@ -111,7 +111,7 @@
         async function carregarLista() {
             try {
                 // Pega as últimas 5 transações
-                const resposta = await fetch('http://localhost:3000/transacoes');
+                const resposta = await fetch('/transacoes');
                 const dados = await resposta.json();
                 
                 const tabela = document.getElementById('lista-transacoes');
