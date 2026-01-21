@@ -2,141 +2,265 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Extrato - Movimento</title>
+    <title>Movimentação Financeira</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
     <script src="auth.js"></script>
-    <script src="script.js"></script> </head>
+    <script src="script.js"></script> 
+
+    <style>
+        /* --- ESTILOS ESPECÍFICOS DA IMAGEM --- */
+        
+        .content { padding: 30px; }
+
+        /* Cabeçalho: Título + Abas + Botões */
+        .header-top {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 20px;
+        }
+
+        .title-group { display: flex; align-items: baseline; gap: 25px; }
+        .title-group h1 { font-size: 26px; color: #1a202c; margin: 0; font-weight: 700; }
+
+        /* Abas (Entradas | Saídas | Transferências) */
+        .nav-tabs a {
+            text-decoration: none; color: #718096; font-weight: 600; font-size: 15px;
+            margin-right: 20px; padding-bottom: 5px; transition: 0.2s;
+            border-bottom: 2px solid transparent; cursor: pointer;
+        }
+        .nav-tabs a:hover { color: #2d3748; }
+        .nav-tabs a.active {
+            color: #ed8936; /* Laranja da imagem */
+            border-bottom-color: #ed8936;
+        }
+
+        /* Botões */
+        .btn-importar {
+            background: #edf2f7; color: #4a5568; border: none; padding: 10px 20px;
+            border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-novo {
+            background: #ed8936; /* Laranja */
+            color: white; border: none; padding: 10px 25px;
+            border-radius: 6px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 2px 5px rgba(237, 137, 54, 0.3);
+        }
+        .btn-novo:hover { background: #dd6b20; }
+
+        /* Barra de Filtros (Cinza arredondada) */
+        .filter-bar {
+            background-color: #f7fafc; 
+            border: 1px solid #edf2f7;
+            border-radius: 10px;
+            padding: 12px 20px;
+            display: flex; align-items: center; gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .total-box {
+            background: white; border: 1px solid #e2e8f0; border-radius: 20px;
+            padding: 5px 15px; font-size: 14px; color: #4a5568; font-weight: bold;
+        }
+
+        .filter-actions { display: flex; gap: 15px; margin-left: 10px; color: #718096; }
+        .filter-actions i { cursor: pointer; transition: 0.2s; font-size: 16px; }
+        .filter-actions i:hover { color: #2d3748; }
+
+        /* Tabela Estilo Clean */
+        .table-custom { width: 100%; border-collapse: collapse; }
+        .table-custom th {
+            text-align: left; color: #4a5568; font-weight: 700; font-size: 14px;
+            padding: 15px 10px; border-bottom: 2px solid #edf2f7;
+        }
+        .table-custom td {
+            padding: 15px 10px; color: #2d3748; font-size: 14px;
+            border-bottom: 1px solid #edf2f7; vertical-align: middle;
+        }
+        .table-custom tr:hover { background-color: #fffaf0; } /* Hover laranja bem claro */
+
+        /* Colunas específicas */
+        .col-cliente { font-weight: 500; color: #2d3748; }
+        .col-valor { font-weight: 600; }
+        .col-desc { color: #718096; }
+        
+        .action-btn { 
+            background: #edf2f7; width: 30px; height: 30px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            border: none; cursor: pointer; color: #718096; 
+        }
+        .action-btn:hover { background: #e2e8f0; color: #c53030; }
+    </style>
+</head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
-
     <div class="overlay" onclick="toggleMenu()"></div>
 
     <nav class="navbar">
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">Extrato Financeiro</div>
+        <div class="logo">TG GESTÃO</div>
         <div></div>
     </nav>
 
     <div class="content">
-        <div class="header">
-            <div style="display: flex; align-items: center;">
-                <a href="index.html" class="btn-voltar" title="Voltar">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <h1>📜 Movimentações</h1>
+        
+        <div class="header-top">
+            <div class="title-group">
+                <h1>Movimentação Financeira</h1>
+                <div class="nav-tabs">
+                    <a onclick="filtrar('TODOS', this)" class="active">Todas</a> <a onclick="filtrar('RECEITA', this)">Entradas</a>
+                    <a onclick="filtrar('DESPESA', this)">Saídas</a>
+                    <a onclick="alert('Em breve!')">Transferências</a>
+                </div>
             </div>
             
-            <button onclick="window.print()" class="btn-acao" style="background-color: #718096; width: auto;">
-                <i class="fas fa-print"></i> Imprimir
-            </button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-importar" onclick="window.print()">
+                    <i class="fas fa-file-import"></i> Importar
+                </button>
+                <button class="btn-novo" onclick="location.href='receber.html'">
+                    Novo
+                </button>
+            </div>
         </div>
 
-        <table>
+        <div class="filter-bar">
+            <div class="total-box">
+                Total: <span id="total-display">R$ 0,00</span>
+            </div>
+            
+            <div class="filter-actions">
+                <i class="far fa-calendar-alt" title="Data"></i>
+                <i class="far fa-user" title="Cliente"></i>
+                <i class="fas fa-chart-line" title="Gráfico"></i>
+                <i class="fas fa-dollar-sign" title="Financeiro"></i>
+                <i class="fas fa-university" title="Banco"></i>
+                <i class="fas fa-font" title="Texto"></i>
+            </div>
+        </div>
+
+        <table class="table-custom">
             <thead>
                 <tr>
+                    <th style="width: 35%;">Cliente</th>
+                    <th>Banco</th>
                     <th>Data</th>
-                    <th>Descrição</th>
-                    <th>Detalhes</th> 
                     <th>Valor</th>
-                    <th>Status</th>
-                    <th>Ações</th>
+                    <th>Descrição</th>
+                    <th style="text-align: center;">Ações</th>
                 </tr>
             </thead>
             <tbody id="lista">
                 </tbody>
-            <tfoot>
-                <tr style="background-color: #f8f9fa; font-weight: bold;">
-                    <td colspan="3" style="text-align: right;">SALDO DO PERÍODO:</td>
-                    <td id="total-movimento">R$ 0,00</td>
-                    <td colspan="2"></td>
-                </tr>
-            </tfoot>
         </table>
+
     </div>
 
     <script>
-        // toggleMenu e formatarMoeda já vêm do script.js global!
+        // Variável para guardar os dados e não precisar recarregar do servidor ao filtrar
+        let transacoesCache = [];
+
+        // Inicia carregando os dados
+        document.addEventListener('DOMContentLoaded', carregar);
 
         async function carregar() {
-            // Busca transações (Caminho relativo para funcionar no Render)
-            const res = await fetch('/transacoes');
-            const dados = await res.json();
-            
-            const lista = document.getElementById('lista');
-            lista.innerHTML = '';
+            try {
+                // Busca todas as transações
+                const res = await fetch('/transacoes');
+                const dados = await res.json();
+                
+                transacoesCache = dados; // Salva na memória
+                renderizarTabela(dados); // Desenha na tela
+            } catch (erro) {
+                console.error("Erro ao carregar dados:", erro);
+                document.getElementById('lista').innerHTML = '<tr><td colspan="6">Erro ao carregar dados. Verifique o servidor.</td></tr>';
+            }
+        }
 
-            let totalCalculado = 0;
+        function renderizarTabela(listaDados) {
+            const tbody = document.getElementById('lista');
+            tbody.innerHTML = ''; // Limpa a tabela
+            let total = 0;
 
-            dados.forEach(item => {
-                // Cálculo do Total (Só soma se estiver PAGO)
-                if(item.status === 'PAGO') {
-                    if(item.tipo === 'RECEITA') totalCalculado += item.valor;
-                    else totalCalculado -= item.valor;
-                }
+            if (listaDados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #999;">Nenhum registro encontrado.</td></tr>';
+                document.getElementById('total-display').innerText = 'R$ 0,00';
+                return;
+            }
 
-                // Data Inteligente: Usa Pagamento -> Vencimento -> Criação
+            listaDados.forEach(item => {
+                // Lógica de Soma (Considera apenas PAGOS para o saldo real, ou todos para previsão? A imagem sugere Saldo Real)
+                // Vou somar tudo que está visível para bater com o "Total" da barra
+                const valorNum = parseFloat(item.valor);
+                if(item.tipo === 'RECEITA') total += valorNum;
+                else total -= valorNum;
+
+                // 1. Data Inteligente
                 const dataRef = item.dataPagamento || item.dataVencimento || item.data;
                 const dataFormatada = new Date(dataRef).toLocaleDateString('pt-BR');
 
-                // Tenta pegar o nome do banco (se existir)
+                // 2. Cliente (Lógica de Fallback para não ficar vazio)
+                // Se não tiver fornecedor, usa a descrição. Se não tiver descrição, usa "Sem Nome"
+                let nomeCliente = item.fornecedor || item.descricao || "Consumidor Final";
+                // Limpa o nome se for muito longo ou tiver detalhes entre parenteses
+                if(nomeCliente.includes('(')) nomeCliente = nomeCliente.split('(')[0];
+
+                // 3. Banco
                 const nomeBanco = item.banco ? item.banco.nome : '-';
-                const formaPagto = item.formaPagamento || 'Outros';
 
-                // Cor do Valor e Badge
-                const corValor = item.tipo === 'RECEITA' ? 'green' : '#c53030';
-                const sinal = item.tipo === 'DESPESA' ? '- ' : '';
-                
-                // Estilo da Badge (Etiqueta)
-                const bgBadge = item.status === 'PAGO' ? '#c6f6d5' : '#fed7d7';
-                const colorBadge = item.status === 'PAGO' ? '#22543d' : '#742a2a';
+                // 4. Descrição (Categoria)
+                const textoDescricao = item.categoria || 'Geral';
 
-                lista.innerHTML += `
+                // 5. Cor do Valor (Preto para tudo ou Verde/Vermelho?)
+                // A imagem mostra preto, mas para facilitar vou colocar cinza escuro
+                const corValor = item.tipo === 'RECEITA' ? '#2d3748' : '#c53030'; // Receita Preto, Despesa Vermelho discreto
+
+                tbody.innerHTML += `
                     <tr>
+                        <td class="col-cliente">${nomeCliente.toUpperCase()}</td>
+                        <td>${nomeBanco}</td>
                         <td>${dataFormatada}</td>
-                        <td>
-                            <strong>${item.descricao}</strong>
-                            <div style="font-size: 12px; color: #666;">${item.categoria || 'Geral'}</div>
+                        <td class="col-valor" style="color: ${corValor}">
+                            ${formatarMoeda(item.valor)}
                         </td>
-                        <td style="font-size: 13px;">
-                            <i class="fas fa-university"></i> ${nomeBanco}<br>
-                            <i class="fas fa-money-bill-wave"></i> ${formaPagto}
-                        </td>
-                        <td style="color: ${corValor}; font-weight: bold;">
-                            ${sinal}${formatarMoeda(item.valor)}
-                        </td>
-                        <td>
-                            <span class="badge" style="background:${bgBadge}; color:${colorBadge}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                                ${item.status}
-                            </span>
-                        </td>
-                        <td>
-                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar" style="color: #e53e3e; background: none; border: none; cursor: pointer;" title="Apagar">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <td class="col-desc">${textoDescricao}</td>
+                        <td style="text-align: center;">
+                            <div style="display:flex; justify-content:center; gap:5px;">
+                                <button class="action-btn" onclick="deletar('${item.id}')" title="Excluir">
+                                    <i class="fas fa-trash-alt" style="font-size: 12px;"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
 
-            // Atualiza Rodapé
-            const elTotal = document.getElementById('total-movimento');
-            elTotal.innerText = formatarMoeda(totalCalculado);
-            elTotal.style.color = totalCalculado >= 0 ? 'green' : 'red';
+            // Atualiza o Total lá em cima
+            document.getElementById('total-display').innerText = formatarMoeda(total);
         }
 
-        async function deletar(id) {
-            if(confirm('Tem certeza que deseja apagar esse registro histórico?')) {
-                await fetch(`/transacoes/${id}`, { method: 'DELETE' });
-                carregar();
+        // Função de Filtrar (Abas)
+        function filtrar(tipo, elemento) {
+            // Atualiza a classe 'active' nas abas
+            document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
+            elemento.classList.add('active');
+
+            if(tipo === 'TODOS') {
+                renderizarTabela(transacoesCache);
+            } else {
+                const filtrados = transacoesCache.filter(t => t.tipo === tipo);
+                renderizarTabela(filtrados);
             }
         }
 
-        // Inicia
-        document.addEventListener('DOMContentLoaded', carregar);
+        async function deletar(id) {
+            if(confirm('Tem certeza que deseja remover este lançamento?')) {
+                await fetch(`/transacoes/${id}`, { method: 'DELETE' });
+                carregar(); // Recarrega a lista
+            }
+        }
     </script>
 </body>
 </html>
