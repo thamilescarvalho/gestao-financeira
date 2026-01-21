@@ -6,68 +6,80 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="auth.js"></script>
-    <style>
-        /* Estilo do Modal (Janela Flutuante) */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: white; padding: 25px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal h2 { margin-top: 0; color: #c53030; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        
-        .form-row { display: flex; gap: 10px; }
-        .form-row .form-group { flex: 1; }
-
-        .btn-salvar { background: #c53030; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .btn-cancelar { background: #ccc; color: #333; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 10px; }
-    </style>
 </head>
 <body>
+    
+    <div class="sidebar" id="sidebar">
+        <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
+        <hr>
+        <a href="index.html" id="link-index"><i class="fas fa-home"></i> Visão Geral</a>
+        <a href="bancos.html" id="link-bancos"><i class="fas fa-wallet"></i> Meus Bancos</a>
+        <a href="receber.html" id="link-receber"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
+        <a href="pagar.html" id="link-pagar" class="ativo"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
+        <a href="movimento.html" id="link-movimento"><i class="fas fa-list"></i> Extrato</a>
+        <a href="conciliacao.html" id="link-conciliacao"><i class="fas fa-search-dollar"></i> Conciliação</a>
+        <hr>
+        <a href="#" onclick="sair()" style="color: #c53030; font-weight: bold; margin-top: auto;">
+            <i class="fas fa-sign-out-alt"></i> Sair do Sistema
+        </a>
+    </div>
+
     <div class="overlay" onclick="toggleMenu()"></div>
     <nav class="navbar">
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">Contas a Pagar</div>
+        <div class="logo">Financeiro</div>
         <div></div>
     </nav>
-    <div class="sidebar" id="sidebar">
-    <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
-    <hr>
-    <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
-    <a href="bancos.html"><i class="fas fa-wallet"></i> Meus Bancos</a> <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
-    <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
-    <a href="movimento.html"><i class="fas fa-list"></i> Extrato</a>
-    <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
-    <hr>
-    <a href="#" onclick="alert('Editar Perfil em breve!')"><i class="fas fa-user-edit"></i> Editar Perfil</a>
-    <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
-</div>
 
     <div class="content">
-        <div class="header">
-    <div style="display: flex; align-items: center;">
-        <a href="index.html" class="btn-voltar" title="Voltar">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <h1>🔴 Contas a Pagar</h1>
-    </div>
-    
-    <button class="btn-acao btn-add" style="width: auto; background: #c53030;" onclick="abrirModal()">
-        <i class="fas fa-plus"></i> Nova Conta
-    </button>
-</div>
+        
+        <div class="page-header">
+            <div class="page-title">
+                Contas a pagar
+                <span class="tabs-link active">Carteira</span>
+                <span class="tabs-link" onclick="alert('Em breve!')">Agrupamentos</span>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-outline" onclick="alert('Importação OFX/Excel em breve!')">
+                    <i class="fas fa-file-import"></i> Importar
+                </button>
+                <button class="btn-orange" onclick="abrirModal()">
+                    Novo
+                </button>
+                <button class="btn-outline" onclick="abrirModal()" style="color: #f97316; border-color: #f97316;">
+                    Conta rápida <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
 
-        <table>
+        <div class="toolbar">
+            <div class="total-badge">
+                Total: <span id="total-esteira" class="total-valor">R$ 0,00</span>
+            </div>
+
+            <div class="filter-icons">
+                <i class="fas fa-calendar-alt" title="Filtrar Data"></i>
+                <i class="fas fa-gift" title="Categorias"></i>
+                <i class="fas fa-handshake" title="Fornecedores"></i>
+                <i class="fas fa-chart-line" title="Gráficos"></i>
+                <i class="fas fa-print" title="Imprimir" onclick="window.print()"></i>
+            </div>
+        </div>
+
+        <table class="table-clean">
             <thead>
                 <tr>
-                    <th>Vencimento</th>
                     <th>Fornecedor</th>
-                    <th>Forma Pagto</th>
+                    <th>Parcela</th>
+                    <th>Vencimento</th>
                     <th>Valor</th>
+                    <th>Descrição / Categoria</th>
                     <th>Ações</th>
                 </tr>
             </thead>
-            <tbody id="lista"></tbody>
+            <tbody id="lista">
+                </tbody>
         </table>
     </div>
 
@@ -76,14 +88,14 @@
             <h2>Nova Despesa</h2>
             
             <div class="form-group">
-                <label>Fornecedor / Descrição</label>
-                <input type="text" id="desc" placeholder="Ex: Fornecedor XYZ">
+                <label>Fornecedor</label>
+                <input type="text" id="desc" placeholder="Ex: Agência Marketing">
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>Valor (R$)</label>
-                    <input type="number" id="valor" step="0.01">
+                    <input type="number" id="valor" step="0.01" placeholder="0,00">
                 </div>
                 <div class="form-group">
                     <label>Parcelas</label>
@@ -103,61 +115,98 @@
             </div>
 
             <div class="form-group">
+                <label>Categoria</label>
+                <select id="categoria">
+                    <option value="Geral">Geral</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Infraestrutura">Infraestrutura</option>
+                    <option value="Pessoal">Pessoal</option>
+                    <option value="Impostos">Impostos</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label>Forma de Pagamento</label>
                 <select id="formaPagto">
                     <option value="Boleto">Boleto Bancário</option>
                     <option value="Pix">Pix</option>
                     <option value="Cartão Crédito">Cartão de Crédito</option>
                     <option value="Transferência">Transferência</option>
-                    <option value="Dinheiro">Dinheiro</option>
                 </select>
             </div>
 
-            <button class="btn-salvar" onclick="salvarConta()">SALVAR CONTA</button>
-            <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-orange" onclick="salvarConta()">SALVAR CONTA</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // 1. Configura datas iniciais
         document.getElementById('dataComp').valueAsDate = new Date();
         document.getElementById('dataVenc').valueAsDate = new Date();
-
-        // 2. Pega o usuário logado (ESSENCIAL)
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
-
+        
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
-        function abrirModal() { document.getElementById('modalConta').style.display = 'flex'; }
+        function abrirModal() { document.getElementById('modalConta').style.display = 'flex';}
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
-
+        
         async function carregar() {
-            if(!usuario) return; // Segurança extra
+            if(!usuario) return;
 
-            // Filtra também pelo usuarioId
+            // Busca despesas pendentes
             const res = await fetch(`http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`);
             const dados = await res.json();
             
             const lista = document.getElementById('lista');
             lista.innerHTML = '';
+            
+            let somaTotal = 0;
 
             dados.forEach(item => {
+                somaTotal += Number(item.valor);
+
                 const vencimento = item.dataVencimento ? new Date(item.dataVencimento) : new Date(item.data);
                 
+                // Tenta extrair numero da parcela da descrição se existir " (1/3)"
+                let parcelaTexto = 'Unica';
+                let fornecedorTexto = item.descricao;
+                
+                if(item.descricao.includes('(') && item.descricao.includes('/')) {
+                    const partes = item.descricao.split(' (');
+                    fornecedorTexto = partes[0]; // Pega só o nome
+                    parcelaTexto = partes[1].replace(')', ''); // Pega "1/3"
+                }
+
                 lista.innerHTML += `
                     <tr>
-                        <td>${vencimento.toLocaleDateString('pt-BR')}</td>
-                        <td>${item.descricao}</td>
-                        <td>${item.formaPagamento || '-'}</td>
-                        <td style="color: #c53030; font-weight: bold;">
-                            ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valor)}
+                        <td style="font-weight: 500;">
+                            ${fornecedorTexto} 
+                            <i class="fas fa-external-link-alt text-muted" style="font-size: 10px; margin-left: 5px;"></i>
                         </td>
+                        <td class="text-muted">${parcelaTexto}</td>
                         <td>
-                            <button onclick="baixar('${item.id}')" class="btn-acao btn-pagar" title="Pagar"><i class="fas fa-check"></i></button>
-                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar"><i class="fas fa-trash"></i></button>
+                            ${vencimento.toLocaleDateString('pt-BR')} 
+                            <i class="fas fa-pencil-alt text-muted" style="font-size: 10px; cursor: pointer;"></i>
+                        </td>
+                        <td style="font-weight: bold;">
+                            R$ ${item.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
+                        </td>
+                        <td class="text-muted">${item.categoria || 'Geral'}</td>
+                        <td>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <span class="status-dot"></span>
+                                <i class="fas fa-chevron-down text-muted" style="cursor: pointer;" title="Mais opções"></i>
+                                <button onclick="baixar('${item.id}')" style="border:none; background:none; cursor:pointer; color: green;" title="Pagar"><i class="fas fa-check-circle"></i></button>
+                                <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color: red;" title="Excluir"><i class="fas fa-trash"></i></button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
+
+            // Atualiza o Total da Esteira
+            document.getElementById('total-esteira').innerText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(somaTotal);
         }
 
         async function salvarConta() {
@@ -168,9 +217,9 @@
                 data: document.getElementById('dataComp').value,
                 dataVencimento: document.getElementById('dataVenc').value,
                 formaPagamento: document.getElementById('formaPagto').value,
+                categoria: document.getElementById('categoria').value,
                 tipo: 'DESPESA',
-                categoria: 'Geral',
-                usuarioId: usuario.id // <--- O PULO DO GATO ESTÁ AQUI
+                usuarioId: usuario.id
             };
 
             if(!dados.descricao || !dados.valor) return alert("Preencha fornecedor e valor!");
@@ -185,18 +234,8 @@
             carregar();
         }
         
-        async function baixar(id) {
-            if(confirm('Confirmar pagamento?')) {
-                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' });
-                carregar();
-            }
-        }
-        async function deletar(id) {
-            if(confirm('Apagar conta?')) {
-                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
-                carregar();
-            }
-        }
+        async function baixar(id) { if(confirm('Confirmar pagamento?')) { await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' }); carregar(); } }
+        async function deletar(id) { if(confirm('Apagar conta?')) { await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' }); carregar(); } }
 
         carregar();
     </script>

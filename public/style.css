@@ -63,3 +63,127 @@ body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--l
     background-color: #cbd5e0;
     transform: translateX(-3px);
 }
+/* --- ESTILOS ESTILO "ORGANIZZE/NIBO" --- */
+
+/* Barra de Topo (Título e Abas) */
+.page-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+}
+.page-title { font-size: 28px; font-weight: bold; color: #333; display: flex; align-items: center; gap: 15px; }
+.tabs-link { font-size: 14px; margin-left: 20px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; }
+.tabs-link.active { color: #f97316; border-color: #f97316; font-weight: bold; }
+
+/* Barra de Ferramentas (Total e Filtros) */
+.toolbar {
+    background: #f8f9fa; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px;
+    display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;
+}
+
+.total-badge {
+    background: white; border: 1px solid #cbd5e0; padding: 5px 15px; border-radius: 20px;
+    font-weight: bold; color: #4a5568; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.total-valor { color: #c53030; } /* Vermelho para pagar */
+
+.filter-icons { display: flex; gap: 15px; color: #718096; font-size: 16px; }
+.filter-icons i { cursor: pointer; transition: 0.2s; }
+.filter-icons i:hover { color: #f97316; }
+
+/* Botões Novos */
+.btn-group { display: flex; gap: 10px; }
+
+.btn-outline {
+    background: white; border: 1px solid #cbd5e0; color: #4a5568;
+    padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; transition: 0.2s;
+}
+.btn-outline:hover { background: #f7fafc; border-color: #a0aec0; }
+
+.btn-orange {
+    background: #f97316; border: none; color: white;
+    padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;
+    transition: 0.2s; box-shadow: 0 2px 5px rgba(249, 115, 22, 0.3);
+}
+.btn-orange:hover { background: #ea580c; transform: translateY(-1px); }
+
+/* Tabela Clean */
+.table-clean { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.table-clean th { text-align: left; padding: 15px; color: #4a5568; font-size: 13px; font-weight: bold; border-bottom: 2px solid #edf2f7; background: #fff; }
+.table-clean td { padding: 15px; border-bottom: 1px solid #edf2f7; color: #2d3748; font-size: 14px; vertical-align: middle; }
+.table-clean tr:hover { background-color: #f7fafc; }
+
+.text-muted { color: #a0aec0; font-size: 12px; }
+.status-dot { height: 8px; width: 8px; background-color: #cbd5e0; border-radius: 50%; display: inline-block; margin-right: 5px; }
+
+/* --- ESTILO DO MODAL (POPUP) --- */
+
+/* O Fundo Escuro (Overlay) */
+.modal-overlay {
+    position: fixed; 
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Sombra preta transparente */
+    display: none; /* SEGREDO: Começa invisível! */
+    justify-content: center; 
+    align-items: center; 
+    z-index: 2000; /* Fica em cima de tudo */
+    backdrop-filter: blur(2px); /* Desfoque leve no fundo */
+}
+
+/* A Caixinha Branca */
+.modal {
+    background: white; 
+    padding: 30px; 
+    border-radius: 12px; 
+    width: 90%; 
+    max-width: 500px; 
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: slideDown 0.3s ease-out; /* Efeito de descida suave */
+}
+
+/* Título do Modal */
+.modal h2 {
+    margin-top: 0;
+    color: #ea580c; /* Laranja Escuro */
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+/* Campos do Formulário */
+.form-group { margin-bottom: 15px; }
+.form-group label { 
+    display: block; 
+    font-size: 14px; 
+    font-weight: 600; 
+    color: #374151; 
+    margin-bottom: 5px; 
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    box-sizing: border-box; /* Garante que padding não estoure */
+}
+.form-group input:focus, .form-group select:focus {
+    border-color: #f97316; /* Laranja ao clicar */
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+/* Botões do Rodapé */
+.modal-footer {
+    display: flex; 
+    gap: 10px; 
+    margin-top: 20px; 
+    justify-content: flex-end;
+}
+
+/* Animação */
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
