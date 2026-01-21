@@ -20,6 +20,31 @@
         .form-box.active { display: block; }
 
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        
+        /* --- NOVO: Estilo do Container de Senha --- */
+        .password-container {
+            position: relative;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .password-container input {
+            margin: 0; /* Remove margem do input pois o container já tem */
+            padding-right: 40px; /* Espaço para não digitar em cima do olho */
+        }
+
+        .toggle-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #aaa;
+            font-size: 16px;
+        }
+        .toggle-icon:hover { color: #3182ce; }
+        /* ------------------------------------------ */
+
         button { width: 100%; padding: 12px; background-color: #3182ce; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         button:hover { background-color: #2c5282; }
         
@@ -40,8 +65,14 @@
 
         <div id="login" class="form-box active">
             <h2 style="text-align: center; color: #333;">Bem-vindo</h2>
+            
             <input type="email" id="loginEmail" placeholder="Seu E-mail">
-            <input type="password" id="loginSenha" placeholder="Sua Senha">
+            
+            <div class="password-container">
+                <input type="password" id="loginSenha" placeholder="Sua Senha">
+                <i class="fas fa-eye toggle-icon" onclick="toggleSenha('loginSenha', this)"></i>
+            </div>
+
             <button onclick="fazerLogin()">ENTRAR</button>
             <p id="msgLogin" class="erro"></p>
             
@@ -53,15 +84,36 @@
 
         <div id="cadastro" class="form-box">
             <h2 style="text-align: center; color: #333;">Criar Conta</h2>
+            
             <input type="text" id="cadNome" placeholder="Nome Completo">
             <input type="email" id="cadEmail" placeholder="Seu E-mail">
-            <input type="password" id="cadSenha" placeholder="Crie uma Senha">
+            
+            <div class="password-container">
+                <input type="password" id="cadSenha" placeholder="Crie uma Senha">
+                <i class="fas fa-eye toggle-icon" onclick="toggleSenha('cadSenha', this)"></i>
+            </div>
+
             <button onclick="fazerCadastro()">CADASTRAR</button>
             <p id="msgCadastro" class="sucesso"></p>
         </div>
     </div>
 
     <script>
+        // --- NOVA FUNÇÃO: Alternar visualização da senha ---
+        function toggleSenha(idInput, icone) {
+            const input = document.getElementById(idInput);
+            
+            if (input.type === 'password') {
+                input.type = 'text'; // Mostra senha
+                icone.classList.remove('fa-eye');
+                icone.classList.add('fa-eye-slash'); // Olho cortado
+            } else {
+                input.type = 'password'; // Esconde senha
+                icone.classList.remove('fa-eye-slash');
+                icone.classList.add('fa-eye'); // Olho normal
+            }
+        }
+
         // Troca de Abas
         function abrirAba(aba) {
             document.querySelectorAll('.form-box').forEach(el => el.classList.remove('active'));
@@ -69,7 +121,10 @@
             document.getElementById(aba).classList.add('active');
             
             // Ativa a aba visualmente
-            event.target.classList.add('active');
+            // Correção: usamos event.target com cuidado, ou buscamos pelo texto
+            const abas = document.querySelectorAll('.tab');
+            if(aba === 'login') abas[0].classList.add('active');
+            else abas[1].classList.add('active');
         }
 
         async function fazerCadastro() {
@@ -80,22 +135,31 @@
 
             if(!nome || !email || !senha) return alert("Preencha tudo!");
 
-            const res = await fetch('/registro', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, email, senha })
-            });
-            const dados = await res.json();
-
-            if(dados.erro) {
-                msg.innerText = dados.erro;
-                msg.style.color = 'red';
-            } else {
-                msg.innerText = "Conta criada! Faça login agora.";
-                msg.style.color = 'green';
-                setTimeout(() => abrirAba('login'), 2000); // Vai para login sozinho
-            }
+            // Feedback visual
+            msg.innerText = "Processando...";
             msg.style.display = 'block';
+            msg.style.color = 'blue';
+
+            try {
+                const res = await fetch('/registro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+                const dados = await res.json();
+
+                if(dados.erro) {
+                    msg.innerText = dados.erro;
+                    msg.style.color = 'red';
+                } else {
+                    msg.innerText = "Conta criada! Faça login agora.";
+                    msg.style.color = 'green';
+                    setTimeout(() => abrirAba('login'), 2000); 
+                }
+            } catch (e) {
+                msg.innerText = "Erro ao conectar com servidor.";
+                msg.style.color = 'red';
+            }
         }
 
         async function fazerLogin() {
@@ -103,18 +167,25 @@
             const senha = document.getElementById('loginSenha').value;
             const msg = document.getElementById('msgLogin');
 
-            const res = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, senha })
-            });
-            const dados = await res.json();
+            if(!email || !senha) return alert("Preencha e-mail e senha!");
 
-            if(dados.sucesso) {
-                localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
-                window.location.href = 'index.html';
-            } else {
-                msg.innerText = dados.erro;
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha })
+                });
+                const dados = await res.json();
+
+                if(dados.sucesso) {
+                    localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
+                    window.location.href = 'index.html';
+                } else {
+                    msg.innerText = dados.erro || "Login falhou";
+                    msg.style.display = 'block';
+                }
+            } catch (e) {
+                msg.innerText = "Erro ao conectar.";
                 msg.style.display = 'block';
             }
         }
