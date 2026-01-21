@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="auth.js"></script>
+    <script src="script.js"></script>
     <style>
         /* Estilos específicos para Receita (Verde) */
         .btn-green {
@@ -22,39 +23,7 @@
 </head>
 <body>
     
-    <div class="sidebar" id="sidebar">
-        
-        <div class="sidebar-header">
-            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
-                <i class="fas fa-times"></i> Fechar
-            </a>
-        </div>
-
-        <a href="index.html" class="menu-item">
-            <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
-        </a>
-
-        <div class="menu-item" onclick="toggleSubmenu(this)">
-            <div class="menu-content"><i class="fas fa-cog"></i> Cadastros</div>
-            <i class="fas fa-chevron-down arrow"></i>
-        </div>
-        <div class="submenu">
-            <a href="bancos.html">Meus Bancos</a>
-            </div>
-
-        <div class="menu-item open" onclick="toggleSubmenu(this)"> <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
-            <i class="fas fa-chevron-down arrow"></i>
-        </div>
-        <div class="submenu" style="max-height: 500px;"> <a href="receber.html">Contas a Receber</a>
-            <a href="pagar.html">Contas a Pagar</a>
-            <a href="movimento.html">Extrato / Movimento</a>
-            <a href="conciliacao.html">Conciliação</a>
-        </div>
-
-        <a href="#" onclick="sair()" class="menu-item menu-sair">
-            <div class="menu-content"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</div>
-        </a>
-    </div>
+    <div class="sidebar" id="sidebar"></div>
 
     <div class="overlay" onclick="toggleMenu()"></div>
     <nav class="navbar">
@@ -226,7 +195,7 @@
 
             <div class="modal-footer">
                 <button class="btn-outline" onclick="fecharModalBaixa()">Cancelar</button>
-                <button class="btn-green" onclick="confirmarRecebimento()">CONFIRMAR RECEBIMENTO</button>
+                <button class="btn-green" onclick="confirmarRecebimento()">Confirmar</button>
             </div>
         </div>
     </div>

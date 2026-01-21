@@ -3,78 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <title>Conciliação</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    
     <script src="auth.js"></script>
-    <style>
-        textarea { width: 100%; height: 150px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; font-family: monospace; }
-        .btn-conciliar { background: #3182ce; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+    <script src="script.js"></script> <style>
+        /* Estilos específicos desta página */
+        .conciliacao-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        textarea { 
+            width: 100%; 
+            height: 150px; 
+            padding: 15px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 8px; 
+            margin-bottom: 15px; 
+            font-family: 'Consolas', monospace; 
+            font-size: 14px;
+            color: #4a5568;
+            background-color: #f7fafc;
+            resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #3182ce; background: white; }
+
+        .btn-conciliar { 
+            background: #3182ce; 
+            color: white; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-conciliar:hover { background: #2b6cb0; }
     </style>
 </head>
 <body>
+    
+    <div class="sidebar" id="sidebar"></div>
+
     <div class="overlay" onclick="toggleMenu()"></div>
 
-<nav class="navbar">
-    <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-    <div class="logo">Gestão Financeira</div>
-    <div id="usuarioNome" style="font-size: 12px;">Olá, Usuário</div>
-</nav>
-
-<div class="sidebar" id="sidebar">
-        
-        <div class="sidebar-header">
-            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
-                <i class="fas fa-times"></i> Fechar
-            </a>
-        </div>
-
-        <a href="index.html" class="menu-item">
-            <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
-        </a>
-
-        <div class="menu-item" onclick="toggleSubmenu(this)">
-            <div class="menu-content"><i class="fas fa-cog"></i> Cadastros</div>
-            <i class="fas fa-chevron-down arrow"></i>
-        </div>
-        <div class="submenu">
-            <a href="bancos.html">Meus Bancos</a>
-            </div>
-
-        <div class="menu-item open" onclick="toggleSubmenu(this)"> <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
-            <i class="fas fa-chevron-down arrow"></i>
-        </div>
-        <div class="submenu" style="max-height: 500px;"> <a href="receber.html">Contas a Receber</a>
-            <a href="pagar.html">Contas a Pagar</a>
-            <a href="movimento.html">Extrato / Movimento</a>
-            <a href="conciliacao.html">Conciliação</a>
-        </div>
-
-        <a href="#" onclick="sair()" class="menu-item menu-sair">
-            <div class="menu-content"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</div>
-        </a>
-    </div>
-
-<script>
-    // Script do Menu
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('aberto');
-        document.querySelector('.overlay').classList.toggle('ativo');
-    }
-    
-    // Mostrar nome do usuário logado
-    const user = JSON.parse(localStorage.getItem('usuario_logado'));
-    if(user) document.getElementById('usuarioNome').innerText = 'Olá, ' + user.nome.split(' ')[0];
-</script>
+    <nav class="navbar">
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+        <div class="logo">Financeiro</div>
+        <div></div>
+    </nav>
 
     <div class="content">
-        <h1>🔎 Conciliação Bancária</h1>
-        <p>Cole o JSON do extrato bancário abaixo para verificar:</p>
         
-        <textarea id="jsonInput" placeholder='Exemplo: [{"descricao": "TESTE", "valor": 100, "tipo": "DESPESA"}]'></textarea>
-        <button onclick="conciliar()" class="btn-conciliar">Verificar Extrato</button>
+        <div class="page-header">
+            <div class="page-title">🔎 Conciliação Bancária</div>
+        </div>
 
-        <h3 style="margin-top: 30px">Resultado da Análise</h3>
-        <table>
+        <div class="conciliacao-box">
+            <p style="margin-bottom: 10px; color: #718096;">
+                Cole abaixo o JSON do extrato bancário para comparar com seus lançamentos:
+            </p>
+            
+            <textarea id="jsonInput" placeholder='Exemplo: [{"descricao": "PGTO LUZ", "valor": -100.50, "data": "2024-01-20"}]'></textarea>
+            
+            <button onclick="conciliar()" class="btn-conciliar">
+                <i class="fas fa-search-dollar"></i> Verificar Extrato
+            </button>
+        </div>
+
+        <h3 style="margin-top: 30px; color: #2d3748;">Resultado da Análise</h3>
+        
+        <table class="table-clean" style="margin-top: 15px;">
             <thead>
                 <tr>
                     <th>Item do Banco</th>
@@ -83,19 +87,23 @@
                     <th>Ação Recomendada</th>
                 </tr>
             </thead>
-            <tbody id="resultado"></tbody>
+            <tbody id="resultado">
+                </tbody>
         </table>
     </div>
 
     <script>
-        const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+        // O usuario e funções de menu já vêm do script.js e auth.js
 
         async function conciliar() {
             const jsonTexto = document.getElementById('jsonInput').value;
             
+            if(!jsonTexto.trim()) return alert("Cole o JSON primeiro!");
+
             try {
                 const dadosBanco = JSON.parse(jsonTexto); // Transforma texto em Objeto
                 
+                // Caminho relativo para funcionar no Render
                 const res = await fetch('/conciliacao', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -106,21 +114,40 @@
                 const tabela = document.getElementById('resultado');
                 tabela.innerHTML = '';
 
+                if(relatorio.length === 0) {
+                    tabela.innerHTML = '<tr><td colspan="4" style="text-align:center">Nenhuma divergência encontrada ou JSON vazio.</td></tr>';
+                    return;
+                }
+
                 relatorio.forEach(item => {
-                    const corStatus = item.status_conciliacao === 'ENCONTRADO' ? 'color: green; font-weight: bold' : 'color: orange';
+                    // Define cores baseadas no status
+                    let corStatus = 'color: orange; font-weight: bold;';
+                    let icone = '<i class="fas fa-exclamation-circle"></i>';
                     
+                    if(item.status_conciliacao === 'ENCONTRADO') {
+                        corStatus = 'color: green; font-weight: bold;';
+                        icone = '<i class="fas fa-check-circle"></i>';
+                    } else if (item.status_conciliacao === 'NAO_ENCONTRADO') {
+                        corStatus = 'color: #e53e3e; font-weight: bold;'; // Vermelho
+                        icone = '<i class="fas fa-times-circle"></i>';
+                    }
+
+                    // Usa formatarMoeda global do script.js
+                    const valorFormatado = formatarMoeda(item.valor);
+
                     tabela.innerHTML += `
                         <tr>
                             <td>${item.transacao_banco}</td>
-                            <td>${formatarMoeda(item.valor)}</td>
-                            <td style="${corStatus}">${item.status_conciliacao}</td>
-                            <td>${item.acao_sugerida}</td>
+                            <td>${valorFormatado}</td>
+                            <td style="${corStatus}">${icone} ${item.status_conciliacao}</td>
+                            <td style="color: #4a5568;">${item.acao_sugerida}</td>
                         </tr>
                     `;
                 });
 
             } catch (erro) {
-                alert("Erro no JSON! Verifique se você colou o texto corretamente.");
+                console.error(erro);
+                alert("Erro no JSON! Verifique se você colou o texto corretamente (aspas, vírgulas, etc).");
             }
         }
     </script>

@@ -8,9 +8,7 @@
     <link rel="stylesheet" href="style.css">
     
     <script src="auth.js"></script>
-    <script src="script.js"></script>
-
-    <style>
+    <script src="script.js"></script> <style>
         /* Ajustes específicos do Dashboard */
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 5px solid #ccc; }
@@ -30,41 +28,7 @@
 </head>
 <body>
 
-    <div class="sidebar" id="sidebar">
-        
-        <div class="sidebar-header">
-            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
-                <i class="fas fa-times"></i> Fechar
-            </a>
-        </div>
-
-        <a href="index.html" class="menu-item">
-            <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
-        </a>
-
-        <div class="menu-item" onclick="toggleSubmenu(this)">
-            <div class="menu-content"><i class="fas fa-cog"></i> Cadastros</div>
-            <i class="fas fa-chevron-down arrow"></i>
-        </div>
-        <div class="submenu">
-            <a href="bancos.html">Meus Bancos</a>
-        </div>
-
-        <div class="menu-item" onclick="toggleSubmenu(this)">
-            <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
-            <i class="fas fa-chevron-down arrow"></i>
-        </div>
-        <div class="submenu">
-            <a href="receber.html">Contas a Receber</a>
-            <a href="pagar.html">Contas a Pagar</a>
-            <a href="movimento.html">Extrato / Movimento</a>
-            <a href="conciliacao.html">Conciliação</a>
-        </div>
-
-        <a href="#" onclick="sair()" class="menu-item menu-sair">
-            <div class="menu-content"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</div>
-        </a>
-    </div>
+    <div class="sidebar" id="sidebar"></div>
 
     <div class="overlay" onclick="toggleMenu()"></div>
 
@@ -111,15 +75,14 @@
         if(user) document.getElementById('usuarioNome').innerText = 'Olá, ' + user.nome.split(' ')[0];
 
         // --- LÓGICA DO DASHBOARD ---
-        // (Nota: toggleMenu e formatarMoeda agora vêm do script.js global!)
-
+        
         async function carregarResumo() {
             try {
                 // Caminho Relativo (Universal)
                 const resposta = await fetch('/resumo');
                 const dados = await resposta.json();
 
-                // Usa a função global do script.js
+                // 'formatarMoeda' agora vem do script.js
                 document.getElementById('valor-receitas').innerText = formatarMoeda(dados.receitas);
                 document.getElementById('valor-despesas').innerText = formatarMoeda(dados.despesas);
                 document.getElementById('valor-saldo').innerText = formatarMoeda(dados.saldo);
@@ -164,8 +127,10 @@
         }
 
         // Inicia tudo
-        carregarResumo();
-        carregarLista();
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarResumo();
+            carregarLista();
+        });
     </script>
 </body>
 </html>

@@ -3,50 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Extrato - Movimento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    
     <script src="auth.js"></script>
-</head>
+    <script src="script.js"></script> </head>
 <body>
+    
+    <div class="sidebar" id="sidebar"></div>
+
     <div class="overlay" onclick="toggleMenu()"></div>
+
     <nav class="navbar">
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
         <div class="logo">Extrato Financeiro</div>
         <div></div>
     </nav>
-    <div class="sidebar" id="sidebar">
-        
-        <div class="sidebar-header">
-            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
-                <i class="fas fa-times"></i> Fechar
-            </a>
-        </div>
-
-        <a href="index.html" class="menu-item">
-            <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
-        </a>
-
-        <div class="menu-item" onclick="toggleSubmenu(this)">
-            <div class="menu-content"><i class="fas fa-cog"></i> Cadastros</div>
-            <i class="fas fa-chevron-down arrow"></i>
-        </div>
-        <div class="submenu">
-            <a href="bancos.html">Meus Bancos</a>
-            </div>
-
-        <div class="menu-item open" onclick="toggleSubmenu(this)"> <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
-            <i class="fas fa-chevron-down arrow"></i>
-        </div>
-        <div class="submenu" style="max-height: 500px;"> <a href="receber.html">Contas a Receber</a>
-            <a href="pagar.html">Contas a Pagar</a>
-            <a href="movimento.html">Extrato / Movimento</a>
-            <a href="conciliacao.html">Conciliação</a>
-        </div>
-
-        <a href="#" onclick="sair()" class="menu-item menu-sair">
-            <div class="menu-content"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</div>
-        </a>
-    </div>
 
     <div class="content">
         <div class="header">
@@ -67,12 +40,14 @@
                 <tr>
                     <th>Data</th>
                     <th>Descrição</th>
-                    <th>Detalhes</th> <th>Valor</th>
+                    <th>Detalhes</th> 
+                    <th>Valor</th>
                     <th>Status</th>
                     <th>Ações</th>
                 </tr>
             </thead>
-            <tbody id="lista"></tbody>
+            <tbody id="lista">
+                </tbody>
             <tfoot>
                 <tr style="background-color: #f8f9fa; font-weight: bold;">
                     <td colspan="3" style="text-align: right;">SALDO DO PERÍODO:</td>
@@ -84,12 +59,10 @@
     </div>
 
     <script>
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
-        const formatarMoeda = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+        // toggleMenu e formatarMoeda já vêm do script.js global!
 
         async function carregar() {
-            // Traz TUDO (Receitas e Despesas, Pagas e Pendentes)
-            // Se quiser filtrar só o que foi PAGO, use: .../transacoes?status=PAGO
+            // Busca transações (Caminho relativo para funcionar no Render)
             const res = await fetch('/transacoes');
             const dados = await res.json();
             
@@ -113,9 +86,13 @@
                 const nomeBanco = item.banco ? item.banco.nome : '-';
                 const formaPagto = item.formaPagamento || 'Outros';
 
-                // Cor do Valor
+                // Cor do Valor e Badge
                 const corValor = item.tipo === 'RECEITA' ? 'green' : '#c53030';
                 const sinal = item.tipo === 'DESPESA' ? '- ' : '';
+                
+                // Estilo da Badge (Etiqueta)
+                const bgBadge = item.status === 'PAGO' ? '#c6f6d5' : '#fed7d7';
+                const colorBadge = item.status === 'PAGO' ? '#22543d' : '#742a2a';
 
                 lista.innerHTML += `
                     <tr>
@@ -132,12 +109,14 @@
                             ${sinal}${formatarMoeda(item.valor)}
                         </td>
                         <td>
-                            <span class="badge" style="background:${item.status === 'PAGO' ? '#c6f6d5' : '#fed7d7'}; color:${item.status === 'PAGO' ? '#22543d' : '#742a2a'}">
+                            <span class="badge" style="background:${bgBadge}; color:${colorBadge}; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
                                 ${item.status}
                             </span>
                         </td>
                         <td>
-                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar"><i class="fas fa-trash"></i></button>
+                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar" style="color: #e53e3e; background: none; border: none; cursor: pointer;" title="Apagar">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -156,7 +135,8 @@
             }
         }
 
-        carregar();
+        // Inicia
+        document.addEventListener('DOMContentLoaded', carregar);
     </script>
 </body>
 </html>

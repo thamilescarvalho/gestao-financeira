@@ -202,15 +202,29 @@ body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--l
 }
 
 /* A Caixinha Branca */
+/* --- ESTILO DO MODAL (ATUALIZADO PARA ROLAGEM) --- */
+
 .modal {
     background: white; 
     padding: 30px; 
     border-radius: 12px; 
     width: 90%; 
     max-width: 500px; 
+    
+    /* --- O SEGREDO DA ROLAGEM ESTÁ AQUI --- */
+    max-height: 90vh; /* Ocupa no máximo 90% da altura da tela */
+    overflow-y: auto; /* Se passar disso, cria barra de rolagem SÓ no modal */
+    position: relative; /* Para garantir posicionamento */
+    
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    animation: slideDown 0.3s ease-out; /* Efeito de descida suave */
+    animation: slideDown 0.3s ease-out;
 }
+
+/* Opcional: Deixar a barra de rolagem mais bonita e discreta */
+.modal::-webkit-scrollbar { width: 8px; }
+.modal::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
+.modal::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 8px; }
+.modal::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
 /* Título do Modal */
 .modal h2 {
