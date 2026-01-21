@@ -324,6 +324,58 @@ app.delete('/bancos/:id', async (req, res) => {
     return res.status(200).send();
 });
 
+// Rota para LISTAR todos os usuários
+app.get('/usuarios', async (req, res) => {
+    const usuarios = await prisma.usuario.findMany({
+        select: { id: true, nome: true, email: true } // Não devolva a senha!
+    });
+    res.json(usuarios);
+});
+
+// Rota para DELETAR usuário
+app.delete('/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    await prisma.usuario.delete({ where: { id } });
+    res.json({ message: "Usuário deletado" });
+});
+
+// Rota para EDITAR usuário
+app.put('/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nome, email, senha } = req.body;
+
+    try {
+        // Objeto com os dados que vamos atualizar
+        const dadosParaAtualizar = { nome, email };
+
+        // Só atualiza a senha se ela foi enviada (não estiver vazia)
+        if (senha) {
+            // Importante: Tem que criptografar a nova senha igual no cadastro!
+            // Certifique-se de ter: const bcrypt = require('bcrypt'); lá no topo
+            const senhaCriptografada = await bcrypt.hash(senha, 10);
+            dadosParaAtualizar.senha = senhaCriptografada;
+        }
+
+        const usuarioAtualizado = await prisma.usuario.update({
+            where: { id: id },
+            data: dadosParaAtualizar
+        });
+
+        // Remove a senha do retorno por segurança
+        const { senha: _, ...usuarioSemSenha } = usuarioAtualizado;
+        
+        res.json(usuarioSemSenha);
+
+    } catch (erro) {
+        console.error(erro);
+        // Tratamento simples para e-mail duplicado
+        if (erro.code === 'P2002') {
+            return res.status(400).json({ erro: "Este e-mail já está em uso por outro usuário." });
+        }
+        res.status(500).json({ erro: "Erro ao atualizar usuário." });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

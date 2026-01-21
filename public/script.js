@@ -10,9 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function gerarMenuLateral() {
     const sidebar = document.getElementById('sidebar');
-    if (!sidebar) return; // Se não tiver sidebar na página, ignora
+    if (!sidebar) return;
 
-    // Aqui está o seu MENU CENTRALIZADO. Mudou aqui, muda no site todo!
     sidebar.innerHTML = `
         <div class="sidebar-header">
             <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
@@ -30,7 +29,7 @@ function gerarMenuLateral() {
         </div>
         <div class="submenu">
             <a href="bancos.html">Meus Bancos</a>
-        </div>
+            <a href="usuarios.html">Usuários</a> </div>
 
         <div class="menu-item" onclick="toggleSubmenu(this)">
             <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
@@ -48,8 +47,8 @@ function gerarMenuLateral() {
             <i class="fas fa-chevron-down arrow"></i>
         </div>
         <div class="submenu">
-            <a href="#" onclick="alert('Página Agenda em construção!')">Agenda</a>
-            <a href="#" onclick="alert('Página Atividades em construção!')">Atividades</a>
+            <a href="#" onclick="alert('Em breve!')">Agenda</a>
+            <a href="#" onclick="alert('Em breve!')">Atividades</a>
         </div>
 
         <a href="#" onclick="sair()" class="menu-item menu-sair">
