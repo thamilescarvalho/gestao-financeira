@@ -16,7 +16,7 @@ app.use(express.static('public'));
 // --- ROTA DE CRIAR TRANSAÇÃO (VINCULADA AO USUÁRIO) ---
 app.post('/transacoes', async (req, res) => {
     const { 
-        descricao, valor, tipo, categoria, 
+        fornecedor, descricao, valor, tipo, categoria, 
         data, dataVencimento, formaPagamento, 
         parcelas = 1, 
         bancoId,
@@ -37,6 +37,7 @@ app.post('/transacoes', async (req, res) => {
             
             const novaTransacao = await prisma.transacao.create({
                 data: {
+                    fornecedor: fornecedor,
                     descricao: descricao + sufixo,
                     valor: parseFloat(valor),
                     tipo,
@@ -45,7 +46,6 @@ app.post('/transacoes', async (req, res) => {
                     data: dataCompetencia,
                     dataVencimento: dataVencimentoAtual,
                     formaPagamento,
-                    // Conexões importantes:
                     usuario: { connect: { id: usuarioId } }, // Vincula ao Usuário
                     ...(bancoId && { banco: { connect: { id: bancoId } } }) // Se tiver banco, vincula também
                 }
@@ -58,7 +58,7 @@ app.post('/transacoes', async (req, res) => {
         return res.json(listaCriada);
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ erro: "Erro ao criar transação." });
+        return res.status(500).json({ erro: "Erro ao salvar" });
     }
 });
 
@@ -263,6 +263,33 @@ app.post('/bancos', async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ erro: "Erro ao criar banco." });
+    }
+});
+
+// --- ROTA DE BAIXA (PAGAR CONTA) ---
+app.put('/transacoes/:id/pagar', async (req, res) => {
+    const { id } = req.params;
+    const { bancoId, dataPagamento, juros, desconto, valorFinal } = req.body;
+
+    try {
+        const transacao = await prisma.transacao.update({
+            where: { id },
+            data: {
+                status: 'PAGO',
+                banco: { connect: { id: bancoId } }, // Vincula ao banco escolhido
+                dataPagamento: new Date(dataPagamento),
+                juros: parseFloat(juros || 0),
+                desconto: parseFloat(desconto || 0),
+                valor: parseFloat(valorFinal) // Atualiza com o valor real pago
+            }
+        });
+
+        // (Futuramente aqui faremos o débito no saldo do banco)
+        
+        return res.json(transacao);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ erro: "Erro ao pagar conta" });
     }
 });
 

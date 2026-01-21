@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "transacoes" ADD COLUMN     "desconto" DOUBLE PRECISION DEFAULT 0,
+ADD COLUMN     "juros" DOUBLE PRECISION DEFAULT 0,
+ADD COLUMN     "valorOriginal" DOUBLE PRECISION;

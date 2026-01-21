@@ -89,7 +89,7 @@
             
             <div class="form-group">
                 <label>Fornecedor</label>
-                <input type="text" id="desc" placeholder="Ex: Agência Marketing">
+                <input type="text" id="inputFornecedor" placeholder="Ex: Cemig, Amazon, Fulano">
             </div>
 
             <div class="form-row">
@@ -135,6 +135,11 @@
                 </select>
             </div>
 
+            <div class="form-group">
+                <label>Descrição do Pagamento</label>
+                <input type="text" id="inputDescricao" placeholder="Ex: Conta de Luz">
+            </div>
+
             <div class="modal-footer">
                 <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
                 <button class="btn-orange" onclick="salvarConta()">SALVAR CONTA</button>
@@ -142,76 +147,147 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalBaixa">
+        <div class="modal">
+            <h2 style="color: #2f855a;">💸 Realizar Pagamento</h2>
+            
+            <input type="hidden" id="baixaId">
+            <input type="hidden" id="baixaValorOriginal">
+
+            <div class="form-group">
+                <label>Fornecedor</label>
+                <input type="text" id="baixaFornecedor" readonly style="background-color: #f7fafc; color: #718096;">
+            </div>
+
+            <div class="form-group">
+                <label>Conta de Saída (Banco)</label>
+                <select id="baixaBanco"></select> 
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data Pagamento</label>
+                    <input type="date" id="baixaData">
+                </div>
+                <div class="form-group">
+                    <label>Valor Original</label>
+                    <input type="text" id="displayValorOriginal" readonly style="background: #f7fafc;">
+                </div>
+            </div>
+
+            <div style="background: #f0fff4; padding: 15px; border-radius: 8px; border: 1px solid #c6f6d5; margin-bottom: 15px;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Juros / Multa (+)</label>
+                        <input type="number" id="baixaJuros" value="0" step="0.01" oninput="calcularTotalBaixa()">
+                    </div>
+                    <div class="form-group">
+                        <label>Desconto (-)</label>
+                        <input type="number" id="baixaDesconto" value="0" step="0.01" oninput="calcularTotalBaixa()">
+                    </div>
+                </div>
+                
+                <div style="text-align: right; margin-top: 10px;">
+                    <label style="display:block; font-size: 12px; color: #555;">Valor Final a Pagar:</label>
+                    <span id="baixaTotalFinal" style="font-size: 24px; font-weight: bold; color: #2f855a;">R$ 0,00</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModalBaixa()">Cancelar</button>
+                <button class="btn-orange" style="background-color: #2f855a;" onclick="confirmarPagamento()">CONFIRMAR PAGAMENTO</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // CONFIGURAÇÕES INICIAIS
         document.getElementById('dataComp').valueAsDate = new Date();
         document.getElementById('dataVenc').valueAsDate = new Date();
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
-        
+        let transacoesAtuais = []; // Variável Global Importante
+
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
         function abrirModal() { document.getElementById('modalConta').style.display = 'flex';}
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
-        
+        function fecharModalBaixa() { document.getElementById('modalBaixa').style.display = 'none'; }
+
+        // --- FUNÇÃO DE CARREGAR A TABELA ---
         async function carregar() {
-            if(!usuario) return;
+            if(!usuario || !usuario.id) {
+                console.error("ERRO CRÍTICO: Usuário não logado ou sem ID!");
+                return;
+            }
 
-            // Busca despesas pendentes
-            const res = await fetch(`http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`);
-            const dados = await res.json();
-            
-            const lista = document.getElementById('lista');
-            lista.innerHTML = '';
-            
-            let somaTotal = 0;
-
-            dados.forEach(item => {
-                somaTotal += Number(item.valor);
-
-                const vencimento = item.dataVencimento ? new Date(item.dataVencimento) : new Date(item.data);
+            try {
+                const url = `http://localhost:3000/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`;
+                const res = await fetch(url);
                 
-                // Tenta extrair numero da parcela da descrição se existir " (1/3)"
-                let parcelaTexto = 'Unica';
-                let fornecedorTexto = item.descricao;
+                if (!res.ok) throw new Error(`Erro no servidor: ${res.status}`);
+
+                const dados = await res.json();
+                console.log("Contas encontradas:", dados);
+                transacoesAtuais = dados; // Salva para uso no modal de baixa
+
+                const lista = document.getElementById('lista');
+                lista.innerHTML = '';
                 
-                if(item.descricao.includes('(') && item.descricao.includes('/')) {
-                    const partes = item.descricao.split(' (');
-                    fornecedorTexto = partes[0]; // Pega só o nome
-                    parcelaTexto = partes[1].replace(')', ''); // Pega "1/3"
+                if (dados.length === 0) {
+                    lista.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Nenhuma conta pendente encontrada.</td></tr>';
+                    document.getElementById('total-esteira').innerText = 'R$ 0,00';
+                    return;
                 }
 
-                lista.innerHTML += `
-                    <tr>
-                        <td style="font-weight: 500;">
-                            ${fornecedorTexto} 
-                            <i class="fas fa-external-link-alt text-muted" style="font-size: 10px; margin-left: 5px;"></i>
-                        </td>
-                        <td class="text-muted">${parcelaTexto}</td>
-                        <td>
-                            ${vencimento.toLocaleDateString('pt-BR')} 
-                            <i class="fas fa-pencil-alt text-muted" style="font-size: 10px; cursor: pointer;"></i>
-                        </td>
-                        <td style="font-weight: bold;">
-                            R$ ${item.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2})}
-                        </td>
-                        <td class="text-muted">${item.categoria || 'Geral'}</td>
-                        <td>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <span class="status-dot"></span>
-                                <i class="fas fa-chevron-down text-muted" style="cursor: pointer;" title="Mais opções"></i>
-                                <button onclick="baixar('${item.id}')" style="border:none; background:none; cursor:pointer; color: green;" title="Pagar"><i class="fas fa-check-circle"></i></button>
-                                <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color: red;" title="Excluir"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
+                let somaTotal = 0;
 
-            // Atualiza o Total da Esteira
-            document.getElementById('total-esteira').innerText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(somaTotal);
+                dados.forEach(item => {
+                    somaTotal += Number(item.valor);
+                    
+                    let textoDescricao = item.descricao;
+                    let parcelaTexto = 'Unica';
+                    
+                    if(item.descricao && item.descricao.includes('(') && item.descricao.includes('/')) {
+                        const partes = item.descricao.split(' (');
+                        textoDescricao = partes[0]; 
+                        parcelaTexto = partes[1].replace(')', '');
+                    }
+
+                    const textoFornecedor = item.fornecedor || textoDescricao || "Sem Nome"; 
+                    const dataRef = item.dataVencimento || item.data;
+                    const vencimento = new Date(dataRef);
+                    
+                    lista.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 500;">
+                                <div style="font-size: 15px; color: #1a202c;">${textoFornecedor}</div>
+                                <div style="font-size: 12px; color: #718096;">${textoDescricao}</div>
+                            </td>
+                            <td class="text-muted">${parcelaTexto}</td>
+                            <td>${vencimento.toLocaleDateString('pt-BR')}</td>
+                            <td style="font-weight: bold;">${Number(item.valor).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</td>
+                            <td class="text-muted">${item.categoria || 'Geral'}</td>
+                            <td>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button onclick="baixar('${item.id}')" style="border:none; background:none; cursor:pointer; color: green;" title="Pagar"><i class="fas fa-check-circle"></i></button>
+                                    <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color: red;" title="Excluir"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('total-esteira').innerText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(somaTotal);
+            
+            } catch (erro) {
+                console.error("Erro ao carregar lista:", erro);
+            }
         }
 
+        // --- SALVAR NOVA CONTA ---
         async function salvarConta() {
             const dados = {
-                descricao: document.getElementById('desc').value,
+                fornecedor: document.getElementById('inputFornecedor').value,
+                descricao: document.getElementById('inputDescricao').value,
                 valor: document.getElementById('valor').value,
                 parcelas: document.getElementById('parcelas').value,
                 data: document.getElementById('dataComp').value,
@@ -222,7 +298,9 @@
                 usuarioId: usuario.id
             };
 
-            if(!dados.descricao || !dados.valor) return alert("Preencha fornecedor e valor!");
+            if(!dados.fornecedor || !dados.valor) {
+                return alert("Erro: O campo Fornecedor e o Valor são obrigatórios!");
+            }
 
             await fetch('http://localhost:3000/transacoes', {
                 method: 'POST',
@@ -230,14 +308,95 @@
                 body: JSON.stringify(dados)
             });
 
+            // Limpa e recarrega
+            document.getElementById('inputFornecedor').value = '';
+            document.getElementById('inputDescricao').value = '';
+            document.getElementById('valor').value = '';
             fecharModal();
             carregar();
         }
-        
-        async function baixar(id) { if(confirm('Confirmar pagamento?')) { await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'PATCH' }); carregar(); } }
-        async function deletar(id) { if(confirm('Apagar conta?')) { await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' }); carregar(); } }
 
-        carregar();
+        // --- LÓGICA DE BAIXA (PAGAMENTO) ---
+        async function baixar(id) {
+            const item = transacoesAtuais.find(t => t.id === id);
+            if(!item) return;
+
+            document.getElementById('baixaId').value = id;
+            // AQUI ESTAVA O ERRO DE ID: Corrigido para baixaFornecedor
+            document.getElementById('baixaFornecedor').value = item.fornecedor || item.descricao;
+            document.getElementById('baixaValorOriginal').value = item.valor;
+            document.getElementById('displayValorOriginal').value = Number(item.valor).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('baixaData').valueAsDate = new Date();
+            document.getElementById('baixaJuros').value = 0;
+            document.getElementById('baixaDesconto').value = 0;
+            
+            await carregarSelectBancos();
+            calcularTotalBaixa();
+            document.getElementById('modalBaixa').style.display = 'flex';
+        }
+
+        async function carregarSelectBancos() {
+            const select = document.getElementById('baixaBanco');
+            select.innerHTML = '<option value="">Selecione o Banco...</option>';
+            const res = await fetch(`http://localhost:3000/bancos?usuarioId=${usuario.id}`);
+            const bancos = await res.json();
+            bancos.forEach(b => {
+                select.innerHTML += `<option value="${b.id}">${b.nome}</option>`;
+            });
+        }
+
+        function calcularTotalBaixa() {
+            const valorOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
+            const juros = parseFloat(document.getElementById('baixaJuros').value) || 0;
+            const desconto = parseFloat(document.getElementById('baixaDesconto').value) || 0;
+            const total = valorOriginal + juros - desconto;
+            document.getElementById('baixaTotalFinal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        }
+
+        async function confirmarPagamento() {
+            const id = document.getElementById('baixaId').value;
+            const bancoId = document.getElementById('baixaBanco').value;
+            const dataPagamento = document.getElementById('baixaData').value;
+            const juros = document.getElementById('baixaJuros').value;
+            const desconto = document.getElementById('baixaDesconto').value;
+            
+            const valorOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
+            const valorFinal = valorOriginal + Number(juros) - Number(desconto);
+
+            if(!bancoId) return alert("Selecione o Banco de onde saiu o dinheiro!");
+
+            await fetch(`http://localhost:3000/transacoes/${id}/pagar`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bancoId, dataPagamento, juros, desconto, valorFinal })
+            });
+
+            fecharModalBaixa();
+            carregar(); // Recarrega a tabela corretamente
+        }
+
+        async function deletar(id) {
+            if(confirm("Deseja realmente excluir esta conta?")) {
+                await fetch(`http://localhost:3000/transacoes/${id}`, { method: 'DELETE' });
+                carregar();
+            }
+        }
+
+        // --- INICIALIZAÇÃO SEGURA ---
+        function iniciar() {
+            const tabela = document.getElementById('lista');
+            if (tabela) {
+                carregar();
+            } else {
+                console.log("Aguardando tabela desenhar...");
+                setTimeout(iniciar, 100);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', iniciar);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(iniciar, 1);
+        }
     </script>
 </body>
 </html>
