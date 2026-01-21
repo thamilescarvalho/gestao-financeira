@@ -35,17 +35,38 @@
         <div></div>
     </nav>
     <div class="sidebar" id="sidebar">
-    <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
-    <hr>
-    <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
-    <a href="bancos.html"><i class="fas fa-wallet"></i> Meus Bancos</a> <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
-    <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
-    <a href="movimento.html"><i class="fas fa-list"></i> Extrato</a>
-    <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
-    <hr>
-    <a href="#" onclick="alert('Editar Perfil em breve!')"><i class="fas fa-user-edit"></i> Editar Perfil</a>
-    <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
-</div>
+        
+        <div class="sidebar-header">
+            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
+                <i class="fas fa-times"></i> Fechar
+            </a>
+        </div>
+
+        <a href="index.html" class="menu-item">
+            <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
+        </a>
+
+        <div class="menu-item" onclick="toggleSubmenu(this)">
+            <div class="menu-content"><i class="fas fa-cog"></i> Cadastros</div>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="submenu">
+            <a href="bancos.html">Meus Bancos</a>
+            </div>
+
+        <div class="menu-item open" onclick="toggleSubmenu(this)"> <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="submenu" style="max-height: 500px;"> <a href="receber.html">Contas a Receber</a>
+            <a href="pagar.html">Contas a Pagar</a>
+            <a href="movimento.html">Extrato / Movimento</a>
+            <a href="conciliacao.html">Conciliação</a>
+        </div>
+
+        <a href="#" onclick="sair()" class="menu-item menu-sair">
+            <div class="menu-content"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</div>
+        </a>
+    </div>
 
     <div class="content">
         <div class="header">

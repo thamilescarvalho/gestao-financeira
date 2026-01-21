@@ -3,106 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <title>Contas a Receber</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="auth.js"></script>
     <style>
-        /* Estilos do Modal (Iguais ao de Pagar, mas preparados para reuso) */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: white; padding: 25px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal h2 { margin-top: 0; color: #2f855a; } /* Verde Escuro */
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        
-        .form-row { display: flex; gap: 10px; }
-        .form-row .form-group { flex: 1; }
-
-        .btn-salvar { background: #2f855a; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .btn-cancelar { background: #ccc; color: #333; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 10px; }
-
-        /* Botão de Voltar Redondinho */
-        .btn-voltar {
-            background-color: #e2e8f0; /* Cinza claro */
-            color: #4a5568;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%; /* Faz ficar redondo */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none; /* Tira o sublinhado do link */
-            margin-right: 15px;
-            transition: 0.2s;
-            font-size: 16px;
+        /* Estilos específicos para Receita (Verde) */
+        .btn-green {
+            background: #2f855a; border: none; color: white;
+            padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;
+            transition: 0.2s; box-shadow: 0 2px 5px rgba(47, 133, 90, 0.3);
         }
-        .btn-voltar:hover {
-            background-color: #cbd5e0; /* Escurece ao passar o mouse */
-            transform: translateX(-3px); /* Efeito de mover para a esquerda */
-        }
+        .btn-green:hover { background: #276749; transform: translateY(-1px); }
+        
+        .tabs-link.active { color: #2f855a !important; border-color: #2f855a !important; }
+        .total-valor { color: #2f855a !important; } /* Verde no total */
     </style>
 </head>
 <body>
+    
+    <div class="sidebar" id="sidebar">
+        
+        <div class="sidebar-header">
+            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
+                <i class="fas fa-times"></i> Fechar
+            </a>
+        </div>
+
+        <a href="index.html" class="menu-item">
+            <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
+        </a>
+
+        <div class="menu-item" onclick="toggleSubmenu(this)">
+            <div class="menu-content"><i class="fas fa-cog"></i> Cadastros</div>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="submenu">
+            <a href="bancos.html">Meus Bancos</a>
+            </div>
+
+        <div class="menu-item open" onclick="toggleSubmenu(this)"> <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="submenu" style="max-height: 500px;"> <a href="receber.html">Contas a Receber</a>
+            <a href="pagar.html">Contas a Pagar</a>
+            <a href="movimento.html">Extrato / Movimento</a>
+            <a href="conciliacao.html">Conciliação</a>
+        </div>
+
+        <a href="#" onclick="sair()" class="menu-item menu-sair">
+            <div class="menu-content"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</div>
+        </a>
+    </div>
+
     <div class="overlay" onclick="toggleMenu()"></div>
     <nav class="navbar">
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">Contas a Receber</div>
+        <div class="logo">Financeiro</div>
         <div></div>
     </nav>
-    <div class="sidebar" id="sidebar">
-    <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
-    <hr>
-    <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
-    <a href="bancos.html"><i class="fas fa-wallet"></i> Meus Bancos</a> <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
-    <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
-    <a href="movimento.html"><i class="fas fa-list"></i> Extrato</a>
-    <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
-    <hr>
-    <a href="#" onclick="alert('Editar Perfil em breve!')"><i class="fas fa-user-edit"></i> Editar Perfil</a>
-    <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
-</div>
 
     <div class="content">
-        <div class="header">
-    <div style="display: flex; align-items: center;">
-        <a href="index.html" class="btn-voltar" title="Voltar para o Início">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <h1>🟢 Contas a Receber</h1>
-    </div>
+        
+        <div class="page-header">
+            <div class="page-title">
+                Contas a receber
+                <span class="tabs-link active">Carteira</span>
+                <span class="tabs-link" onclick="alert('Em breve!')">Agrupamentos</span>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn-outline" onclick="alert('Em breve!')">
+                    <i class="fas fa-file-import"></i> Importar
+                </button>
+                <button class="btn-green" onclick="abrirModal()">
+                    Novo
+                </button>
+                <button class="btn-outline" onclick="abrirModal()" style="color: #2f855a; border-color: #2f855a;">
+                    Modelo rápido <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+        </div>
 
-    <button class="btn-acao btn-add" style="width: auto; background: #2f855a;" onclick="abrirModal()">
-        <i class="fas fa-plus"></i> Nova Receita
-    </button>
-</div>
+        <div class="toolbar">
+            <div class="total-badge">
+                Total a Receber: <span id="total-esteira" class="total-valor">R$ 0,00</span>
+            </div>
 
-        <table>
+            <div class="filter-icons">
+                <i class="fas fa-calendar-alt" title="Filtrar Data"></i>
+                <i class="fas fa-gift" title="Categorias"></i>
+                <i class="fas fa-user-friends" title="Clientes"></i>
+                <i class="fas fa-chart-line" title="Gráficos"></i>
+                <i class="fas fa-print" title="Imprimir" onclick="window.print()"></i>
+            </div>
+        </div>
+
+        <table class="table-clean">
             <thead>
                 <tr>
+                    <th>Cliente</th>
+                    <th>Parcela</th>
                     <th>Vencimento</th>
-                    <th>Cliente / Descrição</th>
                     <th>Valor</th>
+                    <th>Descrição / Categoria</th>
                     <th>Ações</th>
                 </tr>
             </thead>
-            <tbody id="lista"></tbody>
+            <tbody id="lista">
+                </tbody>
         </table>
     </div>
 
     <div class="modal-overlay" id="modalConta">
         <div class="modal">
-            <h2>Nova Receita</h2>
+            <h2 style="color: #2f855a;">Nova Receita</h2>
             
             <div class="form-group">
-                <label>Cliente / Descrição</label>
-                <input type="text" id="desc" placeholder="Ex: Cliente João, Venda de Site...">
+                <label>Cliente</label>
+                <input type="text" id="inputFornecedor" placeholder="Ex: Cliente João, Empresa X">
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>Valor (R$)</label>
-                    <input type="number" id="valor" step="0.01">
+                    <input type="number" id="valor" step="0.01" placeholder="0,00">
                 </div>
                 <div class="form-group">
                     <label>Parcelas</label>
@@ -122,100 +147,288 @@
             </div>
 
             <div class="form-group">
-                <label>Forma de Recebimento</label>
-                <select id="formaPagto">
-                    <option value="Pix">Pix</option>
-                    <option value="Boleto">Boleto</option>
-                    <option value="Cartão Crédito">Cartão de Crédito</option>
-                    <option value="Dinheiro">Dinheiro</option>
-                    <option value="Transferência">Transferência</option>
+                <label>Categoria</label>
+                <select id="categoria">
+                    <option value="Vendas">Vendas</option>
+                    <option value="Serviços">Serviços</option>
+                    <option value="Rendimentos">Rendimentos</option>
+                    <option value="Outros">Outros</option>
                 </select>
             </div>
 
-            <button class="btn-salvar" onclick="salvarConta()">SALVAR RECEITA</button>
-            <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+            <div class="form-group">
+                <label>Forma de Recebimento</label>
+                <select id="formaPagto">
+                    <option value="Pix">Pix</option>
+                    <option value="Boleto">Boleto Bancário</option>
+                    <option value="Cartão Crédito">Cartão de Crédito</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Descrição Detalhada</label>
+                <input type="text" id="inputDescricao" placeholder="Ex: Venda de Notebook">
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-green" onclick="salvarConta()">SALVAR RECEITA</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalBaixa">
+        <div class="modal">
+            <h2 style="color: #2f855a;">💰 Realizar Recebimento</h2>
+            
+            <input type="hidden" id="baixaId">
+            <input type="hidden" id="baixaValorOriginal">
+
+            <div class="form-group">
+                <label>Cliente (Pagador)</label>
+                <input type="text" id="baixaFornecedor" readonly style="background-color: #f7fafc; color: #718096;">
+            </div>
+
+            <div class="form-group">
+                <label>Conta de Entrada (Banco)</label>
+                <select id="baixaBanco"></select> 
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Data Recebimento</label>
+                    <input type="date" id="baixaData">
+                </div>
+                <div class="form-group">
+                    <label>Valor Original</label>
+                    <input type="text" id="displayValorOriginal" readonly style="background: #f7fafc;">
+                </div>
+            </div>
+
+            <div style="background: #f0fff4; padding: 15px; border-radius: 8px; border: 1px solid #c6f6d5; margin-bottom: 15px;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Juros / Multa (+)</label>
+                        <input type="number" id="baixaJuros" value="0" step="0.01" oninput="calcularTotalBaixa()">
+                    </div>
+                    <div class="form-group">
+                        <label>Desconto (-)</label>
+                        <input type="number" id="baixaDesconto" value="0" step="0.01" oninput="calcularTotalBaixa()">
+                    </div>
+                </div>
+                
+                <div style="text-align: right; margin-top: 10px;">
+                    <label style="display:block; font-size: 12px; color: #555;">Valor Final a Receber:</label>
+                    <span id="baixaTotalFinal" style="font-size: 24px; font-weight: bold; color: #2f855a;">R$ 0,00</span>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModalBaixa()">Cancelar</button>
+                <button class="btn-green" onclick="confirmarRecebimento()">CONFIRMAR RECEBIMENTO</button>
+            </div>
         </div>
     </div>
 
     <script>
+        // CONFIGURAÇÕES INICIAIS
         document.getElementById('dataComp').valueAsDate = new Date();
         document.getElementById('dataVenc').valueAsDate = new Date();
-
-        // Pega usuário
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
+        let transacoesAtuais = []; 
 
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
-        function abrirModal() { document.getElementById('modalConta').style.display = 'flex'; }
+        function abrirModal() { document.getElementById('modalConta').style.display = 'flex';}
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
+        function fecharModalBaixa() { document.getElementById('modalBaixa').style.display = 'none'; }
 
+        // --- FUNÇÃO DE CARREGAR A TABELA ---
         async function carregar() {
-            if(!usuario) return;
-            // Filtra por usuarioId
-            const res = await fetch(`/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}`);
-            const dados = await res.json();
-            
-            const lista = document.getElementById('lista');
-            lista.innerHTML = '';
+            if(!usuario || !usuario.id) {
+                console.error("ERRO CRÍTICO: Usuário não logado ou sem ID!");
+                return;
+            }
 
-            dados.forEach(item => {
-                const vencimento = item.dataVencimento ? new Date(item.dataVencimento) : new Date(item.data);
+            try {
+                // CAMINHO RELATIVO (Universal)
+                const url = `/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}`;
                 
-                lista.innerHTML += `
-                    <tr>
-                        <td>${vencimento.toLocaleDateString('pt-BR')}</td>
-                        <td>${item.descricao}</td>
-                        <td style="color: #2f855a; font-weight: bold;">
-                            ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valor)}
-                        </td>
-                        <td>
-                            <button onclick="receber('${item.id}')" class="btn-acao btn-pagar" style="background-color: #2f855a"><i class="fas fa-check"></i></button>
-                            <button onclick="deletar('${item.id}')" class="btn-acao btn-deletar"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`Erro no servidor: ${res.status}`);
+
+                const dados = await res.json();
+                console.log("Receitas encontradas:", dados);
+                transacoesAtuais = dados; 
+
+                const lista = document.getElementById('lista');
+                lista.innerHTML = '';
+                
+                if (dados.length === 0) {
+                    lista.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Nenhuma receita pendente encontrada.</td></tr>';
+                    document.getElementById('total-esteira').innerText = 'R$ 0,00';
+                    return;
+                }
+
+                let somaTotal = 0;
+
+                dados.forEach(item => {
+                    somaTotal += Number(item.valor);
+                    
+                    let textoDescricao = item.descricao;
+                    let parcelaTexto = 'Unica';
+                    
+                    if(item.descricao && item.descricao.includes('(') && item.descricao.includes('/')) {
+                        const partes = item.descricao.split(' (');
+                        textoDescricao = partes[0]; 
+                        parcelaTexto = partes[1].replace(')', '');
+                    }
+
+                    const textoCliente = item.fornecedor || textoDescricao || "Cliente sem nome"; 
+                    const dataRef = item.dataVencimento || item.data;
+                    const vencimento = new Date(dataRef);
+                    
+                    lista.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 500;">
+                                <div style="font-size: 15px; color: #1a202c;">${textoCliente}</div>
+                                <div style="font-size: 12px; color: #718096;">${textoDescricao}</div>
+                            </td>
+                            <td class="text-muted">${parcelaTexto}</td>
+                            <td>${vencimento.toLocaleDateString('pt-BR')}</td>
+                            <td style="font-weight: bold; color: #2f855a;">${Number(item.valor).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</td>
+                            <td class="text-muted">${item.categoria || 'Vendas'}</td>
+                            <td>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <button onclick="baixar('${item.id}')" style="border:none; background:none; cursor:pointer; color: #2f855a;" title="Receber"><i class="fas fa-check-circle"></i></button>
+                                    <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color: red;" title="Excluir"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('total-esteira').innerText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(somaTotal);
+            
+            } catch (erro) {
+                console.error("Erro ao carregar lista:", erro);
+            }
         }
 
+        // --- SALVAR NOVA RECEITA ---
         async function salvarConta() {
             const dados = {
-                descricao: document.getElementById('desc').value,
+                fornecedor: document.getElementById('inputFornecedor').value, 
+                descricao: document.getElementById('inputDescricao').value,
                 valor: document.getElementById('valor').value,
                 parcelas: document.getElementById('parcelas').value,
                 data: document.getElementById('dataComp').value,
                 dataVencimento: document.getElementById('dataVenc').value,
                 formaPagamento: document.getElementById('formaPagto').value,
-                tipo: 'RECEITA',
-                categoria: 'Vendas',
-                usuarioId: usuario.id // <--- IMPORTANTE
+                categoria: document.getElementById('categoria').value,
+                tipo: 'RECEITA', // Define o tipo para o Backend
+                usuarioId: usuario.id
             };
 
-            if(!dados.descricao || !dados.valor) return alert("Preencha descrição e valor!");
+            if(!dados.fornecedor || !dados.valor) {
+                return alert("Erro: O campo Cliente e o Valor são obrigatórios!");
+            }
 
+            // CAMINHO RELATIVO
             await fetch('/transacoes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dados)
             });
 
+            document.getElementById('inputFornecedor').value = '';
+            document.getElementById('inputDescricao').value = '';
+            document.getElementById('valor').value = '';
             fecharModal();
             carregar();
         }
-        
-        async function receber(id) {
-            if(confirm('Confirmar recebimento?')) {
-                await fetch(`/transacoes/${id}`, { method: 'PATCH' });
-                carregar();
-            }
+
+        // --- LÓGICA DE RECEBIMENTO (BAIXA) ---
+        async function baixar(id) {
+            const item = transacoesAtuais.find(t => t.id === id);
+            if(!item) return;
+
+            document.getElementById('baixaId').value = id;
+            document.getElementById('baixaFornecedor').value = item.fornecedor || item.descricao;
+            document.getElementById('baixaValorOriginal').value = item.valor;
+            document.getElementById('displayValorOriginal').value = Number(item.valor).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('baixaData').valueAsDate = new Date();
+            document.getElementById('baixaJuros').value = 0;
+            document.getElementById('baixaDesconto').value = 0;
+            
+            await carregarSelectBancos();
+            calcularTotalBaixa();
+            document.getElementById('modalBaixa').style.display = 'flex';
+        }
+
+        async function carregarSelectBancos() {
+            const select = document.getElementById('baixaBanco');
+            select.innerHTML = '<option value="">Selecione o Banco...</option>';
+            // CAMINHO RELATIVO
+            const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
+            const bancos = await res.json();
+            bancos.forEach(b => {
+                select.innerHTML += `<option value="${b.id}">${b.nome}</option>`;
+            });
+        }
+
+        function calcularTotalBaixa() {
+            const valorOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
+            const juros = parseFloat(document.getElementById('baixaJuros').value) || 0;
+            const desconto = parseFloat(document.getElementById('baixaDesconto').value) || 0;
+            const total = valorOriginal + juros - desconto;
+            document.getElementById('baixaTotalFinal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        }
+
+        async function confirmarRecebimento() {
+            const id = document.getElementById('baixaId').value;
+            const bancoId = document.getElementById('baixaBanco').value;
+            const dataPagamento = document.getElementById('baixaData').value;
+            const juros = document.getElementById('baixaJuros').value;
+            const desconto = document.getElementById('baixaDesconto').value;
+            
+            const valorOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
+            const valorFinal = valorOriginal + Number(juros) - Number(desconto);
+
+            if(!bancoId) return alert("Selecione em qual Banco o dinheiro entrou!");
+
+            // CAMINHO RELATIVO
+            await fetch(`/transacoes/${id}/pagar`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bancoId, dataPagamento, juros, desconto, valorFinal })
+            });
+
+            fecharModalBaixa();
+            carregar(); 
         }
 
         async function deletar(id) {
-            if(confirm('Apagar lançamento?')) {
+            if(confirm("Deseja realmente excluir esta receita?")) {
                 await fetch(`/transacoes/${id}`, { method: 'DELETE' });
                 carregar();
             }
         }
 
-        carregar();
+        // --- INICIALIZAÇÃO SEGURA ---
+        function iniciar() {
+            const tabela = document.getElementById('lista');
+            if (tabela) {
+                carregar();
+            } else {
+                setTimeout(iniciar, 100);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', iniciar);
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(iniciar, 1);
+        }
     </script>
 </body>
 </html>

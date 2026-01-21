@@ -12,20 +12,92 @@ body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--l
 .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
 .logo { font-size: 18px; font-weight: bold; }
 
-/* MENU LATERAL (Sidebar) */
+/* --- MENU LATERAL MODERNO (HIERÁRQUICO) --- */
 .sidebar {
-    position: fixed; top: 0; left: -280px; width: 250px; height: 100%;
-    background-color: white; box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    transition: 0.3s; z-index: 200; padding-top: 60px; display: flex; flex-direction: column;
+    height: 100%;
+    width: 0; /* Começa fechado no mobile */
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background-color: #ffffff;
+    overflow-x: hidden;
+    transition: 0.3s;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    display: flex; flex-direction: column;
 }
-.sidebar.aberto { left: 0; }
-.sidebar a {
-    padding: 15px 20px; text-decoration: none; color: #4a5568; display: block;
-    border-left: 4px solid transparent; font-weight: 500;
-}
-.sidebar a:hover, .sidebar a.ativo { background-color: #ebf8ff; color: var(--primary); border-left-color: var(--primary); }
-.sidebar i { margin-right: 10px; width: 25px; text-align: center; }
 
+.sidebar.aberto { width: 260px; }
+
+/* Cabeçalho do Menu (Logo/Fechar) */
+.sidebar-header {
+    padding: 20px;
+    display: flex; justify-content: flex-end; align-items: center;
+    border-bottom: 1px solid #edf2f7;
+    margin-bottom: 10px;
+}
+
+/* Itens Principais (Pais) */
+.menu-item {
+    padding: 15px 25px;
+    display: flex; align-items: center; justify-content: space-between;
+    color: #4a5568;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: 500;
+    border-left: 4px solid transparent;
+}
+
+.menu-item:hover {
+    background-color: #f7fafc;
+    color: #2f855a; /* Verde Principal */
+}
+
+/* Quando o item principal está ativo */
+.menu-item.active {
+    background-color: #f0fff4;
+    color: #2f855a;
+    border-left-color: #2f855a;
+    font-weight: 600;
+}
+
+/* Conteúdo do Item (Ícone + Texto) */
+.menu-content { display: flex; align-items: center; gap: 15px; }
+.menu-content i { width: 20px; text-align: center; }
+
+/* Setinha do Dropdown */
+.arrow { font-size: 12px; transition: 0.3s; color: #cbd5e0; }
+.menu-item.open .arrow { transform: rotate(180deg); color: #2f855a; }
+
+/* SUBMENU (Filhos) - Começa fechado */
+.submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    background-color: #fafbfc;
+}
+
+/* Links do Submenu */
+.submenu a {
+    display: block;
+    padding: 12px 20px 12px 65px; /* Indentação para a direita */
+    text-decoration: none;
+    font-size: 14px;
+    color: #718096;
+    transition: 0.2s;
+}
+
+.submenu a:hover { color: #2d3748; background: #edf2f7; }
+.submenu a.active-link { color: #2f855a; font-weight: bold; background: #edf2f7; }
+
+/* Link de Sair (Configurações Especiais) */
+.menu-sair {
+    margin-top: auto; /* Empurra para o final */
+    border-top: 1px solid #edf2f7;
+    color: #e53e3e !important;
+}
+.menu-sair:hover { background-color: #fff5f5 !important; }
 /* SOMBRA DE FUNDO QUANDO O MENU ABRE */
 .overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;

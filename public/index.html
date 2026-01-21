@@ -6,7 +6,10 @@
     <title>Dashboard - Gestão Financeira</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    
     <script src="auth.js"></script>
+    <script src="script.js"></script>
+
     <style>
         /* Ajustes específicos do Dashboard */
         .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
@@ -27,6 +30,42 @@
 </head>
 <body>
 
+    <div class="sidebar" id="sidebar">
+        
+        <div class="sidebar-header">
+            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
+                <i class="fas fa-times"></i> Fechar
+            </a>
+        </div>
+
+        <a href="index.html" class="menu-item">
+            <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
+        </a>
+
+        <div class="menu-item" onclick="toggleSubmenu(this)">
+            <div class="menu-content"><i class="fas fa-cog"></i> Cadastros</div>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="submenu">
+            <a href="bancos.html">Meus Bancos</a>
+        </div>
+
+        <div class="menu-item" onclick="toggleSubmenu(this)">
+            <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="submenu">
+            <a href="receber.html">Contas a Receber</a>
+            <a href="pagar.html">Contas a Pagar</a>
+            <a href="movimento.html">Extrato / Movimento</a>
+            <a href="conciliacao.html">Conciliação</a>
+        </div>
+
+        <a href="#" onclick="sair()" class="menu-item menu-sair">
+            <div class="menu-content"><i class="fas fa-sign-out-alt"></i> Sair do Sistema</div>
+        </a>
+    </div>
+
     <div class="overlay" onclick="toggleMenu()"></div>
 
     <nav class="navbar">
@@ -34,19 +73,6 @@
         <div class="logo">Visão Geral</div>
         <div id="usuarioNome" style="font-size: 12px;">Olá, Usuário</div>
     </nav>
-
-    <div class="sidebar" id="sidebar">
-    <a href="#" onclick="toggleMenu()" style="text-align: right; color: red;"><i class="fas fa-times"></i> Fechar</a>
-    <hr>
-    <a href="index.html"><i class="fas fa-home"></i> Visão Geral</a>
-    <a href="bancos.html"><i class="fas fa-wallet"></i> Meus Bancos</a> <a href="receber.html"><i class="fas fa-hand-holding-usd"></i> A Receber</a>
-    <a href="pagar.html"><i class="fas fa-file-invoice-dollar"></i> A Pagar</a>
-    <a href="movimento.html"><i class="fas fa-list"></i> Extrato</a>
-    <a href="conciliacao.html"><i class="fas fa-search-dollar"></i> Conciliação</a>
-    <hr>
-    <a href="#" onclick="alert('Editar Perfil em breve!')"><i class="fas fa-user-edit"></i> Editar Perfil</a>
-    <a href="#" onclick="sair()" style="color: red;"><i class="fas fa-sign-out-alt"></i> Sair</a>
-</div>
 
     <div class="content">
         <div class="dashboard">
@@ -65,13 +91,13 @@
         </div>
 
         <h2>Movimentações Recentes</h2>
-        <table>
+        <table class="table-clean" style="background: white; width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
             <thead>
-                <tr>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Tipo</th>
-                    <th>Status</th>
+                <tr style="background: #f7fafc; text-align: left;">
+                    <th style="padding: 12px;">Descrição</th>
+                    <th style="padding: 12px;">Valor</th>
+                    <th style="padding: 12px;">Tipo</th>
+                    <th style="padding: 12px;">Status</th>
                 </tr>
             </thead>
             <tbody id="lista-transacoes">
@@ -80,26 +106,20 @@
     </div>
 
     <script>
-        // --- LÓGICA DO MENU ---
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('aberto');
-            document.querySelector('.overlay').classList.toggle('ativo');
-        }
-
         // Mostrar nome do usuário
         const user = JSON.parse(localStorage.getItem('usuario_logado'));
         if(user) document.getElementById('usuarioNome').innerText = 'Olá, ' + user.nome.split(' ')[0];
 
         // --- LÓGICA DO DASHBOARD ---
-        const formatarMoeda = (valor) => {
-            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
-        }
+        // (Nota: toggleMenu e formatarMoeda agora vêm do script.js global!)
 
         async function carregarResumo() {
             try {
+                // Caminho Relativo (Universal)
                 const resposta = await fetch('/resumo');
                 const dados = await resposta.json();
 
+                // Usa a função global do script.js
                 document.getElementById('valor-receitas').innerText = formatarMoeda(dados.receitas);
                 document.getElementById('valor-despesas').innerText = formatarMoeda(dados.despesas);
                 document.getElementById('valor-saldo').innerText = formatarMoeda(dados.saldo);
@@ -110,23 +130,30 @@
 
         async function carregarLista() {
             try {
-                // Pega as últimas 5 transações
                 const resposta = await fetch('/transacoes');
                 const dados = await resposta.json();
                 
                 const tabela = document.getElementById('lista-transacoes');
                 tabela.innerHTML = '';
 
-                // Mostra só as 5 primeiras para não poluir
+                // Mostra só as 5 primeiras
                 dados.slice(0, 5).forEach(item => {
+                    const corValor = item.tipo === 'RECEITA' ? '#2f855a' : '#c53030';
+                    const bgBadge = item.tipo === 'RECEITA' ? '#c6f6d5' : '#fed7d7';
+                    const colorBadge = item.tipo === 'RECEITA' ? '#22543d' : '#822727';
+
                     const linha = `
-                        <tr>
-                            <td>${item.descricao}</td>
-                            <td style="color: ${item.tipo === 'RECEITA' ? 'green' : 'red'}; font-weight: bold">
+                        <tr style="border-bottom: 1px solid #edf2f7;">
+                            <td style="padding: 12px;">${item.descricao}</td>
+                            <td style="padding: 12px; color: ${corValor}; font-weight: bold">
                                 ${formatarMoeda(item.valor)}
                             </td>
-                            <td><span class="badge ${item.tipo.toLowerCase()}">${item.tipo}</span></td>
-                            <td>${item.status}</td>
+                            <td style="padding: 12px;">
+                                <span style="background: ${bgBadge}; color: ${colorBadge}; padding: 2px 8px; border-radius: 10px; font-size: 12px;">
+                                    ${item.tipo}
+                                </span>
+                            </td>
+                            <td style="padding: 12px;">${item.status}</td>
                         </tr>
                     `;
                     tabela.innerHTML += linha;
