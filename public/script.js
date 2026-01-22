@@ -1,23 +1,31 @@
 // --- ARQUIVO GLOBAL: script.js ---
 
 document.addEventListener("DOMContentLoaded", () => {
+    // 1. Gera o Menu
     gerarMenuLateral();
+    
+    // 2. Destaca a página atual
     highlightActiveLink();
 
-    const overlay = document.querySelector('.overlay');
-    if (overlay) {
-        overlay.addEventListener('click', toggleMenu);
-    }
+    // 3. Garante que o Overlay (sombra) exista e funcione
+    garantirOverlay();
 });
+
+function garantirOverlay() {
+    let overlay = document.querySelector('.overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        document.body.appendChild(overlay);
+    }
+    overlay.onclick = toggleMenu;
+}
 
 function gerarMenuLateral() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
 
-    // Recupera usuário
     const usuario = JSON.parse(localStorage.getItem('usuario_logado')) || { nome: 'Visitante', email: 'admin' };
-    
-    // Pega apenas o primeiro nome para não quebrar o layout se for muito grande
     const primeiroNome = usuario.nome.split(' ')[0]; 
     const iniciais = usuario.nome.substring(0, 2).toUpperCase();
 
@@ -27,19 +35,29 @@ function gerarMenuLateral() {
                 <div class="header-user-name">Olá, ${primeiroNome}</div>
                 <div class="header-badge">Menu</div>
             </div>
-            
             <button class="btn-close-sidebar" onclick="toggleMenu()" title="Fechar Menu">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
-        <div class="sidebar-menu">            
+        <div class="sidebar-menu">
+            
             <a href="index.html" class="menu-item link-navegacao">
                 <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
             </a>
 
             <div class="menu-item" onclick="toggleSubmenu(this)">
-                <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div><i class="fas fa-chevron-down arrow"></i>
+                <div class="menu-content"><i class="fas fa-database"></i> Cadastros</div>
+                <i class="fas fa-chevron-down arrow"></i>
+            </div>
+            <div class="submenu">
+                <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
+                <a href="usuarios.html" class="link-navegacao">Usuários</a> 
+            </div>
+
+            <div class="menu-item" onclick="toggleSubmenu(this)">
+                <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
+                <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
                 <a href="receber.html" class="link-navegacao">Contas a Receber</a>
@@ -49,20 +67,14 @@ function gerarMenuLateral() {
             </div>
             
             <div class="menu-item" onclick="toggleSubmenu(this)">
-                <div class="menu-content"><i class="fas fa-calendar-check"></i> Rotina</div><i class="fas fa-chevron-down arrow"></i>
+                <div class="menu-content"><i class="fas fa-calendar-check"></i> Rotina</div>
+                <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
                 <a href="agenda.html" class="link-navegacao">Agenda</a>
-                <a href="#" onclick="alert('Em breve!')" class="link-navegacao">Tarefas</a>
+                <a href="#" onclick="Swal.fire('Info', 'Em breve!', 'info')" class="link-navegacao">Tarefas</a>
             </div>
 
-            <div class="menu-item" onclick="toggleSubmenu(this)">
-                <div class="menu-content"><i class="fas fa-database"></i> Cadastros</div><i class="fas fa-chevron-down arrow"></i>
-            </div>
-            <div class="submenu">
-                <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
-                <a href="usuarios.html" class="link-navegacao">Usuários</a> 
-            </div>
         </div>
 
         <div class="user-profile">
@@ -75,14 +87,17 @@ function gerarMenuLateral() {
         </div>
     `;
 
+    // Garante que links de navegação também fechem o menu
     document.querySelectorAll('.link-navegacao').forEach(link => {
         link.addEventListener('click', () => { toggleMenu(); });
     });
 }
 
+// --- LÓGICA DE ABRIR/FECHAR ---
 function toggleMenu() { 
     const sidebar = document.getElementById('sidebar');
     const overlay = document.querySelector('.overlay');
+    
     if(sidebar) sidebar.classList.toggle('aberto'); 
     if(overlay) overlay.classList.toggle('ativo');
 }
