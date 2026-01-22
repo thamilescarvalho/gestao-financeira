@@ -1,275 +1,196 @@
-/* style.css - Versão Mobile Friendly */
-:root { --primary: #3182ce; --dark: #1a202c; --light: #f7fafc; }
+/* style.css - Versão Final: Menu Gaveta (Drawer) Unificado */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--light); display: flex; flex-direction: column; min-height: 100vh; }
+:root { 
+    --primary: #2f855a; 
+    --primary-hover: #276749;
+    --dark-sidebar: #1e293b; 
+    --dark-submenu: rgba(0, 0, 0, 0.3);
+    --light-bg: #f0f4f8;
+    --text-color: #334155;
+}
 
-/* BARRA DE TOPO (Navbar) */
+body { 
+    font-family: 'Inter', sans-serif; 
+    margin: 0; 
+    background-color: var(--light-bg); 
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; 
+}
+
+/* =========================================
+   NAVBAR (TOPO - VISÍVEL SEMPRE)
+   ========================================= */
 .navbar {
-    background-color: var(--dark); color: white; padding: 15px 20px;
+    background-color: white; 
+    color: #1e293b; 
+    padding: 15px 20px;
     display: flex; justify-content: space-between; align-items: center;
-    position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    position: sticky; top: 0; z-index: 100; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
-.menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
-.logo { font-size: 18px; font-weight: bold; }
+.menu-btn { background: none; border: none; color: #1e293b; font-size: 24px; cursor: pointer; transition: 0.2s; }
+.menu-btn:hover { color: var(--primary); }
+.logo { font-size: 18px; font-weight: 800; color: #2f855a; }
 
-/* --- MENU LATERAL MODERNO (HIERÁRQUICO) --- */
+/* =========================================
+   SIDEBAR (MENU LATERAL)
+   ========================================= */
 .sidebar {
-    height: 100%;
-    width: 0; /* Começa fechado no mobile */
     position: fixed;
-    z-index: 1000;
+    left: -280px; /* SEMPRE ESCONDIDO POR PADRÃO (Mobile e Desktop) */
     top: 0;
-    left: 0;
-    background-color: #ffffff;
-    overflow-x: hidden;
-    transition: 0.3s;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-    display: flex; flex-direction: column;
+    width: 260px;
+    height: 100%;
+    background-color: var(--dark-sidebar);
+    color: #94a3b8;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Animação suave */
+    z-index: 1000; /* Acima do overlay */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
 }
 
-.sidebar.aberto { width: 260px; }
+/* Classe para abrir (funciona em qualquer tela) */
+.sidebar.aberto { left: 0; }
 
-/* Cabeçalho do Menu (Logo/Fechar) */
+/* HEADER DA SIDEBAR */
+/* --- CABEÇALHO DO MENU (NOVO ESTILO PERFIL) --- */
 .sidebar-header {
-    padding: 20px;
-    display: flex; justify-content: flex-end; align-items: center;
-    border-bottom: 1px solid #edf2f7;
-    margin-bottom: 10px;
+    padding: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinha no topo */
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    min-height: 60px;
 }
 
-/* Itens Principais (Pais) */
-.menu-item {
-    padding: 15px 25px;
-    display: flex; align-items: center; justify-content: space-between;
-    color: #4a5568;
-    text-decoration: none;
-    cursor: pointer;
-    transition: 0.2s;
-    font-weight: 500;
-    border-left: 4px solid transparent;
+/* Container do Texto do Usuário */
+.header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-.menu-item:hover {
-    background-color: #f7fafc;
-    color: #2f855a; /* Verde Principal */
-}
-
-/* Quando o item principal está ativo */
-.menu-item.active {
-    background-color: #f0fff4;
-    color: #2f855a;
-    border-left-color: #2f855a;
-    font-weight: 600;
-}
-
-/* Conteúdo do Item (Ícone + Texto) */
-.menu-content { display: flex; align-items: center; gap: 15px; }
-.menu-content i { width: 20px; text-align: center; }
-
-/* Setinha do Dropdown */
-.arrow { font-size: 12px; transition: 0.3s; color: #cbd5e0; }
-.menu-item.open .arrow { transform: rotate(180deg); color: #2f855a; }
-
-/* SUBMENU (Filhos) - Começa fechado */
-.submenu {
-    max-height: 0;
+/* Nome do Usuário */
+.header-user-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
     overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
-    background-color: #fafbfc;
+    text-overflow: ellipsis;
+    max-width: 170px;
 }
 
-/* Links do Submenu */
+/* Badge "MENU" Moderna */
+.header-badge {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #2f855a; /* Verde da marca */
+    background: rgba(47, 133, 90, 0.15); /* Fundo verde bem suave */
+    padding: 3px 8px;
+    border-radius: 6px;
+    width: fit-content;
+    letter-spacing: 1px;
+}
+
+.logo-text { font-size: 20px; font-weight: 800; color: white; letter-spacing: -0.5px; }
+
+/* BOTÃO FECHAR (X) - Sempre visível dentro do menu */
+/* Ajuste do botão fechar para alinhar com o novo topo */
+.btn-close-sidebar {
+    padding: 0;
+    margin-top: 2px; 
+}
+.btn-close-sidebar:hover { transform: scale(1.1); color: #fca5a5; }
+
+/* LISTA DE ITENS */
+.sidebar-menu {
+    list-style: none;
+    padding: 10px 15px;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* ITEM DE MENU PRINCIPAL */
+.menu-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 15px; margin-bottom: 5px; border-radius: 8px;
+    color: #cbd5e0; text-decoration: none; font-size: 14px; font-weight: 500;
+    transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent;
+}
+.menu-content { display: flex; align-items: center; gap: 12px; }
+.menu-item i { width: 20px; text-align: center; font-size: 16px; }
+.menu-item:hover { background-color: rgba(255, 255, 255, 0.05); color: white; }
+.menu-item.active { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(47, 133, 90, 0.3); }
+.arrow { font-size: 10px; transition: transform 0.3s; opacity: 0.6; }
+.menu-item.open .arrow { transform: rotate(180deg); }
+
+/* SUBMENU */
+.submenu {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+    margin-bottom: 5px; background-color: var(--dark-submenu);
+    border-radius: 8px; margin-top: -2px;
+}
 .submenu a {
-    display: block;
-    padding: 12px 20px 12px 65px; /* Indentação para a direita */
-    text-decoration: none;
-    font-size: 14px;
-    color: #718096;
-    transition: 0.2s;
+    display: block; padding: 10px 15px 10px 48px; color: #94a3b8;
+    text-decoration: none; font-size: 13px; transition: 0.2s; border-left: 2px solid transparent;
 }
+.submenu a:hover { color: white; background-color: rgba(255,255,255,0.02); }
+.submenu a.active-link { color: #68d391; font-weight: 600; border-left-color: #68d391; background-color: rgba(104, 211, 145, 0.05); }
 
-.submenu a:hover { color: #2d3748; background: #edf2f7; }
-.submenu a.active-link { color: #2f855a; font-weight: bold; background: #edf2f7; }
-
-/* Link de Sair (Configurações Especiais) */
-.menu-sair {
-    margin-top: auto; /* Empurra para o final */
-    border-top: 1px solid #edf2f7;
-    color: #e53e3e !important;
+/* PERFIL */
+.user-profile {
+    padding: 20px; border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex; align-items: center; gap: 12px; background-color: rgba(0,0,0,0.2);
 }
-.menu-sair:hover { background-color: #fff5f5 !important; }
-/* SOMBRA DE FUNDO QUANDO O MENU ABRE */
+.user-avatar { width: 36px; height: 36px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; }
+.user-info { flex: 1; overflow: hidden; }
+.user-name { color: white; font-size: 13px; font-weight: 600; display: block; }
+.user-role { color: #64748b; font-size: 11px; display: block; }
+.btn-logout-icon { color: #ef4444; cursor: pointer; font-size: 18px; padding: 5px; transition: 0.2s; }
+
+/* OVERLAY (Fundo preto - Agora visível em Desktop também) */
 .overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); z-index: 150; display: none;
+    background: rgba(0,0,0,0.5); 
+    z-index: 999; /* Atrás do menu, frente do conteúdo */
+    display: none; 
+    backdrop-filter: blur(2px);
+    transition: opacity 0.3s;
 }
 .overlay.ativo { display: block; }
 
 /* CONTEÚDO */
-.content { padding: 20px; flex: 1; max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+.content { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 
-/* CARDS E TABELAS */
-.card-banco {
-    background: white; border-radius: 10px; padding: 20px; margin-bottom: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc;
-}
-.btn-acao { border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; color: white; }
-.btn-add { background-color: var(--primary); width: 100%; padding: 15px; font-size: 16px; margin-bottom: 20px; }
-
-/* --- BOTÃO VOLTAR (Global) --- */
-.btn-voltar {
-    background-color: #e2e8f0;
-    color: #4a5568;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    margin-right: 15px;
-    transition: 0.2s;
-    font-size: 16px;
-}
-.btn-voltar:hover {
-    background-color: #cbd5e0;
-    transform: translateX(-3px);
-}
-/* --- ESTILOS ESTILO "ORGANIZZE/NIBO" --- */
-
-/* Barra de Topo (Título e Abas) */
-.page-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-}
-.page-title { font-size: 28px; font-weight: bold; color: #333; display: flex; align-items: center; gap: 15px; }
-.tabs-link { font-size: 14px; margin-left: 20px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; }
-.tabs-link.active { color: #f97316; border-color: #f97316; font-weight: bold; }
-
-/* Barra de Ferramentas (Total e Filtros) */
-.toolbar {
-    background: #f8f9fa; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px;
-    display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0;
-}
-
-.total-badge {
-    background: white; border: 1px solid #cbd5e0; padding: 5px 15px; border-radius: 20px;
-    font-weight: bold; color: #4a5568; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-.total-valor { color: #c53030; } /* Vermelho para pagar */
-
-.filter-icons { display: flex; gap: 15px; color: #718096; font-size: 16px; }
-.filter-icons i { cursor: pointer; transition: 0.2s; }
-.filter-icons i:hover { color: #f97316; }
-
-/* Botões Novos */
-.btn-group { display: flex; gap: 10px; }
-
-.btn-outline {
-    background: white; border: 1px solid #cbd5e0; color: #4a5568;
-    padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;
-    display: flex; align-items: center; gap: 8px; transition: 0.2s;
-}
-.btn-outline:hover { background: #f7fafc; border-color: #a0aec0; }
-
-.btn-orange {
-    background: #f97316; border: none; color: white;
-    padding: 8px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;
-    transition: 0.2s; box-shadow: 0 2px 5px rgba(249, 115, 22, 0.3);
-}
-.btn-orange:hover { background: #ea580c; transform: translateY(-1px); }
-
-/* Tabela Clean */
-.table-clean { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.table-clean th { text-align: left; padding: 15px; color: #4a5568; font-size: 13px; font-weight: bold; border-bottom: 2px solid #edf2f7; background: #fff; }
-.table-clean td { padding: 15px; border-bottom: 1px solid #edf2f7; color: #2d3748; font-size: 14px; vertical-align: middle; }
-.table-clean tr:hover { background-color: #f7fafc; }
-
-.text-muted { color: #a0aec0; font-size: 12px; }
-.status-dot { height: 8px; width: 8px; background-color: #cbd5e0; border-radius: 50%; display: inline-block; margin-right: 5px; }
-
-/* --- ESTILO DO MODAL (POPUP) --- */
-
-/* O Fundo Escuro (Overlay) */
-.modal-overlay {
-    position: fixed; 
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Sombra preta transparente */
-    display: none; /* SEGREDO: Começa invisível! */
-    justify-content: center; 
-    align-items: center; 
-    z-index: 2000; /* Fica em cima de tudo */
-    backdrop-filter: blur(2px); /* Desfoque leve no fundo */
-}
-
-/* A Caixinha Branca */
-/* --- ESTILO DO MODAL (ATUALIZADO PARA ROLAGEM) --- */
-
-.modal {
-    background: white; 
-    padding: 30px; 
-    border-radius: 12px; 
-    width: 90%; 
-    max-width: 500px; 
-    
-    /* --- O SEGREDO DA ROLAGEM ESTÁ AQUI --- */
-    max-height: 90vh; /* Ocupa no máximo 90% da altura da tela */
-    overflow-y: auto; /* Se passar disso, cria barra de rolagem SÓ no modal */
-    position: relative; /* Para garantir posicionamento */
-    
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    animation: slideDown 0.3s ease-out;
-}
-
-/* Opcional: Deixar a barra de rolagem mais bonita e discreta */
-.modal::-webkit-scrollbar { width: 8px; }
-.modal::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
-.modal::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 8px; }
-.modal::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
-
-/* Título do Modal */
-.modal h2 {
-    margin-top: 0;
-    color: #ea580c; /* Laranja Escuro */
-    border-bottom: 1px solid #e5e7eb;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    font-size: 20px;
-}
-
-/* Campos do Formulário */
+/* --- ESTILOS GERAIS (MODAIS, BOTÕES, ETC) --- */
+.btn-new, .btn-add { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(47, 133, 90, 0.2); }
+.btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+.modal { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideDown 0.3s ease-out; }
+.modal h2 { margin-top: 0; color: #1e293b; font-size: 20px; margin-bottom: 20px; }
 .form-group { margin-bottom: 15px; }
-.form-group label { 
-    display: block; 
-    font-size: 14px; 
-    font-weight: 600; 
-    color: #374151; 
-    margin-bottom: 5px; 
-}
-.form-group input, .form-group select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 14px;
-    outline: none;
-    transition: 0.2s;
-    box-sizing: border-box; /* Garante que padding não estoure */
-}
-.form-group input:focus, .form-group select:focus {
-    border-color: #f97316; /* Laranja ao clicar */
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+.form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
+.modal-footer { display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end; }
+.btn-outline { background: white; border: 1px solid #cbd5e0; color: #64748b; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* Estilo para Navbar em fundo escuro (Dashboard) */
+.navbar.dark {
+    background-color: #1e293b; /* Mesma cor do fundo do dashboard */
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    box-shadow: none;
 }
 
-/* Botões do Rodapé */
-.modal-footer {
-    display: flex; 
-    gap: 10px; 
-    margin-top: 20px; 
-    justify-content: flex-end;
-}
-
-/* Animação */
-@keyframes slideDown {
-    from { transform: translateY(-20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+/* Força o botão hambúrguer a ficar branco dentro da navbar dark */
+.navbar.dark .menu-btn {
+    color: white !important;
 }
