@@ -156,8 +156,38 @@ app.put('/transacoes/:id/pagar', async (req, res) => {
         res.json({ ok: true });
     } catch (e) { res.status(500).json({ erro: "Erro" }); }
 });
+
+// Rota para BAIXAR (Pagar ou Receber) uma transação
+app.put('/transacoes/:id/baixar', async (req, res) => {
+    const { id } = req.params;
+    const { bancoId, dataPagamento, valorPago } = req.body; // Recebe qual banco e quando
+
+    try {
+        // Busca a transação original para saber se é DESPESA ou RECEITA
+        const original = await prisma.transacao.findUnique({ where: { id } });
+        
+        if (!original) return res.status(404).json({ erro: "Transação não encontrada" });
+
+        const novoStatus = original.tipo === 'DESPESA' ? 'PAGO' : 'RECEBIDO';
+
+        const atualizado = await prisma.transacao.update({
+            where: { id },
+            data: {
+                status: novoStatus,
+                bancoId: bancoId, // <--- O PULO DO GATO: Vincula ao banco aqui!
+                dataPagamento: new Date(dataPagamento),
+                valor: parseFloat(valorPago) // Atualiza o valor se foi pago diferente
+            }
+        });
+
+        res.json(atualizado);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ erro: "Erro ao dar baixa." });
+    }
+});
 // ==========================================
-// ROTA DE DASHBOARD (RESUMO FINANCEIRO)
+// ROTA DE DASHBOARD (CORRIGIDA - APENAS PAGOS)
 // ==========================================
 app.get('/dashboard/resumo', async (req, res) => {
     const { usuarioId } = req.query;
@@ -172,67 +202,62 @@ app.get('/dashboard/resumo', async (req, res) => {
         const bancos = await prisma.banco.findMany({ where: { usuarioId } });
         const saldoInicialTotal = bancos.reduce((acc, b) => acc + b.saldoInicial, 0);
 
-        // 2. Soma Todas as Receitas e Despesas (Para o Saldo Atual Global)
-        const agregadoGeral = await prisma.transacao.groupBy({
-            by: ['tipo'],
-            where: { usuarioId },
-            _sum: { valor: true }
-        });
-
-        // 3. Soma Receitas e Despesas APENAS do Mês Atual
-        const agregadoMes = await prisma.transacao.groupBy({
-            by: ['tipo'],
+        // 2. Soma RECEITAS (Apenas status RECEBIDO)
+        const totalReceitas = await prisma.transacao.aggregate({
+            _sum: { valor: true },
             where: { 
-                usuarioId,
+                usuarioId, 
+                tipo: 'RECEITA', 
+                status: 'RECEBIDO' // <--- O SEGREDO: Só conta se já recebeu
+            }
+        });
+
+        // 3. Soma DESPESAS (Apenas status PAGO)
+        const totalDespesas = await prisma.transacao.aggregate({
+            _sum: { valor: true },
+            where: { 
+                usuarioId, 
+                tipo: 'DESPESA', 
+                status: 'PAGO' // <--- O SEGREDO: Só conta se já pagou
+            }
+        });
+
+        // 4. Fluxo do Mês (Opcional: Pode mostrar Previsto ou Realizado. Aqui vamos mostrar REALIZADO)
+        const receitasMes = await prisma.transacao.aggregate({
+            _sum: { valor: true },
+            where: { 
+                usuarioId, 
+                tipo: 'RECEITA', 
+                status: 'RECEBIDO',
                 data: { gte: inicioMes, lte: fimMes }
-            },
-            _sum: { valor: true }
+            }
         });
 
-        // Processa os números gerais
-        let totalReceitas = 0;
-        let totalDespesas = 0;
-        agregadoGeral.forEach(item => {
-            if (item.tipo === 'RECEITA') totalReceitas = item._sum.valor || 0;
-            if (item.tipo === 'DESPESA') totalDespesas = item._sum.valor || 0;
-        });
-
-        // Processa os números do mês
-        let mesReceitas = 0;
-        let mesDespesas = 0;
-        agregadoMes.forEach(item => {
-            if (item.tipo === 'RECEITA') mesReceitas = item._sum.valor || 0;
-            if (item.tipo === 'DESPESA') mesDespesas = item._sum.valor || 0;
+        const despesasMes = await prisma.transacao.aggregate({
+            _sum: { valor: true },
+            where: { 
+                usuarioId, 
+                tipo: 'DESPESA', 
+                status: 'PAGO',
+                data: { gte: inicioMes, lte: fimMes }
+            }
         });
 
         // Cálculo Final
-        const saldoTotal = saldoInicialTotal + totalReceitas - totalDespesas;
+        const valorReceitas = totalReceitas._sum.valor || 0;
+        const valorDespesas = totalDespesas._sum.valor || 0;
+        
+        const saldoTotal = saldoInicialTotal + valorReceitas - valorDespesas;
 
         res.json({
             saldoTotal,
-            receitasMes: mesReceitas,
-            despesasMes: mesDespesas
+            receitasMes: receitasMes._sum.valor || 0,
+            despesasMes: despesasMes._sum.valor || 0
         });
 
     } catch (e) {
         console.error(e);
         res.status(500).json({ erro: "Erro ao calcular dashboard" });
-    }
-});
-
-// Rota para pegar as 5 últimas transações
-app.get('/dashboard/ultimas', async (req, res) => {
-    const { usuarioId } = req.query;
-    try {
-        const ultimas = await prisma.transacao.findMany({
-            where: { usuarioId },
-            orderBy: { data: 'desc' },
-            take: 5, // Pega apenas as 5 mais recentes
-            include: { banco: true } // Traz o nome do banco junto
-        });
-        res.json(ultimas);
-    } catch (e) {
-        res.status(500).json({ erro: "Erro ao buscar ultimas" });
     }
 });
 // ==========================================
@@ -287,14 +312,56 @@ app.patch('/eventos/:id/toggle', async (req, res) => {
 // ROTAS DE BANCOS (CRUD COMPLETO)
 // ==========================================
 // 1. Listar Bancos
+// 1. Listar Bancos (COM CÁLCULO DE SALDO ATUALIZADO)
 app.get('/bancos', async (req, res) => {
     const { usuarioId } = req.query; 
     if(!usuarioId) return res.json([]);
-    const bancos = await prisma.banco.findMany({ 
-        where: { usuarioId },
-        orderBy: { nome: 'asc' }
-    });
-    res.json(bancos);
+    
+    try {
+        // Busca bancos E suas transações (apenas as pagas/recebidas)
+        const bancos = await prisma.banco.findMany({ 
+            where: { usuarioId },
+            include: {
+                transacoes: {
+                    where: { 
+                        OR: [
+                            { status: 'PAGO' },
+                            { status: 'RECEBIDO' }
+                        ]
+                    }
+                }
+            },
+            orderBy: { nome: 'asc' }
+        });
+
+        // Calcula o saldo atual de cada banco na memória
+        const bancosComSaldo = bancos.map(b => {
+            let saldoAtual = b.saldoInicial;
+
+            // Percorre as transações desse banco e soma/subtrai
+            b.transacoes.forEach(t => {
+                if (t.tipo === 'RECEITA') {
+                    // Se foi pago um valor diferente do original, usa o valorPago (se tiver logica pra isso) ou valor normal
+                    saldoAtual += t.valor; 
+                } else if (t.tipo === 'DESPESA') {
+                    saldoAtual -= t.valor;
+                }
+            });
+
+            // Retorna o banco com o campo extra "saldoAtual"
+            return {
+                ...b,
+                saldoAtual: saldoAtual, // Campo calculado
+                transacoes: undefined   // Removemos a lista pra não pesar o JSON
+            };
+        });
+
+        res.json(bancosComSaldo);
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ erro: "Erro ao buscar bancos" });
+    }
 });
 // 2. Criar Banco
 app.post('/bancos', async (req, res) => {

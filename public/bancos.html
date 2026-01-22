@@ -145,7 +145,14 @@
             lista.forEach(b => {
                 const classeInativo = b.inativo ? 'inativo' : '';
                 const dataFormatada = b.dataSaldoInicial ? new Date(b.dataSaldoInicial).toLocaleDateString('pt-BR') : '-';
-                const saldoFormatado = parseFloat(b.saldoInicial).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+                
+                // --- LÓGICA NOVA DE SALDO ---
+                const valorParaMostrar = (b.saldoAtual !== undefined) ? b.saldoAtual : b.saldoInicial;
+                const saldoFormatado = parseFloat(valorParaMostrar).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+                
+                // Se o saldo atual for negativo, coloca cor vermelha
+                const corSaldo = valorParaMostrar < 0 ? '#e53e3e' : '#2f855a'; 
+                // -----------------------------
 
                 container.innerHTML += `
                     <div class="bank-card ${classeInativo}">
@@ -155,7 +162,10 @@
                                 Ag: ${b.agencia || '-'} | CC: ${b.conta || '-'}
                             </div>
                             <div class="bank-balance">
-                                Saldo Inicial: ${saldoFormatado} <span style="font-weight:normal; font-size:11px; color:#94a3b8;">em ${dataFormatada}</span>
+                                Saldo Atual: <span style="color: ${corSaldo}">${saldoFormatado}</span> 
+                                <div style="font-weight:normal; font-size:10px; color:#94a3b8; margin-top:3px;">
+                                    (Inicial: ${parseFloat(b.saldoInicial).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})})
+                                </div>
                             </div>
                         </div>
                         <div class="bank-actions">

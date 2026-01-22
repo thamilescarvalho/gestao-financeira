@@ -9,6 +9,7 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="auth.js"></script>
     <script src="script.js"></script> 
 
@@ -153,7 +154,7 @@
             </table>
 
             <div class="card-footer">
-                <button onclick="calcularTotal()" style="background:none; border:none; color: #ed8936; font-weight:600; cursor:pointer;">
+                <button onclick="carregarBancos()" style="background:none; border:none; color: #ed8936; font-weight:600; cursor:pointer;">
                     <i class="fas fa-sync-alt"></i> Atualizar Saldos
                 </button>
                 <span id="displayTotal" style="font-weight: 700; color: #2d3748; font-size: 16px;"></span>
@@ -201,7 +202,7 @@
         async function carregarBancos() {
             if(!usuario) return;
             try {
-                // Fetch buscando os bancos do usuário
+                // Fetch buscando os bancos do usuário (Agora o backend já calcula o Saldo Atual)
                 const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
                 const bancos = await res.json();
                 bancosCache = bancos;
@@ -224,7 +225,10 @@
             lista.forEach(banco => {
                 const agencia = banco.agencia || '-';
                 const conta = banco.conta || '-';
-                const saldo = parseFloat(banco.saldoInicial || 0);
+                
+                // MUDANÇA PRINCIPAL: Se existir saldoAtual (calculado), usa ele. Se não, usa o inicial.
+                const saldoParaMostrar = (banco.saldoAtual !== undefined) ? banco.saldoAtual : banco.saldoInicial;
+                const saldo = parseFloat(saldoParaMostrar || 0);
                 
                 tbody.innerHTML += `
                     <tr class="row-clickable" onclick="abrirDetalhes('${banco.id}')" title="Clique para ver detalhes">
@@ -256,15 +260,18 @@
             // Preenche info do banco
             document.getElementById('detalheNomeBanco').innerText = banco.nome;
             document.getElementById('detalheConta').innerText = `Ag: ${banco.agencia || '-'} | CC: ${banco.conta || '-'}`;
-            document.getElementById('detalheSaldo').innerText = formatarMoedaLocal(banco.saldoInicial || 0);
+            
+            // MUDANÇA: Usa o Saldo Atual aqui também
+            const saldoParaMostrar = (banco.saldoAtual !== undefined) ? banco.saldoAtual : banco.saldoInicial;
+            document.getElementById('detalheSaldo').innerText = formatarMoedaLocal(saldoParaMostrar || 0);
 
-            // Preenche lista vazia (Empty State)
+            // Preenche lista vazia (Empty State) - Aqui futuramente listaremos o extrato
             const listaContainer = document.getElementById('listaMovimentosBanco');
             listaContainer.innerHTML = `
                 <div class="empty-state">
                     <i class="far fa-folder-open"></i>
-                    <p style="font-weight: 600; margin: 0; color: #4a5568;">Nenhuma movimentação hoje</p>
-                    <p style="font-size: 13px;">As transações deste banco aparecerão aqui.</p>
+                    <p style="font-weight: 600; margin: 0; color: #4a5568;">Extrato</p>
+                    <p style="font-size: 13px;">As transações aparecerão aqui em breve.</p>
                 </div>
             `;
 
@@ -290,14 +297,25 @@
         }
 
         function calcularTotal() {
-            let total = bancosCache.reduce((acc, b) => acc + (parseFloat(b.saldoInicial) || 0), 0);
+            let total = bancosCache.reduce((acc, b) => {
+                // MUDANÇA: Soma o Saldo Atual, não o Inicial
+                const val = (b.saldoAtual !== undefined) ? parseFloat(b.saldoAtual) : parseFloat(b.saldoInicial);
+                return acc + (val || 0);
+            }, 0);
+
             const display = document.getElementById('displayTotal');
             display.innerText = `Total Geral: ${formatarMoedaLocal(total)}`;
             display.style.color = total >= 0 ? '#2f855a' : '#c53030';
         }
 
         function processarOFX(input) {
-            if(input.files[0]) alert("Arquivo OFX selecionado! Em breve processaremos os dados.");
+            if(input.files[0]) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Upload Iniciado',
+                    text: 'A funcionalidade de leitura OFX está configurada no servidor. Para visualizar a tabela de importação, precisamos adaptar este layout futuramente ou usar um modal.',
+                });
+            }
         }
     </script>
 </body>

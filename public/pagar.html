@@ -380,10 +380,25 @@
             const id = document.getElementById('baixaId').value;
             const bancoId = document.getElementById('baixaBanco').value;
             if(!bancoId) return Swal.fire({icon: 'error', text: 'Selecione o Banco!'});
+            
             const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value);
+            // CORREÇÃO: Calcula o valor pago e envia como 'valorPago' para bater com o servidor
             const valorFinal = vOrig + Number(document.getElementById('baixaJuros').value) - Number(document.getElementById('baixaDesconto').value);
-            await fetch(`/transacoes/${id}/pagar`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoId, dataPagamento: document.getElementById('baixaData').value, valorFinal }) });
-            fecharModalBaixa(); Toast.fire({ icon: 'success', title: 'Pago!' }); carregar();
+            
+            // CORREÇÃO: Endpoint correto (/baixar) e campo correto (valorPago)
+            await fetch(`/transacoes/${id}/baixar`, { 
+                method: 'PUT', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ 
+                    bancoId, 
+                    dataPagamento: document.getElementById('baixaData').value, 
+                    valorPago: valorFinal 
+                }) 
+            });
+            
+            fecharModalBaixa(); 
+            Toast.fire({ icon: 'success', title: 'Pago!' }); 
+            carregar();
         }
 
         function deletar(id) {
