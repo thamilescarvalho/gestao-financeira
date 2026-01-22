@@ -600,5 +600,74 @@ app.post('/conciliacao/ler-ofx', upload.single('arquivo'), (req, res) => {
     }
 });
 
+// ==========================================
+// ROTAS DE AUTENTICAÇÃO (LOGIN E CADASTRO)
+// ==========================================
+
+// 1. LOGIN (Para o botão "Entrar")
+app.post('/auth/login', async (req, res) => {
+    const { email, senha } = req.body;
+
+    try {
+        // Busca o usuário pelo email
+        const usuario = await prisma.usuario.findUnique({ where: { email } });
+        
+        if (!usuario) {
+            return res.status(400).json({ erro: "Email não cadastrado." });
+        }
+
+        // Verifica se a senha bate (usando bcrypt que você já importou)
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+        
+        if (!senhaValida) {
+            return res.status(401).json({ erro: "Senha incorreta." });
+        }
+
+        // Retorna os dados do usuário para o Frontend salvar
+        res.json({
+            id: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email,
+            role: usuario.role
+        });
+
+    } catch (e) {
+        console.error("Erro no Login:", e);
+        res.status(500).json({ erro: "Erro interno no servidor." });
+    }
+});
+
+// 2. REGISTRAR / CRIAR CONTA (Para a aba "Criar Conta")
+app.post('/auth/registrar', async (req, res) => {
+    const { nome, email, senha } = req.body;
+
+    try {
+        // Verifica se já existe
+        const existe = await prisma.usuario.findUnique({ where: { email } });
+        if (existe) {
+            return res.status(400).json({ erro: "Email já está em uso." });
+        }
+
+        // Criptografa a senha antes de salvar
+        const hashSenha = await bcrypt.hash(senha, 10);
+
+        // Cria no banco
+        const novoUsuario = await prisma.usuario.create({
+            data: {
+                nome,
+                email,
+                senha: hashSenha,
+                role: 'USER' // Padrão usuário comum
+            }
+        });
+
+        res.json(novoUsuario);
+
+    } catch (e) {
+        console.error("Erro no Registro:", e);
+        res.status(500).json({ erro: "Erro ao criar conta." });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Servidor rodando na porta ${PORT}`); });
