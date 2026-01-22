@@ -3,318 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <title>Contas a Pagar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script src="auth.js"></script>
     <script src="script.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .content { padding: 30px; }
+
+        /* --- HEADER ATUALIZADO --- */
+        .page-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            flex-wrap: wrap; 
+            gap: 15px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center; /* Alinha no centro verticalmente */
+            gap: 20px;
+        }
+
+        .page-title { 
+            font-size: 24px; 
+            font-weight: 700; 
+            color: #1e293b; 
+            margin: 0;
+        }
+
+        /* Estilo do link Agrupamentos */
+        .header-link {
+            text-decoration: none; 
+            color: #64748b; 
+            font-weight: 600; 
+            font-size: 15px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: 0.2s; 
+            cursor: pointer;
+        }
+        .header-link:hover { color: #1e293b; background-color: #e2e8f0; }
+
+        /* Grupo de Botões (Importar / Novo) */
+        .header-actions { display: flex; gap: 10px; }
+
+        .btn-import {
+            background: white; color: #475569; border: 1px solid #e2e8f0;
+            padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-import:hover { background: #f8fafc; border-color: #cbd5e0; color: #1e293b; }
+
+        .btn-new {
+            background-color: #e53e3e; color: white; padding: 10px 20px; border-radius: 8px;
+            font-weight: 600; font-size: 14px; border: none; cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(229, 62, 62, 0.2); transition: 0.2s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn-new:hover { background-color: #c53030; transform: translateY(-1px); }
+
+        /* --- BARRA DE FILTROS --- */
+        .modern-toolbar {
+            background: white; padding: 8px 15px; border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+            display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;
+            white-space: nowrap; overflow-x: auto;
+        }
+
+        .total-badge {
+            background: #fff5f5; color: #c53030; padding: 5px 12px; border-radius: 20px;
+            font-weight: 700; font-size: 12px; border: 1px solid #fed7d7; flex-shrink: 0;
+        }
+
+        .divider { width: 1px; height: 20px; background-color: #e2e8f0; flex-shrink: 0; }
+
+        .filter-pill {
+            display: flex; align-items: center; gap: 6px; padding: 5px 10px;
+            border-radius: 20px; transition: all 0.3s ease;
+            background: transparent; border: 1px solid transparent; flex-shrink: 0;
+        }
+        .filter-pill:hover, .filter-pill:focus-within { background-color: #f8fafc; border-color: #e2e8f0; }
+        .filter-pill i { color: #94a3b8; font-size: 14px; }
+        .filter-pill:focus-within i { color: #e53e3e; }
+
+        .clean-input {
+            border: none; background: transparent; outline: none;
+            font-size: 13px; color: #475569; font-weight: 500; width: 80px; transition: width 0.3s ease;
+        }
+        .filter-pill:focus-within .clean-input { width: 160px; } 
+        
+        .date-input {
+            border: none; background: transparent; outline: none;
+            font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif; width: 95px;
+        }
+        .clean-select {
+            border: none; background: transparent; outline: none;
+            font-size: 13px; color: #475569; font-weight: 500; cursor: pointer; width: auto;
+        }
+
+        .btn-limpar { 
+            font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: auto; 
+            text-decoration: none; border: none; background: none; white-space: nowrap;
+        }
+        .btn-limpar:hover { color: #c53030; text-decoration: underline; }
+
+        /* TABELA */
+        .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; margin-top: 20px; }
+        .clean-table { width: 100%; border-collapse: collapse; }
+        .clean-table th {
+            text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600;
+            color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; background: #f8fafc;
+        }
+        .clean-table td { padding: 16px 24px; font-size: 14px; color: #334155; border-bottom: 1px solid #f1f5f9; }
+        .clean-table tr:hover { background-color: #fcfcfc; }
+        
+        /* CARD DE CÁLCULO */
+        .calc-box {
+            background-color: #f0fff4; border: 1px solid #c6f6d5; border-radius: 8px; padding: 15px; margin-top: 15px;
+        }
+        .calc-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .calc-total { font-size: 20px; font-weight: 700; color: #2f855a; text-align: right; border-top: 1px solid #9ae6b4; padding-top: 10px; margin-top: 10px; }
+
+        div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
+        div:where(.swal2-popup) { border-radius: 15px !important; font-size: 14px !important; }
+        div:where(.swal2-title) { color: #1e293b !important; font-size: 20px !important; }
+    </style>
 </head>
 <body>
     
-    <div class="sidebar" id="sidebar">
-        </div>
-
+    <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
+
     <nav class="navbar">
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">G.T SYSTEM - GESTÃO FINANCEIRA</div>
+        <div class="logo">Financeiro</div>
         <div></div>
     </nav>
 
     <div class="content">
         
         <div class="page-header">
-            <div class="page-title">
-                Contas a pagar
-                <span class="tabs-link active">Carteira</span>
-                <span class="tabs-link" onclick="alert('Em breve!')">Agrupamentos</span>
+            <div class="header-left">
+                <h1 class="page-title">Contas a Pagar</h1>
+                <a onclick="Swal.fire('Em breve', 'Funcionalidade em desenvolvimento.', 'info')" class="header-link">Agrupamentos</a>
             </div>
             
-            <div class="btn-group">
-                <button class="btn-outline" onclick="alert('Importação OFX/Excel em breve!')">
+            <div class="header-actions">
+                <button class="btn-import" onclick="Swal.fire('Em breve', 'Importação de arquivos.', 'info')">
                     <i class="fas fa-file-import"></i> Importar
                 </button>
-                <button class="btn-orange" onclick="abrirModal()">
-                    Novo
-                </button>
-                <button class="btn-outline" onclick="abrirModal()" style="color: #f97316; border-color: #f97316;">
-                    Conta rápida <i class="fas fa-chevron-down"></i>
+                <button class="btn-new" onclick="abrirModal()">
+                    <i class="fas fa-plus"></i> Novo
                 </button>
             </div>
         </div>
 
-        <div class="toolbar">
-            <div class="total-badge">
-                Total: <span id="total-esteira" class="total-valor">R$ 0,00</span>
+        <div class="modern-toolbar">
+            <div class="total-badge">Total: <span id="total-esteira">R$ 0,00</span></div>
+            <div class="divider"></div>
+
+            <div class="filter-pill" style="gap: 2px;">
+                <i class="far fa-calendar" style="margin-right: 5px;"></i>
+                <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()">
+                <span style="color: #cbd5e0; font-size: 10px;">ATÉ</span>
+                <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()">
+            </div>
+            <div class="divider"></div>
+
+            <div class="filter-pill">
+                <i class="far fa-user"></i>
+                <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Fornecedor" onkeyup="aplicarFiltros()">
+            </div>
+            <div class="filter-pill">
+                <i class="far fa-credit-card"></i>
+                <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()">
+                    <option value="">Forma Pagto</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Boleto">Boleto</option>
+                    <option value="Cartão">Cartão</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                </select>
+            </div>
+            <div class="filter-pill">
+                <i class="fas fa-search"></i>
+                <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição" onkeyup="aplicarFiltros()">
             </div>
 
-            <div class="filter-icons">
-                <i class="fas fa-calendar-alt" title="Filtrar Data"></i>
-                <i class="fas fa-gift" title="Categorias"></i>
-                <i class="fas fa-handshake" title="Fornecedores"></i>
-                <i class="fas fa-chart-line" title="Gráficos"></i>
-                <i class="fas fa-print" title="Imprimir" onclick="window.print()"></i>
-            </div>
+            <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
         </div>
 
-        <table class="table-clean">
-            <thead>
-                <tr>
-                    <th>Fornecedor</th>
-                    <th>Parcela</th>
-                    <th>Vencimento</th>
-                    <th>Valor</th>
-                    <th>Descrição / Categoria</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="lista">
-                </tbody>
-        </table>
+        <div class="table-container">
+            <table class="clean-table">
+                <thead>
+                    <tr>
+                        <th>Fornecedor</th>
+                        <th>Vencimento</th>
+                        <th>Valor</th>
+                        <th>Forma Pgto</th>
+                        <th>Descrição</th>
+                        <th style="text-align: right;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="lista"></tbody>
+            </table>
+        </div>
     </div>
 
     <div class="modal-overlay" id="modalConta">
         <div class="modal">
-            <h2>Nova Despesa</h2>
+            <h2 style="color: #c53030;">Nova Conta a Pagar</h2>
             
-            <div class="form-group">
-                <label>Fornecedor</label>
-                <input type="text" id="inputFornecedor" placeholder="Ex: Cemig, Amazon, Fulano">
+            <div class="form-group"><label>Fornecedor</label><input type="text" id="inputFornecedor" placeholder="Nome do fornecedor"></div>
+            <div class="form-row">
+                <div class="form-group"><label>Valor (R$)</label><input type="number" id="valor" step="0.01" placeholder="0,00"></div>
+                <div class="form-group"><label>Vencimento</label><input type="date" id="dataVenc"></div>
             </div>
-
             <div class="form-row">
                 <div class="form-group">
-                    <label>Valor (R$)</label>
-                    <input type="number" id="valor" step="0.01" placeholder="0,00">
+                    <label>Forma de Pagto</label>
+                    <select id="formaPagto">
+                        <option value="Boleto">Boleto</option>
+                        <option value="Pix">Pix</option>
+                        <option value="Cartão">Cartão de Crédito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                    </select>
                 </div>
-                <div class="form-group">
-                    <label>Parcelas</label>
-                    <input type="number" id="parcelas" value="1" min="1">
-                </div>
+                <div class="form-group"><label>Parcelas</label><input type="number" id="parcelas" value="1"></div>
             </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Data Competência</label>
-                    <input type="date" id="dataComp">
-                </div>
-                <div class="form-group">
-                    <label>Data Vencimento</label>
-                    <input type="date" id="dataVenc">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Categoria</label>
-                <select id="categoria">
-                    <option value="Geral">Geral</option>
-                    <option value="Marketing">Marketing</option>
-                    <option value="Infraestrutura">Infraestrutura</option>
-                    <option value="Pessoal">Pessoal</option>
-                    <option value="Impostos">Impostos</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Forma de Pagamento</label>
-                <select id="formaPagto">
-                    <option value="Boleto">Boleto Bancário</option>
-                    <option value="Pix">Pix</option>
-                    <option value="Cartão Crédito">Cartão de Crédito</option>
-                    <option value="Transferência">Transferência</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Descrição do Pagamento</label>
-                <input type="text" id="inputDescricao" placeholder="Ex: Conta de Luz">
-            </div>
-
+            <div class="form-group"><label>Descrição</label><input type="text" id="inputDescricao" placeholder="Ex: Conta de Luz"></div>
             <div class="modal-footer">
                 <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
-                <button class="btn-orange" onclick="salvarConta()">SALVAR CONTA</button>
+                <button class="btn-new" onclick="salvarConta()">SALVAR CONTA</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="modalBaixa">
-        <div class="modal">
-            <h2 style="color: #2f855a;">💸 Realizar Pagamento</h2>
+        <div class="modal" style="max-width: 400px;">
+            <h2 style="color: #2f855a; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-check-circle"></i> Realizar Pagamento
+            </h2>
             
             <input type="hidden" id="baixaId">
             <input type="hidden" id="baixaValorOriginal">
 
             <div class="form-group">
                 <label>Fornecedor</label>
-                <input type="text" id="baixaFornecedor" readonly style="background-color: #f7fafc; color: #718096;">
+                <input type="text" id="baixaFornecedor" readonly style="background: #f8fafc; color: #64748b; border-color: #e2e8f0;">
             </div>
 
             <div class="form-group">
                 <label>Conta de Saída (Banco)</label>
-                <select id="baixaBanco"></select> 
+                <select id="baixaBanco" style="border-color: #cbd5e0;">
+                    </select>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Data Pagamento</label>
-                    <input type="date" id="baixaData">
-                </div>
-                <div class="form-group">
-                    <label>Valor Original</label>
-                    <input type="text" id="displayValorOriginal" readonly style="background: #f7fafc;">
-                </div>
+            <div class="form-group">
+                <label>Data do Pagamento</label>
+                <input type="date" id="baixaData">
             </div>
 
-            <div style="background: #f0fff4; padding: 15px; border-radius: 8px; border: 1px solid #c6f6d5; margin-bottom: 15px;">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Juros / Multa (+)</label>
-                        <input type="number" id="baixaJuros" value="0" step="0.01" oninput="calcularTotalBaixa()">
-                    </div>
-                    <div class="form-group">
-                        <label>Desconto (-)</label>
-                        <input type="number" id="baixaDesconto" value="0" step="0.01" oninput="calcularTotalBaixa()">
-                    </div>
+            <div class="calc-box">
+                <div class="calc-row">
+                    <span style="color: #4a5568;">Valor Original</span>
+                    <strong id="displayValorOriginal">R$ 0,00</strong>
                 </div>
                 
-                <div style="text-align: right; margin-top: 10px;">
-                    <label style="display:block; font-size: 12px; color: #555;">Valor Final a Pagar:</label>
-                    <span id="baixaTotalFinal" style="font-size: 24px; font-weight: bold; color: #2f855a;">R$ 0,00</span>
+                <div class="form-row" style="gap: 10px; margin-bottom: 0;">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 11px;">Juros/Multa (+)</label>
+                        <input type="number" id="baixaJuros" value="0" step="0.01" oninput="calcularTotalBaixa()" style="background: white;">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 11px;">Desconto (-)</label>
+                        <input type="number" id="baixaDesconto" value="0" step="0.01" oninput="calcularTotalBaixa()" style="background: white;">
+                    </div>
+                </div>
+
+                <div class="calc-total">
+                    <div style="font-size: 12px; color: #718096; font-weight: normal;">Valor Final a Pagar:</div>
+                    <div id="baixaTotalFinal">R$ 0,00</div>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button class="btn-outline" onclick="fecharModalBaixa()">Cancelar</button>
-                <button class="btn-orange" style="background-color: #2f855a;" onclick="confirmarPagamento()">CONFIRMAR PAGAMENTO</button>
+                <button class="btn-new" onclick="confirmarBaixa()" style="background-color: #2f855a; box-shadow: none;">CONFIRMAR PAGAMENTO</button>
             </div>
         </div>
     </div>
 
     <script>
-        // CONFIGURAÇÕES INICIAIS
-        document.getElementById('dataComp').valueAsDate = new Date();
-        document.getElementById('dataVenc').valueAsDate = new Date();
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
-        let transacoesAtuais = []; // Variável Global Importante
+        let transacoesCache = [];
 
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); document.querySelector('.overlay').classList.toggle('ativo'); }
-        function abrirModal() { document.getElementById('modalConta').style.display = 'flex';}
+        const Toast = Swal.mixin({
+            toast: true, position: 'top-end', showConfirmButton: false,
+            timer: 3000, timerProgressBar: true,
+            didOpen: (toast) => { toast.addEventListener('mouseenter', Swal.stopTimer); toast.addEventListener('mouseleave', Swal.resumeTimer); }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('dataVenc').valueAsDate = new Date();
+            carregar();
+        });
+
+        function abrirModal() { document.getElementById('modalConta').style.display = 'flex'; }
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
         function fecharModalBaixa() { document.getElementById('modalBaixa').style.display = 'none'; }
 
-        // --- FUNÇÃO DE CARREGAR A TABELA ---
         async function carregar() {
-            if(!usuario || !usuario.id) {
-                console.error("ERRO CRÍTICO: Usuário não logado ou sem ID!");
-                return;
-            }
-
+            if(!usuario) return;
             try {
                 const url = `/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`;
                 const res = await fetch(url);
-                
-                if (!res.ok) throw new Error(`Erro no servidor: ${res.status}`);
-
-                const dados = await res.json();
-                console.log("Contas encontradas:", dados);
-                transacoesAtuais = dados; // Salva para uso no modal de baixa
-
-                const lista = document.getElementById('lista');
-                lista.innerHTML = '';
-                
-                if (dados.length === 0) {
-                    lista.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px;">Nenhuma conta pendente encontrada.</td></tr>';
-                    document.getElementById('total-esteira').innerText = 'R$ 0,00';
-                    return;
-                }
-
-                let somaTotal = 0;
-
-                dados.forEach(item => {
-                    somaTotal += Number(item.valor);
-                    
-                    let textoDescricao = item.descricao;
-                    let parcelaTexto = 'Unica';
-                    
-                    if(item.descricao && item.descricao.includes('(') && item.descricao.includes('/')) {
-                        const partes = item.descricao.split(' (');
-                        textoDescricao = partes[0]; 
-                        parcelaTexto = partes[1].replace(')', '');
-                    }
-
-                    const textoFornecedor = item.fornecedor || textoDescricao || "Sem Nome"; 
-                    const dataRef = item.dataVencimento || item.data;
-                    const vencimento = new Date(dataRef);
-                    
-                    lista.innerHTML += `
-                        <tr>
-                            <td style="font-weight: 500;">
-                                <div style="font-size: 15px; color: #1a202c;">${textoFornecedor}</div>
-                                <div style="font-size: 12px; color: #718096;">${textoDescricao}</div>
-                            </td>
-                            <td class="text-muted">${parcelaTexto}</td>
-                            <td>${vencimento.toLocaleDateString('pt-BR')}</td>
-                            <td style="font-weight: bold;">${Number(item.valor).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</td>
-                            <td class="text-muted">${item.categoria || 'Geral'}</td>
-                            <td>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <button onclick="baixar('${item.id}')" style="border:none; background:none; cursor:pointer; color: green;" title="Pagar"><i class="fas fa-check-circle"></i></button>
-                                    <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color: red;" title="Excluir"><i class="fas fa-trash"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById('total-esteira').innerText = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(somaTotal);
-            
-            } catch (erro) {
-                console.error("Erro ao carregar lista:", erro);
-            }
+                transacoesCache = await res.json();
+                aplicarFiltros(); 
+            } catch (erro) { console.error(erro); }
         }
 
-        // --- SALVAR NOVA CONTA ---
-        async function salvarConta() {
-            const dados = {
-                fornecedor: document.getElementById('inputFornecedor').value,
-                descricao: document.getElementById('inputDescricao').value,
-                valor: document.getElementById('valor').value,
-                parcelas: document.getElementById('parcelas').value,
-                data: document.getElementById('dataComp').value,
-                dataVencimento: document.getElementById('dataVenc').value,
-                formaPagamento: document.getElementById('formaPagto').value,
-                categoria: document.getElementById('categoria').value,
-                tipo: 'DESPESA',
-                usuarioId: usuario.id
-            };
+        function aplicarFiltros() {
+            const inicio = document.getElementById('filtroInicio').value;
+            const fim = document.getElementById('filtroFim').value;
+            const forn = document.getElementById('filtroFornecedor').value.toLowerCase();
+            const desc = document.getElementById('filtroDesc').value.toLowerCase();
+            const pagto = document.getElementById('filtroPagto').value; 
 
-            if(!dados.fornecedor || !dados.valor) {
-                return alert("Erro: O campo Fornecedor e o Valor são obrigatórios!");
-            }
-
-            await fetch('/transacoes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dados)
+            const filtrados = transacoesCache.filter(item => {
+                const dataItem = item.dataVencimento || item.data;
+                if (inicio && dataItem < inicio) return false;
+                if (fim && dataItem > fim) return false;
+                
+                const itemForn = (item.fornecedor || '').toLowerCase();
+                const itemDesc = (item.descricao || '').toLowerCase();
+                if (forn && !itemForn.includes(forn)) return false;
+                if (desc && !itemDesc.includes(desc)) return false;
+                if (pagto && item.formaPagamento !== pagto) return false;
+                return true;
             });
-
-            // Limpa e recarrega
-            document.getElementById('inputFornecedor').value = '';
-            document.getElementById('inputDescricao').value = '';
-            document.getElementById('valor').value = '';
-            fecharModal();
-            carregar();
+            renderizarLista(filtrados);
         }
 
-        // --- LÓGICA DE BAIXA (PAGAMENTO) ---
-        async function baixar(id) {
-            const item = transacoesAtuais.find(t => t.id === id);
+        function limparFiltros() {
+            document.getElementById('filtroInicio').value = '';
+            document.getElementById('filtroFim').value = '';
+            document.getElementById('filtroFornecedor').value = '';
+            document.getElementById('filtroDesc').value = '';
+            document.getElementById('filtroPagto').value = '';
+            aplicarFiltros();
+        }
+
+        function renderizarLista(lista) {
+            const tbody = document.getElementById('lista');
+            tbody.innerHTML = '';
+            let total = 0;
+
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta encontrada.</td></tr>';
+                document.getElementById('total-esteira').innerText = 'R$ 0,00';
+                return;
+            }
+
+            lista.forEach(item => {
+                total += parseFloat(item.valor);
+                const dataRef = item.dataVencimento || item.data;
+                const dataObj = new Date(dataRef.includes('T') ? dataRef : dataRef + 'T12:00:00');
+                const vencimento = dataObj.toLocaleDateString('pt-BR');
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight: 600; color: #1e293b;">${item.fornecedor || 'Fornecedor'}</td>
+                        <td style="color: #64748b;">${vencimento}</td>
+                        <td style="color: #c53030; font-weight: 700;">${formatarMoeda(item.valor)}</td>
+                        <td>${item.formaPagamento || '-'}</td>
+                        <td style="color: #334155;">${item.descricao || ''}</td>
+                        <td style="text-align: right;">
+                            <button onclick="prepararBaixa('${item.id}')" style="border:none; background:none; cursor:pointer; color:#2f855a; margin-right:10px;" title="Pagar">
+                                <i class="fas fa-check-circle" style="font-size: 16px;"></i>
+                            </button>
+                            <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color:#ef4444;" title="Excluir">
+                                <i class="fas fa-trash-alt" style="font-size: 16px;"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            document.getElementById('total-esteira').innerText = formatarMoeda(total);
+        }
+
+        async function prepararBaixa(id) {
+            const item = transacoesCache.find(t => t.id === id);
             if(!item) return;
 
             document.getElementById('baixaId').value = id;
-            // AQUI ESTAVA O ERRO DE ID: Corrigido para baixaFornecedor
             document.getElementById('baixaFornecedor').value = item.fornecedor || item.descricao;
             document.getElementById('baixaValorOriginal').value = item.valor;
-            document.getElementById('displayValorOriginal').value = Number(item.valor).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('displayValorOriginal').innerText = formatarMoeda(item.valor);
+            
             document.getElementById('baixaData').valueAsDate = new Date();
             document.getElementById('baixaJuros').value = 0;
             document.getElementById('baixaDesconto').value = 0;
@@ -329,62 +423,91 @@
             select.innerHTML = '<option value="">Selecione o Banco...</option>';
             const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
             const bancos = await res.json();
-            bancos.forEach(b => {
-                select.innerHTML += `<option value="${b.id}">${b.nome}</option>`;
-            });
+            bancos.forEach(b => { select.innerHTML += `<option value="${b.id}">${b.nome}</option>`; });
         }
 
         function calcularTotalBaixa() {
-            const valorOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
+            const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value) || 0;
             const juros = parseFloat(document.getElementById('baixaJuros').value) || 0;
-            const desconto = parseFloat(document.getElementById('baixaDesconto').value) || 0;
-            const total = valorOriginal + juros - desconto;
-            document.getElementById('baixaTotalFinal').innerText = total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            const desc = parseFloat(document.getElementById('baixaDesconto').value) || 0;
+            const total = vOrig + juros - desc;
+            document.getElementById('baixaTotalFinal').innerText = formatarMoeda(total);
         }
 
-        async function confirmarPagamento() {
+        async function confirmarBaixa() {
             const id = document.getElementById('baixaId').value;
             const bancoId = document.getElementById('baixaBanco').value;
             const dataPagamento = document.getElementById('baixaData').value;
             const juros = document.getElementById('baixaJuros').value;
             const desconto = document.getElementById('baixaDesconto').value;
-            
-            const valorOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
-            const valorFinal = valorOriginal + Number(juros) - Number(desconto);
+            const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value);
+            const valorFinal = vOrig + Number(juros) - Number(desconto);
 
-            if(!bancoId) return alert("Selecione o Banco de onde saiu o dinheiro!");
-
-            await fetch(`/transacoes/${id}/pagar`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bancoId, dataPagamento, juros, desconto, valorFinal })
-            });
-
-            fecharModalBaixa();
-            carregar(); // Recarrega a tabela corretamente
-        }
-
-        async function deletar(id) {
-            if(confirm("Deseja realmente excluir esta conta?")) {
-                await fetch(`/transacoes/${id}`, { method: 'DELETE' });
-                carregar();
+            if(!bancoId) {
+                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Selecione o Banco de onde saiu o dinheiro!' });
+                return;
             }
+
+            try {
+                const res = await fetch(`/transacoes/${id}/pagar`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bancoId, dataPagamento, juros, desconto, valorFinal })
+                });
+
+                if(res.ok) {
+                    fecharModalBaixa();
+                    Toast.fire({ icon: 'success', title: 'Pagamento confirmado!' });
+                    carregar();
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível confirmar o pagamento.' });
+                }
+            } catch(e) { console.error(e); }
         }
 
-        // --- INICIALIZAÇÃO SEGURA ---
-        function iniciar() {
-            const tabela = document.getElementById('lista');
-            if (tabela) {
-                carregar();
-            } else {
-                console.log("Aguardando tabela desenhar...");
-                setTimeout(iniciar, 100);
+        async function salvarConta() {
+            const dados = {
+                fornecedor: document.getElementById('inputFornecedor').value,
+                valor: parseFloat(document.getElementById('valor').value),
+                dataVencimento: document.getElementById('dataVenc').value,
+                data: document.getElementById('dataVenc').value,
+                formaPagamento: document.getElementById('formaPagto').value,
+                descricao: document.getElementById('inputDescricao').value,
+                parcelas: parseInt(document.getElementById('parcelas').value),
+                tipo: 'DESPESA', status: 'PENDENTE', usuarioId: usuario.id
+            };
+            if(!dados.fornecedor || !dados.valor) {
+                Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha Fornecedor e Valor!' });
+                return;
             }
+
+            try {
+                const res = await fetch('/transacoes', { 
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) 
+                });
+                if(res.ok) {
+                    fecharModal();
+                    Toast.fire({ icon: 'success', title: 'Conta salva com sucesso!' });
+                    document.getElementById('inputFornecedor').value = ''; 
+                    document.getElementById('valor').value = '';
+                    document.getElementById('inputDescricao').value = '';
+                    limparFiltros(); carregar(); 
+                } else { Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao salvar conta.' }); }
+            } catch (e) { Swal.fire({ icon: 'error', title: 'Erro', text: 'Sem conexão com servidor.' }); }
         }
 
-        document.addEventListener('DOMContentLoaded', iniciar);
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(iniciar, 1);
+        function deletar(id) {
+            Swal.fire({
+                title: 'Tem certeza?', text: "Você não poderá reverter isso!", icon: 'warning',
+                showCancelButton: true, confirmButtonColor: '#c53030', cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Sim, excluir!', cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    await fetch(`/transacoes/${id}`, {method: 'DELETE'});
+                    Toast.fire({ icon: 'success', title: 'Conta excluída.' });
+                    carregar();
+                }
+            })
         }
     </script>
 </body>
