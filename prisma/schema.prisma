@@ -35,12 +35,13 @@ model Transacao {
 }
 
 
-// Aqui definimos a tabela de Usuários
+// tabela de Usuários
 model Usuario {
   id         String      @id @default(uuid())
   nome       String
   email      String      @unique
   senha      String
+  role     String   @default("USER") // <--- ADICIONE ISSO (Pode ser "ADMIN" ou "USER")
   bancos     Banco[]    
   transacoes Transacao[]
   eventos    Evento[]

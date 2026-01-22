@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Usuários</title>
+    <title>Gestão de Usuários</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -15,9 +15,9 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
         .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
 
-        /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
+        .page-subtitle { font-size: 14px; color: #64748b; margin-top: 5px; }
 
         /* TABELA */
         .table-container { background: transparent; border: none; box-shadow: none; }
@@ -41,22 +41,37 @@
         .clean-table tbody td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
         .clean-table tbody td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
-        /* AVATAR */
+        .user-row { display: flex; align-items: center; }
         .user-avatar-small {
-            width: 32px; height: 32px; border-radius: 50%;
+            width: 36px; height: 36px; border-radius: 50%;
             background-color: #2f855a; color: white;
             display: inline-flex; align-items: center; justify-content: center;
-            font-weight: 700; font-size: 12px; margin-right: 10px;
+            font-weight: 700; font-size: 13px; margin-right: 12px;
         }
-        .user-row { display: flex; align-items: center; }
+
+        /* BADGES DE CARGO */
+        .badge-role { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .role-admin { background-color: #e9d8fd; color: #553c9a; border: 1px solid #d6bcfa; }
+        .role-user { background-color: #e6fffa; color: #2c7a7b; border: 1px solid #b2f5ea; }
 
         /* AÇÕES */
         .action-btn {
             width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent;
             cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-            transition: all 0.2s; color: #718096;
+            transition: all 0.2s; color: #718096; margin-left: 5px;
         }
-        .action-btn:hover { background-color: #fff5f5; color: #e53e3e; }
+        .btn-edit:hover { background-color: #ebf8ff; color: #3182ce; }
+        .btn-del:hover { background-color: #fff5f5; color: #e53e3e; }
+
+        /* ESTILOS ESPECÍFICOS DO MODAL DE EDIÇÃO */
+        .divider-modal { height: 1px; background: #e2e8f0; margin: 20px 0; }
+        .section-title { font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px; }
+        .btn-link-pass {
+            background: none; border: 1px dashed #cbd5e0; color: #4a5568; width: 100%; padding: 10px;
+            border-radius: 6px; cursor: pointer; font-size: 13px; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-link-pass:hover { border-color: #3182ce; color: #3182ce; background: #ebf8ff; }
     </style>
 </head>
 <body>
@@ -67,79 +82,219 @@
 
     <div class="content">
         <div class="page-header">
-            <h1 class="page-title">Usuários Cadastrados</h1>
+            <div>
+                <h1 class="page-title">Gestão de Usuários</h1>
+                <div class="page-subtitle">Controle de acesso e permissões do sistema</div>
             </div>
+            <div id="aviso-admin" style="display:none; background: #fffaf0; padding: 10px; border-radius: 8px; border: 1px solid #fbd38d; color: #c05621; font-size: 13px;">
+                <i class="fas fa-shield-alt"></i> Modo Administrador Ativo
+            </div>
+        </div>
 
         <div class="table-container">
             <table class="clean-table">
                 <thead>
                     <tr>
-                        <th width="40%">Nome</th>
-                        <th width="40%">Email</th>
-                        <th width="10%" style="text-align: center;">ID</th>
-                        <th width="10%" style="text-align: right; padding-right: 25px;">Ações</th>
+                        <th width="35%">Usuário</th>
+                        <th width="35%">Email</th>
+                        <th width="15%" style="text-align: center;">Permissão</th>
+                        <th width="15%" style="text-align: right; padding-right: 25px;">Ações</th>
                     </tr>
                 </thead>
-                <tbody id="lista-usuarios">
-                    </tbody>
+                <tbody id="lista-usuarios"></tbody>
             </table>
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalEditar">
+        <div class="modal">
+            <h2>Editar Usuário</h2>
+            <input type="hidden" id="editId">
+            
+            <div class="section-title">Dados Pessoais</div>
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" id="editNome">
+            </div>
+            <div class="form-group">
+                <label>Email de Acesso</label>
+                <input type="email" id="editEmail">
+            </div>
+
+            <div class="divider-modal"></div>
+
+            <div class="section-title">Permissões</div>
+            <div class="form-group">
+                <label>Nível de Acesso</label>
+                <select id="editRole" style="background-color: #f8fafc;">
+                    <option value="USER">Usuário Padrão (Restrito)</option>
+                    <option value="ADMIN">Administrador (Total)</option>
+                </select>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">
+                    * Administradores podem excluir outros usuários.
+                </div>
+            </div>
+
+            <div class="divider-modal"></div>
+
+            <div class="section-title">Segurança</div>
+            <div class="form-group">
+                <label>Alterar Senha (Opcional)</label>
+                <input type="text" id="editSenha" placeholder="Digite para redefinir a senha...">
+            </div>
+            
+            <button class="btn-link-pass" onclick="enviarLinkRecuperacao()">
+                <i class="fas fa-envelope"></i> Enviar Link de Redefinição por Email
+            </button>
+
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-new" onclick="salvarEdicao()">SALVAR ALTERAÇÕES</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Pega o usuário logado para evitar que ele se exclua
         const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado'));
+        let usuariosCache = [];
 
         document.addEventListener('DOMContentLoaded', carregarUsuarios);
 
         async function carregarUsuarios() {
             try {
                 const res = await fetch('/usuarios');
-                const usuarios = await res.json();
-                renderizarTabela(usuarios);
+                usuariosCache = await res.json();
+                
+                const euAtualizado = usuariosCache.find(u => u.id === usuarioLogado.id);
+                const souAdmin = euAtualizado && euAtualizado.role === 'ADMIN';
+
+                if(souAdmin) document.getElementById('aviso-admin').style.display = 'block';
+
+                renderizarTabela(usuariosCache, souAdmin);
             } catch (e) { console.error(e); }
         }
 
-        function renderizarTabela(lista) {
+        function renderizarTabela(lista, souAdmin) {
             const tbody = document.getElementById('lista-usuarios');
             tbody.innerHTML = '';
 
-            if (lista.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum usuário encontrado.</td></tr>';
-                return;
-            }
+            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum usuário encontrado.</td></tr>'; return; }
 
             lista.forEach(user => {
                 const iniciais = user.nome.substring(0, 2).toUpperCase();
-                // Verifica se é o próprio usuário logado
-                const isMe = usuarioLogado && usuarioLogado.id === user.id;
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
+                const isMe = usuarioLogado.id === user.id;
+                const roleClass = user.role === 'ADMIN' ? 'role-admin' : 'role-user';
+                const roleLabel = user.role === 'ADMIN' ? 'Administrador' : 'Usuário Padrão';
+
+                let botoesHtml = '';
+                if (souAdmin) {
+                    if (isMe) {
+                        // Se sou eu, POSSO editar, mas NÃO posso me excluir
+                        botoesHtml = `
+                        <button onclick="abrirModal('${user.id}')" class="action-btn btn-edit" title="Editar Meus Dados">
+                            <i class="fas fa-pen"></i>
+                            </button>
+                            <span style="font-size:11px; color:#cbd5e0; margin-left: 5px;">(Você)</span>
+                            `;
+                        } else {
+                            // Outros usuários: posso editar e excluir
+                            botoesHtml = `
+                            <button onclick="abrirModal('${user.id}')" class="action-btn btn-edit" title="Editar Usuário">
+                                <i class="fas fa-pen"></i>
+                                </button>
+                                <button onclick="excluirUsuario('${user.id}')" class="action-btn btn-del" title="Excluir Usuário">
+                                    <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    `;
+                                }
+                            } else {
+                                botoesHtml = '<i class="fas fa-lock" style="color:#e2e8f0; font-size:12px;"></i>';
+                            }
+                            tbody.innerHTML += `
+                            <tr>
+                                <td>
                             <div class="user-row">
                                 <div class="user-avatar-small" style="background-color: ${stringToColor(user.nome)}">${iniciais}</div>
-                                <span style="font-weight: 600; color: #1e293b;">${user.nome} ${isMe ? '(Você)' : ''}</span>
+                                <div style="font-weight: 600; color: #1e293b;">${user.nome}</div>
                             </div>
-                        </td>
-                        <td style="color: #64748b;">${user.email}</td>
-                        <td style="text-align: center; font-size: 11px; color: #94a3b8;">#${user.id.substring(0,6)}...</td>
-                        <td style="text-align: right;">
-                            ${!isMe ? `
-                                <button onclick="excluirUsuario('${user.id}')" class="action-btn" title="Excluir Usuário">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            ` : '<span style="font-size:11px; color:#cbd5e0; margin-right:10px;">Ativo</span>'}
-                        </td>
-                    </tr>
-                `;
+                            </td>
+                            <td style="color: #64748b;">${user.email}</td>
+                            <td style="text-align: center;"><span class="badge-role ${roleClass}">${roleLabel}</span></td>
+                            <td style="text-align: right; padding-right: 20px;">${botoesHtml}</td>
+                            </tr>
+                            `;
+                        });
+                    }
+
+        // --- FUNÇÕES DO MODAL ---
+        function abrirModal(id) {
+            const user = usuariosCache.find(u => u.id === id);
+            if(!user) return;
+
+            document.getElementById('editId').value = user.id;
+            document.getElementById('editNome').value = user.nome;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editRole').value = user.role;
+            document.getElementById('editSenha').value = ''; // Senha sempre vem vazia
+            
+            document.getElementById('modalEditar').style.display = 'flex';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+        }
+
+        async function salvarEdicao() {
+            const id = document.getElementById('editId').value;
+            const nome = document.getElementById('editNome').value;
+            const email = document.getElementById('editEmail').value;
+            const role = document.getElementById('editRole').value;
+            const novaSenha = document.getElementById('editSenha').value;
+
+            if(!nome || !email) return Swal.fire('Erro', 'Nome e Email são obrigatórios.', 'warning');
+
+            try {
+                const res = await fetch(`/usuarios/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, role, novaSenha })
+                });
+
+                if(res.ok) {
+                    Swal.fire('Sucesso', 'Dados atualizados!', 'success');
+                    fecharModal();
+                    carregarUsuarios();
+                } else {
+                    const erro = await res.json();
+                    Swal.fire('Erro', erro.erro || 'Falha ao atualizar.', 'error');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function enviarLinkRecuperacao() {
+            const id = document.getElementById('editId').value;
+            
+            // Simulação visual de envio
+            Swal.fire({
+                title: 'Enviando...',
+                text: 'Aguarde enquanto processamos o envio.',
+                didOpen: () => { Swal.showLoading() }
             });
+
+            try {
+                const res = await fetch(`/usuarios/${id}/reset-link`, { method: 'POST' });
+                if(res.ok) {
+                    Swal.fire('Enviado!', 'Um link para criar nova senha foi enviado para o email do usuário.', 'success');
+                }
+            } catch (e) {
+                Swal.fire('Erro', 'Não foi possível enviar.', 'error');
+            }
         }
 
         async function excluirUsuario(id) {
             Swal.fire({
                 title: 'Tem certeza?',
-                text: "Esse usuário perderá acesso ao sistema!",
+                text: "Essa ação não pode ser desfeita!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e53e3e',
@@ -147,19 +302,14 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        const res = await fetch(`/usuarios/${id}`, { method: 'DELETE' });
-                        if (res.ok) {
-                            Swal.fire('Excluído!', 'O usuário foi removido.', 'success');
-                            carregarUsuarios();
-                        } else {
-                            Swal.fire('Erro', 'Não foi possível excluir.', 'error');
-                        }
+                        await fetch(`/usuarios/${id}`, { method: 'DELETE' });
+                        carregarUsuarios();
+                        Swal.fire('Excluído!', '', 'success');
                     } catch (e) { console.error(e); }
                 }
             })
         }
 
-        // Função extra para gerar cor baseada no nome (visual legal)
         function stringToColor(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);

@@ -259,19 +259,17 @@ app.post('/login', async (req, res) => {
 });
 
 // ==========================================
-// ROTAS DE USUÁRIOS (CADASTROS)
+// ROTAS DE USUÁRIOS (GESTÃO DE PERMISSÕES)
 // ==========================================
 
-// 1. Listar todos os usuários (sem mostrar a senha)
+// 1. Listar usuários (Agora inclui o ROLE)
 app.get('/usuarios', async (req, res) => {
     try {
         const usuarios = await prisma.usuario.findMany({
             select: { 
-                id: true, 
-                nome: true, 
-                email: true 
-                // Não selecionamos 'senha' por segurança
-            }
+                id: true, nome: true, email: true, role: true // <--- Pegamos o cargo agora
+            },
+            orderBy: { nome: 'asc' }
         });
         res.json(usuarios);
     } catch (e) {
@@ -279,7 +277,21 @@ app.get('/usuarios', async (req, res) => {
     }
 });
 
-// 2. Excluir usuário
+// 2. Alterar Permissão (Role)
+app.patch('/usuarios/:id/role', async (req, res) => {
+    const { role } = req.body; // Espera receber "ADMIN" ou "USER"
+    try {
+        const usuario = await prisma.usuario.update({
+            where: { id: req.params.id },
+            data: { role }
+        });
+        res.json(usuario);
+    } catch (e) {
+        res.status(500).json({ erro: "Erro ao alterar permissão" });
+    }
+});
+
+// 3. Excluir usuário
 app.delete('/usuarios/:id', async (req, res) => {
     try {
         await prisma.usuario.delete({ where: { id: req.params.id } });
@@ -287,6 +299,47 @@ app.delete('/usuarios/:id', async (req, res) => {
     } catch (e) {
         res.status(500).json({ erro: "Erro ao excluir" });
     }
+});
+// --- ATUALIZAÇÃO NO SERVER.JS (Substitua ou adicione na área de Usuários) ---
+
+// 1. Rota unificada para EDITAR USUÁRIO (Nome, Email, Role e Senha)
+app.put('/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nome, email, role, novaSenha } = req.body;
+
+    try {
+        const dadosParaAtualizar = { nome, email, role };
+
+        // Se o admin digitou uma nova senha, criptografa e atualiza
+        if (novaSenha && novaSenha.trim() !== '') {
+            const hashSenha = await bcrypt.hash(novaSenha, 10);
+            dadosParaAtualizar.senha = hashSenha;
+        }
+
+        const usuario = await prisma.usuario.update({
+            where: { id },
+            data: dadosParaAtualizar
+        });
+
+        res.json(usuario);
+    } catch (e) {
+        console.error(e);
+        // Erro comum: Email já existe (P2002 no Prisma)
+        if (e.code === 'P2002') return res.status(400).json({ erro: "Email já está em uso." });
+        res.status(500).json({ erro: "Erro ao atualizar usuário." });
+    }
+});
+
+// 2. Rota para SIMULAR envio de link de recuperação
+app.post('/usuarios/:id/reset-link', async (req, res) => {
+    // AQUI entraria a lógica de enviar email real (Nodemailer, Sendgrid, etc)
+    // Por enquanto, apenas simulamos o sucesso.
+    console.log(`[SIMULAÇÃO] Enviando email de recuperação para o ID: ${req.params.id}`);
+    
+    // Simula um delay de envio
+    setTimeout(() => {
+        res.json({ mensagem: "Link enviado com sucesso!" });
+    }, 1000);
 });
 
 const PORT = process.env.PORT || 3000;
