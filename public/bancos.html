@@ -4,272 +4,262 @@
     <meta charset="UTF-8">
     <title>Meus Bancos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="auth.js"></script>
-    <script src="script.js"></script> <style>
-        /* --- CORREÇÃO DO CABEÇALHO (BOTÃO NA DIREITA) --- */
-        .header {
+    <script src="script.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
+
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 10px; }
+
+        /* LISTA DE BANCOS (CARDS) */
+        .bank-list { display: flex; flex-direction: column; gap: 15px; }
+        
+        .bank-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
             display: flex;
-            justify-content: space-between; /* Título na esquerda, Botão na direita */
+            justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap; /* Garante que não quebre em celular muito pequeno */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid #2f855a; /* Cor padrão */
+            transition: transform 0.2s;
         }
+        .bank-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        .bank-card.inativo { border-left-color: #cbd5e0; opacity: 0.7; }
 
-        /* Estilos do Modal (Padrão do Sistema) */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: white; padding: 25px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .modal h2 { margin-top: 0; color: #3182ce; } /* Azul do Banco */
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; color: #555; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; color: #666; }
-        
-        /* Grid para colocar Agência e Conta lado a lado */
-        .form-row { display: flex; gap: 10px; }
+        .bank-info h3 { margin: 0 0 5px 0; font-size: 16px; color: #1e293b; }
+        .bank-details { font-size: 12px; color: #64748b; margin-bottom: 5px; }
+        .bank-balance { font-weight: 700; color: #2f855a; font-size: 14px; }
+        .inativo .bank-balance { color: #64748b; }
+
+        .bank-actions { display: flex; gap: 10px; }
+        .btn-icon {
+            width: 35px; height: 35px; border-radius: 6px; border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+            transition: 0.2s;
+        }
+        .btn-edit-bank { background-color: #f6e05e; color: #744210; }
+        .btn-edit-bank:hover { background-color: #ecc94b; }
+        .btn-del-bank { background-color: #fc8181; color: #742a2a; }
+        .btn-del-bank:hover { background-color: #f56565; }
+
+        /* MODAL CUSTOMIZADO */
+        .form-row { display: flex; gap: 15px; }
         .form-row .form-group { flex: 1; }
-
-        .btn-salvar { background: #3182ce; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; }
-        .btn-cancelar { background: #ccc; color: #333; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; margin-top: 10px; }
-
-        /* Badge de Inativo */
-        .badge-inativo { background: #cbd5e0; color: #4a5568; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
-
-        /* Estilo dos Cards (Mantido do seu código) */
-        .card-banco {
-            background: white; 
-            padding: 15px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-left: 5px solid #ccc;
-            margin-bottom: 10px;
-        }
-        .btn-acao { 
-            padding: 8px 12px; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            color: white; 
-            font-size: 14px; 
-        }
-        .btn-voltar { color: #555; margin-right: 10px; font-size: 18px; }
     </style>
 </head>
 <body>
     
-    <div class="overlay" onclick="toggleMenu()"></div>
-    <nav class="navbar">
-        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">G.T SYSTEM - GESTÃO FINANCEIRA</div>
-        <div></div>
-    </nav>
-    
     <div class="sidebar" id="sidebar"></div>
+    <div class="overlay" onclick="toggleMenu()"></div>
+    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">Financeiro</div> <div></div> </nav>
 
     <div class="content">
-        <div class="header">
-            <div style="display: flex; align-items: center;">
-                <a href="index.html" class="btn-voltar" title="Voltar">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <h1 style="margin: 0; font-size: 24px;">🏦 Meus Bancos</h1>
-            </div>
-    
-            <button class="btn-acao" style="background: #3182ce;" onclick="abrirModal()">
-                <i class="fas fa-plus"></i> Cadastrar Banco
-            </button>
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-university" style="color: #718096;"></i> Meus Bancos</h1>
+            <button class="btn-new" onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Banco</button>
         </div>
 
-        <div id="lista-bancos">
+        <div class="bank-list" id="listaBancos">
             </div>
     </div>
 
     <div class="modal-overlay" id="modalBanco">
         <div class="modal">
             <h2 id="tituloModal">Novo Banco</h2>
-            
             <input type="hidden" id="editId">
-
+            
             <div class="form-group">
                 <label>Nome do banco</label>
-                <input type="text" id="nomeBanco" placeholder="Qual o nome do banco">
+                <input type="text" id="inputNome" placeholder="Ex: Nubank, Itaú...">
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>Agência</label>
-                    <input type="text" id="agencia" placeholder="Agência">
+                    <input type="text" id="inputAgencia" placeholder="0001">
                 </div>
                 <div class="form-group">
                     <label>Conta</label>
-                    <input type="text" id="conta" placeholder="Conta">
+                    <input type="text" id="inputConta" placeholder="12345-6">
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Saldo inicial (R$)</label>
-                <input type="number" id="saldoInicial" step="0.01">
+                <input type="number" id="inputSaldo" step="0.01" placeholder="0,00">
             </div>
 
             <div class="form-group">
                 <label>Data do saldo inicial</label>
-                <input type="date" id="dataSaldo">
+                <input type="date" id="inputDataSaldo">
             </div>
 
             <div class="form-group">
                 <label>Inativo</label>
-                <select id="inativo">
-                    <option value="nao">Não</option>
-                    <option value="sim">Sim</option>
+                <select id="inputInativo">
+                    <option value="false">Não</option>
+                    <option value="true">Sim</option>
                 </select>
             </div>
 
-            <button class="btn-salvar" onclick="salvarBanco()">SALVAR</button>
-            <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-new" onclick="salvarBanco()">SALVAR</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Variável global para guardar a lista de bancos
-        let bancosGlobais = [];
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
+        let bancosCache = [];
 
-        // ToggleMenu já vem do script.js, mas se quiser manter backup local:
-        // function toggleMenu() { document.getElementById('sidebar').classList.toggle('aberto'); }
-        
-        // --- FUNÇÕES DO MODAL ---
-        
-        function abrirModal() {
-            document.getElementById('modalBanco').style.display = 'flex';
-            document.getElementById('tituloModal').innerText = 'Novo Banco';
-            document.getElementById('editId').value = ''; 
-            
-            document.getElementById('nomeBanco').value = '';
-            document.getElementById('agencia').value = '';
-            document.getElementById('conta').value = '';
-            document.getElementById('saldoInicial').value = '';
-            document.getElementById('dataSaldo').valueAsDate = new Date();
-            document.getElementById('inativo').value = 'nao';
-        }
-
-        function editar(id) {
-            const banco = bancosGlobais.find(b => b.id === id);
-            if(!banco) return;
-
-            document.getElementById('modalBanco').style.display = 'flex';
-            document.getElementById('tituloModal').innerText = 'Editar Banco';
-            document.getElementById('editId').value = id;
-
-            document.getElementById('nomeBanco').value = banco.nome;
-            document.getElementById('agencia').value = banco.agencia || '';
-            document.getElementById('conta').value = banco.conta || '';
-            document.getElementById('saldoInicial').value = banco.saldoInicial;
-            document.getElementById('dataSaldo').value = banco.dataSaldo ? banco.dataSaldo.split('T')[0] : '';
-            document.getElementById('inativo').value = banco.inativo ? 'sim' : 'nao';
-        }
-
-        function fecharModal() { document.getElementById('modalBanco').style.display = 'none'; }
-
-        // --- FUNÇÕES PRINCIPAIS ---
-
-        // Se o formatarMoeda não vier do script.js, usa este de fallback:
-        const formatarMoedaLocal = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+        document.addEventListener('DOMContentLoaded', carregarBancos);
 
         async function carregarBancos() {
-            if(!usuario || !usuario.id) return;
+            if(!usuario) return;
+            try {
+                const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
+                bancosCache = await res.json();
+                renderizarLista(bancosCache);
+            } catch (e) { console.error(e); }
+        }
 
-            // Caminho Relativo para funcionar no Render
-            const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
-            bancosGlobais = await res.json();
-            
-            const lista = document.getElementById('lista-bancos');
-            lista.innerHTML = '';
+        function renderizarLista(lista) {
+            const container = document.getElementById('listaBancos');
+            container.innerHTML = '';
 
-            bancosGlobais.forEach(banco => {
-                const badgeInativo = banco.inativo ? '<span class="badge-inativo">INATIVO</span>' : '';
-                
-                let detalhesConta = '';
-                if(banco.agencia || banco.conta) {
-                    detalhesConta = `<small style="color: #666; display: block; margin-top: 5px;">
-                                        Ag: ${banco.agencia || '-'} | CC: ${banco.conta || '-'}
-                                     </small>`;
-                }
+            if(lista.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:30px;">Nenhum banco cadastrado.</div>';
+                return;
+            }
 
-                // Tenta usar a função global, se não der, usa a local
-                const saldoFormatado = (typeof formatarMoeda === 'function') ? formatarMoeda(banco.saldoInicial) : formatarMoedaLocal(banco.saldoInicial);
+            lista.forEach(b => {
+                const classeInativo = b.inativo ? 'inativo' : '';
+                const dataFormatada = b.dataSaldoInicial ? new Date(b.dataSaldoInicial).toLocaleDateString('pt-BR') : '-';
+                const saldoFormatado = parseFloat(b.saldoInicial).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-                lista.innerHTML += `
-                    <div class="card-banco" style="border-left-color: ${banco.cor}; opacity: ${banco.inativo ? 0.6 : 1}">
-                        <div>
-                            <strong style="font-size: 18px;">${banco.nome} ${badgeInativo}</strong>
-                            ${detalhesConta}
-                            <div style="margin-top: 5px; font-weight: bold; color: #3182ce;">
-                                Saldo Inicial: ${saldoFormatado}
+                container.innerHTML += `
+                    <div class="bank-card ${classeInativo}">
+                        <div class="bank-info">
+                            <h3>${b.nome} ${b.inativo ? '(Inativo)' : ''}</h3>
+                            <div class="bank-details">
+                                Ag: ${b.agencia || '-'} | CC: ${b.conta || '-'}
+                            </div>
+                            <div class="bank-balance">
+                                Saldo Inicial: ${saldoFormatado} <span style="font-weight:normal; font-size:11px; color:#94a3b8;">em ${dataFormatada}</span>
                             </div>
                         </div>
-                        
-                        <div style="display: flex; gap: 5px;">
-                            <button onclick="editar('${banco.id}')" class="btn-acao" style="background: #ecc94b; color: #744210" title="Editar">
-                                <i class="fas fa-pencil-alt"></i>
-                            </button>
-                            <button onclick="deletar('${banco.id}')" class="btn-acao" style="background: #e53e3e" title="Excluir">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <div class="bank-actions">
+                            <button class="btn-icon btn-edit-bank" onclick="editarBanco('${b.id}')"><i class="fas fa-pen"></i></button>
+                            <button class="btn-icon btn-del-bank" onclick="excluirBanco('${b.id}')"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        async function salvarBanco() {
-            const idEdicao = document.getElementById('editId').value;
-            const nome = document.getElementById('nomeBanco').value;
-            if(!nome) return alert("Digite o nome do banco!");
+        function abrirModal() {
+            document.getElementById('editId').value = '';
+            document.getElementById('tituloModal').innerText = 'Novo Banco';
+            document.getElementById('inputNome').value = '';
+            document.getElementById('inputAgencia').value = '';
+            document.getElementById('inputConta').value = '';
+            document.getElementById('inputSaldo').value = '';
+            document.getElementById('inputDataSaldo').valueAsDate = new Date();
+            document.getElementById('inputInativo').value = 'false';
+            document.getElementById('modalBanco').style.display = 'flex';
+        }
 
-            const dados = {
-                nome: nome,
-                agencia: document.getElementById('agencia').value,
-                conta: document.getElementById('conta').value,
-                saldoInicial: document.getElementById('saldoInicial').value,
-                dataSaldo: document.getElementById('dataSaldo').value,
-                inativo: document.getElementById('inativo').value,
+        function editarBanco(id) {
+            const b = bancosCache.find(x => x.id === id);
+            if(!b) return;
+
+            document.getElementById('editId').value = b.id;
+            document.getElementById('tituloModal').innerText = 'Editar Banco';
+            document.getElementById('inputNome').value = b.nome;
+            document.getElementById('inputAgencia').value = b.agencia || '';
+            document.getElementById('inputConta').value = b.conta || '';
+            document.getElementById('inputSaldo').value = b.saldoInicial;
+            
+            if(b.dataSaldoInicial) {
+                document.getElementById('inputDataSaldo').value = b.dataSaldoInicial.split('T')[0];
+            }
+            
+            document.getElementById('inputInativo').value = b.inativo ? 'true' : 'false';
+            document.getElementById('modalBanco').style.display = 'flex';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalBanco').style.display = 'none';
+        }
+
+        async function salvarBanco() {
+            const id = document.getElementById('editId').value;
+            const nome = document.getElementById('inputNome').value;
+            const agencia = document.getElementById('inputAgencia').value;
+            const conta = document.getElementById('inputConta').value;
+            const saldoInicial = document.getElementById('inputSaldo').value;
+            const dataSaldoInicial = document.getElementById('inputDataSaldo').value;
+            const inativo = document.getElementById('inputInativo').value;
+
+            if(!nome) return Swal.fire('Erro', 'Nome do banco é obrigatório', 'error');
+
+            const payload = {
+                nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo,
                 usuarioId: usuario.id
             };
 
-            if(!idEdicao) dados.cor = '#' + Math.floor(Math.random()*16777215).toString(16);
+            try {
+                // Decide se é POST (Novo) ou PUT (Editar)
+                const method = id ? 'PUT' : 'POST';
+                const url = id ? `/bancos/${id}` : '/bancos';
 
-            let url = '/bancos';
-            let metodo = 'POST';
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            if (idEdicao) {
-                url = `/bancos/${idEdicao}`;
-                metodo = 'PUT';
-            }
+                if(res.ok) {
+                    fecharModal();
+                    Swal.fire('Sucesso', 'Banco salvo!', 'success');
+                    carregarBancos();
+                } else {
+                    Swal.fire('Erro', 'Erro ao salvar banco.', 'error');
+                }
+            } catch (e) { console.error(e); }
+        }
 
-            await fetch(url, {
-                method: metodo,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dados)
+        async function excluirBanco(id) {
+            Swal.fire({
+                title: 'Excluir Banco?',
+                text: "Se houver contas vinculadas, você não conseguirá excluir.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e53e3e',
+                confirmButtonText: 'Sim, excluir'
+            }).then(async (result) => {
+                if(result.isConfirmed) {
+                    const res = await fetch(`/bancos/${id}`, { method: 'DELETE' });
+                    if(res.ok) {
+                        Swal.fire('Excluído', 'Banco removido.', 'success');
+                        carregarBancos();
+                    } else {
+                        const erro = await res.json();
+                        Swal.fire('Erro', erro.erro || 'Não foi possível excluir.', 'error');
+                    }
+                }
             });
-
-            fecharModal();
-            carregarBancos();
         }
-
-        async function deletar(id) {
-            if(confirm("Apagar este banco e todo o histórico dele?")) {
-                await fetch(`/bancos/${id}`, { method: 'DELETE' });
-                carregarBancos();
-            }
-        }
-
-        // Inicializa
-        document.addEventListener('DOMContentLoaded', carregarBancos);
     </script>
 </body>
 </html>

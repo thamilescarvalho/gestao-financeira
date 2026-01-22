@@ -7,73 +7,77 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Aqui definimos a tabela de Transações (Entradas e Saídas)
-model Transacao {
-  id             String    @id @default(uuid())
-  fornecedor     String?   // "Amazon", "Enel"
-  descricao      String    // "Conta de Luz", "Compra Mouse"
-  valor          Float
-  valorOriginal  Float?    
-  juros          Float?    @default(0)
-  desconto       Float?    @default(0)
-  tipo           String
-  categoria      String?
-  status         String    @default("PENDENTE")
-  parcelas Int? @default(1)
-  
-  // DATAS
-  data           DateTime  @default(now()) // Data de Competência (Registro)
-  dataPagamento  DateTime? // Quando realmente foi pago
-  dataVencimento DateTime? // Para contas a pagar
-  formaPagamento String?   // Boleto, Pix, Cartão...
-  bancoId        String?
-  banco          Banco?    @relation(fields: [bancoId], references: [id])
-  usuarioId      String?   
-  usuario        Usuario?  @relation(fields: [usuarioId], references: [id])
-
-  @@map("transacoes")
-}
-
-
-// tabela de Usuários
+// Tabela de Usuários
 model Usuario {
   id         String      @id @default(uuid())
   nome       String
   email      String      @unique
   senha      String
-  role     String   @default("USER") // <--- ADICIONE ISSO (Pode ser "ADMIN" ou "USER")
-  bancos     Banco[]    
+  role       String      @default("USER")
+  
+  bancos     Banco[]
   transacoes Transacao[]
   eventos    Evento[]
 
   @@map("usuarios")
 }
 
-// Aqui definimos a tabela de Bancos
+// Tabela de Bancos
 model Banco {
-  id           String   @id @default(uuid())
-  nome         String
-  cor          String   @default("#000000")
-  usuarioId    String
-  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
-  transacoes   Transacao[]
+  id               String      @id @default(uuid())
+  nome             String
+  cor              String?     @default("#2f855a") // Cor padrão ajustada
+  
+  // Campos Detalhados
+  agencia          String?
+  conta            String?
+  saldoInicial     Float       @default(0)
+  dataSaldoInicial DateTime?   // NOME CORRIGIDO (era dataSaldo)
+  inativo          Boolean     @default(false)
 
-  // NOVOS CAMPOS
-  agencia      String?  // Pode ser nulo (opcional)
-  conta        String?
-  saldoInicial Float    @default(0)
-  dataSaldo    DateTime @default(now())
-  inativo      Boolean  @default(false) // false = Ativo, true = Inativo
+  usuarioId        String
+  usuario          Usuario     @relation(fields: [usuarioId], references: [id])
+  transacoes       Transacao[]
 
   @@map("bancos")
 }
 
+// Tabela de Transações (Entradas e Saídas)
+model Transacao {
+  id             String    @id @default(uuid())
+  fornecedor     String?
+  descricao      String
+  valor          Float
+  valorOriginal  Float?
+  juros          Float?    @default(0)
+  desconto       Float?    @default(0)
+  tipo           String    // RECEITA ou DESPESA
+  categoria      String?
+  status         String    @default("PENDENTE")
+  parcelas       Int?      @default(1)
+  
+  // Datas
+  data           DateTime  @default(now())
+  dataPagamento  DateTime?
+  dataVencimento DateTime?
+  formaPagamento String?
+
+  // Relacionamentos
+  bancoId        String?
+  banco          Banco?    @relation(fields: [bancoId], references: [id])
+  usuarioId      String?
+  usuario        Usuario?  @relation(fields: [usuarioId], references: [id])
+
+  @@map("transacoes")
+}
+
+// Tabela de Agenda/Rotina
 model Evento {
   id          String   @id @default(uuid())
   titulo      String
   descricao   String?
-  data        DateTime // Data e Hora do evento
-  tipo        String   // "TAREFA", "REUNIAO", "LEMBRETE"
+  data        DateTime
+  tipo        String   // TAREFA, REUNIAO, LEMBRETE
   concluido   Boolean  @default(false)
   
   usuarioId   String

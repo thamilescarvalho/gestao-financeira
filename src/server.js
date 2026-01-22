@@ -220,42 +220,76 @@ app.patch('/eventos/:id/toggle', async (req, res) => {
 
 
 // ==========================================
-// ROTAS AUXILIARES (BANCOS, USUÁRIOS, LOGIN)
+// ROTAS DE BANCOS (CRUD COMPLETO)
 // ==========================================
 
-app.get('/resumo', async (req, res) => {
-    const totalReceitas = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { tipo: 'RECEITA' } });
-    const totalDespesas = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { tipo: 'DESPESA' } });
-    return res.json({ receitas: Number(totalReceitas._sum.valor || 0), despesas: Number(totalDespesas._sum.valor || 0), saldo: Number(totalReceitas._sum.valor || 0) - Number(totalDespesas._sum.valor || 0) });
-});
-
+// 1. Listar Bancos
 app.get('/bancos', async (req, res) => {
     const { usuarioId } = req.query; 
     if(!usuarioId) return res.json([]);
-    const bancos = await prisma.banco.findMany({ where: { usuarioId } });
-    return res.json(bancos);
+    
+    const bancos = await prisma.banco.findMany({ 
+        where: { usuarioId },
+        orderBy: { nome: 'asc' }
+    });
+    res.json(bancos);
 });
 
-app.post('/bancos', async (req, res) => { /* Mesma lógica anterior */ 
-    const { nome, cor, usuarioId } = req.body;
-    const b = await prisma.banco.create({ data: { nome, cor, usuario: { connect: { id: usuarioId } } } });
-    res.json(b);
+// 2. Criar Banco
+app.post('/bancos', async (req, res) => {
+    const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo, usuarioId } = req.body;
+    try {
+        const banco = await prisma.banco.create({
+            data: {
+                nome,
+                agencia,
+                conta,
+                saldoInicial: parseFloat(saldoInicial || 0),
+                dataSaldoInicial: dataSaldoInicial ? new Date(dataSaldoInicial) : null,
+                inativo: inativo === 'true' || inativo === true,
+                usuario: { connect: { id: usuarioId } }
+            }
+        });
+        res.json(banco);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ erro: "Erro ao criar banco" });
+    }
 });
 
-app.post('/registro', async (req, res) => {
-    const { nome, email, senha } = req.body;
-    const exists = await prisma.usuario.findUnique({ where: { email } });
-    if (exists) return res.status(400).json({ erro: "Email já cadastrado!" });
-    const hashSenha = await bcrypt.hash(senha, 10);
-    const user = await prisma.usuario.create({ data: { nome, email, senha: hashSenha } });
-    return res.json({ sucesso: true, usuario: user });
+// 3. ATUALIZAR BANCO (O que faltava!)
+app.put('/bancos/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo } = req.body;
+    
+    try {
+        const banco = await prisma.banco.update({
+            where: { id },
+            data: {
+                nome,
+                agencia,
+                conta,
+                saldoInicial: parseFloat(saldoInicial || 0),
+                dataSaldoInicial: dataSaldoInicial ? new Date(dataSaldoInicial) : null,
+                inativo: inativo === 'true' || inativo === true
+            }
+        });
+        res.json(banco);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ erro: "Erro ao atualizar banco" });
+    }
 });
 
-app.post('/login', async (req, res) => {
-    const { email, senha } = req.body;
-    const user = await prisma.usuario.findUnique({ where: { email } });
-    if (!user || !(await bcrypt.compare(senha, user.senha))) return res.status(401).json({ sucesso: false, erro: "Credenciais inválidas!" });
-    return res.json({ sucesso: true, usuario: { id: user.id, nome: user.nome, email: user.email } });
+// 4. Excluir Banco
+app.delete('/bancos/:id', async (req, res) => {
+    try {
+        await prisma.banco.delete({ where: { id: req.params.id } });
+        res.status(204).send();
+    } catch (e) {
+        // Se tiver transações vinculadas, vai dar erro.
+        res.status(400).json({ erro: "Não é possível excluir banco com movimentações." });
+    }
 });
 
 // ==========================================
