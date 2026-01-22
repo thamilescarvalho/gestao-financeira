@@ -258,5 +258,36 @@ app.post('/login', async (req, res) => {
     return res.json({ sucesso: true, usuario: { id: user.id, nome: user.nome, email: user.email } });
 });
 
+// ==========================================
+// ROTAS DE USUÁRIOS (CADASTROS)
+// ==========================================
+
+// 1. Listar todos os usuários (sem mostrar a senha)
+app.get('/usuarios', async (req, res) => {
+    try {
+        const usuarios = await prisma.usuario.findMany({
+            select: { 
+                id: true, 
+                nome: true, 
+                email: true 
+                // Não selecionamos 'senha' por segurança
+            }
+        });
+        res.json(usuarios);
+    } catch (e) {
+        res.status(500).json({ erro: "Erro ao buscar usuários" });
+    }
+});
+
+// 2. Excluir usuário
+app.delete('/usuarios/:id', async (req, res) => {
+    try {
+        await prisma.usuario.delete({ where: { id: req.params.id } });
+        res.status(204).send();
+    } catch (e) {
+        res.status(500).json({ erro: "Erro ao excluir" });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Servidor rodando na porta ${PORT}`); });

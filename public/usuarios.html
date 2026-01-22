@@ -2,202 +2,169 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Usuários do Sistema</title>
+    <title>Usuários</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="auth.js"></script>
     <script src="script.js"></script>
 
     <style>
-        .user-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: flex; align-items: center; justify-content: space-between;
-            border-left: 5px solid #805ad5;
-            transition: transform 0.2s;
-        }
-        .user-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
-        .user-info h3 { margin: 0; font-size: 16px; color: #2d3748; }
-        .user-info p { margin: 5px 0 0; font-size: 14px; color: #718096; }
-        
-        .avatar-circle {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: #e9d8fd; color: #6b46c1;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; font-size: 18px; margin-right: 15px;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
 
-        .btn-icon {
-            border: none; background: none; cursor: pointer; padding: 8px; font-size: 16px;
+        /* HEADER */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
+
+        /* TABELA */
+        .table-container { background: transparent; border: none; box-shadow: none; }
+        .clean-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+
+        .clean-table thead tr { background-color: #dbe4ef; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .clean-table thead th {
+            text-align: left; padding: 14px 20px; font-size: 11px; font-weight: 800; color: #2d3748;
+            text-transform: uppercase; letter-spacing: 0.8px; border: none;
         }
-        .btn-icon:hover { opacity: 0.7; }
+        .clean-table thead th:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .clean-table thead th:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+        .clean-table tbody tr { background-color: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: all 0.2s ease; }
+        .clean-table tbody tr:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        .clean-table tbody td {
+            padding: 12px 20px; font-size: 14px; color: #334155;
+            border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; vertical-align: middle;
+        }
+        .clean-table tbody td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+        .clean-table tbody td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+
+        /* AVATAR */
+        .user-avatar-small {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #2f855a; color: white;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 12px; margin-right: 10px;
+        }
+        .user-row { display: flex; align-items: center; }
+
+        /* AÇÕES */
+        .action-btn {
+            width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            transition: all 0.2s; color: #718096;
+        }
+        .action-btn:hover { background-color: #fff5f5; color: #e53e3e; }
     </style>
 </head>
 <body>
-
+    
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-
-    <nav class="navbar">
-        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">Cadastros</div>
-        <div></div>
-    </nav>
+    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">Financeiro</div> <div></div> </nav>
 
     <div class="content">
         <div class="page-header">
-            <div class="page-title">👥 Usuários Cadastrados</div>
-        </div>
-
-        <div id="lista-usuarios" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; margin-top: 20px;">
-            </div>
-    </div>
-
-    <div class="modal-overlay" id="modalEdicao">
-        <div class="modal">
-            <h2 style="color: #805ad5;">Editar Usuário</h2>
-            <input type="hidden" id="editId"> <div class="form-group">
-                <label>Nome</label>
-                <input type="text" id="editNome">
+            <h1 class="page-title">Usuários Cadastrados</h1>
             </div>
 
-            <div class="form-group">
-                <label>E-mail</label>
-                <input type="email" id="editEmail">
-            </div>
-
-            <div class="form-group">
-                <label>Nova Senha (Opcional)</label>
-                <input type="password" id="editSenha" placeholder="Deixe em branco para não mudar">
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
-                <button class="btn-blue" onclick="executarSalvamento()" style="background-color: #805ad5;">SALVAR ALTERAÇÕES</button>
-            </div>
+        <div class="table-container">
+            <table class="clean-table">
+                <thead>
+                    <tr>
+                        <th width="40%">Nome</th>
+                        <th width="40%">Email</th>
+                        <th width="10%" style="text-align: center;">ID</th>
+                        <th width="10%" style="text-align: right; padding-right: 25px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-usuarios">
+                    </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Variável global para guardar a lista e facilitar a edição
-        let usuariosCache = [];
+        // Pega o usuário logado para evitar que ele se exclua
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado'));
 
         document.addEventListener('DOMContentLoaded', carregarUsuarios);
 
-        // --- 1. CARREGAR LISTA ---
         async function carregarUsuarios() {
             try {
                 const res = await fetch('/usuarios');
-                if(!res.ok) return;
-
                 const usuarios = await res.json();
-                usuariosCache = usuarios; // Guarda na memória
-                const container = document.getElementById('lista-usuarios');
-                container.innerHTML = '';
+                renderizarTabela(usuarios);
+            } catch (e) { console.error(e); }
+        }
 
-                if (usuarios.length === 0) {
-                    container.innerHTML = '<p>Nenhum usuário encontrado.</p>';
-                    return;
-                }
+        function renderizarTabela(lista) {
+            const tbody = document.getElementById('lista-usuarios');
+            tbody.innerHTML = '';
 
-                usuarios.forEach(user => {
-                    const inicial = user.nome ? user.nome.charAt(0).toUpperCase() : '?';
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum usuário encontrado.</td></tr>';
+                return;
+            }
 
-                    container.innerHTML += `
-                        <div class="user-card">
-                            <div style="display: flex; align-items: center;">
-                                <div class="avatar-circle">${inicial}</div>
-                                <div class="user-info">
-                                    <h3>${user.nome}</h3>
-                                    <p><i class="fas fa-envelope"></i> ${user.email}</p>
-                                </div>
+            lista.forEach(user => {
+                const iniciais = user.nome.substring(0, 2).toUpperCase();
+                // Verifica se é o próprio usuário logado
+                const isMe = usuarioLogado && usuarioLogado.id === user.id;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="user-row">
+                                <div class="user-avatar-small" style="background-color: ${stringToColor(user.nome)}">${iniciais}</div>
+                                <span style="font-weight: 600; color: #1e293b;">${user.nome} ${isMe ? '(Você)' : ''}</span>
                             </div>
-                            
-                            <div>
-                                <button class="btn-icon" style="color: #d69e2e;" onclick="abrirModalEdicao('${user.id}')" title="Editar">
-                                    <i class="fas fa-pencil-alt"></i>
-                                </button>
-
-                                <button class="btn-icon" style="color: #e53e3e;" onclick="deletarUsuario('${user.id}')" title="Remover">
+                        </td>
+                        <td style="color: #64748b;">${user.email}</td>
+                        <td style="text-align: center; font-size: 11px; color: #94a3b8;">#${user.id.substring(0,6)}...</td>
+                        <td style="text-align: right;">
+                            ${!isMe ? `
+                                <button onclick="excluirUsuario('${user.id}')" class="action-btn" title="Excluir Usuário">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
-                            </div>
-                        </div>
-                    `;
-                });
-            } catch (erro) {
-                console.error(erro);
-            }
+                            ` : '<span style="font-size:11px; color:#cbd5e0; margin-right:10px;">Ativo</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
-        // --- 2. FUNÇÕES DO MODAL ---
-        
-        function abrirModalEdicao(id) {
-            // Acha o usuário na memória para preencher os campos
-            const user = usuariosCache.find(u => u.id === id);
-            if(!user) return;
-
-            document.getElementById('editId').value = user.id;
-            document.getElementById('editNome').value = user.nome;
-            document.getElementById('editEmail').value = user.email;
-            document.getElementById('editSenha').value = ''; // Senha sempre limpa
-            
-            document.getElementById('modalEdicao').style.display = 'flex';
-        }
-
-        function fecharModal() {
-            document.getElementById('modalEdicao').style.display = 'none';
-        }
-
-        // Função auxiliar para pegar o ID do input hidden e chamar sua função
-        function executarSalvamento() {
-            const id = document.getElementById('editId').value;
-            salvarEdicaoUsuario(id);
-        }
-
-        // --- 3. SUA FUNÇÃO (INTEGRADA AQUI) ---
-        async function salvarEdicaoUsuario(id) {
-            const nome = document.getElementById('editNome').value;
-            const email = document.getElementById('editEmail').value;
-            const senha = document.getElementById('editSenha').value; // Opcional
-
-            const corpo = { nome, email };
-            if(senha) corpo.senha = senha; // Só manda se preencheu
-
-            try {
-                const res = await fetch(`/usuarios/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(corpo)
-                });
-
-                if(res.ok) {
-                    alert("Usuário atualizado com sucesso!");
-                    fecharModal();
-                    carregarUsuarios(); // Recarrega a lista
-                } else {
-                    const erro = await res.json();
-                    alert("Erro: " + (erro.erro || "Falha ao atualizar"));
+        async function excluirUsuario(id) {
+            Swal.fire({
+                title: 'Tem certeza?',
+                text: "Esse usuário perderá acesso ao sistema!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e53e3e',
+                confirmButtonText: 'Sim, excluir'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const res = await fetch(`/usuarios/${id}`, { method: 'DELETE' });
+                        if (res.ok) {
+                            Swal.fire('Excluído!', 'O usuário foi removido.', 'success');
+                            carregarUsuarios();
+                        } else {
+                            Swal.fire('Erro', 'Não foi possível excluir.', 'error');
+                        }
+                    } catch (e) { console.error(e); }
                 }
-            } catch (e) {
-                alert("Erro de conexão");
-            }
+            })
         }
 
-        // --- 4. DELETAR ---
-        async function deletarUsuario(id) {
-            const logado = JSON.parse(localStorage.getItem('usuario_logado'));
-            if(logado && logado.id === id) return alert("Você não pode excluir a si mesmo!");
-
-            if(confirm("Tem certeza? Esse usuário perderá o acesso.")) {
-                await fetch(`/usuarios/${id}`, { method: 'DELETE' });
-                carregarUsuarios();
-            }
+        // Função extra para gerar cor baseada no nome (visual legal)
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+            return '#' + '00000'.substring(0, 6 - c.length) + c;
         }
     </script>
 </body>
