@@ -7,9 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <script src="auth.js"></script>
     <script src="script.js"></script>
 
@@ -17,202 +15,89 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .content { padding: 30px; }
 
-        /* --- HEADER ATUALIZADO --- */
-        .page-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 25px; 
-            flex-wrap: wrap; 
-            gap: 15px;
-        }
-        
-        .header-left {
-            display: flex;
-            align-items: center; /* Alinha no centro verticalmente */
-            gap: 20px;
-        }
-
-        .page-title { 
-            font-size: 24px; 
-            font-weight: 700; 
-            color: #1e293b; 
-            margin: 0;
-        }
-
-        /* Estilo do link Agrupamentos */
-        .header-link {
-            text-decoration: none; 
-            color: #64748b; 
-            font-weight: 600; 
-            font-size: 15px;
-            padding: 5px 10px;
-            border-radius: 6px;
-            transition: 0.2s; 
-            cursor: pointer;
-        }
+        /* HEADER */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
+        .header-link { text-decoration: none; color: #64748b; font-weight: 600; font-size: 15px; padding: 5px 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
         .header-link:hover { color: #1e293b; background-color: #e2e8f0; }
 
-        /* Grupo de Botões (Importar / Novo) */
         .header-actions { display: flex; gap: 10px; }
-
-        .btn-import {
-            background: white; color: #475569; border: 1px solid #e2e8f0;
-            padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px;
-            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
-        }
+        .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-import:hover { background: #f8fafc; border-color: #cbd5e0; color: #1e293b; }
 
-        .btn-new {
-            background-color: #e53e3e; color: white; padding: 10px 20px; border-radius: 8px;
-            font-weight: 600; font-size: 14px; border: none; cursor: pointer;
-            box-shadow: 0 4px 6px -1px rgba(229, 62, 62, 0.2); transition: 0.2s;
-            display: flex; align-items: center; gap: 8px;
-        }
+        .btn-new { background-color: #e53e3e; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(229, 62, 62, 0.2); transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .btn-new:hover { background-color: #c53030; transform: translateY(-1px); }
 
-        /* --- BARRA DE FILTROS --- */
-        .modern-toolbar {
-            background: white; padding: 8px 15px; border-radius: 50px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
-            display: flex; align-items: center; gap: 10px; flex-wrap: nowrap;
-            white-space: nowrap; overflow-x: auto;
-        }
-
-        .total-badge {
-            background: #fff5f5; color: #c53030; padding: 5px 12px; border-radius: 20px;
-            font-weight: 700; font-size: 12px; border: 1px solid #fed7d7; flex-shrink: 0;
-        }
-
+        /* FILTROS */
+        .modern-toolbar { background: white; padding: 8px 15px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; }
+        .total-badge { background: #fff5f5; color: #c53030; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid #fed7d7; flex-shrink: 0; }
         .divider { width: 1px; height: 20px; background-color: #e2e8f0; flex-shrink: 0; }
-
-        .filter-pill {
-            display: flex; align-items: center; gap: 6px; padding: 5px 10px;
-            border-radius: 20px; transition: all 0.3s ease;
-            background: transparent; border: 1px solid transparent; flex-shrink: 0;
-        }
+        .filter-pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; transition: all 0.3s ease; background: transparent; border: 1px solid transparent; flex-shrink: 0; }
         .filter-pill:hover, .filter-pill:focus-within { background-color: #f8fafc; border-color: #e2e8f0; }
         .filter-pill i { color: #94a3b8; font-size: 14px; }
         .filter-pill:focus-within i { color: #e53e3e; }
-
-        .clean-input {
-            border: none; background: transparent; outline: none;
-            font-size: 13px; color: #475569; font-weight: 500; width: 80px; transition: width 0.3s ease;
-        }
+        .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; width: 80px; transition: width 0.3s ease; }
         .filter-pill:focus-within .clean-input { width: 160px; } 
-        
-        .date-input {
-            border: none; background: transparent; outline: none;
-            font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif; width: 95px;
-        }
-        .clean-select {
-            border: none; background: transparent; outline: none;
-            font-size: 13px; color: #475569; font-weight: 500; cursor: pointer; width: auto;
-        }
-
-        .btn-limpar { 
-            font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: auto; 
-            text-decoration: none; border: none; background: none; white-space: nowrap;
-        }
+        .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif; width: 95px; }
+        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; cursor: pointer; width: auto; }
+        .btn-limpar { font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: auto; text-decoration: none; border: none; background: none; white-space: nowrap; }
         .btn-limpar:hover { color: #c53030; text-decoration: underline; }
 
         /* TABELA */
         .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; margin-top: 20px; }
         .clean-table { width: 100%; border-collapse: collapse; }
-        .clean-table th {
-            text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600;
-            color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; background: #f8fafc;
-        }
+        .clean-table th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; background: #f8fafc; }
         .clean-table td { padding: 16px 24px; font-size: 14px; color: #334155; border-bottom: 1px solid #f1f5f9; }
         .clean-table tr:hover { background-color: #fcfcfc; }
-        
-        /* CARD DE CÁLCULO */
-        .calc-box {
-            background-color: #f0fff4; border: 1px solid #c6f6d5; border-radius: 8px; padding: 15px; margin-top: 15px;
-        }
+
+        /* Modal Calc */
+        .calc-box { background-color: #f0fff4; border: 1px solid #c6f6d5; border-radius: 8px; padding: 15px; margin-top: 15px; }
         .calc-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .calc-total { font-size: 20px; font-weight: 700; color: #2f855a; text-align: right; border-top: 1px solid #9ae6b4; padding-top: 10px; margin-top: 10px; }
 
+        /* SweetAlert Font */
         div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
         div:where(.swal2-popup) { border-radius: 15px !important; font-size: 14px !important; }
-        div:where(.swal2-title) { color: #1e293b !important; font-size: 20px !important; }
     </style>
 </head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-
-    <nav class="navbar">
-        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">Financeiro</div>
-        <div></div>
-    </nav>
+    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">Financeiro</div> <div></div> </nav>
 
     <div class="content">
-        
         <div class="page-header">
             <div class="header-left">
                 <h1 class="page-title">Contas a Pagar</h1>
-                <a onclick="Swal.fire('Em breve', 'Funcionalidade em desenvolvimento.', 'info')" class="header-link">Agrupamentos</a>
+                <a onclick="Swal.fire('Info', 'Em breve.', 'info')" class="header-link">Agrupamentos</a>
             </div>
-            
             <div class="header-actions">
-                <button class="btn-import" onclick="Swal.fire('Em breve', 'Importação de arquivos.', 'info')">
-                    <i class="fas fa-file-import"></i> Importar
-                </button>
-                <button class="btn-new" onclick="abrirModal()">
-                    <i class="fas fa-plus"></i> Novo
-                </button>
+                <button class="btn-import" onclick="Swal.fire('Info', 'Em breve.', 'info')"><i class="fas fa-file-import"></i> Importar</button>
+                <button class="btn-new" onclick="abrirModalNovo()"><i class="fas fa-plus"></i> Novo</button>
             </div>
         </div>
 
         <div class="modern-toolbar">
             <div class="total-badge">Total: <span id="total-esteira">R$ 0,00</span></div>
             <div class="divider"></div>
-
             <div class="filter-pill" style="gap: 2px;">
-                <i class="far fa-calendar" style="margin-right: 5px;"></i>
+                <i class="far fa-calendar"></i>
                 <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()">
                 <span style="color: #cbd5e0; font-size: 10px;">ATÉ</span>
                 <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()">
             </div>
             <div class="divider"></div>
-
-            <div class="filter-pill">
-                <i class="far fa-user"></i>
-                <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Fornecedor" onkeyup="aplicarFiltros()">
-            </div>
-            <div class="filter-pill">
-                <i class="far fa-credit-card"></i>
-                <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()">
-                    <option value="">Forma Pagto</option>
-                    <option value="Pix">Pix</option>
-                    <option value="Boleto">Boleto</option>
-                    <option value="Cartão">Cartão</option>
-                    <option value="Dinheiro">Dinheiro</option>
-                </select>
-            </div>
-            <div class="filter-pill">
-                <i class="fas fa-search"></i>
-                <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição" onkeyup="aplicarFiltros()">
-            </div>
-
+            <div class="filter-pill"> <i class="far fa-user"></i> <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Fornecedor" onkeyup="aplicarFiltros()"> </div>
+            <div class="filter-pill"> <i class="far fa-credit-card"></i> <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()"> <option value="">Forma Pagto</option> <option value="Pix">Pix</option> <option value="Boleto">Boleto</option> <option value="Cartão">Cartão</option> <option value="Dinheiro">Dinheiro</option> </select> </div>
+            <div class="filter-pill"> <i class="fas fa-search"></i> <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição" onkeyup="aplicarFiltros()"> </div>
             <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
         </div>
 
         <div class="table-container">
             <table class="clean-table">
-                <thead>
-                    <tr>
-                        <th>Fornecedor</th>
-                        <th>Vencimento</th>
-                        <th>Valor</th>
-                        <th>Forma Pgto</th>
-                        <th>Descrição</th>
-                        <th style="text-align: right;">Ações</th>
-                    </tr>
-                </thead>
+                <thead> <tr> <th>Fornecedor</th> <th>Vencimento</th> <th>Valor</th> <th>Forma Pgto</th> <th>Descrição</th> <th style="text-align: right;">Ações</th> </tr> </thead>
                 <tbody id="lista"></tbody>
             </table>
         </div>
@@ -220,8 +105,10 @@
 
     <div class="modal-overlay" id="modalConta">
         <div class="modal">
-            <h2 style="color: #c53030;">Nova Conta a Pagar</h2>
+            <h2 style="color: #c53030;" id="tituloModal">Nova Conta a Pagar</h2>
             
+            <input type="hidden" id="editId">
+
             <div class="form-group"><label>Fornecedor</label><input type="text" id="inputFornecedor" placeholder="Nome do fornecedor"></div>
             <div class="form-row">
                 <div class="form-group"><label>Valor (R$)</label><input type="number" id="valor" step="0.01" placeholder="0,00"></div>
@@ -230,12 +117,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>Forma de Pagto</label>
-                    <select id="formaPagto">
-                        <option value="Boleto">Boleto</option>
-                        <option value="Pix">Pix</option>
-                        <option value="Cartão">Cartão de Crédito</option>
-                        <option value="Dinheiro">Dinheiro</option>
-                    </select>
+                    <select id="formaPagto"> <option value="Boleto">Boleto</option> <option value="Pix">Pix</option> <option value="Cartão">Cartão de Crédito</option> <option value="Dinheiro">Dinheiro</option> </select>
                 </div>
                 <div class="form-group"><label>Parcelas</label><input type="number" id="parcelas" value="1"></div>
             </div>
@@ -249,52 +131,19 @@
 
     <div class="modal-overlay" id="modalBaixa">
         <div class="modal" style="max-width: 400px;">
-            <h2 style="color: #2f855a; display: flex; align-items: center; gap: 10px;">
-                <i class="fas fa-check-circle"></i> Realizar Pagamento
-            </h2>
-            
-            <input type="hidden" id="baixaId">
-            <input type="hidden" id="baixaValorOriginal">
-
-            <div class="form-group">
-                <label>Fornecedor</label>
-                <input type="text" id="baixaFornecedor" readonly style="background: #f8fafc; color: #64748b; border-color: #e2e8f0;">
-            </div>
-
-            <div class="form-group">
-                <label>Conta de Saída (Banco)</label>
-                <select id="baixaBanco" style="border-color: #cbd5e0;">
-                    </select>
-            </div>
-
-            <div class="form-group">
-                <label>Data do Pagamento</label>
-                <input type="date" id="baixaData">
-            </div>
-
+            <h2 style="color: #2f855a; display: flex; align-items: center; gap: 10px;"> <i class="fas fa-check-circle"></i> Realizar Pagamento </h2>
+            <input type="hidden" id="baixaId"> <input type="hidden" id="baixaValorOriginal">
+            <div class="form-group"> <label>Fornecedor</label> <input type="text" id="baixaFornecedor" readonly style="background: #f8fafc; color: #64748b;"> </div>
+            <div class="form-group"> <label>Conta de Saída (Banco)</label> <select id="baixaBanco" style="border-color: #cbd5e0;"></select> </div>
+            <div class="form-group"> <label>Data do Pagamento</label> <input type="date" id="baixaData"> </div>
             <div class="calc-box">
-                <div class="calc-row">
-                    <span style="color: #4a5568;">Valor Original</span>
-                    <strong id="displayValorOriginal">R$ 0,00</strong>
-                </div>
-                
+                <div class="calc-row"> <span style="color: #4a5568;">Valor Original</span> <strong id="displayValorOriginal">R$ 0,00</strong> </div>
                 <div class="form-row" style="gap: 10px; margin-bottom: 0;">
-                    <div class="form-group" style="margin: 0;">
-                        <label style="font-size: 11px;">Juros/Multa (+)</label>
-                        <input type="number" id="baixaJuros" value="0" step="0.01" oninput="calcularTotalBaixa()" style="background: white;">
-                    </div>
-                    <div class="form-group" style="margin: 0;">
-                        <label style="font-size: 11px;">Desconto (-)</label>
-                        <input type="number" id="baixaDesconto" value="0" step="0.01" oninput="calcularTotalBaixa()" style="background: white;">
-                    </div>
+                    <div class="form-group" style="margin: 0;"> <label style="font-size: 11px;">Juros/Multa (+)</label> <input type="number" id="baixaJuros" value="0" step="0.01" oninput="calcularTotalBaixa()" style="background: white;"> </div>
+                    <div class="form-group" style="margin: 0;"> <label style="font-size: 11px;">Desconto (-)</label> <input type="number" id="baixaDesconto" value="0" step="0.01" oninput="calcularTotalBaixa()" style="background: white;"> </div>
                 </div>
-
-                <div class="calc-total">
-                    <div style="font-size: 12px; color: #718096; font-weight: normal;">Valor Final a Pagar:</div>
-                    <div id="baixaTotalFinal">R$ 0,00</div>
-                </div>
+                <div class="calc-total"> <div style="font-size: 12px; color: #718096; font-weight: normal;">Valor Final a Pagar:</div> <div id="baixaTotalFinal">R$ 0,00</div> </div>
             </div>
-
             <div class="modal-footer">
                 <button class="btn-outline" onclick="fecharModalBaixa()">Cancelar</button>
                 <button class="btn-new" onclick="confirmarBaixa()" style="background-color: #2f855a; box-shadow: none;">CONFIRMAR PAGAMENTO</button>
@@ -305,30 +154,33 @@
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         let transacoesCache = [];
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-        const Toast = Swal.mixin({
-            toast: true, position: 'top-end', showConfirmButton: false,
-            timer: 3000, timerProgressBar: true,
-            didOpen: (toast) => { toast.addEventListener('mouseenter', Swal.stopTimer); toast.addEventListener('mouseleave', Swal.resumeTimer); }
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => { document.getElementById('dataVenc').valueAsDate = new Date(); carregar(); });
+        
+        // --- FUNÇÕES DE MODAL ---
+        function abrirModalNovo() { 
+            // Limpa tudo para criar um novo
+            document.getElementById('editId').value = ''; // ID VAZIO = CRIAÇÃO
+            document.getElementById('tituloModal').innerText = 'Nova Conta a Pagar';
+            document.getElementById('inputFornecedor').value = ''; 
+            document.getElementById('valor').value = '';
             document.getElementById('dataVenc').valueAsDate = new Date();
-            carregar();
-        });
+            document.getElementById('inputDescricao').value = '';
+            document.getElementById('parcelas').value = '1';
+            document.getElementById('modalConta').style.display = 'flex'; 
+        }
 
-        function abrirModal() { document.getElementById('modalConta').style.display = 'flex'; }
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
         function fecharModalBaixa() { document.getElementById('modalBaixa').style.display = 'none'; }
 
         async function carregar() {
             if(!usuario) return;
             try {
-                const url = `/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`;
-                const res = await fetch(url);
+                const res = await fetch(`/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`);
                 transacoesCache = await res.json();
-                aplicarFiltros(); 
-            } catch (erro) { console.error(erro); }
+                aplicarFiltros();
+            } catch (e) { console.error(e); }
         }
 
         function aplicarFiltros() {
@@ -342,11 +194,8 @@
                 const dataItem = item.dataVencimento || item.data;
                 if (inicio && dataItem < inicio) return false;
                 if (fim && dataItem > fim) return false;
-                
-                const itemForn = (item.fornecedor || '').toLowerCase();
-                const itemDesc = (item.descricao || '').toLowerCase();
-                if (forn && !itemForn.includes(forn)) return false;
-                if (desc && !itemDesc.includes(desc)) return false;
+                if (forn && !(item.fornecedor || '').toLowerCase().includes(forn)) return false;
+                if (desc && !(item.descricao || '').toLowerCase().includes(desc)) return false;
                 if (pagto && item.formaPagamento !== pagto) return false;
                 return true;
             });
@@ -354,11 +203,7 @@
         }
 
         function limparFiltros() {
-            document.getElementById('filtroInicio').value = '';
-            document.getElementById('filtroFim').value = '';
-            document.getElementById('filtroFornecedor').value = '';
-            document.getElementById('filtroDesc').value = '';
-            document.getElementById('filtroPagto').value = '';
+            document.querySelectorAll('.clean-input, .date-input, .clean-select').forEach(i => i.value = '');
             aplicarFiltros();
         }
 
@@ -366,18 +211,11 @@
             const tbody = document.getElementById('lista');
             tbody.innerHTML = '';
             let total = 0;
-
-            if (lista.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta encontrada.</td></tr>';
-                document.getElementById('total-esteira').innerText = 'R$ 0,00';
-                return;
-            }
+            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta encontrada.</td></tr>'; document.getElementById('total-esteira').innerText = 'R$ 0,00'; return; }
 
             lista.forEach(item => {
                 total += parseFloat(item.valor);
-                const dataRef = item.dataVencimento || item.data;
-                const dataObj = new Date(dataRef.includes('T') ? dataRef : dataRef + 'T12:00:00');
-                const vencimento = dataObj.toLocaleDateString('pt-BR');
+                const vencimento = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
                 
                 tbody.innerHTML += `
                     <tr>
@@ -387,12 +225,11 @@
                         <td>${item.formaPagamento || '-'}</td>
                         <td style="color: #334155;">${item.descricao || ''}</td>
                         <td style="text-align: right;">
-                            <button onclick="prepararBaixa('${item.id}')" style="border:none; background:none; cursor:pointer; color:#2f855a; margin-right:10px;" title="Pagar">
-                                <i class="fas fa-check-circle" style="font-size: 16px;"></i>
-                            </button>
-                            <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color:#ef4444;" title="Excluir">
-                                <i class="fas fa-trash-alt" style="font-size: 16px;"></i>
-                            </button>
+                            <button onclick="prepararBaixa('${item.id}')" style="border:none; background:none; cursor:pointer; color:#2f855a; margin-right:5px;" title="Pagar"><i class="fas fa-check-circle" style="font-size: 16px;"></i></button>
+                            
+                            <button onclick="editarConta('${item.id}')" style="border:none; background:none; cursor:pointer; color:#d69e2e; margin-right:5px;" title="Editar"><i class="fas fa-pencil-alt" style="font-size: 16px;"></i></button>
+                            
+                            <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color:#ef4444;" title="Excluir"><i class="fas fa-trash-alt" style="font-size: 16px;"></i></button>
                         </td>
                     </tr>
                 `;
@@ -400,113 +237,128 @@
             document.getElementById('total-esteira').innerText = formatarMoeda(total);
         }
 
-        async function prepararBaixa(id) {
+        // --- FUNÇÃO EDITAR ---
+        function editarConta(id) {
             const item = transacoesCache.find(t => t.id === id);
             if(!item) return;
 
+            // Preenche o modal com os dados existentes
+            document.getElementById('editId').value = id; // IMPORTANTE: Guarda o ID
+            document.getElementById('tituloModal').innerText = 'Editar Conta';
+            
+            document.getElementById('inputFornecedor').value = item.fornecedor;
+            document.getElementById('valor').value = item.valor;
+            // Ajusta data para input date (YYYY-MM-DD)
+            const dataIso = (item.dataVencimento || item.data).split('T')[0];
+            document.getElementById('dataVenc').value = dataIso;
+            
+            document.getElementById('formaPagto').value = item.formaPagamento;
+            document.getElementById('inputDescricao').value = item.descricao;
+            document.getElementById('parcelas').value = item.parcelas || 1;
+
+            document.getElementById('modalConta').style.display = 'flex';
+        }
+
+        async function salvarConta() {
+            const idEdicao = document.getElementById('editId').value;
+            
+            // Pega o valor do input data (Ex: "2026-01-25")
+            const dataInput = document.getElementById('dataVenc').value;
+
+            const dados = {
+                fornecedor: document.getElementById('inputFornecedor').value,
+                valor: document.getElementById('valor').value, // Envia como string, o backend converte
+                dataVencimento: dataInput,
+                data: dataInput,
+                formaPagamento: document.getElementById('formaPagto').value,
+                descricao: document.getElementById('inputDescricao').value,
+                parcelas: document.getElementById('parcelas').value,
+                tipo: 'DESPESA', // (Lembre de mudar para 'RECEITA' no arquivo receber.html)
+                status: 'PENDENTE', 
+                usuarioId: usuario.id
+            };
+
+            if(!dados.fornecedor || !dados.valor || !dataInput) {
+                return Swal.fire({ icon: 'warning', text: 'Preencha Fornecedor, Valor e Vencimento!' });
+            }
+
+            try {
+                let res;
+                // Decide se cria ou edita
+                if(idEdicao) {
+                    res = await fetch(`/transacoes/${idEdicao}`, { 
+                        method: 'PUT', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(dados) 
+                    });
+                } else {
+                    res = await fetch('/transacoes', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(dados) 
+                    });
+                }
+
+                if(res.ok) {
+                    fecharModal();
+                    Toast.fire({ icon: 'success', title: idEdicao ? 'Conta atualizada!' : 'Conta criada!' });
+                    
+                    // Limpa formulário
+                    document.getElementById('editId').value = ''; 
+                    document.getElementById('inputFornecedor').value = ''; 
+                    document.getElementById('valor').value = '';
+                    document.getElementById('inputDescricao').value = '';
+                    
+                    carregar();
+                } else {
+                    const erroJson = await res.json();
+                    console.error(erroJson);
+                    Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao salvar. Verifique o console (F12).' });
+                }
+            } catch (e) { 
+                console.error(e);
+                Swal.fire({ icon: 'error', text: 'Erro de conexão.' }); 
+            }
+        }
+
+        // --- BAIXA E DELETAR ---
+        async function prepararBaixa(id) {
+            const item = transacoesCache.find(t => t.id === id); if(!item) return;
             document.getElementById('baixaId').value = id;
             document.getElementById('baixaFornecedor').value = item.fornecedor || item.descricao;
             document.getElementById('baixaValorOriginal').value = item.valor;
             document.getElementById('displayValorOriginal').innerText = formatarMoeda(item.valor);
-            
             document.getElementById('baixaData').valueAsDate = new Date();
-            document.getElementById('baixaJuros').value = 0;
-            document.getElementById('baixaDesconto').value = 0;
-            
             await carregarSelectBancos();
             calcularTotalBaixa();
             document.getElementById('modalBaixa').style.display = 'flex';
         }
 
         async function carregarSelectBancos() {
-            const select = document.getElementById('baixaBanco');
-            select.innerHTML = '<option value="">Selecione o Banco...</option>';
-            const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
-            const bancos = await res.json();
-            bancos.forEach(b => { select.innerHTML += `<option value="${b.id}">${b.nome}</option>`; });
+            const select = document.getElementById('baixaBanco'); select.innerHTML = '<option value="">Selecione...</option>';
+            const res = await fetch(`/bancos?usuarioId=${usuario.id}`); (await res.json()).forEach(b => select.innerHTML += `<option value="${b.id}">${b.nome}</option>`);
         }
 
         function calcularTotalBaixa() {
             const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value) || 0;
             const juros = parseFloat(document.getElementById('baixaJuros').value) || 0;
             const desc = parseFloat(document.getElementById('baixaDesconto').value) || 0;
-            const total = vOrig + juros - desc;
-            document.getElementById('baixaTotalFinal').innerText = formatarMoeda(total);
+            document.getElementById('baixaTotalFinal').innerText = formatarMoeda(vOrig + juros - desc);
         }
 
         async function confirmarBaixa() {
             const id = document.getElementById('baixaId').value;
             const bancoId = document.getElementById('baixaBanco').value;
-            const dataPagamento = document.getElementById('baixaData').value;
-            const juros = document.getElementById('baixaJuros').value;
-            const desconto = document.getElementById('baixaDesconto').value;
+            if(!bancoId) return Swal.fire({icon: 'error', text: 'Selecione o Banco!'});
             const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value);
-            const valorFinal = vOrig + Number(juros) - Number(desconto);
-
-            if(!bancoId) {
-                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Selecione o Banco de onde saiu o dinheiro!' });
-                return;
-            }
-
-            try {
-                const res = await fetch(`/transacoes/${id}/pagar`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ bancoId, dataPagamento, juros, desconto, valorFinal })
-                });
-
-                if(res.ok) {
-                    fecharModalBaixa();
-                    Toast.fire({ icon: 'success', title: 'Pagamento confirmado!' });
-                    carregar();
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível confirmar o pagamento.' });
-                }
-            } catch(e) { console.error(e); }
-        }
-
-        async function salvarConta() {
-            const dados = {
-                fornecedor: document.getElementById('inputFornecedor').value,
-                valor: parseFloat(document.getElementById('valor').value),
-                dataVencimento: document.getElementById('dataVenc').value,
-                data: document.getElementById('dataVenc').value,
-                formaPagamento: document.getElementById('formaPagto').value,
-                descricao: document.getElementById('inputDescricao').value,
-                parcelas: parseInt(document.getElementById('parcelas').value),
-                tipo: 'DESPESA', status: 'PENDENTE', usuarioId: usuario.id
-            };
-            if(!dados.fornecedor || !dados.valor) {
-                Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Preencha Fornecedor e Valor!' });
-                return;
-            }
-
-            try {
-                const res = await fetch('/transacoes', { 
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) 
-                });
-                if(res.ok) {
-                    fecharModal();
-                    Toast.fire({ icon: 'success', title: 'Conta salva com sucesso!' });
-                    document.getElementById('inputFornecedor').value = ''; 
-                    document.getElementById('valor').value = '';
-                    document.getElementById('inputDescricao').value = '';
-                    limparFiltros(); carregar(); 
-                } else { Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao salvar conta.' }); }
-            } catch (e) { Swal.fire({ icon: 'error', title: 'Erro', text: 'Sem conexão com servidor.' }); }
+            const valorFinal = vOrig + Number(document.getElementById('baixaJuros').value) - Number(document.getElementById('baixaDesconto').value);
+            await fetch(`/transacoes/${id}/pagar`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoId, dataPagamento: document.getElementById('baixaData').value, valorFinal }) });
+            fecharModalBaixa(); Toast.fire({ icon: 'success', title: 'Pago!' }); carregar();
         }
 
         function deletar(id) {
-            Swal.fire({
-                title: 'Tem certeza?', text: "Você não poderá reverter isso!", icon: 'warning',
-                showCancelButton: true, confirmButtonColor: '#c53030', cancelButtonColor: '#94a3b8',
-                confirmButtonText: 'Sim, excluir!', cancelButtonText: 'Cancelar'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    await fetch(`/transacoes/${id}`, {method: 'DELETE'});
-                    Toast.fire({ icon: 'success', title: 'Conta excluída.' });
-                    carregar();
-                }
+            Swal.fire({ title: 'Excluir?', text: "Irreversível!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#c53030', confirmButtonText: 'Sim' }).then(async (result) => {
+                if (result.isConfirmed) { await fetch(`/transacoes/${id}`, {method: 'DELETE'}); Toast.fire({ icon: 'success', title: 'Excluído.' }); carregar(); }
             })
         }
     </script>

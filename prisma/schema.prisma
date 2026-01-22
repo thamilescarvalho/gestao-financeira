@@ -10,15 +10,16 @@ datasource db {
 // Aqui definimos a tabela de Transações (Entradas e Saídas)
 model Transacao {
   id             String    @id @default(uuid())
-  fornecedor     String?   // Guarda "Amazon", "Enel"
+  fornecedor     String?   // "Amazon", "Enel"
   descricao      String    // "Conta de Luz", "Compra Mouse"
   valor          Float
-  valorOriginal  Float?    // <--- NOVO: Guarda o valor original da conta
+  valorOriginal  Float?    
   juros          Float?    @default(0)
   desconto       Float?    @default(0)
   tipo           String
   categoria      String?
   status         String    @default("PENDENTE")
+  parcelas Int? @default(1)
   
   // DATAS
   data           DateTime  @default(now()) // Data de Competência (Registro)

@@ -376,6 +376,46 @@ app.put('/usuarios/:id', async (req, res) => {
     }
 });
 
+// --- ROTA DE EDIÇÃO (ATUALIZAR DADOS) ---
+app.put('/transacoes/:id', async (req, res) => {
+    const { id } = req.params;
+    const body = req.body;
+
+    try {
+        // Prepara o objeto de dados garantindo os tipos corretos
+        const dadosAtualizados = {
+            fornecedor: body.fornecedor,
+            descricao: body.descricao,
+            formaPagamento: body.formaPagamento,
+            // Garante que valor seja número (troca vírgula por ponto se necessário)
+            valor: parseFloat(String(body.valor).replace(',', '.')), 
+            // Garante que parcelas seja número inteiro
+            parcelas: body.parcelas ? parseInt(body.parcelas) : 1, 
+            categoria: body.categoria || 'Geral'
+        };
+
+        // Só tenta converter data se ela existir e não for vazia
+        if (body.dataVencimento) {
+            // Cria a data adicionando horário para evitar problemas de fuso (dia anterior)
+            const dataFormatada = new Date(body.dataVencimento + "T12:00:00Z");
+            dadosAtualizados.dataVencimento = dataFormatada;
+            dadosAtualizados.data = dataFormatada; // Mantém sincronizado
+        }
+
+        const transacao = await prisma.transacao.update({
+            where: { id: id },
+            data: dadosAtualizados
+        });
+        
+        res.json(transacao);
+
+    } catch (erro) {
+        console.error("Erro detalhado ao atualizar:", erro);
+        // Retorna o erro exato para o frontend ver no console
+        res.status(500).json({ erro: "Erro ao atualizar", detalhe: erro.message });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

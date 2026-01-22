@@ -4,262 +4,219 @@
     <meta charset="UTF-8">
     <title>Movimentação Financeira</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="auth.js"></script>
-    <script src="script.js"></script> 
+    <script src="script.js"></script>
 
     <style>
-        /* --- ESTILOS ESPECÍFICOS DA IMAGEM --- */
-        
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         .content { padding: 30px; }
 
-        /* Cabeçalho: Título + Abas + Botões */
-        .header-top {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; flex-wrap: wrap; gap: 20px;
-        }
-
-        .title-group { display: flex; align-items: baseline; gap: 25px; }
-        .title-group h1 { font-size: 26px; color: #1a202c; margin: 0; font-weight: 700; }
-
-        /* Abas (Entradas | Saídas | Transferências) */
-        .nav-tabs a {
-            text-decoration: none; color: #718096; font-weight: 600; font-size: 15px;
-            margin-right: 20px; padding-bottom: 5px; transition: 0.2s;
-            border-bottom: 2px solid transparent; cursor: pointer;
-        }
-        .nav-tabs a:hover { color: #2d3748; }
-        .nav-tabs a.active {
-            color: #ed8936; /* Laranja da imagem */
-            border-bottom-color: #ed8936;
-        }
-
-        /* Botões */
-        .btn-importar {
-            background: #edf2f7; color: #4a5568; border: none; padding: 10px 20px;
-            border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
-        }
-        .btn-novo {
-            background: #ed8936; /* Laranja */
-            color: white; border: none; padding: 10px 25px;
-            border-radius: 6px; font-weight: 600; cursor: pointer;
-            box-shadow: 0 2px 5px rgba(237, 137, 54, 0.3);
-        }
-        .btn-novo:hover { background: #dd6b20; }
-
-        /* Barra de Filtros (Cinza arredondada) */
-        .filter-bar {
-            background-color: #f7fafc; 
-            border: 1px solid #edf2f7;
-            border-radius: 10px;
-            padding: 12px 20px;
-            display: flex; align-items: center; gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .total-box {
-            background: white; border: 1px solid #e2e8f0; border-radius: 20px;
-            padding: 5px 15px; font-size: 14px; color: #4a5568; font-weight: bold;
-        }
-
-        .filter-actions { display: flex; gap: 15px; margin-left: 10px; color: #718096; }
-        .filter-actions i { cursor: pointer; transition: 0.2s; font-size: 16px; }
-        .filter-actions i:hover { color: #2d3748; }
-
-        /* Tabela Estilo Clean */
-        .table-custom { width: 100%; border-collapse: collapse; }
-        .table-custom th {
-            text-align: left; color: #4a5568; font-weight: 700; font-size: 14px;
-            padding: 15px 10px; border-bottom: 2px solid #edf2f7;
-        }
-        .table-custom td {
-            padding: 15px 10px; color: #2d3748; font-size: 14px;
-            border-bottom: 1px solid #edf2f7; vertical-align: middle;
-        }
-        .table-custom tr:hover { background-color: #fffaf0; } /* Hover laranja bem claro */
-
-        /* Colunas específicas */
-        .col-cliente { font-weight: 500; color: #2d3748; }
-        .col-valor { font-weight: 600; }
-        .col-desc { color: #718096; }
+        /* Header e Botões (Igual Pagar/Receber) */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
         
-        .action-btn { 
-            background: #edf2f7; width: 30px; height: 30px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            border: none; cursor: pointer; color: #718096; 
-        }
-        .action-btn:hover { background: #e2e8f0; color: #c53030; }
+        /* Abas Superiores */
+        .header-tabs { display: flex; gap: 20px; }
+        .tab-link { text-decoration: none; color: #64748b; font-weight: 600; font-size: 15px; padding-bottom: 5px; border-bottom: 2px solid transparent; cursor: pointer; transition: 0.2s; }
+        .tab-link:hover { color: #1e293b; }
+        .tab-link.active { color: #ed8936; border-bottom-color: #ed8936; }
+
+        .header-actions { display: flex; gap: 10px; }
+        .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .btn-new { background-color: #ed8936; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(237, 137, 54, 0.2); }
+        
+        /* Barra de Filtros */
+        .modern-toolbar { background: white; padding: 8px 15px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; }
+        .total-badge { background: #fffaf0; color: #ed8936; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid #fbd38d; flex-shrink: 0; }
+        .divider { width: 1px; height: 20px; background-color: #e2e8f0; flex-shrink: 0; }
+        .filter-pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; transition: all 0.3s ease; background: transparent; border: 1px solid transparent; flex-shrink: 0; }
+        .filter-pill:hover, .filter-pill:focus-within { background-color: #f8fafc; border-color: #e2e8f0; }
+        .filter-pill i { color: #94a3b8; font-size: 14px; }
+        .filter-pill:focus-within i { color: #ed8936; }
+        
+        .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; width: 80px; transition: width 0.3s ease; }
+        .filter-pill:focus-within .clean-input { width: 160px; }
+        .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif; width: 95px; }
+        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; cursor: pointer; width: auto; }
+        .btn-limpar { font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: auto; text-decoration: none; border: none; background: none; white-space: nowrap; }
+
+        /* Tabela */
+        .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; margin-top: 20px; }
+        .clean-table { width: 100%; border-collapse: collapse; }
+        .clean-table th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; background: #f8fafc; }
+        .clean-table td { padding: 16px 24px; font-size: 14px; color: #334155; border-bottom: 1px solid #f1f5f9; }
+        .clean-table tr:hover { background-color: #fcfcfc; }
+
+        div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
+        div:where(.swal2-popup) { border-radius: 15px !important; font-size: 14px !important; }
     </style>
 </head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-
-    <nav class="navbar">
-        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">G.T SYSTEM - GESTÃO FINANCEIRA</div>
-        <div></div>
-    </nav>
+    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">Financeiro</div> <div></div> </nav>
 
     <div class="content">
-        
-        <div class="header-top">
-            <div class="title-group">
-                <h1>Movimentação Financeira</h1>
-                <div class="nav-tabs">
-                    <a onclick="filtrar('TODOS', this)" class="active">Todas</a> <a onclick="filtrar('RECEITA', this)">Entradas</a>
-                    <a onclick="filtrar('DESPESA', this)">Saídas</a>
-                    <a onclick="alert('Em breve!')">Transferências</a>
+        <div class="page-header">
+            <div style="display:flex; align-items:center; gap:20px;">
+                <h1 class="page-title">Movimentação</h1>
+                <div class="header-tabs">
+                    <a onclick="setAba('TODOS', this)" class="tab-link active">Todas</a>
+                    <a onclick="setAba('RECEITA', this)" class="tab-link">Entradas</a>
+                    <a onclick="setAba('DESPESA', this)" class="tab-link">Saídas</a>
                 </div>
             </div>
-            
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-importar" onclick="window.print()">
-                    <i class="fas fa-file-import"></i> Importar
-                </button>
-                <button class="btn-novo" onclick="location.href='receber.html'">
-                    Novo
-                </button>
+            <div class="header-actions">
+                <button class="btn-import" onclick="Swal.fire('Info', 'Importação em breve.', 'info')"><i class="fas fa-file-import"></i> Importar</button>
+                <button class="btn-new" onclick="location.href='pagar.html'"><i class="fas fa-plus"></i> Novo</button>
             </div>
         </div>
 
-        <div class="filter-bar">
-            <div class="total-box">
-                Total: <span id="total-display">R$ 0,00</span>
+        <div class="modern-toolbar">
+            <div class="total-badge">Total: <span id="total-display">R$ 0,00</span></div>
+            <div class="divider"></div>
+            <div class="filter-pill" style="gap: 2px;">
+                <i class="far fa-calendar"></i>
+                <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()">
+                <span style="color: #cbd5e0; font-size: 10px;">ATÉ</span>
+                <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()">
             </div>
-            
-            <div class="filter-actions">
-                <i class="far fa-calendar-alt" title="Data"></i>
-                <i class="far fa-user" title="Cliente"></i>
-                <i class="fas fa-chart-line" title="Gráfico"></i>
-                <i class="fas fa-dollar-sign" title="Financeiro"></i>
-                <i class="fas fa-university" title="Banco"></i>
-                <i class="fas fa-font" title="Texto"></i>
-            </div>
+            <div class="divider"></div>
+            <div class="filter-pill"> <i class="far fa-user"></i> <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Cliente/Forn." onkeyup="aplicarFiltros()"> </div>
+            <div class="filter-pill"> <i class="far fa-credit-card"></i> <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()"> <option value="">Forma Pagto</option> <option value="Pix">Pix</option> <option value="Boleto">Boleto</option> <option value="Cartão">Cartão</option> <option value="Dinheiro">Dinheiro</option> </select> </div>
+            <div class="filter-pill"> <i class="fas fa-search"></i> <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição" onkeyup="aplicarFiltros()"> </div>
+            <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
         </div>
 
-        <table class="table-custom">
-            <thead>
-                <tr>
-                    <th style="width: 35%;">Cliente</th>
-                    <th>Banco</th>
-                    <th>Data</th>
-                    <th>Valor</th>
-                    <th>Descrição</th>
-                    <th style="text-align: center;">Ações</th>
-                </tr>
-            </thead>
-            <tbody id="lista">
-                </tbody>
-        </table>
-
+        <div class="table-container">
+            <table class="clean-table">
+                <thead> <tr> <th>Cliente / Fornecedor</th> <th>Banco</th> <th>Data</th> <th>Valor</th> <th>Descrição</th> <th style="text-align: right;">Ações</th> </tr> </thead>
+                <tbody id="lista"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        // Variável para guardar os dados e não precisar recarregar do servidor ao filtrar
+        const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         let transacoesCache = [];
+        let abaAtual = 'TODOS';
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-        // Inicia carregando os dados
         document.addEventListener('DOMContentLoaded', carregar);
 
         async function carregar() {
+            if(!usuario) return;
             try {
-                // Busca todas as transações
-                const res = await fetch('/transacoes');
-                const dados = await res.json();
-                
-                transacoesCache = dados; // Salva na memória
-                renderizarTabela(dados); // Desenha na tela
-            } catch (erro) {
-                console.error("Erro ao carregar dados:", erro);
-                document.getElementById('lista').innerHTML = '<tr><td colspan="6">Erro ao carregar dados. Verifique o servidor.</td></tr>';
-            }
+                // Busca TODAS para exibir o histórico completo
+                // Se quiser exibir só as PAGAS (histórico real), adicione &status=PAGO na URL
+                const res = await fetch(`/transacoes?usuarioId=${usuario.id}`);
+                transacoesCache = await res.json();
+                aplicarFiltros();
+            } catch (e) { console.error(e); }
         }
 
-        function renderizarTabela(listaDados) {
+        function aplicarFiltros() {
+            const inicio = document.getElementById('filtroInicio').value;
+            const fim = document.getElementById('filtroFim').value;
+            const forn = document.getElementById('filtroFornecedor').value.toLowerCase();
+            const desc = document.getElementById('filtroDesc').value.toLowerCase();
+            const pagto = document.getElementById('filtroPagto').value; 
+
+            const filtrados = transacoesCache.filter(item => {
+                // Mostra APENAS o que já foi PAGO (Movimentação Real)
+                if(item.status !== 'PAGO') return false; 
+
+                if (abaAtual !== 'TODOS' && item.tipo !== abaAtual) return false;
+                
+                const dataItem = (item.dataPagamento || item.dataVencimento || item.data).split('T')[0];
+                if (inicio && dataItem < inicio) return false;
+                if (fim && dataItem > fim) return false;
+                if (forn && !(item.fornecedor || '').toLowerCase().includes(forn)) return false;
+                if (desc && !(item.descricao || '').toLowerCase().includes(desc)) return false;
+                if (pagto && item.formaPagamento !== pagto) return false;
+                return true;
+            });
+            renderizarLista(filtrados);
+        }
+
+        function limparFiltros() {
+            document.querySelectorAll('.clean-input, .date-input, .clean-select').forEach(i => i.value = '');
+            aplicarFiltros();
+        }
+
+        function setAba(tipo, el) {
+            document.querySelectorAll('.tab-link').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+            abaAtual = tipo;
+            aplicarFiltros();
+        }
+
+        function renderizarLista(lista) {
             const tbody = document.getElementById('lista');
-            tbody.innerHTML = ''; // Limpa a tabela
+            tbody.innerHTML = '';
             let total = 0;
 
-            if (listaDados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color: #999;">Nenhum registro encontrado.</td></tr>';
-                document.getElementById('total-display').innerText = 'R$ 0,00';
-                return;
-            }
+            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum registro encontrado.</td></tr>'; document.getElementById('total-display').innerText = 'R$ 0,00'; return; }
 
-            listaDados.forEach(item => {
-                // Lógica de Soma (Considera apenas PAGOS para o saldo real, ou todos para previsão? A imagem sugere Saldo Real)
-                // Vou somar tudo que está visível para bater com o "Total" da barra
+            lista.forEach(item => {
                 const valorNum = parseFloat(item.valor);
-                if(item.tipo === 'RECEITA') total += valorNum;
-                else total -= valorNum;
+                if(item.tipo === 'RECEITA') total += valorNum; else total -= valorNum;
 
-                // 1. Data Inteligente
-                const dataRef = item.dataPagamento || item.dataVencimento || item.data;
-                const dataFormatada = new Date(dataRef).toLocaleDateString('pt-BR');
-
-                // 2. Cliente (Lógica de Fallback para não ficar vazio)
-                // Se não tiver fornecedor, usa a descrição. Se não tiver descrição, usa "Sem Nome"
-                let nomeCliente = item.fornecedor || item.descricao || "Consumidor Final";
-                // Limpa o nome se for muito longo ou tiver detalhes entre parenteses
-                if(nomeCliente.includes('(')) nomeCliente = nomeCliente.split('(')[0];
-
-                // 3. Banco
-                const nomeBanco = item.banco ? item.banco.nome : '-';
-
-                // 4. Descrição (Categoria)
-                const textoDescricao = item.categoria || 'Geral';
-
-                // 5. Cor do Valor (Preto para tudo ou Verde/Vermelho?)
-                // A imagem mostra preto, mas para facilitar vou colocar cinza escuro
-                const corValor = item.tipo === 'RECEITA' ? '#2d3748' : '#c53030'; // Receita Preto, Despesa Vermelho discreto
-
+                const dataFormatada = new Date((item.dataPagamento || item.dataVencimento).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
+                const corValor = item.tipo === 'RECEITA' ? '#2f855a' : '#c53030';
+                
                 tbody.innerHTML += `
                     <tr>
-                        <td class="col-cliente">${nomeCliente.toUpperCase()}</td>
-                        <td>${nomeBanco}</td>
-                        <td>${dataFormatada}</td>
-                        <td class="col-valor" style="color: ${corValor}">
-                            ${formatarMoeda(item.valor)}
-                        </td>
-                        <td class="col-desc">${textoDescricao}</td>
-                        <td style="text-align: center;">
-                            <div style="display:flex; justify-content:center; gap:5px;">
-                                <button class="action-btn" onclick="deletar('${item.id}')" title="Excluir">
-                                    <i class="fas fa-trash-alt" style="font-size: 12px;"></i>
-                                </button>
-                            </div>
+                        <td style="font-weight: 600; color: #1e293b;">${item.fornecedor || 'Geral'}</td>
+                        <td>${item.banco ? item.banco.nome : '-'}</td>
+                        <td style="color: #64748b;">${dataFormatada}</td>
+                        <td style="color: ${corValor}; font-weight: 700;">${formatarMoeda(valorNum)}</td>
+                        <td style="color: #334155;">${item.descricao || ''}</td>
+                        <td style="text-align: right;">
+                            <button onclick="estornarConta('${item.id}')" style="border:none; background:none; cursor:pointer; color:#718096;" title="Estornar (Voltar para Pendente)">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
             });
-
-            // Atualiza o Total lá em cima
             document.getElementById('total-display').innerText = formatarMoeda(total);
         }
 
-        // Função de Filtrar (Abas)
-        function filtrar(tipo, elemento) {
-            // Atualiza a classe 'active' nas abas
-            document.querySelectorAll('.nav-tabs a').forEach(el => el.classList.remove('active'));
-            elemento.classList.add('active');
+        // --- LÓGICA DE ESTORNO (RETORNAR PARA PENDENTE) ---
+        function estornarConta(id) {
+            Swal.fire({
+                title: 'Estornar lançamento?',
+                text: "Essa conta sairá do extrato e voltará para 'Contas a Pagar/Receber' como pendente.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ed8936',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Sim, estornar!'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        // Atualiza o status para PENDENTE via PUT
+                        const res = await fetch(`/transacoes/${id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'PENDENTE', bancoId: null, dataPagamento: null, valorFinal: null })
+                        });
 
-            if(tipo === 'TODOS') {
-                renderizarTabela(transacoesCache);
-            } else {
-                const filtrados = transacoesCache.filter(t => t.tipo === tipo);
-                renderizarTabela(filtrados);
-            }
-        }
-
-        async function deletar(id) {
-            if(confirm('Tem certeza que deseja remover este lançamento?')) {
-                await fetch(`/transacoes/${id}`, { method: 'DELETE' });
-                carregar(); // Recarrega a lista
-            }
+                        if(res.ok) {
+                            Toast.fire({ icon: 'success', title: 'Estornado! Voltou para a carteira.' });
+                            carregar();
+                        } else {
+                            Swal.fire('Erro', 'Não foi possível estornar.', 'error');
+                        }
+                    } catch (e) { console.error(e); }
+                }
+            })
         }
     </script>
 </body>
