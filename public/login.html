@@ -99,34 +99,32 @@
     </div>
 
     <script>
-        // --- NOVA FUNÇÃO: Alternar visualização da senha ---
+        // --- Função Visual: Alternar senha ---
         function toggleSenha(idInput, icone) {
             const input = document.getElementById(idInput);
-            
             if (input.type === 'password') {
-                input.type = 'text'; // Mostra senha
+                input.type = 'text';
                 icone.classList.remove('fa-eye');
-                icone.classList.add('fa-eye-slash'); // Olho cortado
+                icone.classList.add('fa-eye-slash');
             } else {
-                input.type = 'password'; // Esconde senha
+                input.type = 'password';
                 icone.classList.remove('fa-eye-slash');
-                icone.classList.add('fa-eye'); // Olho normal
+                icone.classList.add('fa-eye');
             }
         }
-
-        // Troca de Abas
+        // --- Função Visual: Troca de Abas ---
         function abrirAba(aba) {
             document.querySelectorAll('.form-box').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
             document.getElementById(aba).classList.add('active');
             
-            // Ativa a aba visualmente
-            // Correção: usamos event.target com cuidado, ou buscamos pelo texto
             const abas = document.querySelectorAll('.tab');
             if(aba === 'login') abas[0].classList.add('active');
             else abas[1].classList.add('active');
         }
-
+        // =========================================
+        // LÓGICA DE CADASTRO (Corrigida)
+        // =========================================
         async function fazerCadastro() {
             const nome = document.getElementById('cadNome').value;
             const email = document.getElementById('cadEmail').value;
@@ -135,21 +133,22 @@
 
             if(!nome || !email || !senha) return alert("Preencha tudo!");
 
-            // Feedback visual
             msg.innerText = "Processando...";
             msg.style.display = 'block';
             msg.style.color = 'blue';
 
             try {
-                const res = await fetch('/registro', {
+                // CORREÇÃO 1: Rota ajustada para /auth/registrar
+                const res = await fetch('/auth/registrar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nome, email, senha })
                 });
                 const dados = await res.json();
 
-                if(dados.erro) {
-                    msg.innerText = dados.erro;
+                // CORREÇÃO 2: Verifica o Status HTTP (res.ok) em vez de dados.erro
+                if(!res.ok) {
+                    msg.innerText = dados.erro || "Erro ao criar conta";
                     msg.style.color = 'red';
                 } else {
                     msg.innerText = "Conta criada! Faça login agora.";
@@ -157,11 +156,14 @@
                     setTimeout(() => abrirAba('login'), 2000); 
                 }
             } catch (e) {
-                msg.innerText = "Erro ao conectar com servidor.";
+                msg.innerText = "Erro de conexão.";
                 msg.style.color = 'red';
             }
         }
 
+        // =========================================
+        // LÓGICA DE LOGIN (Corrigida)
+        // =========================================
         async function fazerLogin() {
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
@@ -169,24 +171,33 @@
 
             if(!email || !senha) return alert("Preencha e-mail e senha!");
 
+            // Limpa mensagem anterior
+            msg.innerText = "Verificando...";
+            msg.style.display = 'block';
+            msg.style.color = 'blue';
+
             try {
-                const res = await fetch('/login', {
+                // CORREÇÃO 1: Rota ajustada para /auth/login
+                const res = await fetch('/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, senha })
                 });
+                
                 const dados = await res.json();
 
-                if(dados.sucesso) {
-                    localStorage.setItem('usuario_logado', JSON.stringify(dados.usuario));
-                    window.location.href = 'index.html';
+                // CORREÇÃO 2: Se o status for OK (200), o login funcionou
+                if(res.ok) {
+                    localStorage.setItem('usuario_logado', JSON.stringify(dados)); // O backend retorna o usuário direto
+                    window.location.href = 'index.html'; // Redireciona
                 } else {
-                    msg.innerText = dados.erro || "Login falhou";
-                    msg.style.display = 'block';
+                    msg.innerText = dados.erro || "E-mail ou senha incorretos.";
+                    msg.style.color = 'red';
                 }
             } catch (e) {
-                msg.innerText = "Erro ao conectar.";
-                msg.style.display = 'block';
+                console.error(e);
+                msg.innerText = "Erro ao conectar com o servidor.";
+                msg.style.color = 'red';
             }
         }
     </script>
