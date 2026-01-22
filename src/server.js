@@ -16,45 +16,48 @@ app.use(express.static('public'));
 // ==========================================
 // ROTAS DE TRANSAÇÕES (FINANCEIRO)
 // ==========================================
-// 1. CRIAR
+// 1.  (ROTA UNIFICADA DE CRIAR TRANSAÇÃO (MANUAL OU IMPORTAÇÃO)
 app.post('/transacoes', async (req, res) => {
-    const { 
-        fornecedor, descricao, valor, tipo, categoria, 
-        data, dataVencimento, formaPagamento, 
-        parcelas = 1, bancoId, usuarioId 
-    } = req.body;
-
-    if (!usuarioId) return res.status(400).json({ erro: "Usuário não identificado." });
-
-    const listaCriada = [];
-    let dataVencimentoAtual = new Date(dataVencimento);
-    const dataCompetencia = new Date(data);
-
     try {
-        for (let i = 0; i < parcelas; i++) {
-            const sufixo = parcelas > 1 ? ` (${i + 1}/${parcelas})` : '';
-            const novaTransacao = await prisma.transacao.create({
-                data: {
-                    fornecedor,
-                    descricao: descricao + sufixo,
-                    valor: parseFloat(valor),
-                    tipo,
-                    categoria,
-                    status: "PENDENTE",
-                    data: dataCompetencia,
-                    dataVencimento: dataVencimentoAtual,
-                    formaPagamento,
-                    usuario: { connect: { id: usuarioId } },
-                    ...(bancoId && { banco: { connect: { id: bancoId } } })
-                }
-            });
-            listaCriada.push(novaTransacao);
-            dataVencimentoAtual.setMonth(dataVencimentoAtual.getMonth() + 1);
+        // Recebe os dados
+        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId } = req.body;
+
+        // VALIDAÇÃO E CONVERSÃO DE DATA (O Pulo do Gato para corrigir o erro)
+        // Adicionamos "T12:00:00" para garantir que o fuso horário não mude o dia
+        let dataFinal = new Date();
+        if (data) {
+            // Se vier só YYYY-MM-DD, completa. Se já for ISO, usa direto.
+            const dataString = data.includes('T') ? data : `${data}T12:00:00`;
+            dataFinal = new Date(dataString);
         }
-        return res.json(listaCriada);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ erro: "Erro ao salvar" });
+
+        let dataPagtoFinal = null;
+        if (dataPagamento) {
+            const dataPagtoString = dataPagamento.includes('T') ? dataPagamento : `${dataPagamento}T12:00:00`;
+            dataPagtoFinal = new Date(dataPagtoString);
+        }
+
+        // Cria no Banco
+        const transacao = await prisma.transacao.create({
+            data: {
+                descricao,
+                valor: parseFloat(valor), // Garante que é número
+                tipo,
+                categoria: categoria || 'Geral',
+                status: status || 'PENDENTE',
+                data: dataFinal,
+                dataPagamento: dataPagtoFinal,
+                // Só conecta ao banco se tiver ID, senão ignora
+                banco: bancoId ? { connect: { id: bancoId } } : undefined,
+                usuario: { connect: { id: usuarioId } }
+            }
+        });
+
+        res.json(transacao);
+
+    } catch (e) {
+        console.error("ERRO AO SALVAR TRANSAÇÃO:", e); // Mostra o erro detalhado no terminal
+        res.status(500).json({ erro: "Erro ao salvar dados no banco." });
     }
 });
 // 2. LISTAR
@@ -495,46 +498,105 @@ app.post('/usuarios/:id/reset-link', async (req, res) => {
 // ==========================================
 // Configura o armazenamento em memória RAM
 const upload = multer({ storage: multer.memoryStorage() });
-// Rota para LER o arquivo OFX e devolver os dados
+// ==========================================
+// ==========================================
+// ROTA DE LEITURA HÍBRIDA (OFX Padrão + InfinityPay JSON)
+// ==========================================
 app.post('/conciliacao/ler-ofx', upload.single('arquivo'), (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ erro: "Nenhum arquivo enviado." });
-        }
-        const ofxData = req.file.buffer.toString('utf8');
-        // Faz o parse do OFX
-        const data = ofx.parse(ofxData);
-        // Navega na estrutura do OFX para achar as transações
-        // Tenta localizar a lista de transações (BANKTRANLIST -> STMTTRN)
-        let transacoes = [];
-        // Verifica se a estrutura existe antes de tentar acessar
-        const bankMsgs = data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST?.STMTTRN;    
-        if (!bankMsgs) {
-             return res.status(400).json({ erro: "Não foi possível ler as transações deste OFX. Formato inesperado." });
-        }
-        // Se for um array (várias) ou objeto único (uma)
-        const listaBruta = Array.isArray(bankMsgs) ? bankMsgs : [bankMsgs];
+        if (!req.file) return res.status(400).json({ erro: "Nenhum arquivo enviado." });
 
-        transacoes = listaBruta.map(t => {
-            // Formata Data (OFX vem como AAAAMMDD...)
-            // Exemplo OFX: 20260122120000
-            const rawDate = t.DTPOSTED.substring(0, 8); 
-            const ano = rawDate.substring(0, 4);
-            const mes = rawDate.substring(4, 6);
-            const dia = rawDate.substring(6, 8);
+        const fileContent = req.file.buffer.toString('utf8');
+        let transacoesLimpas = [];
+
+        // --- TENTATIVA 1: LER COMO JSON (INFINITY PAY) ---
+        try {
+            // Tenta fazer o parse como JSON primeiro
+            if (fileContent.trim().startsWith('{')) {
+                const json = JSON.parse(fileContent);
+
+                // Verifica se tem a estrutura do Infinity Pay ('data' como array)
+                if (json.data && Array.isArray(json.data)) {
+                    console.log("[LOG] Detectado formato Infinity Pay (JSON)");
+                    
+                    transacoesLimpas = json.data.map(t => {
+                        // Data: "2026-01-22T17:50..." -> Pega só a data YYYY-MM-DD
+                        const dataFinal = t.dateTime ? t.dateTime.split('T')[0] : new Date().toISOString().split('T')[0];
+                        
+                        // Valor: Infinity manda 'rawAmount' em centavos (ex: 5000 = 50.00)
+                        // 'amount' vem como string "+R$ 50,00". Usar rawAmount é mais seguro.
+                        const valorReal = t.rawAmount ? t.rawAmount / 100 : 0;
+                        
+                        // Tipo: 'in' = RECEITA, 'out' = DESPESA
+                        const tipoTransacao = t.direction === 'in' ? 'RECEITA' : 'DESPESA';
+
+                        return {
+                            id_banco: t.id,
+                            data: dataFinal,
+                            descricao: t.title || "Sem descrição", // Ex: "Pix Fulano"
+                            valor: Math.abs(valorReal),
+                            tipo: tipoTransacao,
+                            rawValor: valorReal
+                        };
+                    });
+                }
+            }
+        } catch (e) {
+            // Se der erro no JSON, apenas ignora e segue para tentar OFX
+            console.log("[LOG] Não é JSON, tentando OFX...");
+        }
+
+        // --- TENTATIVA 2: SE AINDA ESTÁ VAZIO, TENTA OFX PADRÃO ---
+        if (transacoesLimpas.length === 0) {
+            const data = ofx.parse(fileContent);
             
-            return {
-                data: `${ano}-${mes}-${dia}`,
-                descricao: t.MEMO || "Sem descrição",
-                valor: parseFloat(t.TRNAMT),
-                id_banco: t.FITID, 
-                tipo: parseFloat(t.TRNAMT) < 0 ? 'DESPESA' : 'RECEITA'
-            };
-        });
-        res.json(transacoes);
+            let listaBruta = null;
+            // Busca Conta Corrente ou Cartão
+            if (data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST?.STMTTRN) {
+                listaBruta = data.OFX.BANKMSGSRSV1.STMTTRNRS.STMTRS.BANKTRANLIST.STMTTRN;
+            } else if (data.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST?.STMTTRN) {
+                listaBruta = data.OFX.CREDITCARDMSGSRSV1.CCSTMTTRNRS.CCSTMTRS.BANKTRANLIST.STMTTRN;
+            }
+
+            if (listaBruta) {
+                const arrayTransacoes = Array.isArray(listaBruta) ? listaBruta : [listaBruta];
+                transacoesLimpas = arrayTransacoes.map(t => {
+                    const rawDate = (t.DTPOSTED || "").substring(0, 8); 
+                    let dataFormatada = rawDate.length === 8 
+                        ? `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}`
+                        : new Date().toISOString().split('T')[0];
+                    
+                    const valorRaw = String(t.TRNAMT).replace(',', '.');
+                    const valor = parseFloat(valorRaw);
+                    
+                    return {
+                        id_banco: t.FITID, 
+                        data: dataFormatada,
+                        descricao: t.MEMO || "Sem descrição",
+                        valor: Math.abs(valor),
+                        tipo: valor < 0 ? 'DESPESA' : 'RECEITA',
+                        rawValor: valor 
+                    };
+                });
+            }
+        }
+
+        // --- RESULTADO FINAL ---
+        if (transacoesLimpas.length === 0) {
+             return res.status(400).json({ erro: "Formato de arquivo não reconhecido." });
+        }
+
+        const resumo = {
+            totalEntradas: transacoesLimpas.filter(t => t.tipo === 'RECEITA').reduce((acc, t) => acc + t.valor, 0),
+            totalSaidas: transacoesLimpas.filter(t => t.tipo === 'DESPESA').reduce((acc, t) => acc + t.valor, 0),
+            qtd: transacoesLimpas.length
+        };
+
+        res.json({ resumo, transacoes: transacoesLimpas });
+
     } catch (e) {
-        console.error(e);
-        res.status(500).json({ erro: "Erro ao ler arquivo OFX. Verifique o formato." });
+        console.error("Erro leitura:", e);
+        res.status(500).json({ erro: "Erro interno ao processar arquivo." });
     }
 });
 
