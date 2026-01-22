@@ -12,10 +12,10 @@
     <script src="script.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .content { padding: 30px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
 
-        /* HEADER */
+        /* HEADER & BOTÕES */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
         .header-left { display: flex; align-items: center; gap: 20px; }
         .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
@@ -25,21 +25,19 @@
         .header-actions { display: flex; gap: 10px; }
         .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
         .btn-import:hover { background: #f8fafc; border-color: #cbd5e0; color: #1e293b; }
-        
-        /* Botão Verde */
+
+        /* Botão Verde para Receita */
         .btn-new { background-color: #2f855a; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(47, 133, 90, 0.2); transition: 0.2s; display: flex; align-items: center; gap: 8px; }
         .btn-new:hover { background-color: #276749; transform: translateY(-1px); }
 
-        /* BARRA DE FILTROS */
-        .modern-toolbar { background: white; padding: 8px 15px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; }
+        /* FILTROS */
+        .modern-toolbar { background: white; padding: 8px 15px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; margin-bottom: 20px; }
         .total-badge { background: #f0fff4; color: #2f855a; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid #c6f6d5; flex-shrink: 0; }
         .divider { width: 1px; height: 20px; background-color: #e2e8f0; flex-shrink: 0; }
-        
         .filter-pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; transition: all 0.3s ease; background: transparent; border: 1px solid transparent; flex-shrink: 0; }
         .filter-pill:hover, .filter-pill:focus-within { background-color: #f8fafc; border-color: #e2e8f0; }
         .filter-pill i { color: #94a3b8; font-size: 14px; }
         .filter-pill:focus-within i { color: #2f855a; }
-
         .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; width: 80px; transition: width 0.3s ease; }
         .filter-pill:focus-within .clean-input { width: 160px; } 
         .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif; width: 95px; }
@@ -47,19 +45,74 @@
         .btn-limpar { font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: auto; text-decoration: none; border: none; background: none; white-space: nowrap; }
         .btn-limpar:hover { color: #2f855a; text-decoration: underline; }
 
-        /* TABELA */
-        .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; margin-top: 20px; }
-        .clean-table { width: 100%; border-collapse: collapse; }
-        .clean-table th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; background: #f8fafc; }
-        .clean-table td { padding: 16px 24px; font-size: 14px; color: #334155; border-bottom: 1px solid #f1f5f9; }
-        .clean-table tr:hover { background-color: #fcfcfc; }
+        /* --- TABELA MODERNA & COMPACTA --- */
+        .table-container { background: transparent; border: none; box-shadow: none; }
+        .clean-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
 
-        /* CALCULADORA MODAL */
+        /* HEADER SÓLIDO */
+        .clean-table thead tr { 
+            background-color: #dbe4ef; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .clean-table thead th {
+            text-align: left; 
+            padding: 10px 15px;
+            font-size: 11px; font-weight: 800; color: #2d3748;
+            text-transform: uppercase; letter-spacing: 0.8px; border: none;
+        }
+        .clean-table thead th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+        .clean-table thead th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+
+        /* CORPO CARD */
+        .clean-table tbody tr { background-color: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease; }
+        .clean-table tbody tr:hover { transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        .clean-table tbody td {
+            padding: 12px 15px; 
+            font-size: 13px; color: #334155;
+            border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; vertical-align: middle;
+        }
+        .clean-table tbody td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .clean-table tbody td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+        /* LARGURAS FIXAS */
+        .col-fornecedor { width: 22%; min-width: 150px; }
+        .col-data { width: 100px; color: #64748b; white-space: nowrap; }
+        .col-valor { width: 110px; font-weight: 700; color: #2f855a; white-space: nowrap; } /* Verde para receita */
+        .col-forma { width: 90px; text-align: center; color: #4a5568; font-size: 13px; }
+        .col-parcela { width: 60px; text-align: center; font-weight: 600; color: #718096; }
+        .col-descricao { width: 25%; min-width: 150px; }
+        .col-acoes { width: 140px; text-align: right; white-space: nowrap; }
+
+        /* CLASSE PARA CORTAR TEXTO (...) */
+        .text-truncate {
+            max-width: 190px;       
+            white-space: nowrap;    
+            overflow: hidden;       
+            text-overflow: ellipsis;
+            display: block;
+        }
+        
+        .fornecedor-style { font-weight: 600; color: #1e293b; }
+        .descricao-style { color: #64748b; }
+
+        /* BOTÕES DE AÇÃO */
+        .action-btn {
+            width: 28px; height: 28px; border-radius: 6px; border: none; background: transparent;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            transition: all 0.2s; margin-left: 2px; font-size: 12px;
+        }
+        .btn-pay { color: #2f855a; background-color: #f0fff4; } .btn-pay:hover { background-color: #c6f6d5; }
+        .btn-edit { color: #d69e2e; background-color: #fffaf0; } .btn-edit:hover { background-color: #feebc8; }
+        .btn-delete { color: #ef4444; background-color: #fff5f5; } .btn-delete:hover { background-color: #fed7d7; }
+
+        /* ERROS VISUAIS */
+        .input-error { border: 2px solid #e53e3e !important; background-color: #fff5f5; }
+
+        /* MODAL */
         .calc-box { background-color: #f0fff4; border: 1px solid #c6f6d5; border-radius: 8px; padding: 15px; margin-top: 15px; }
         .calc-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .calc-total { font-size: 20px; font-weight: 700; color: #2f855a; text-align: right; border-top: 1px solid #9ae6b4; padding-top: 10px; margin-top: 10px; }
-
-        /* SWEETALERT FONTE */
         div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
         div:where(.swal2-popup) { border-radius: 15px !important; font-size: 14px !important; }
     </style>
@@ -78,7 +131,7 @@
             </div>
             <div class="header-actions">
                 <button class="btn-import" onclick="Swal.fire('Info', 'Importação em breve.', 'info')"><i class="fas fa-file-import"></i> Importar</button>
-                <button class="btn-new" onclick="abrirModal()"><i class="fas fa-plus"></i> Novo</button>
+                <button class="btn-new" onclick="abrirModalNovo()"><i class="fas fa-plus"></i> Novo</button>
             </div>
         </div>
 
@@ -100,7 +153,17 @@
 
         <div class="table-container">
             <table class="clean-table">
-                <thead> <tr> <th>Cliente</th> <th>Vencimento</th> <th>Valor</th> <th>Forma Pgto</th> <th>Descrição</th> <th style="text-align: right;">Ações</th> </tr> </thead>
+                <thead>
+                    <tr>
+                        <th class="col-fornecedor">Cliente</th>
+                        <th class="col-data">Vencimento</th>
+                        <th class="col-valor">Valor</th>
+                        <th class="col-forma" style="text-align: center;"><i class="fas fa-wallet" title="Forma de Recebimento"></i></th>
+                        <th class="col-parcela" style="text-align: center;">Parc.</th>
+                        <th class="col-descricao">Descrição</th>
+                        <th class="col-acoes" style="text-align: right; padding-right: 25px;"><i class="fas fa-cog" title="Ações"></i></th>
+                    </tr>
+                </thead>
                 <tbody id="lista"></tbody>
             </table>
         </div>
@@ -108,12 +171,25 @@
 
     <div class="modal-overlay" id="modalConta">
         <div class="modal">
-            <h2 style="color: #2f855a;">Nova Receita</h2>
-            <div class="form-group"><label>Cliente</label><input type="text" id="inputFornecedor" placeholder="Nome do cliente"></div>
-            <div class="form-row">
-                <div class="form-group"><label>Valor (R$)</label><input type="number" id="valor" step="0.01" placeholder="0,00"></div>
-                <div class="form-group"><label>Vencimento</label><input type="date" id="dataVenc"></div>
+            <h2 style="color: #2f855a;" id="tituloModal">Nova Receita</h2>
+            <input type="hidden" id="editId">
+            
+            <div class="form-group">
+                <label>Cliente <span style="color:red">*</span></label>
+                <input type="text" id="inputFornecedor" placeholder="Nome do cliente" oninput="this.classList.remove('input-error')">
             </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Valor (R$) <span style="color:red">*</span></label>
+                    <input type="number" id="valor" step="0.01" placeholder="0,00" oninput="this.classList.remove('input-error')">
+                </div>
+                <div class="form-group">
+                    <label>Vencimento <span style="color:red">*</span></label>
+                    <input type="date" id="dataVenc" oninput="this.classList.remove('input-error')">
+                </div>
+            </div>
+            
             <div class="form-row">
                 <div class="form-group">
                     <label>Forma de Recebimento</label>
@@ -146,7 +222,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-outline" onclick="fecharModalBaixa()">Cancelar</button>
-                <button class="btn-new" onclick="confirmarBaixa()">CONFIRMAR</button>
+                <button class="btn-new" onclick="confirmarBaixa()" style="background-color: #2f855a; box-shadow: none;">CONFIRMAR</button>
             </div>
         </div>
     </div>
@@ -157,14 +233,29 @@
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
         document.addEventListener('DOMContentLoaded', () => { document.getElementById('dataVenc').valueAsDate = new Date(); carregar(); });
-        function abrirModal() { document.getElementById('modalConta').style.display = 'flex'; }
+        
+        function abrirModalNovo() { 
+            document.getElementById('editId').value = ''; 
+            document.getElementById('tituloModal').innerText = 'Nova Receita';
+            document.getElementById('inputFornecedor').value = ''; 
+            document.getElementById('valor').value = '';
+            document.getElementById('dataVenc').valueAsDate = new Date();
+            document.getElementById('inputDescricao').value = '';
+            document.getElementById('parcelas').value = '1';
+            
+            // Limpa erros visuais
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+            
+            document.getElementById('modalConta').style.display = 'flex'; 
+        }
+
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
         function fecharModalBaixa() { document.getElementById('modalBaixa').style.display = 'none'; }
 
         async function carregar() {
             if(!usuario) return;
             try {
-                // Filtra RECEITAS PENDENTES
+                // TIPO = RECEITA
                 const res = await fetch(`/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}`);
                 transacoesCache = await res.json();
                 aplicarFiltros();
@@ -199,21 +290,32 @@
             const tbody = document.getElementById('lista');
             tbody.innerHTML = '';
             let total = 0;
-            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma receita encontrada.</td></tr>'; document.getElementById('total-esteira').innerText = 'R$ 0,00'; return; }
+            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma receita encontrada.</td></tr>'; document.getElementById('total-esteira').innerText = 'R$ 0,00'; return; }
 
             lista.forEach(item => {
                 total += parseFloat(item.valor);
                 const vencimento = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
+                
                 tbody.innerHTML += `
                     <tr>
-                        <td style="font-weight: 600; color: #1e293b;">${item.fornecedor || 'Cliente'}</td>
-                        <td style="color: #64748b;">${vencimento}</td>
-                        <td style="color: #2f855a; font-weight: 700;">${formatarMoeda(item.valor)}</td>
-                        <td>${item.formaPagamento || '-'}</td>
-                        <td style="color: #334155;">${item.descricao || ''}</td>
-                        <td style="text-align: right;">
-                            <button onclick="prepararBaixa('${item.id}')" style="border:none; background:none; cursor:pointer; color:#2f855a; margin-right:10px;" title="Receber"><i class="fas fa-check-circle" style="font-size: 16px;"></i></button>
-                            <button onclick="deletar('${item.id}')" style="border:none; background:none; cursor:pointer; color:#ef4444;" title="Excluir"><i class="fas fa-trash-alt" style="font-size: 16px;"></i></button>
+                        <td class="col-fornecedor">
+                            <div class="text-truncate fornecedor-style" title="${item.fornecedor || ''}">
+                                ${item.fornecedor || 'Cliente'}
+                            </div>
+                        </td>
+                        <td class="col-data">${vencimento}</td>
+                        <td class="col-valor">${formatarMoeda(item.valor)}</td>
+                        <td class="col-forma">${item.formaPagamento || '-'}</td>
+                        <td class="col-parcela">1/${item.parcelas || 1}</td>
+                        <td class="col-descricao">
+                            <div class="text-truncate descricao-style" title="${item.descricao || ''}">
+                                ${item.descricao || ''}
+                            </div>
+                        </td>
+                        <td class="col-acoes">
+                            <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Receber"><i class="fas fa-check"></i></button>
+                            <button onclick="editarConta('${item.id}')" class="action-btn btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
+                            <button onclick="deletar('${item.id}')" class="action-btn btn-delete" title="Excluir"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -221,10 +323,58 @@
             document.getElementById('total-esteira').innerText = formatarMoeda(total);
         }
 
-        // LÓGICA DE BAIXA
+        function editarConta(id) {
+            const item = transacoesCache.find(t => t.id === id); if(!item) return;
+            document.getElementById('editId').value = id; 
+            document.getElementById('tituloModal').innerText = 'Editar Receita';
+            document.getElementById('inputFornecedor').value = item.fornecedor;
+            document.getElementById('valor').value = item.valor;
+            document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0];
+            document.getElementById('formaPagto').value = item.formaPagamento;
+            document.getElementById('inputDescricao').value = item.descricao;
+            document.getElementById('parcelas').value = item.parcelas || 1;
+            
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+            document.getElementById('modalConta').style.display = 'flex';
+        }
+
+        async function salvarConta() {
+            const idEdicao = document.getElementById('editId').value;
+            const elFornecedor = document.getElementById('inputFornecedor');
+            const elValor = document.getElementById('valor');
+            const elData = document.getElementById('dataVenc');
+
+            elFornecedor.classList.remove('input-error');
+            elValor.classList.remove('input-error');
+            elData.classList.remove('input-error');
+
+            let erro = false;
+            if(!elFornecedor.value) { elFornecedor.classList.add('input-error'); erro = true; }
+            if(!elValor.value) { elValor.classList.add('input-error'); erro = true; }
+            if(!elData.value) { elData.classList.add('input-error'); erro = true; }
+            if(erro) return;
+
+            const dados = {
+                fornecedor: elFornecedor.value, valor: elValor.value, dataVencimento: elData.value, data: elData.value,
+                formaPagamento: document.getElementById('formaPagto').value, descricao: document.getElementById('inputDescricao').value,
+                parcelas: document.getElementById('parcelas').value, 
+                tipo: 'RECEITA', // IMPORTANTE: TIPO RECEITA
+                status: 'PENDENTE', 
+                usuarioId: usuario.id
+            };
+
+            try {
+                const method = idEdicao ? 'PUT' : 'POST';
+                const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes';
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+                if(res.ok) {
+                    fecharModal(); Toast.fire({ icon: 'success', title: idEdicao ? 'Atualizado!' : 'Salvo!' }); carregar();
+                } else { Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao salvar.' }); }
+            } catch (e) { Swal.fire({ icon: 'error', text: 'Erro de conexão.' }); }
+        }
+
         async function prepararBaixa(id) {
-            const item = transacoesCache.find(t => t.id === id);
-            if(!item) return;
+            const item = transacoesCache.find(t => t.id === id); if(!item) return;
             document.getElementById('baixaId').value = id;
             document.getElementById('baixaFornecedor').value = item.fornecedor || item.descricao;
             document.getElementById('baixaValorOriginal').value = item.valor;
@@ -236,10 +386,8 @@
         }
 
         async function carregarSelectBancos() {
-            const select = document.getElementById('baixaBanco');
-            select.innerHTML = '<option value="">Selecione o Banco...</option>';
-            const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
-            (await res.json()).forEach(b => select.innerHTML += `<option value="${b.id}">${b.nome}</option>`);
+            const select = document.getElementById('baixaBanco'); select.innerHTML = '<option value="">Selecione...</option>';
+            const res = await fetch(`/bancos?usuarioId=${usuario.id}`); (await res.json()).forEach(b => select.innerHTML += `<option value="${b.id}">${b.nome}</option>`);
         }
 
         function calcularTotalBaixa() {
@@ -252,27 +400,15 @@
         async function confirmarBaixa() {
             const id = document.getElementById('baixaId').value;
             const bancoId = document.getElementById('baixaBanco').value;
-            if(!bancoId) return Swal.fire({icon: 'error', title: 'Oops...', text: 'Selecione o Banco!'});
-            
+            if(!bancoId) return Swal.fire({icon: 'error', text: 'Selecione o Banco!'});
             const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value);
             const valorFinal = vOrig + Number(document.getElementById('baixaJuros').value) - Number(document.getElementById('baixaDesconto').value);
-
             await fetch(`/transacoes/${id}/pagar`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoId, dataPagamento: document.getElementById('baixaData').value, valorFinal }) });
-            fecharModalBaixa(); Toast.fire({ icon: 'success', title: 'Recebimento confirmado!' }); carregar();
-        }
-
-        // SALVAR E DELETAR
-        async function salvarConta() {
-            const dados = { fornecedor: document.getElementById('inputFornecedor').value, valor: parseFloat(document.getElementById('valor').value), dataVencimento: document.getElementById('dataVenc').value, data: document.getElementById('dataVenc').value, formaPagamento: document.getElementById('formaPagto').value, descricao: document.getElementById('inputDescricao').value, parcelas: parseInt(document.getElementById('parcelas').value), tipo: 'RECEITA', status: 'PENDENTE', usuarioId: usuario.id };
-            if(!dados.fornecedor || !dados.valor) return Swal.fire({ icon: 'warning', text: 'Preencha Cliente e Valor!' });
-            
-            await fetch('/transacoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
-            fecharModal(); Toast.fire({ icon: 'success', title: 'Receita salva!' });
-            document.getElementById('inputFornecedor').value = ''; document.getElementById('valor').value = ''; limparFiltros(); carregar();
+            fecharModalBaixa(); Toast.fire({ icon: 'success', title: 'Recebido!' }); carregar();
         }
 
         function deletar(id) {
-            Swal.fire({ title: 'Tem certeza?', text: "Irreversível!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#c53030', confirmButtonText: 'Sim, excluir!' }).then(async (result) => {
+            Swal.fire({ title: 'Excluir?', text: "Irreversível!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#c53030', confirmButtonText: 'Sim' }).then(async (result) => {
                 if (result.isConfirmed) { await fetch(`/transacoes/${id}`, {method: 'DELETE'}); Toast.fire({ icon: 'success', title: 'Excluído.' }); carregar(); }
             })
         }
