@@ -1,31 +1,24 @@
 import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client'; // 1. Importamos o conector do banco
+import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient(); // 2. Iniciamos a conexão
+const prisma = new PrismaClient();
 const app = express();
 
 app.use(express.json());
 app.use(cors());
-
-// --- LINHA NOVA: Servir arquivos estáticos (HTML, CSS, Imagens) ---
-// Isso diz: "Tudo que estiver na pasta 'public', pode mostrar pro navegador"
 app.use(express.static('public'));
 
-// --- ROTA DE CRIAR TRANSAÇÃO (VINCULADA AO USUÁRIO) ---
+// --- ROTA DE CRIAR TRANSAÇÃO ---
 app.post('/transacoes', async (req, res) => {
     const { 
         fornecedor, descricao, valor, tipo, categoria, 
         data, dataVencimento, formaPagamento, 
-        parcelas = 1, 
-        bancoId,
-        usuarioId // <--- AGORA RECEBEMOS O ID DO USUÁRIO
+        parcelas = 1, bancoId, usuarioId 
     } = req.body;
 
-    if (!usuarioId) {
-        return res.status(400).json({ erro: "Usuário não identificado." });
-    }
+    if (!usuarioId) return res.status(400).json({ erro: "Usuário não identificado." });
 
     const listaCriada = [];
     let dataVencimentoAtual = new Date(dataVencimento);
@@ -34,10 +27,9 @@ app.post('/transacoes', async (req, res) => {
     try {
         for (let i = 0; i < parcelas; i++) {
             const sufixo = parcelas > 1 ? ` (${i + 1}/${parcelas})` : '';
-            
             const novaTransacao = await prisma.transacao.create({
                 data: {
-                    fornecedor: fornecedor,
+                    fornecedor,
                     descricao: descricao + sufixo,
                     valor: parseFloat(valor),
                     tipo,
@@ -46,15 +38,13 @@ app.post('/transacoes', async (req, res) => {
                     data: dataCompetencia,
                     dataVencimento: dataVencimentoAtual,
                     formaPagamento,
-                    usuario: { connect: { id: usuarioId } }, // Vincula ao Usuário
-                    ...(bancoId && { banco: { connect: { id: bancoId } } }) // Se tiver banco, vincula também
+                    usuario: { connect: { id: usuarioId } },
+                    ...(bancoId && { banco: { connect: { id: bancoId } } })
                 }
             });
-            
             listaCriada.push(novaTransacao);
             dataVencimentoAtual.setMonth(dataVencimentoAtual.getMonth() + 1);
         }
-
         return res.json(listaCriada);
     } catch (error) {
         console.error(error);
@@ -62,362 +52,197 @@ app.post('/transacoes', async (req, res) => {
     }
 });
 
-// --- ROTA DE LISTAR TRANSAÇÕES (ATUALIZADA) ---
+// --- ROTA DE LISTAR ---
 app.get('/transacoes', async (req, res) => {
     const { tipo, status, usuarioId } = req.query;
-
     const filtro = {};
     if (tipo) filtro.tipo = tipo;
     if (status) filtro.status = status;
-    // Se mandar o ID do usuário, filtra. Se não, traz tudo (cuidado em produção!)
     if (usuarioId) filtro.usuarioId = usuarioId; 
 
     const transacoes = await prisma.transacao.findMany({
         where: filtro,
-        include: {
-            banco: true // <--- ISSO É O SEGREDO! Traz os dados do Banco junto
-        },
-        orderBy: {
-            data: 'desc' // Ordena do mais recente para o mais antigo
-        }
+        include: { banco: true },
+        orderBy: { data: 'desc' }
     });
-
     return res.json(transacoes);
 });
 
-// --- ROTA 3: BAIXAR UMA CONTA (MARCAR COMO PAGO) ---
-// O :id indica que vamos receber o ID da conta pela URL
-app.patch('/transacoes/:id', async (req, res) => {
-    const { id } = req.params;
-
-    // Atualiza o registro no banco
-    const transacaoAtualizada = await prisma.transacao.update({
-        where: { id: id }, // Procura pelo ID
-        data: { 
-            status: "PAGO",         // Muda o status
-            dataPagamento: new Date() // Grava a data/hora exata de agora
-        }
-    });
-
-    return res.json(transacaoAtualizada);
-});
-
-// --- ROTA 4: DELETAR UMA CONTA (CASO ERROU) ---
-app.delete('/transacoes/:id', async (req, res) => {
-    const { id } = req.params;
-
-    await prisma.transacao.delete({
-        where: { id: id }
-    });
-
-    return res.status(204).send(); // 204 = Sucesso, mas sem conteúdo para mostrar
-});
-
-
-// --- ROTA 5: RESUMO FINANCEIRO (DASHBOARD) ---
-app.get('/resumo', async (req, res) => {
-    // 1. Pede pro banco somar todas as RECEITAS
-    const totalReceitas = await prisma.transacao.aggregate({
-        _sum: { valor: true },
-        where: { tipo: 'RECEITA' } // <-- Corrigido para 'tipo'
-    });
-
-    // 2. Pede pro banco somar todas as DESPESAS
-    const totalDespesas = await prisma.transacao.aggregate({
-        _sum: { valor: true },
-        where: { tipo: 'DESPESA' } // <-- Corrigido para 'tipo'
-    });
-
-    // 3. Organiza os valores (se for null, vira zero)
-    // O 'Number(...)' garante que seja tratado como número
-    const receitas = Number(totalReceitas._sum.valor || 0);
-    const despesas = Number(totalDespesas._sum.valor || 0);
-    const saldo = receitas - despesas;
-
-    return res.json({
-        receitas,
-        despesas,
-        saldo
-    });
-});
-
-// --- ROTA 6: CONCILIAÇÃO BANCÁRIA (AUTOMÁTICA) ---
-app.post('/conciliacao', async (req, res) => {
-    const extratoBancario = req.body; // Recebe uma lista de itens do banco
-    const relatorio = [];
-
-    // Para cada linha do extrato bancário...
-    for (const itemBanco of extratoBancario) {
-        
-        // ...o sistema procura no DB uma conta com mesmo valor e tipo
-        const possivelMatch = await prisma.transacao.findFirst({
-            where: {
-                valor: itemBanco.valor,
-                tipo: itemBanco.tipo,
-                status: "PENDENTE" // Só busca o que ainda não foi pago
-            }
-        });
-
-        // Adiciona ao relatório o resultado da investigação
-        relatorio.push({
-            transacao_banco: itemBanco.descricao,
-            valor: itemBanco.valor,
-            status_conciliacao: possivelMatch ? "ENCONTRADO" : "NÃO ENCONTRADO",
-            id_sistema: possivelMatch ? possivelMatch.id : null,
-            acao_sugerida: possivelMatch ? "CONFIRMAR BAIXA" : "CADASTRAR NOVA CONTA"
-        });
-    }
-
-    return res.json(relatorio);
-});
-
-// --- ROTA DE CADASTRO (CRIAR CONTA) ---
-app.post('/registro', async (req, res) => {
-    const { nome, email, senha } = req.body;
-
-    // 1. Verifica se já existe esse email
-    const usuarioExistente = await prisma.usuario.findUnique({ where: { email } });
-    if (usuarioExistente) {
-        return res.status(400).json({ erro: "Email já cadastrado!" });
-    }
-
-    // 2. Criptografa a senha (segurança máxima)
-    const hashSenha = await bcrypt.hash(senha, 10);
-
-    // 3. Salva no banco
-    const novoUsuario = await prisma.usuario.create({
-        data: {
-            nome,
-            email,
-            senha: hashSenha
-        }
-    });
-
-    return res.json({ sucesso: true, usuario: novoUsuario });
-});
-
-// --- ROTA DE LOGIN (ENTRAR) ---
-app.post('/login', async (req, res) => {
-    const { email, senha } = req.body;
-
-    // 1. Procura o usuário pelo email
-    const usuario = await prisma.usuario.findUnique({ where: { email } });
-
-    if (!usuario) {
-        return res.status(400).json({ sucesso: false, erro: "Usuário não encontrado!" });
-    }
-
-    // 2. Compara a senha digitada com a criptografada do banco
-    const senhaValida = await bcrypt.compare(senha, usuario.senha);
-
-    if (!senhaValida) {
-        return res.status(401).json({ sucesso: false, erro: "Senha incorreta!" });
-    }
-
-    // 3. Deu certo! Retorna os dados (sem a senha, claro)
-    return res.json({ 
-        sucesso: true, 
-        token: "TOKEN_SECRET_" + usuario.id, // Simulação de token
-        usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email }
-    });
-});
-
-// --- ROTAS DE BANCOS ---
-
-// 1. Listar meus bancos
-app.get('/bancos', async (req, res) => {
-    // Pegar o ID do usuário que virá do frontend (vamos implementar isso já já)
-    const { usuarioId } = req.query; 
-    
-    if(!usuarioId) return res.json([]);
-
-    const bancos = await prisma.banco.findMany({
-        where: { usuarioId }
-    });
-    return res.json(bancos);
-});
-
-// --- ROTA DE CRIAR BANCO ---
-app.post('/bancos', async (req, res) => {
-    // Pegamos todos os campos novos do formulário
-    const { nome, cor, usuarioId, agencia, conta, saldoInicial, dataSaldo, inativo } = req.body;
-
-    if (!usuarioId) {
-        return res.status(400).json({ erro: "Usuário não identificado." });
-    }
-
-    try {
-        const novoBanco = await prisma.banco.create({
-            data: { 
-                nome, 
-                cor,
-                agencia,
-                conta,
-                saldoInicial: parseFloat(saldoInicial || 0), // Converte para número
-                dataSaldo: dataSaldo ? new Date(dataSaldo) : new Date(),
-                inativo: inativo === 'sim', // Se vier "sim" vira true, senão false
-                usuario: { connect: { id: usuarioId } }
-            }
-        });
-        return res.json(novoBanco);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ erro: "Erro ao criar banco." });
-    }
-});
-
-// --- ROTA DE BAIXA (PAGAR CONTA) ---
-app.put('/transacoes/:id/pagar', async (req, res) => {
-    const { id } = req.params;
-    const { bancoId, dataPagamento, juros, desconto, valorFinal } = req.body;
-
-    try {
-        const transacao = await prisma.transacao.update({
-            where: { id },
-            data: {
-                status: 'PAGO',
-                banco: { connect: { id: bancoId } }, // Vincula ao banco escolhido
-                dataPagamento: new Date(dataPagamento),
-                juros: parseFloat(juros || 0),
-                desconto: parseFloat(desconto || 0),
-                valor: parseFloat(valorFinal) // Atualiza com o valor real pago
-            }
-        });
-
-        // (Futuramente aqui faremos o débito no saldo do banco)
-        
-        return res.json(transacao);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ erro: "Erro ao pagar conta" });
-    }
-});
-
-// --- ROTA DE ATUALIZAR BANCO (EDITAR) ---
-app.put('/bancos/:id', async (req, res) => {
-    const { id } = req.params;
-    // Pega os dados novos
-    const { nome, agencia, conta, saldoInicial, dataSaldo, inativo } = req.body;
-
-    try {
-        const bancoAtualizado = await prisma.banco.update({
-            where: { id: id },
-            data: {
-                nome,
-                agencia,
-                conta,
-                saldoInicial: parseFloat(saldoInicial || 0),
-                dataSaldo: dataSaldo ? new Date(dataSaldo) : undefined,
-                inativo: inativo === 'sim' // Converte texto para booleano
-            }
-        });
-        return res.json(bancoAtualizado);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ erro: "Erro ao atualizar banco." });
-    }
-});
-
-// 3. Deletar banco
-app.delete('/bancos/:id', async (req, res) => {
-    await prisma.banco.delete({ where: { id: req.params.id } });
-    return res.status(200).send();
-});
-
-// Rota para LISTAR todos os usuários
-app.get('/usuarios', async (req, res) => {
-    const usuarios = await prisma.usuario.findMany({
-        select: { id: true, nome: true, email: true } // Não devolva a senha!
-    });
-    res.json(usuarios);
-});
-
-// Rota para DELETAR usuário
-app.delete('/usuarios/:id', async (req, res) => {
-    const { id } = req.params;
-    await prisma.usuario.delete({ where: { id } });
-    res.json({ message: "Usuário deletado" });
-});
-
-// Rota para EDITAR usuário
-app.put('/usuarios/:id', async (req, res) => {
-    const { id } = req.params;
-    const { nome, email, senha } = req.body;
-
-    try {
-        // Objeto com os dados que vamos atualizar
-        const dadosParaAtualizar = { nome, email };
-
-        // Só atualiza a senha se ela foi enviada (não estiver vazia)
-        if (senha) {
-            // Importante: Tem que criptografar a nova senha igual no cadastro!
-            // Certifique-se de ter: const bcrypt = require('bcrypt'); lá no topo
-            const senhaCriptografada = await bcrypt.hash(senha, 10);
-            dadosParaAtualizar.senha = senhaCriptografada;
-        }
-
-        const usuarioAtualizado = await prisma.usuario.update({
-            where: { id: id },
-            data: dadosParaAtualizar
-        });
-
-        // Remove a senha do retorno por segurança
-        const { senha: _, ...usuarioSemSenha } = usuarioAtualizado;
-        
-        res.json(usuarioSemSenha);
-
-    } catch (erro) {
-        console.error(erro);
-        // Tratamento simples para e-mail duplicado
-        if (erro.code === 'P2002') {
-            return res.status(400).json({ erro: "Este e-mail já está em uso por outro usuário." });
-        }
-        res.status(500).json({ erro: "Erro ao atualizar usuário." });
-    }
-});
-
-// --- ROTA DE EDIÇÃO (ATUALIZAR DADOS) ---
+// --- ROTA INTELIGENTE: EDITAR, BAIXAR E ESTORNAR ---
 app.put('/transacoes/:id', async (req, res) => {
     const { id } = req.params;
     const body = req.body;
 
     try {
-        // Prepara o objeto de dados garantindo os tipos corretos
-        const dadosAtualizados = {
-            fornecedor: body.fornecedor,
-            descricao: body.descricao,
-            formaPagamento: body.formaPagamento,
-            // Garante que valor seja número (troca vírgula por ponto se necessário)
-            valor: parseFloat(String(body.valor).replace(',', '.')), 
-            // Garante que parcelas seja número inteiro
-            parcelas: body.parcelas ? parseInt(body.parcelas) : 1, 
-            categoria: body.categoria || 'Geral'
-        };
+        let dadosParaAtualizar = {};
 
-        // Só tenta converter data se ela existir e não for vazia
-        if (body.dataVencimento) {
-            // Cria a data adicionando horário para evitar problemas de fuso (dia anterior)
-            const dataFormatada = new Date(body.dataVencimento + "T12:00:00Z");
-            dadosAtualizados.dataVencimento = dataFormatada;
-            dadosAtualizados.data = dataFormatada; // Mantém sincronizado
+        // CENÁRIO 1: ESTORNO (Voltar para Pendente)
+        if (body.status === 'PENDENTE' && body.bancoId === null) {
+            console.log(`Estornando transação ${id}...`);
+            
+            // Passo 1: Busca a transação atual para saber o valor original
+            const transacaoAtual = await prisma.transacao.findUnique({ where: { id } });
+            
+            // Se tiver valorOriginal salvo, recupera ele. Se não, mantém o valor atual.
+            const valorRestaurado = transacaoAtual.valorOriginal ? transacaoAtual.valorOriginal : transacaoAtual.valor;
+
+            dadosParaAtualizar = {
+                status: 'PENDENTE',
+                banco: { disconnect: true }, // Jeito certo de remover o banco no Prisma
+                dataPagamento: null,
+                juros: 0,
+                desconto: 0,
+                valor: valorRestaurado, // Restaura o valor original
+                valorOriginal: null     // Limpa o backup do valor original
+            };
+        } 
+        // CENÁRIO 2: PAGAMENTO (BAIXA)
+        else if (body.status === 'PAGO') {
+             dadosParaAtualizar = {
+                status: 'PAGO',
+                banco: { connect: { id: body.bancoId } },
+                dataPagamento: new Date(body.dataPagamento),
+                
+                // Salva o valor antigo no campo 'valorOriginal' antes de atualizar
+                // (Isso é feito automaticamente se você não sobrescrever, mas vamos garantir na lógica de negócio se precisar)
+                // Aqui estamos assumindo que o body.valorFinal é o valor pago com juros/descontos
+                
+                valor: parseFloat(body.valorFinal), // Atualiza o valor principal para o valor pago
+                // Opcional: Se quiser salvar o original, teria que ter lido antes ou enviado do front. 
+                // Por simplificação, vamos assumir que o valor que estava lá já era o original.
+                
+                juros: parseFloat(body.juros || 0),
+                desconto: parseFloat(body.desconto || 0)
+            };
+            
+            // Pequeno truque: Se estamos baixando, vamos salvar o valor atual como valorOriginal (se ainda não tiver)
+            const tr = await prisma.transacao.findUnique({ where: { id } });
+            if (!tr.valorOriginal) {
+                dadosParaAtualizar.valorOriginal = tr.valor;
+            }
+        }
+        // CENÁRIO 3: EDIÇÃO COMUM
+        else {
+            dadosParaAtualizar = {
+                fornecedor: body.fornecedor,
+                descricao: body.descricao,
+                formaPagamento: body.formaPagamento,
+                parcelas: body.parcelas ? parseInt(body.parcelas) : 1,
+                categoria: body.categoria || 'Geral'
+            };
+
+            // Só atualiza valor se ele foi enviado
+            if (body.valor) {
+                dadosParaAtualizar.valor = parseFloat(String(body.valor).replace(',', '.'));
+            }
+
+            if (body.dataVencimento) {
+                const dataFormatada = new Date(body.dataVencimento + "T12:00:00Z");
+                dadosParaAtualizar.dataVencimento = dataFormatada;
+                dadosParaAtualizar.data = dataFormatada;
+            }
         }
 
         const transacao = await prisma.transacao.update({
             where: { id: id },
-            data: dadosAtualizados
+            data: dadosParaAtualizar
         });
         
         res.json(transacao);
 
     } catch (erro) {
-        console.error("Erro detalhado ao atualizar:", erro);
-        // Retorna o erro exato para o frontend ver no console
-        res.status(500).json({ erro: "Erro ao atualizar", detalhe: erro.message });
+        console.error("Erro no Servidor:", erro);
+        // Retorna o erro detalhado para facilitar
+        res.status(500).json({ erro: "Erro interno", detalhe: erro.meta ? erro.meta.cause : erro.message });
     }
 });
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+// --- ROTA DE PAGAR (ANTIGA - MANTIDA PARA COMPATIBILIDADE, MAS A DE CIMA JÁ FAZ ISSO) ---
+app.put('/transacoes/:id/pagar', async (req, res) => {
+    // Redireciona logicamente para a rota de cima, ou mantém separado.
+    // Como a rota PUT /transacoes/:id já trata o 'status: PAGO', essa aqui fica redundante, 
+    // mas vamos manter para não quebrar nada antigo.
+    const { id } = req.params;
+    const { bancoId, dataPagamento, juros, desconto, valorFinal } = req.body;
+    try {
+        const transacao = await prisma.transacao.update({
+            where: { id },
+            data: {
+                status: 'PAGO',
+                banco: { connect: { id: bancoId } },
+                dataPagamento: new Date(dataPagamento),
+                juros: parseFloat(juros || 0),
+                desconto: parseFloat(desconto || 0),
+                valor: parseFloat(valorFinal) // Atualiza valor se necessário, ou usa valorFinal em campo separado (depende do seu schema)
+            }
+        });
+        return res.json(transacao);
+    } catch (error) { return res.status(500).json({ erro: "Erro ao pagar" }); }
 });
+
+// --- ROTA DE DELETAR (DEFINITIVO) ---
+app.delete('/transacoes/:id', async (req, res) => {
+    await prisma.transacao.delete({ where: { id: req.params.id } });
+    return res.status(204).send();
+});
+
+// --- ROTAS AUXILIARES (RESUMO, BANCOS, USUARIOS) ---
+app.get('/resumo', async (req, res) => {
+    const totalReceitas = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { tipo: 'RECEITA' } });
+    const totalDespesas = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { tipo: 'DESPESA' } });
+    return res.json({ receitas: Number(totalReceitas._sum.valor || 0), despesas: Number(totalDespesas._sum.valor || 0), saldo: Number(totalReceitas._sum.valor || 0) - Number(totalDespesas._sum.valor || 0) });
+});
+
+app.get('/bancos', async (req, res) => {
+    const { usuarioId } = req.query; 
+    if(!usuarioId) return res.json([]);
+    const bancos = await prisma.banco.findMany({ where: { usuarioId } });
+    return res.json(bancos);
+});
+
+app.post('/bancos', async (req, res) => {
+    const { nome, cor, usuarioId, agencia, conta, saldoInicial, dataSaldo, inativo } = req.body;
+    try {
+        const novoBanco = await prisma.banco.create({
+            data: { nome, cor, agencia, conta, saldoInicial: parseFloat(saldoInicial || 0), dataSaldo: dataSaldo ? new Date(dataSaldo) : new Date(), inativo: inativo === 'sim', usuario: { connect: { id: usuarioId } } }
+        });
+        return res.json(novoBanco);
+    } catch (error) { return res.status(500).json({ erro: "Erro ao criar banco." }); }
+});
+
+app.put('/bancos/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nome, agencia, conta, saldoInicial, dataSaldo, inativo } = req.body;
+    try {
+        const banco = await prisma.banco.update({
+            where: { id },
+            data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial || 0), dataSaldo: dataSaldo ? new Date(dataSaldo) : undefined, inativo: inativo === 'sim' }
+        });
+        return res.json(banco);
+    } catch (error) { return res.status(500).json({ erro: "Erro ao atualizar." }); }
+});
+
+app.delete('/bancos/:id', async (req, res) => {
+    await prisma.banco.delete({ where: { id: req.params.id } });
+    return res.status(200).send();
+});
+
+// LOGIN E REGISTRO
+app.post('/registro', async (req, res) => {
+    const { nome, email, senha } = req.body;
+    const exists = await prisma.usuario.findUnique({ where: { email } });
+    if (exists) return res.status(400).json({ erro: "Email já cadastrado!" });
+    const hashSenha = await bcrypt.hash(senha, 10);
+    const novoUsuario = await prisma.usuario.create({ data: { nome, email, senha: hashSenha } });
+    return res.json({ sucesso: true, usuario: novoUsuario });
+});
+
+app.post('/login', async (req, res) => {
+    const { email, senha } = req.body;
+    const usuario = await prisma.usuario.findUnique({ where: { email } });
+    if (!usuario || !(await bcrypt.compare(senha, usuario.senha))) return res.status(401).json({ sucesso: false, erro: "Credenciais inválidas!" });
+    return res.json({ sucesso: true, usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email } });
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => { console.log(`Servidor rodando na porta ${PORT}`); });

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Movimentação Financeira</title>
+    <title>Movimentação</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,44 +12,95 @@
     <script src="script.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .content { padding: 30px; }
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
 
-        /* Header e Botões (Igual Pagar/Receber) */
+        /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
         .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
-        
-        /* Abas Superiores */
-        .header-tabs { display: flex; gap: 20px; }
-        .tab-link { text-decoration: none; color: #64748b; font-weight: 600; font-size: 15px; padding-bottom: 5px; border-bottom: 2px solid transparent; cursor: pointer; transition: 0.2s; }
+
+        /* ABAS */
+        .header-tabs { display: flex; gap: 5px; background: #e2e8f0; padding: 4px; border-radius: 8px; }
+        .tab-link { 
+            text-decoration: none; color: #64748b; font-weight: 600; font-size: 14px; 
+            padding: 6px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: none;
+        }
         .tab-link:hover { color: #1e293b; }
-        .tab-link.active { color: #ed8936; border-bottom-color: #ed8936; }
+        .tab-link.active { background-color: white; color: #1e293b; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
         .header-actions { display: flex; gap: 10px; }
-        .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-        .btn-new { background-color: #ed8936; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(237, 137, 54, 0.2); }
-        
-        /* Barra de Filtros */
-        .modern-toolbar { background: white; padding: 8px 15px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; }
+        .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn-new { background-color: #ed8936; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(237, 137, 54, 0.2); transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-new:hover { background-color: #dd6b20; transform: translateY(-1px); }
+
+        /* FILTROS */
+        .modern-toolbar { background: white; padding: 8px 15px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; margin-bottom: 25px; }
         .total-badge { background: #fffaf0; color: #ed8936; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid #fbd38d; flex-shrink: 0; }
         .divider { width: 1px; height: 20px; background-color: #e2e8f0; flex-shrink: 0; }
         .filter-pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; transition: all 0.3s ease; background: transparent; border: 1px solid transparent; flex-shrink: 0; }
         .filter-pill:hover, .filter-pill:focus-within { background-color: #f8fafc; border-color: #e2e8f0; }
         .filter-pill i { color: #94a3b8; font-size: 14px; }
         .filter-pill:focus-within i { color: #ed8936; }
-        
         .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; width: 80px; transition: width 0.3s ease; }
         .filter-pill:focus-within .clean-input { width: 160px; }
         .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif; width: 95px; }
         .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; cursor: pointer; width: auto; }
         .btn-limpar { font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: auto; text-decoration: none; border: none; background: none; white-space: nowrap; }
+        .btn-limpar:hover { color: #ed8936; text-decoration: underline; }
 
-        /* Tabela */
-        .table-container { background: white; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; margin-top: 20px; }
-        .clean-table { width: 100%; border-collapse: collapse; }
-        .clean-table th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; background: #f8fafc; }
-        .clean-table td { padding: 16px 24px; font-size: 14px; color: #334155; border-bottom: 1px solid #f1f5f9; }
-        .clean-table tr:hover { background-color: #fcfcfc; }
+        /* --- TABELA MODERNA (CARD) --- */
+        .table-container { background: transparent; border: none; box-shadow: none; }
+        .clean-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+
+        /* HEADER SÓLIDO */
+        .clean-table thead tr { background-color: #dbe4ef; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .clean-table thead th {
+            text-align: left; padding: 12px 15px; font-size: 11px; font-weight: 800; color: #2d3748;
+            text-transform: uppercase; letter-spacing: 0.8px; border: none;
+        }
+        .clean-table thead th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+        .clean-table thead th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+
+        /* CORPO */
+        .clean-table tbody tr { background-color: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease; }
+        .clean-table tbody tr:hover { transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        
+        .clean-table tbody td {
+            padding: 12px 15px; font-size: 13px; color: #334155;
+            border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; vertical-align: middle;
+        }
+        .clean-table tbody td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+        .clean-table tbody td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+        /* COLUNAS */
+        .col-nome { width: 22%; font-weight: 600; color: #1e293b; min-width: 150px; }
+        .col-banco { width: 12%; color: #4a5568; }
+        .col-valor { width: 15%; white-space: nowrap; text-align: left; }
+        .col-forma { width: 10%; text-align: center; color: #4a5568; font-size: 13px; }
+        .col-data { width: 10%; color: #64748b; white-space: nowrap; }
+        .col-desc { width: 25%; color: #64748b; }
+        .col-acao { width: 60px; text-align: right; }
+
+        /* BADGES */
+        .badge-valor {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-block;
+        }
+        .bg-receita { background-color: #def7ec; color: #03543f; border: 1px solid #bcf0da; }
+        .bg-despesa { background-color: #fde8e8; color: #9b1c1c; border: 1px solid #fbd5d5; }
+
+        .text-truncate { max-width: 190px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+
+        .action-btn {
+            width: 32px; height: 32px; border-radius: 6px; border: none; background: transparent;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+            transition: all 0.2s; color: #718096;
+        }
+        .action-btn:hover { background-color: #fff5f5; color: #e53e3e; }
 
         div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
         div:where(.swal2-popup) { border-radius: 15px !important; font-size: 14px !important; }
@@ -63,7 +114,7 @@
 
     <div class="content">
         <div class="page-header">
-            <div style="display:flex; align-items:center; gap:20px;">
+            <div class="header-left">
                 <h1 class="page-title">Movimentação</h1>
                 <div class="header-tabs">
                     <a onclick="setAba('TODOS', this)" class="tab-link active">Todas</a>
@@ -88,14 +139,34 @@
             </div>
             <div class="divider"></div>
             <div class="filter-pill"> <i class="far fa-user"></i> <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Cliente/Forn." onkeyup="aplicarFiltros()"> </div>
-            <div class="filter-pill"> <i class="far fa-credit-card"></i> <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()"> <option value="">Forma Pagto</option> <option value="Pix">Pix</option> <option value="Boleto">Boleto</option> <option value="Cartão">Cartão</option> <option value="Dinheiro">Dinheiro</option> </select> </div>
+            
+            <div class="filter-pill"> 
+                <i class="far fa-credit-card"></i> 
+                <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()"> 
+                    <option value="">Todas</option> <option value="Pix">Pix</option> 
+                    <option value="Boleto">Boleto</option> 
+                    <option value="Cartão">Cartão</option> 
+                    <option value="Dinheiro">Dinheiro</option> 
+                </select> 
+            </div>
+
             <div class="filter-pill"> <i class="fas fa-search"></i> <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição" onkeyup="aplicarFiltros()"> </div>
             <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
         </div>
 
         <div class="table-container">
             <table class="clean-table">
-                <thead> <tr> <th>Cliente / Fornecedor</th> <th>Banco</th> <th>Data</th> <th>Valor</th> <th>Descrição</th> <th style="text-align: right;">Ações</th> </tr> </thead>
+                <thead> 
+                    <tr> 
+                        <th class="col-nome">Cliente / Fornecedor</th> 
+                        <th class="col-banco">Banco</th> 
+                        <th class="col-valor">Valor</th> 
+                        <th class="col-forma" style="text-align: center;"><i class="fas fa-wallet" title="Forma Pagto"></i></th>
+                        <th class="col-data">Data</th> 
+                        <th class="col-desc">Descrição</th> 
+                        <th class="col-acao" style="text-align: right; padding-right: 25px;"><i class="fas fa-cog"></i></th> 
+                    </tr> 
+                </thead>
                 <tbody id="lista"></tbody>
             </table>
         </div>
@@ -112,8 +183,6 @@
         async function carregar() {
             if(!usuario) return;
             try {
-                // Busca TODAS para exibir o histórico completo
-                // Se quiser exibir só as PAGAS (histórico real), adicione &status=PAGO na URL
                 const res = await fetch(`/transacoes?usuarioId=${usuario.id}`);
                 transacoesCache = await res.json();
                 aplicarFiltros();
@@ -128,9 +197,7 @@
             const pagto = document.getElementById('filtroPagto').value; 
 
             const filtrados = transacoesCache.filter(item => {
-                // Mostra APENAS o que já foi PAGO (Movimentação Real)
                 if(item.status !== 'PAGO') return false; 
-
                 if (abaAtual !== 'TODOS' && item.tipo !== abaAtual) return false;
                 
                 const dataItem = (item.dataPagamento || item.dataVencimento || item.data).split('T')[0];
@@ -161,58 +228,69 @@
             tbody.innerHTML = '';
             let total = 0;
 
-            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum registro encontrado.</td></tr>'; document.getElementById('total-display').innerText = 'R$ 0,00'; return; }
+            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum registro encontrado.</td></tr>'; document.getElementById('total-display').innerText = 'R$ 0,00'; return; }
 
             lista.forEach(item => {
-                const valorNum = parseFloat(item.valor);
+                const valorNum = parseFloat(item.valorFinal || item.valor); 
                 if(item.tipo === 'RECEITA') total += valorNum; else total -= valorNum;
 
                 const dataFormatada = new Date((item.dataPagamento || item.dataVencimento).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
-                const corValor = item.tipo === 'RECEITA' ? '#2f855a' : '#c53030';
-                
+                const classeBadge = item.tipo === 'RECEITA' ? 'bg-receita' : 'bg-despesa';
+                const valorExibido = formatarMoeda(valorNum); 
+
                 tbody.innerHTML += `
                     <tr>
-                        <td style="font-weight: 600; color: #1e293b;">${item.fornecedor || 'Geral'}</td>
-                        <td>${item.banco ? item.banco.nome : '-'}</td>
-                        <td style="color: #64748b;">${dataFormatada}</td>
-                        <td style="color: ${corValor}; font-weight: 700;">${formatarMoeda(valorNum)}</td>
-                        <td style="color: #334155;">${item.descricao || ''}</td>
-                        <td style="text-align: right;">
-                            <button onclick="estornarConta('${item.id}')" style="border:none; background:none; cursor:pointer; color:#718096;" title="Estornar (Voltar para Pendente)">
+                        <td class="col-nome">
+                            <div class="text-truncate" title="${item.fornecedor || ''}">${item.fornecedor || 'Geral'}</div>
+                        </td>
+                        <td class="col-banco">${item.banco ? item.banco.nome : '-'}</td>
+                        <td class="col-valor">
+                            <span class="badge-valor ${classeBadge}">${valorExibido}</span>
+                        </td>
+                        <td class="col-forma">${item.formaPagamento || '-'}</td>
+                        <td class="col-data">${dataFormatada}</td>
+                        <td class="col-desc">
+                            <div class="text-truncate" title="${item.descricao || ''}">${item.descricao || ''}</div>
+                        </td>
+                        <td class="col-acao">
+                            <button onclick="estornarConta('${item.id}', '${item.tipo}')" class="action-btn" title="Excluir do Movimento (Estornar)">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
                     </tr>
                 `;
             });
-            document.getElementById('total-display').innerText = formatarMoeda(total);
+            document.getElementById('total-display').innerText = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
         }
 
-        // --- LÓGICA DE ESTORNO (RETORNAR PARA PENDENTE) ---
-        function estornarConta(id) {
+        function estornarConta(id, tipo) {
+            const destinoTexto = tipo === 'RECEITA' ? "'Contas a Receber'" : "'Contas a Pagar'";
+            
             Swal.fire({
-                title: 'Estornar lançamento?',
-                text: "Essa conta sairá do extrato e voltará para 'Contas a Pagar/Receber' como pendente.",
-                icon: 'question',
+                title: 'Excluir do Movimento?',
+                text: `Essa conta sairá do extrato e voltará para ${destinoTexto} como pendente.`,
+                icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#ed8936',
-                cancelButtonColor: '#94a3b8',
-                confirmButtonText: 'Sim, estornar!'
+                cancelButtonColor: '#718096',
+                confirmButtonText: 'Sim, estornar!',
+                cancelButtonText: 'Cancelar'
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        // Atualiza o status para PENDENTE via PUT
                         const res = await fetch(`/transacoes/${id}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: 'PENDENTE', bancoId: null, dataPagamento: null, valorFinal: null })
+                            body: JSON.stringify({ status: 'PENDENTE', bancoId: null })
                         });
 
                         if(res.ok) {
-                            Toast.fire({ icon: 'success', title: 'Estornado! Voltou para a carteira.' });
+                            Toast.fire({ icon: 'success', title: 'Estornado com sucesso!' });
                             carregar();
                         } else {
-                            Swal.fire('Erro', 'Não foi possível estornar.', 'error');
+                            const erro = await res.json();
+                            console.error(erro);
+                            Swal.fire('Erro', 'Não foi possível estornar. Verifique o console.', 'error');
                         }
                     } catch (e) { console.error(e); }
                 }
