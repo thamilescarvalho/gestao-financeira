@@ -7,80 +7,107 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="auth.js"></script>
     <script src="script.js"></script> 
 
     <style>
-        /* ESTILOS ESPECÍFICOS DA CONCILIAÇÃO */
-        .content { padding: 30px; }
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; /* Evita rolagem lateral */ }
+        .content { padding: 30px; position: relative; }
 
+        /* --- CARD PRINCIPAL --- */
         .conciliacao-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            overflow: hidden;
+            background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow: hidden;
         }
 
         .card-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #e2e8f0;
-            display: flex; justify-content: space-between; align-items: center;
-            background: white;
+            padding: 20px 25px; border-bottom: 1px solid #edf2f7;
+            display: flex; justify-content: space-between; align-items: center; background: white;
         }
-        .card-header h2 { margin: 0; font-size: 16px; color: #2d3748; font-weight: 700; }
+        .card-header h2 { margin: 0; font-size: 18px; color: #1a202c; font-weight: 700; }
 
         .btn-ofx {
             background: white; border: 1px solid #cbd5e0; color: #4a5568;
-            padding: 5px 15px; border-radius: 4px; font-size: 13px; cursor: pointer; transition: 0.2s;
+            padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;
         }
-        .btn-ofx:hover { background: #f7fafc; border-color: #a0aec0; }
+        .btn-ofx:hover { background: #f7fafc; border-color: #a0aec0; color: #2d3748; }
 
-        .search-area { padding: 15px 20px; border-bottom: 1px solid #edf2f7; }
+        .search-area { padding: 15px 25px; border-bottom: 1px solid #edf2f7; background: #fcfcfc; }
         .search-input {
-            width: 100%; padding: 10px; border: 1px solid #e2e8f0;
-            border-radius: 4px; color: #718096; outline: none;
+            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px;
+            color: #4a5568; outline: none; transition: 0.2s;
         }
-        .search-input:focus { border-color: #cbd5e0; }
+        .search-input:focus { border-color: #ed8936; box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.1); }
 
+        /* Tabela Interativa */
         .table-bancos { width: 100%; border-collapse: collapse; }
         .table-bancos th {
-            text-align: left; padding: 15px 20px; font-size: 13px;
-            color: #2d3748; font-weight: 700; border-bottom: 1px solid #edf2f7;
+            text-align: left; padding: 15px 25px; font-size: 12px; text-transform: uppercase;
+            color: #718096; font-weight: 700; border-bottom: 1px solid #edf2f7;
         }
         .table-bancos td {
-            padding: 15px 20px; font-size: 14px; color: #4a5568;
+            padding: 20px 25px; font-size: 14px; color: #2d3748;
             border-bottom: 1px solid #edf2f7;
         }
-        .table-bancos tr:hover { background-color: #f7fafc; }
+        
+        /* Efeito de Clique na Linha */
+        .row-clickable { cursor: pointer; transition: background 0.2s; }
+        .row-clickable:hover { background-color: #fffaf0; } /* Fundo laranja claro */
+        .row-clickable:hover td:first-child { color: #ed8936; font-weight: 600; }
 
-        /* Rodapé Atualizado para mostrar o total */
         .card-footer {
-            padding: 15px 20px;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 20px; /* Espaço entre botão e texto */
+            padding: 20px 25px; background: #f8fafc; border-top: 1px solid #e2e8f0;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .btn-calcular {
-            background: #edf2f7; border: none; padding: 10px 20px;
-            border-radius: 20px; color: #4a5568; font-weight: 600;
-            cursor: pointer; font-size: 14px; transition: 0.2s;
-        }
-        .btn-calcular:hover { background: #e2e8f0; color: #2d3748; }
 
-        /* Estilo do Texto do Total */
-        .total-display {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2f855a; /* Verde */
-            display: none; /* Começa escondido */
-            animation: fadeIn 0.5s;
+        /* --- PAINEL DE DETALHES (SLIDE OVER) --- */
+        .painel-detalhe {
+            position: fixed; top: 0; right: -100%; width: 500px; height: 100vh;
+            background: white; box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+            z-index: 2000; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
         }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .painel-detalhe.aberto { right: 0; }
 
-        #inputOfx { display: none; }
+        .detalhe-header {
+            padding: 25px; background: #1a202c; color: white;
+            display: flex; justify-content: space-between; align-items: start;
+        }
+        .detalhe-titulo h3 { margin: 0; font-size: 20px; font-weight: 700; }
+        .detalhe-titulo p { margin: 5px 0 0; font-size: 13px; color: #a0aec0; }
+        
+        .btn-fechar {
+            background: rgba(255,255,255,0.1); border: none; color: white;
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-fechar:hover { background: rgba(255,255,255,0.2); }
+
+        .detalhe-resumo {
+            padding: 20px 25px; background: #f7fafc; border-bottom: 1px solid #edf2f7;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+        }
+        .resumo-card {
+            background: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+        .resumo-label { font-size: 12px; color: #718096; font-weight: 600; text-transform: uppercase; }
+        .resumo-valor { font-size: 18px; font-weight: 700; color: #2d3748; margin-top: 5px; }
+
+        .detalhe-body { flex: 1; overflow-y: auto; padding: 25px; }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 40px 20px; color: #718096; }
+        .empty-state i { font-size: 48px; color: #cbd5e0; margin-bottom: 15px; }
+
+        /* Overlay Escuro */
+        .backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 1999; display: none;
+        }
+        .backdrop.ativo { display: block; }
     </style>
 </head>
 <body>
@@ -88,34 +115,37 @@
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
 
+    <div class="backdrop" id="backdropDetalhe" onclick="fecharDetalhes()"></div>
+
     <nav class="navbar">
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
-        <div class="logo">G.T SYSTEM - GESTÃO FINANCEIRA</div>
+        <div class="logo">TG GESTÃO</div>
         <div></div>
     </nav>
 
     <div class="content">
-        <input type="file" id="inputOfx" accept=".ofx" onchange="processarOFX(this)">
+        <input type="file" id="inputOfx" accept=".ofx" onchange="processarOFX(this)" style="display: none;">
 
         <div class="conciliacao-card">
             <div class="card-header">
-                <h2>Conciliação bancária</h2>
+                <h2>Conciliação Bancária</h2>
                 <button class="btn-ofx" onclick="document.getElementById('inputOfx').click()">
-                    Ler OFX
+                    <i class="fas fa-file-upload"></i> Ler arquivo OFX
                 </button>
             </div>
 
             <div class="search-area">
-                <input type="text" class="search-input" placeholder="Pesquise" onkeyup="filtrarTabela(this.value)">
+                <input type="text" class="search-input" placeholder="Pesquise por nome do banco, agência..." onkeyup="filtrarTabela(this.value)">
             </div>
 
             <table class="table-bancos">
                 <thead>
                     <tr>
                         <th style="width: 30%;">Banco</th>
-                        <th style="width: 30%;">Saldo</th>
+                        <th style="width: 25%;">Saldo Atual</th>
                         <th>Agência</th>
                         <th>Conta</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody id="lista-bancos">
@@ -123,30 +153,62 @@
             </table>
 
             <div class="card-footer">
-                <button class="btn-calcular" onclick="calcularTotal()">
-                    Calcular saldo total
+                <button onclick="calcularTotal()" style="background:none; border:none; color: #ed8936; font-weight:600; cursor:pointer;">
+                    <i class="fas fa-sync-alt"></i> Atualizar Saldos
                 </button>
-                <span id="displayTotal" class="total-display"></span>
+                <span id="displayTotal" style="font-weight: 700; color: #2d3748; font-size: 16px;"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="painel-detalhe" id="painelDetalhe">
+        <div class="detalhe-header">
+            <div class="detalhe-titulo">
+                <h3 id="detalheNomeBanco">Banco X</h3>
+                <p id="detalheConta">Ag: 0000 | CC: 00000</p>
+            </div>
+            <button class="btn-fechar" onclick="fecharDetalhes()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="detalhe-resumo">
+            <div class="resumo-card">
+                <div class="resumo-label">Saldo Atual</div>
+                <div class="resumo-valor" id="detalheSaldo" style="color: #2f855a;">R$ 0,00</div>
+            </div>
+            <div class="resumo-card">
+                <div class="resumo-label">Movimentado Hoje</div>
+                <div class="resumo-valor" style="color: #ed8936;">R$ 0,00</div>
             </div>
         </div>
 
+        <div style="padding: 15px 25px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 13px; color: #718096;">Data:</span>
+            <input type="date" style="border: 1px solid #e2e8f0; padding: 5px; border-radius: 4px; color: #4a5568;" value="2026-01-22">
+        </div>
+
+        <div class="detalhe-body" id="listaMovimentosBanco"></div>
     </div>
 
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
-        let bancosCache = []; // Guarda os dados na memória
+        let bancosCache = [];
+
+        // Função local segura para formatar moeda
+        const formatarMoedaLocal = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
         document.addEventListener('DOMContentLoaded', carregarBancos);
 
         async function carregarBancos() {
             if(!usuario) return;
             try {
+                // Fetch buscando os bancos do usuário
                 const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
                 const bancos = await res.json();
                 bancosCache = bancos;
                 renderizarTabela(bancos);
             } catch (erro) {
                 console.error("Erro ao carregar bancos:", erro);
+                document.getElementById('lista-bancos').innerHTML = '<tr><td colspan="5" style="text-align:center;">Erro ao conectar.</td></tr>';
             }
         }
 
@@ -155,71 +217,87 @@
             tbody.innerHTML = '';
 
             if (lista.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Nenhum banco encontrado.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#718096;">Nenhum banco encontrado.</td></tr>';
                 return;
             }
 
             lista.forEach(banco => {
-                const agencia = banco.agencia || '0';
-                const conta = banco.conta || '000000';
-                const saldoFormatado = formatarMoeda(banco.saldoInicial || 0);
-
+                const agencia = banco.agencia || '-';
+                const conta = banco.conta || '-';
+                const saldo = parseFloat(banco.saldoInicial || 0);
+                
                 tbody.innerHTML += `
-                    <tr>
-                        <td>${banco.nome}</td>
-                        <td style="color: #2d3748;">${saldoFormatado}</td>
+                    <tr class="row-clickable" onclick="abrirDetalhes('${banco.id}')" title="Clique para ver detalhes">
+                        <td>
+                            <div style="font-weight: 600; color: #2d3748;">${banco.nome}</div>
+                        </td>
+                        <td style="font-weight: 600; color: ${saldo >= 0 ? '#2f855a' : '#c53030'};">
+                            ${formatarMoedaLocal(saldo)}
+                        </td>
                         <td>${agencia}</td>
                         <td>${conta}</td>
+                        <td>
+                            <span style="font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #ebf8ff; color: #2b6cb0; font-weight: 600;">
+                                Ativo
+                            </span>
+                        </td>
                     </tr>
                 `;
             });
+            calcularTotal();
         }
+
+        // --- FUNÇÕES DO PAINEL LATERAL ---
+
+        function abrirDetalhes(bancoId) {
+            const banco = bancosCache.find(b => b.id === bancoId);
+            if(!banco) return;
+
+            // Preenche info do banco
+            document.getElementById('detalheNomeBanco').innerText = banco.nome;
+            document.getElementById('detalheConta').innerText = `Ag: ${banco.agencia || '-'} | CC: ${banco.conta || '-'}`;
+            document.getElementById('detalheSaldo').innerText = formatarMoedaLocal(banco.saldoInicial || 0);
+
+            // Preenche lista vazia (Empty State)
+            const listaContainer = document.getElementById('listaMovimentosBanco');
+            listaContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="far fa-folder-open"></i>
+                    <p style="font-weight: 600; margin: 0; color: #4a5568;">Nenhuma movimentação hoje</p>
+                    <p style="font-size: 13px;">As transações deste banco aparecerão aqui.</p>
+                </div>
+            `;
+
+            // Mostra o painel
+            document.getElementById('backdropDetalhe').classList.add('ativo');
+            document.getElementById('painelDetalhe').classList.add('aberto');
+        }
+
+        function fecharDetalhes() {
+            document.getElementById('backdropDetalhe').classList.remove('ativo');
+            document.getElementById('painelDetalhe').classList.remove('aberto');
+        }
+
+        // --- FILTROS E CÁLCULOS ---
 
         function filtrarTabela(texto) {
             const termo = texto.toLowerCase();
             const filtrados = bancosCache.filter(b => 
                 b.nome.toLowerCase().includes(termo) || 
-                (b.agencia && b.agencia.includes(termo)) ||
-                (b.conta && b.conta.includes(termo))
+                (b.agencia && b.agencia.includes(termo))
             );
             renderizarTabela(filtrados);
         }
 
-        function processarOFX(input) {
-            const arquivo = input.files[0];
-            if (!arquivo) return;
-            const leitor = new FileReader();
-            leitor.onload = function(e) {
-                alert(`Arquivo "${arquivo.name}" carregado com sucesso!\n(Lógica de processamento pendente)`);
-            };
-            leitor.readAsText(arquivo);
-            input.value = ''; 
+        function calcularTotal() {
+            let total = bancosCache.reduce((acc, b) => acc + (parseFloat(b.saldoInicial) || 0), 0);
+            const display = document.getElementById('displayTotal');
+            display.innerText = `Total Geral: ${formatarMoedaLocal(total)}`;
+            display.style.color = total >= 0 ? '#2f855a' : '#c53030';
         }
 
-        // --- NOVA FUNÇÃO: CALCULAR TOTAL ---
-        function calcularTotal() {
-            // Soma todos os saldos da lista atual
-            // Se quiser somar só os filtrados, use a variável que está renderizada. 
-            // Aqui vamos somar TUDO que está no banco de dados (bancosCache).
-            
-            let total = 0;
-            
-            bancosCache.forEach(banco => {
-                // Garante que é número e trata nulos
-                const valor = parseFloat(banco.saldoInicial) || 0;
-                total += valor;
-            });
-
-            const display = document.getElementById('displayTotal');
-            
-            // Atualiza o texto
-            display.innerText = `Saldo Consolidado: ${formatarMoeda(total)}`;
-            
-            // Muda a cor (Verde se positivo, Vermelho se negativo)
-            display.style.color = total >= 0 ? '#2f855a' : '#c53030';
-            
-            // Mostra o texto
-            display.style.display = 'block';
+        function processarOFX(input) {
+            if(input.files[0]) alert("Arquivo OFX selecionado! Em breve processaremos os dados.");
         }
     </script>
 </body>
