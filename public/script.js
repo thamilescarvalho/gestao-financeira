@@ -14,7 +14,8 @@ function gerarMenuLateral() {
 
     sidebar.innerHTML = `
         <div class="sidebar-header">
-            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none;">
+            <h2 style="color:white; margin:0; padding: 20px 0 0 20px;">Financeiro</h2>
+            <a href="#" onclick="toggleMenu()" style="color: #e53e3e; font-size: 14px; text-decoration: none; padding: 20px;">
                 <i class="fas fa-times"></i> Fechar
             </a>
         </div>
@@ -29,7 +30,8 @@ function gerarMenuLateral() {
         </div>
         <div class="submenu">
             <a href="bancos.html">Meus Bancos</a>
-            <a href="usuarios.html">Usuários</a> </div>
+            <a href="usuarios.html">Usuários</a> 
+        </div>
 
         <div class="menu-item" onclick="toggleSubmenu(this)">
             <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
@@ -47,7 +49,7 @@ function gerarMenuLateral() {
             <i class="fas fa-chevron-down arrow"></i>
         </div>
         <div class="submenu">
-            <a href="#" onclick="alert('Em breve!')">Agenda</a>
+            <a href="agenda.html">Agenda</a>
             <a href="#" onclick="alert('Em breve!')">Atividades</a>
         </div>
 
@@ -78,7 +80,7 @@ function toggleSubmenu(element) {
     }
 }
 
-// Função que pinta o link ativo (Agora separada para organizar)
+// Função que pinta o link ativo
 function highlightActiveLink() {
     const path = window.location.pathname.split("/").pop() || 'index.html';
     
@@ -104,4 +106,10 @@ function highlightActiveLink() {
 // Formatador Global
 function formatarMoeda(valor) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+}
+
+// Função de Logout (Simples)
+function sair() {
+    localStorage.removeItem('usuario_logado');
+    window.location.href = 'login.html';
 }

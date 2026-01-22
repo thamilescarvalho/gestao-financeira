@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Minha Rotina</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
+
+        /* LAYOUT DUPLO: Calendário + Lista */
+        .agenda-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Calendário maior, Lista menor */
+            gap: 25px;
+            align-items: start;
+        }
+        @media (max-width: 800px) { .agenda-container { grid-template-columns: 1fr; } }
+
+        /* --- CALENDÁRIO --- */
+        .calendar-card { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 25px; }
+        
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .month-title { font-size: 20px; font-weight: 700; color: #1e293b; text-transform: capitalize; }
+        .nav-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: #64748b; transition: 0.2s; }
+        .nav-btn:hover { background: #e2e8f0; color: #1e293b; }
+
+        .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+        .weekday { font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px; }
+        
+        .day-cell {
+            aspect-ratio: 1; /* Quadrado perfeito */
+            display: flex; flex-direction: column; align-items: center; justify-content: start; padding-top: 8px;
+            border-radius: 12px; cursor: pointer; transition: 0.2s; position: relative;
+            background-color: #fff; border: 1px solid transparent; font-weight: 500; color: #334155;
+        }
+        .day-cell:hover { background-color: #f8fafc; border-color: #e2e8f0; }
+        .day-cell.active { background-color: #805ad5; color: white; box-shadow: 0 4px 10px rgba(128, 90, 213, 0.3); border-color: #805ad5; }
+        .day-cell.today { border: 1px solid #805ad5; color: #805ad5; font-weight: 700; }
+        .day-cell.active.today { color: white; border: 1px solid #805ad5; }
+        .day-cell.empty { cursor: default; background: transparent; }
+        .day-cell.empty:hover { background: transparent; border-color: transparent; }
+
+        /* Bolinhas de Evento no Calendário */
+        .dots-container { display: flex; gap: 3px; margin-top: 4px; }
+        .dot { width: 5px; height: 5px; border-radius: 50%; background-color: #cbd5e0; }
+        .dot.has-event { background-color: #ed8936; } /* Laranja se tiver evento */
+        .day-cell.active .dot { background-color: rgba(255,255,255,0.6); }
+
+        /* --- PAINEL LATERAL (LISTA) --- */
+        .side-panel { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); padding: 25px; height: 100%; min-height: 400px; display: flex; flex-direction: column; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+        .selected-date-title { font-size: 16px; font-weight: 700; color: #1e293b; }
+        
+        .btn-add-task { background: #805ad5; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .btn-add-task:hover { background: #6b46c1; transform: translateY(-1px); }
+
+        .task-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .empty-state { text-align: center; color: #94a3b8; font-size: 13px; margin-top: 40px; }
+
+        /* CARD DE TAREFA */
+        .task-card { 
+            display: flex; align-items: center; gap: 12px; padding: 12px; 
+            border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.2s; 
+            border-left: 4px solid #805ad5; /* Cor padrão */
+        }
+        .task-card:hover { transform: translateX(2px); border-color: #cbd5e0; }
+        .task-check { 
+            width: 20px; height: 20px; border: 2px solid #cbd5e0; border-radius: 6px; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;
+        }
+        .task-check.checked { background-color: #2f855a; border-color: #2f855a; }
+        
+        .task-info { flex: 1; }
+        .task-title { font-size: 14px; font-weight: 600; color: #334155; margin-bottom: 2px; }
+        .task-time { font-size: 11px; color: #94a3b8; display: flex; align-items: center; gap: 4px; }
+        .task-card.done .task-title { text-decoration: line-through; color: #cbd5e0; }
+
+        .btn-del-task { color: #cbd5e0; background: none; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-del-task:hover { color: #e53e3e; }
+
+        /* Tipos de Eventos (Cores) */
+        .border-tarefa { border-left-color: #805ad5; } /* Roxo */
+        .border-reuniao { border-left-color: #3182ce; } /* Azul */
+        .border-lembrete { border-left-color: #ed8936; } /* Laranja */
+
+        /* MODAL */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 25px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); animation: slideDown 0.2s ease-out; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #4a5568; }
+        .form-group input, .form-group select { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: #805ad5; box-shadow: 0 0 0 3px rgba(128, 90, 213, 0.1); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn-outline { background: transparent; border: 1px solid #cbd5e0; color: #64748b; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-outline:hover { background: #f8fafc; color: #334155; }
+        
+        /* SweetAlert Font */
+        div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
+        div:where(.swal2-popup) { border-radius: 15px !important; font-size: 14px !important; }
+    </style>
+</head>
+<body>
+    
+    <div class="sidebar" id="sidebar"></div>
+    <div class="overlay" onclick="toggleMenu()"></div>
+    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">Financeiro</div> <div></div> </nav>
+
+    <div class="content">
+        
+        <div class="agenda-container">
+            <div class="calendar-card">
+                <div class="calendar-header">
+                    <button class="nav-btn" onclick="mudarMes(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <div class="month-title" id="tituloMes">Janeiro 2026</div>
+                    <button class="nav-btn" onclick="mudarMes(1)"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                
+                <div class="days-grid">
+                    <div class="weekday">Dom</div><div class="weekday">Seg</div><div class="weekday">Ter</div>
+                    <div class="weekday">Qua</div><div class="weekday">Qui</div><div class="weekday">Sex</div>
+                    <div class="weekday">Sáb</div>
+                </div>
+                <div class="days-grid" id="gridDias">
+                    </div>
+            </div>
+
+            <div class="side-panel">
+                <div class="panel-header">
+                    <div>
+                        <div style="font-size: 12px; color: #94a3b8; font-weight: 600;">ROTINA DE</div>
+                        <div class="selected-date-title" id="dataSelecionadaDisplay">Hoje</div>
+                    </div>
+                    <button class="btn-add-task" onclick="abrirModalEvento()"><i class="fas fa-plus"></i> Add</button>
+                </div>
+
+                <div class="task-list" id="listaTarefas">
+                    <div class="empty-state">Selecione um dia para ver ou adicionar tarefas.</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-overlay" id="modalEvento">
+        <div class="modal">
+            <h2 style="color: #805ad5; margin-bottom: 20px;">Novo Compromisso</h2>
+            <input type="hidden" id="inputDataIso"> <div class="form-group">
+                <label>Título</label>
+                <input type="text" id="inputTitulo" placeholder="Ex: Reunião com Cliente">
+            </div>
+            
+            <div class="form-group">
+                <label>Horário</label>
+                <input type="time" id="inputHora">
+            </div>
+
+            <div class="form-group">
+                <label>Tipo</label>
+                <select id="inputTipo">
+                    <option value="TAREFA">Tarefa</option>
+                    <option value="REUNIAO">Reunião</option>
+                    <option value="LEMBRETE">Lembrete</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-add-task" onclick="salvarEvento()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
+        let dataAtual = new Date(); // Controla o mês visível no calendário
+        let dataSelecionada = new Date(); // Controla o dia clicado (Azul)
+        let eventosCache = []; // Guarda todos os eventos vindos do banco
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarEventos();
+        });
+
+        async function carregarEventos() {
+            if(!usuario) return;
+            try {
+                const res = await fetch(`/eventos?usuarioId=${usuario.id}`);
+                eventosCache = await res.json();
+                renderizarCalendario();
+                atualizarListaLateral(dataSelecionada);
+            } catch (e) { console.error(e); }
+        }
+
+        // --- LÓGICA DO CALENDÁRIO ---
+        function renderizarCalendario() {
+            const grid = document.getElementById('gridDias');
+            const titulo = document.getElementById('tituloMes');
+            grid.innerHTML = '';
+
+            // Dados do mês atual sendo visualizado
+            const ano = dataAtual.getFullYear();
+            const mes = dataAtual.getMonth();
+            
+            titulo.innerText = new Date(ano, mes).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+            const primeiroDiaDaSemana = new Date(ano, mes, 1).getDay(); // 0 = Domingo
+            const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+
+            // Células Vazias (dias do mês anterior)
+            for (let i = 0; i < primeiroDiaDaSemana; i++) {
+                grid.innerHTML += `<div class="day-cell empty"></div>`;
+            }
+
+            // Dias do Mês
+            for (let dia = 1; dia <= diasNoMes; dia++) {
+                const dataLoop = new Date(ano, mes, dia);
+                const isHoje = isSameDate(dataLoop, new Date());
+                const isSelected = isSameDate(dataLoop, dataSelecionada);
+                
+                // Verifica se tem evento nesse dia para por a bolinha
+                const temEvento = eventosCache.some(e => isSameDate(new Date(e.data), dataLoop));
+
+                const div = document.createElement('div');
+                div.className = `day-cell ${isHoje ? 'today' : ''} ${isSelected ? 'active' : ''}`;
+                div.innerHTML = `
+                    ${dia}
+                    ${temEvento ? '<div class="dots-container"><div class="dot has-event"></div></div>' : ''}
+                `;
+                
+                div.onclick = () => {
+                    dataSelecionada = new Date(ano, mes, dia);
+                    renderizarCalendario(); // Re-renderiza para mudar a seleção visual
+                    atualizarListaLateral(dataSelecionada);
+                };
+
+                grid.appendChild(div);
+            }
+        }
+
+        function mudarMes(delta) {
+            dataAtual.setMonth(dataAtual.getMonth() + delta);
+            renderizarCalendario();
+        }
+
+        // --- LÓGICA DA LISTA LATERAL ---
+        function atualizarListaLateral(data) {
+            const listaEl = document.getElementById('listaTarefas');
+            const displayDate = document.getElementById('dataSelecionadaDisplay');
+            
+            // Atualiza Título
+            const opcoes = { weekday: 'long', day: 'numeric', month: 'long' };
+            displayDate.innerText = data.toLocaleDateString('pt-BR', opcoes);
+            
+            // Filtra eventos do dia selecionado
+            const eventosDoDia = eventosCache.filter(e => isSameDate(new Date(e.data), data));
+            
+            listaEl.innerHTML = '';
+            if (eventosDoDia.length === 0) {
+                listaEl.innerHTML = '<div class="empty-state">Nada agendado para este dia.<br>Aproveite! ☕</div>';
+                return;
+            }
+
+            eventosDoDia.forEach(evt => {
+                const hora = new Date(evt.data).toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                const classeBorda = `border-${evt.tipo.toLowerCase()}`;
+                const checkIcon = evt.concluido ? '<i class="fas fa-check"></i>' : '';
+                const classeDone = evt.concluido ? 'done' : '';
+                const classeCheck = evt.concluido ? 'checked' : '';
+
+                listaEl.innerHTML += `
+                    <div class="task-card ${classeBorda} ${classeDone}">
+                        <div class="task-check ${classeCheck}" onclick="toggleConcluido('${evt.id}', ${!evt.concluido})">
+                            ${checkIcon}
+                        </div>
+                        <div class="task-info">
+                            <div class="task-title">${evt.titulo}</div>
+                            <div class="task-time"><i class="far fa-clock"></i> ${hora} • ${evt.tipo}</div>
+                        </div>
+                        <button class="btn-del-task" onclick="excluirEvento('${evt.id}')"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        // --- FUNÇÕES DE AÇÃO ---
+        function abrirModalEvento() {
+            // Seta a data escondida no input para o dia que está selecionado
+            const ano = dataSelecionada.getFullYear();
+            const mes = String(dataSelecionada.getMonth() + 1).padStart(2, '0');
+            const dia = String(dataSelecionada.getDate()).padStart(2, '0');
+            
+            document.getElementById('inputDataIso').value = `${ano}-${mes}-${dia}`;
+            document.getElementById('inputTitulo').value = '';
+            document.getElementById('inputHora').value = '09:00'; // Hora padrão
+            document.getElementById('modalEvento').style.display = 'flex';
+        }
+
+        function fecharModal() { document.getElementById('modalEvento').style.display = 'none'; }
+
+        async function salvarEvento() {
+            const titulo = document.getElementById('inputTitulo').value;
+            const dataBase = document.getElementById('inputDataIso').value;
+            const hora = document.getElementById('inputHora').value;
+            const tipo = document.getElementById('inputTipo').value;
+
+            if(!titulo) return Swal.fire('Ops', 'Dê um título para o compromisso.', 'warning');
+
+            // Monta Data + Hora ISO
+            const dataCompleta = `${dataBase}T${hora}:00`;
+
+            const res = await fetch('/eventos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ titulo, data: dataCompleta, tipo, usuarioId: usuario.id })
+            });
+
+            if(res.ok) {
+                fecharModal();
+                carregarEventos(); // Recarrega tudo para atualizar bolinhas e lista
+            }
+        }
+
+        async function excluirEvento(id) {
+            Swal.fire({
+                title: 'Excluir?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e53e3e',
+                confirmButtonText: 'Sim'
+            }).then(async (r) => {
+                if(r.isConfirmed) {
+                    await fetch(`/eventos/${id}`, { method: 'DELETE' });
+                    carregarEventos();
+                }
+            });
+        }
+
+        async function toggleConcluido(id, novoStatus) {
+            await fetch(`/eventos/${id}/toggle`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ concluido: novoStatus })
+            });
+            carregarEventos();
+        }
+
+        // Helper para comparar datas (ignora horas)
+        function isSameDate(d1, d2) {
+            return d1.getFullYear() === d2.getFullYear() &&
+                   d1.getMonth() === d2.getMonth() &&
+                   d1.getDate() === d2.getDate();
+        }
+    </script>
+</body>
+</html>

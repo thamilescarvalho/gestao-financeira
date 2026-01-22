@@ -43,6 +43,7 @@ model Usuario {
   senha      String
   bancos     Banco[]    
   transacoes Transacao[]
+  eventos    Evento[]
 
   @@map("usuarios")
 }
@@ -64,4 +65,16 @@ model Banco {
   inativo      Boolean  @default(false) // false = Ativo, true = Inativo
 
   @@map("bancos")
+}
+
+model Evento {
+  id          String   @id @default(uuid())
+  titulo      String
+  descricao   String?
+  data        DateTime // Data e Hora do evento
+  tipo        String   // "TAREFA", "REUNIAO", "LEMBRETE"
+  concluido   Boolean  @default(false)
+  
+  usuarioId   String
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
 }
