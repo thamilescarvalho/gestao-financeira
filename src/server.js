@@ -544,5 +544,75 @@ app.get('/limpar-tudo', async (req, res) => {
     }
 });
 
+// ==========================================
+// ROTA DE RELATÓRIOS AVANÇADOS (INTELIGÊNCIA)
+// ==========================================
+app.get('/relatorios/avancado', async (req, res) => {
+    const { usuarioId, inicio, fim } = req.query;
+    if (!usuarioId) return res.json({});
+
+    try {
+        // Define o período (Se não vier, pega o mês atual)
+        const hoje = new Date();
+        const dataInicio = inicio ? new Date(inicio + "T00:00:00") : new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        const dataFim = fim ? new Date(fim + "T23:59:59") : new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+
+        const filtroComum = {
+            usuarioId,
+            status: 'PAGO', // Só conta o que saiu de verdade
+            tipo: 'DESPESA', // Foco em gastos
+            dataPagamento: { gte: dataInicio, lte: dataFim }
+        };
+
+        // 1. TOTAL POR FORMA DE PAGAMENTO (Para o Gráfico)
+        const porForma = await prisma.transacao.groupBy({
+            by: ['formaPagamento'],
+            _sum: { valor: true },
+            where: filtroComum
+        });
+
+        // 2. TOP FORNECEDORES (Quem gasta mais)
+        const porFornecedor = await prisma.transacao.groupBy({
+            by: ['fornecedor'],
+            _sum: { valor: true },
+            where: filtroComum,
+            orderBy: { _sum: { valor: 'desc' } },
+            take: 5 // Pega os top 5
+        });
+
+        // 3. DADOS ESPECÍFICOS DE CARTÃO
+        const gastosCartao = await prisma.transacao.aggregate({
+            _sum: { valor: true },
+            _avg: { valor: true }, // Ticket médio
+            _count: { id: true },
+            where: {
+                ...filtroComum,
+                formaPagamento: { in: ['Cartão', 'Crédito', 'Credit Card'] } // Ajuste conforme seus nomes
+            }
+        });
+
+        // 4. TOTAL GERAL DO PERÍODO
+        const totalGeral = await prisma.transacao.aggregate({
+            _sum: { valor: true },
+            where: filtroComum
+        });
+
+        res.json({
+            porForma,
+            porFornecedor,
+            cartao: {
+                total: gastosCartao._sum.valor || 0,
+                media: gastosCartao._avg.valor || 0,
+                qtd: gastosCartao._count.id || 0
+            },
+            totalGeral: totalGeral._sum.valor || 0
+        });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ erro: "Erro ao gerar relatórios" });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Servidor rodando na porta ${PORT}`); });

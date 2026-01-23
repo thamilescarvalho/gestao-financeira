@@ -64,7 +64,7 @@ function gerarMenuLateral() {
                 <a href="pagar.html" class="link-navegacao">Contas a Pagar</a>
                 <a href="movimento.html" class="link-navegacao">Extrato / Movimento</a>
                 <a href="conciliacao.html" class="link-navegacao">Conciliação</a>
-            </div>
+                <a href="relatorios.html" class="link-navegacao">Relatórios</a> </div>
             
             <div class="menu-item" onclick="toggleSubmenu(this)">
                 <div class="menu-content"><i class="fas fa-calendar-check"></i> Rotina</div>
@@ -87,7 +87,7 @@ function gerarMenuLateral() {
         </div>
     `;
 
-    // Garante que links de navegação também fechem o menu
+    // Garante que links de navegação também fechem o menu (mobile)
     document.querySelectorAll('.link-navegacao').forEach(link => {
         link.addEventListener('click', () => { toggleMenu(); });
     });

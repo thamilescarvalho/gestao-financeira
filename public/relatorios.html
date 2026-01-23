@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios Financeiros</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="auth.js"></script>
+    <script src="script.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
+
+        /* HEADER & FILTROS */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
+        
+        .filter-bar { 
+            background: white; padding: 10px 20px; border-radius: 50px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; gap: 15px; align-items: center; 
+        }
+        .date-input { border: 1px solid #e2e8f0; padding: 8px 12px; border-radius: 8px; color: #4a5568; outline: none; }
+        .btn-filter { background: #3182ce; color: white; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        .btn-filter:hover { background: #2b6cb0; }
+
+        /* GRID DE CARDS */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .kpi-card { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; position: relative; overflow: hidden; }
+        .kpi-icon { position: absolute; top: 20px; right: 20px; font-size: 24px; opacity: 0.2; }
+        .kpi-label { font-size: 13px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 28px; font-weight: 800; color: #1e293b; margin-top: 10px; }
+        .kpi-sub { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+
+        /* SEÇÃO DE DETALHES */
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        
+        .chart-box { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .box-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 20px; display: flex; justify-content: space-between; }
+
+        /* LISTA DE PROGRESSO (FORNECEDORES) */
+        .prog-list { list-style: none; padding: 0; margin: 0; }
+        .prog-item { margin-bottom: 15px; }
+        .prog-info { display: flex; justify-content: space-between; font-size: 13px; color: #475569; margin-bottom: 5px; font-weight: 500; }
+        .prog-bar-bg { background: #f1f5f9; height: 8px; border-radius: 4px; overflow: hidden; }
+        .prog-bar-fill { height: 100%; border-radius: 4px; background: #3182ce; }
+
+        /* CORES ESPECÍFICAS */
+        .c-cartao { color: #805ad5; } .bg-cartao { background: #805ad5; }
+        .c-pix { color: #38a169; } .bg-pix { background: #38a169; }
+        
+        @media (max-width: 768px) { .details-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    
+    <div class="sidebar" id="sidebar"></div>
+    <div class="overlay" onclick="toggleMenu()"></div>
+    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">Inteligência</div> <div></div> </nav>
+
+    <div class="content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">Relatório de Gastos</h1>
+                <div style="font-size: 14px; color: #64748b;">Análise detalhada das suas saídas.</div>
+            </div>
+            <div class="filter-bar">
+                <input type="date" id="dataInicio" class="date-input">
+                <span style="color:#cbd5e0">até</span>
+                <input type="date" id="dataFim" class="date-input">
+                <button class="btn-filter" onclick="carregarRelatorio()"><i class="fas fa-search"></i> Filtrar</button>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <i class="fas fa-wallet kpi-icon" style="color: #3182ce;"></i>
+                <div class="kpi-label">Total Gasto no Período</div>
+                <div class="kpi-value" id="valTotal">R$ 0,00</div>
+                <div class="kpi-sub">Todas as despesas pagas</div>
+            </div>
+
+            <div class="kpi-card" style="border-left: 4px solid #805ad5;">
+                <i class="far fa-credit-card kpi-icon c-cartao"></i>
+                <div class="kpi-label c-cartao">Gasto com Cartão</div>
+                <div class="kpi-value c-cartao" id="valCartao">R$ 0,00</div>
+                <div class="kpi-sub" id="subCartao">0 compras | Méd: R$ 0,00</div>
+            </div>
+
+            <div class="kpi-card">
+                <i class="fas fa-shopping-bag kpi-icon" style="color: #e53e3e;"></i>
+                <div class="kpi-label" style="color: #e53e3e;">Maior Despesa</div>
+                <div class="kpi-value" id="valTopForn" style="font-size: 20px; margin-top: 14px;">-</div>
+                <div class="kpi-sub" id="subTopForn">R$ 0,00</div>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="chart-box">
+                <div class="box-title">
+                    <span>Divisão por Meio de Pagamento</span>
+                    <i class="fas fa-chart-pie" style="color: #cbd5e0;"></i>
+                </div>
+                <div style="height: 250px; position: relative;">
+                    <canvas id="meioChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box">
+                <div class="box-title">
+                    <span>Top 5 Fornecedores</span>
+                    <i class="fas fa-list-ol" style="color: #cbd5e0;"></i>
+                </div>
+                <ul class="prog-list" id="listaForn">
+                    </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
+        let chartInstance = null;
+
+        // Formatação Moeda
+        const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Define datas padrão (Mês atual)
+            const hoje = new Date();
+            const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+            const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+            
+            document.getElementById('dataInicio').valueAsDate = inicio;
+            document.getElementById('dataFim').valueAsDate = fim;
+
+            carregarRelatorio();
+        });
+
+        async function carregarRelatorio() {
+            if(!usuario) return;
+            const i = document.getElementById('dataInicio').value;
+            const f = document.getElementById('dataFim').value;
+
+            try {
+                const res = await fetch(`/relatorios/avancado?usuarioId=${usuario.id}&inicio=${i}&fim=${f}`);
+                const dados = await res.json();
+                renderizarPainel(dados);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderizarPainel(dados) {
+            // 1. Preenche Cards
+            document.getElementById('valTotal').innerText = fmt.format(dados.totalGeral);
+            
+            document.getElementById('valCartao').innerText = fmt.format(dados.cartao.total);
+            document.getElementById('subCartao').innerText = `${dados.cartao.qtd} compras | Ticket Médio: ${fmt.format(dados.cartao.media)}`;
+
+            if(dados.porFornecedor.length > 0) {
+                const top = dados.porFornecedor[0];
+                document.getElementById('valTopForn').innerText = top.fornecedor;
+                document.getElementById('subTopForn').innerText = fmt.format(top._sum.valor);
+            } else {
+                document.getElementById('valTopForn').innerText = "Sem dados";
+                document.getElementById('subTopForn').innerText = "-";
+            }
+
+            // 2. Gráfico de Rosca (Meios de Pagamento)
+            renderizarGrafico(dados.porForma);
+
+            // 3. Lista de Fornecedores (Barras de Progresso)
+            const ul = document.getElementById('listaForn');
+            ul.innerHTML = '';
+            
+            // Calcula % baseado no maior gasto para a barra ficar bonita
+            const maiorValor = dados.porFornecedor.length > 0 ? dados.porFornecedor[0]._sum.valor : 1;
+
+            dados.porFornecedor.forEach(f => {
+                const pct = (f._sum.valor / maiorValor) * 100;
+                ul.innerHTML += `
+                    <li class="prog-item">
+                        <div class="prog-info">
+                            <span>${f.fornecedor}</span>
+                            <span style="font-weight:700; color:#1e293b;">${fmt.format(f._sum.valor)}</span>
+                        </div>
+                        <div class="prog-bar-bg">
+                            <div class="prog-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                    </li>
+                `;
+            });
+        }
+
+        function renderizarGrafico(lista) {
+            const ctx = document.getElementById('meioChart').getContext('2d');
+            
+            if(chartInstance) chartInstance.destroy(); // Limpa anterior
+
+            const labels = lista.map(x => x.formaPagamento);
+            const valores = lista.map(x => x._sum.valor);
+            
+            // Cores bonitas
+            const cores = ['#3182ce', '#38a169', '#805ad5', '#d69e2e', '#e53e3e'];
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: valores,
+                        backgroundColor: cores,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
