@@ -80,7 +80,7 @@
         .col-forma { width: 10%; text-align: center; color: #4a5568; font-size: 13px; }
         .col-data { width: 10%; color: #64748b; white-space: nowrap; }
         .col-desc { width: 25%; color: #64748b; }
-        .col-acao { width: 60px; text-align: right; }
+        .col-acao { width: 80px; text-align: right; } /* Aumentei um pouco para caber 2 botões */
 
         /* BADGES */
         .badge-valor {
@@ -98,9 +98,10 @@
         .action-btn {
             width: 32px; height: 32px; border-radius: 6px; border: none; background: transparent;
             cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-            transition: all 0.2s; color: #718096;
+            transition: all 0.2s; color: #718096; margin-left: 2px;
         }
-        .action-btn:hover { background-color: #fff5f5; color: #e53e3e; }
+        .action-btn:hover { background-color: #edf2f7; color: #3182ce; }
+        .action-btn.btn-trash:hover { background-color: #fff5f5; color: #e53e3e; }
 
         div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
         div:where(.swal2-popup) { border-radius: 15px !important; font-size: 14px !important; }
@@ -123,7 +124,7 @@
                 </div>
             </div>
             <div class="header-actions">
-                <button class="btn-import" onclick="Swal.fire('Info', 'Importação em breve.', 'info')"><i class="fas fa-file-import"></i> Importar</button>
+                <button class="btn-import" onclick="location.href='conciliacao.html'"><i class="fas fa-file-import"></i> Importar</button>
                 <button class="btn-new" onclick="location.href='pagar.html'"><i class="fas fa-plus"></i> Novo</button>
             </div>
         </div>
@@ -172,6 +173,39 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalEdicao" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000;">
+        <div class="modal" style="background: white; width: 90%; max-width: 400px; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <h3 style="margin-top: 0; color: #1a202c; border-bottom: 1px solid #edf2f7; padding-bottom: 15px;">Editar Detalhes</h3>
+            <input type="hidden" id="editId">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 13px; color: #718096; margin-bottom: 5px;">Cliente / Fornecedor</label>
+                <input type="text" id="editFornecedor" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-size: 13px; color: #718096; margin-bottom: 5px;">Descrição</label>
+                <input type="text" id="editDescricao" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 13px; color: #718096; margin-bottom: 5px;">Forma de Pagamento</label>
+                <select id="editForma" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; background: white;">
+                    <option value="Pix">Pix</option>
+                    <option value="Boleto">Boleto</option>
+                    <option value="Cartão">Cartão</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Outros">Outros</option>
+                </select>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button onclick="document.getElementById('modalEdicao').style.display='none'" style="padding: 8px 16px; border: 1px solid #cbd5e0; background: white; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                <button onclick="salvarEdicaoRapida()" style="padding: 8px 16px; border: none; background: #3182ce; color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         let transacoesCache = [];
@@ -197,7 +231,7 @@
             const pagto = document.getElementById('filtroPagto').value; 
 
             const filtrados = transacoesCache.filter(item => {
-                if(item.status !== 'PAGO') return false; 
+                if(item.status !== 'PAGO' && item.status !== 'RECEBIDO') return false; // Filtra só o que é real
                 if (abaAtual !== 'TODOS' && item.tipo !== abaAtual) return false;
                 
                 const dataItem = (item.dataPagamento || item.dataVencimento || item.data).split('T')[0];
@@ -253,7 +287,10 @@
                             <div class="text-truncate" title="${item.descricao || ''}">${item.descricao || ''}</div>
                         </td>
                         <td class="col-acao">
-                            <button onclick="estornarConta('${item.id}', '${item.tipo}')" class="action-btn" title="Excluir do Movimento (Estornar)">
+                            <button onclick="abrirEdicao('${item.id}')" class="action-btn" title="Editar Detalhes">
+                                <i class="fas fa-pen"></i>
+                            </button>
+                            <button onclick="estornarConta('${item.id}', '${item.tipo}')" class="action-btn btn-trash" title="Excluir do Movimento (Estornar)">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </td>
@@ -261,6 +298,44 @@
                 `;
             });
             document.getElementById('total-display').innerText = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        }
+
+        // --- FUNÇÕES DE EDIÇÃO (NOVO) ---
+        function abrirEdicao(id) {
+            const item = transacoesCache.find(t => t.id === id);
+            if(!item) return;
+
+            document.getElementById('editId').value = id;
+            document.getElementById('editFornecedor').value = item.fornecedor || '';
+            document.getElementById('editDescricao').value = item.descricao || '';
+            document.getElementById('editForma').value = item.formaPagamento || 'Outros';
+            
+            document.getElementById('modalEdicao').style.display = 'flex';
+        }
+
+        async function salvarEdicaoRapida() {
+            const id = document.getElementById('editId').value;
+            const payload = {
+                fornecedor: document.getElementById('editFornecedor').value,
+                descricao: document.getElementById('editDescricao').value,
+                formaPagamento: document.getElementById('editForma').value
+            };
+
+            try {
+                const res = await fetch(`/transacoes/${id}`, {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                if(res.ok) {
+                    document.getElementById('modalEdicao').style.display = 'none';
+                    Toast.fire({ icon: 'success', title: 'Atualizado com sucesso!' });
+                    carregar(); // Recarrega a tabela
+                } else {
+                    Swal.fire('Erro', 'Não foi possível salvar.', 'error');
+                }
+            } catch(e) { console.error(e); }
         }
 
         function estornarConta(id, tipo) {
@@ -289,8 +364,7 @@
                             carregar();
                         } else {
                             const erro = await res.json();
-                            console.error(erro);
-                            Swal.fire('Erro', 'Não foi possível estornar. Verifique o console.', 'error');
+                            Swal.fire('Erro', 'Não foi possível estornar.', 'error');
                         }
                     } catch (e) { console.error(e); }
                 }
