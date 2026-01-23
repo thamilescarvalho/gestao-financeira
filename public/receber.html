@@ -232,7 +232,10 @@
         let transacoesCache = [];
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
-        document.addEventListener('DOMContentLoaded', () => { document.getElementById('dataVenc').valueAsDate = new Date(); carregar(); });
+        document.addEventListener('DOMContentLoaded', () => { 
+            document.getElementById('dataVenc').valueAsDate = new Date(); 
+            carregar(); 
+        });
         
         function abrirModalNovo() { 
             document.getElementById('editId').value = ''; 
@@ -242,10 +245,7 @@
             document.getElementById('dataVenc').valueAsDate = new Date();
             document.getElementById('inputDescricao').value = '';
             document.getElementById('parcelas').value = '1';
-            
-            // Limpa erros visuais
             document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-            
             document.getElementById('modalConta').style.display = 'flex'; 
         }
 
@@ -255,7 +255,7 @@
         async function carregar() {
             if(!usuario) return;
             try {
-                // TIPO = RECEITA
+                // Busca apenas RECEITAS PENDENTES
                 const res = await fetch(`/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}`);
                 transacoesCache = await res.json();
                 aplicarFiltros();
@@ -270,12 +270,18 @@
             const pagto = document.getElementById('filtroPagto').value; 
 
             const filtrados = transacoesCache.filter(item => {
-                const dataItem = item.dataVencimento || item.data;
+                // --- CORREÇÃO DE DATA ---
+                // Pega data completa e reduz para YYYY-MM-DD
+                const rawDate = item.dataVencimento || item.data;
+                const dataItem = rawDate ? rawDate.split('T')[0] : '';
+
                 if (inicio && dataItem < inicio) return false;
                 if (fim && dataItem > fim) return false;
+                
                 if (forn && !(item.fornecedor || '').toLowerCase().includes(forn)) return false;
                 if (desc && !(item.descricao || '').toLowerCase().includes(desc)) return false;
                 if (pagto && item.formaPagamento !== pagto) return false;
+                
                 return true;
             });
             renderizarLista(filtrados);
@@ -290,11 +296,17 @@
             const tbody = document.getElementById('lista');
             tbody.innerHTML = '';
             let total = 0;
-            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma receita encontrada.</td></tr>'; document.getElementById('total-esteira').innerText = 'R$ 0,00'; return; }
+            
+            if (lista.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma receita encontrada.</td></tr>'; 
+                document.getElementById('total-esteira').innerText = 'R$ 0,00'; 
+                return; 
+            }
 
             lista.forEach(item => {
                 total += parseFloat(item.valor);
-                const vencimento = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
+                const dataObj = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00');
+                const vencimento = dataObj.toLocaleDateString('pt-BR');
                 
                 tbody.innerHTML += `
                     <tr>
@@ -329,11 +341,11 @@
             document.getElementById('tituloModal').innerText = 'Editar Receita';
             document.getElementById('inputFornecedor').value = item.fornecedor;
             document.getElementById('valor').value = item.valor;
+            // Correção da data no input
             document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0];
             document.getElementById('formaPagto').value = item.formaPagamento;
             document.getElementById('inputDescricao').value = item.descricao;
             document.getElementById('parcelas').value = item.parcelas || 1;
-            
             document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
             document.getElementById('modalConta').style.display = 'flex';
         }
@@ -355,10 +367,14 @@
             if(erro) return;
 
             const dados = {
-                fornecedor: elFornecedor.value, valor: elValor.value, dataVencimento: elData.value, data: elData.value,
-                formaPagamento: document.getElementById('formaPagto').value, descricao: document.getElementById('inputDescricao').value,
+                fornecedor: elFornecedor.value, 
+                valor: elValor.value, 
+                dataVencimento: elData.value, 
+                data: elData.value,
+                formaPagamento: document.getElementById('formaPagto').value, 
+                descricao: document.getElementById('inputDescricao').value,
                 parcelas: document.getElementById('parcelas').value, 
-                tipo: 'RECEITA', // IMPORTANTE: TIPO RECEITA
+                tipo: 'RECEITA', // Mantém como Receita
                 status: 'PENDENTE', 
                 usuarioId: usuario.id
             };
@@ -367,9 +383,16 @@
                 const method = idEdicao ? 'PUT' : 'POST';
                 const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes';
                 const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+                
                 if(res.ok) {
-                    fecharModal(); Toast.fire({ icon: 'success', title: idEdicao ? 'Atualizado!' : 'Salvo!' }); carregar();
-                } else { Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao salvar.' }); }
+                    fecharModal(); 
+                    Toast.fire({ icon: 'success', title: idEdicao ? 'Atualizado!' : 'Salvo!' }); 
+                    
+                    // --- ATUALIZA A LISTA IMEDIATAMENTE ---
+                    await carregar(); 
+                } else { 
+                    Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao salvar.' }); 
+                }
             } catch (e) { Swal.fire({ icon: 'error', text: 'Erro de conexão.' }); }
         }
 
@@ -401,10 +424,24 @@
             const id = document.getElementById('baixaId').value;
             const bancoId = document.getElementById('baixaBanco').value;
             if(!bancoId) return Swal.fire({icon: 'error', text: 'Selecione o Banco!'});
+            
             const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value);
             const valorFinal = vOrig + Number(document.getElementById('baixaJuros').value) - Number(document.getElementById('baixaDesconto').value);
-            await fetch(`/transacoes/${id}/pagar`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoId, dataPagamento: document.getElementById('baixaData').value, valorFinal }) });
-            fecharModalBaixa(); Toast.fire({ icon: 'success', title: 'Recebido!' }); carregar();
+            
+            // Usa rota de baixar (que serve para Pagar e Receber)
+            await fetch(`/transacoes/${id}/baixar`, { 
+                method: 'PUT', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ 
+                    bancoId, 
+                    dataPagamento: document.getElementById('baixaData').value, 
+                    valorPago: valorFinal 
+                }) 
+            });
+            
+            fecharModalBaixa(); 
+            Toast.fire({ icon: 'success', title: 'Recebido com sucesso!' }); 
+            carregar(); 
         }
 
         function deletar(id) {

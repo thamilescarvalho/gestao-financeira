@@ -140,7 +140,7 @@
             <div class="filter-pill" style="gap: 2px;">
                 <i class="far fa-calendar"></i>
                 <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()">
-                <span style="color: #cbd5e0; font-size: 10px;">ATÉ</span>
+                <span style="color: #cbd5e0; font-size: 10px;">Até</span>
                 <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()">
             </div>
             <div class="divider"></div>
@@ -250,9 +250,14 @@
             const pagto = document.getElementById('filtroPagto').value; 
 
             const filtrados = transacoesCache.filter(item => {
-                const dataItem = item.dataVencimento || item.data;
+                // --- CORREÇÃO AQUI ---
+                // Pega a data crua e quebra no 'T' para pegar só "2026-01-23"
+                const rawDate = item.dataVencimento || item.data;
+                const dataItem = rawDate ? rawDate.split('T')[0] : ''; 
+
                 if (inicio && dataItem < inicio) return false;
                 if (fim && dataItem > fim) return false;
+                
                 if (forn && !(item.fornecedor || '').toLowerCase().includes(forn)) return false;
                 if (desc && !(item.descricao || '').toLowerCase().includes(desc)) return false;
                 if (pagto && item.formaPagamento !== pagto) return false;
@@ -337,19 +342,41 @@
             if(erro) return;
 
             const dados = {
-                fornecedor: elFornecedor.value, valor: elValor.value, dataVencimento: elData.value, data: elData.value,
-                formaPagamento: document.getElementById('formaPagto').value, descricao: document.getElementById('inputDescricao').value,
-                parcelas: document.getElementById('parcelas').value, tipo: 'DESPESA', status: 'PENDENTE', usuarioId: usuario.id
+                fornecedor: elFornecedor.value, 
+                valor: elValor.value, 
+                dataVencimento: elData.value, // Data nova do input
+                data: elData.value,
+                formaPagamento: document.getElementById('formaPagto').value, 
+                descricao: document.getElementById('inputDescricao').value,
+                parcelas: document.getElementById('parcelas').value, 
+                tipo: 'DESPESA', 
+                status: 'PENDENTE', 
+                usuarioId: usuario.id
             };
 
             try {
                 const method = idEdicao ? 'PUT' : 'POST';
                 const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes';
-                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+                
+                const res = await fetch(url, { 
+                    method, 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(dados) 
+                });
+
                 if(res.ok) {
-                    fecharModal(); Toast.fire({ icon: 'success', title: idEdicao ? 'Atualizado!' : 'Salvo!' }); carregar();
-                } else { Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao salvar.' }); }
-            } catch (e) { Swal.fire({ icon: 'error', text: 'Erro de conexão.' }); }
+                    fecharModal(); 
+                    Toast.fire({ icon: 'success', title: idEdicao ? 'Atualizado!' : 'Salvo!' }); 
+                    
+                    // --- CORREÇÃO AQUI ---
+                    // Aguarda recarregar os dados do servidor para atualizar o cache
+                    await carregar(); 
+                } else { 
+                    Swal.fire({ icon: 'error', title: 'Erro', text: 'Falha ao salvar.' }); 
+                }
+            } catch (e) { 
+                Swal.fire({ icon: 'error', text: 'Erro de conexão.' }); 
+            }
         }
 
         async function prepararBaixa(id) {
