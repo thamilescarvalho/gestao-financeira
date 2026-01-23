@@ -359,20 +359,30 @@
             tbody.innerHTML = '';
             
             transacoesParaImportar.forEach((t, index) => {
-                // 1. CORREÇÃO DA DATA: Quebra a string YYYY-MM-DD para exibir DD/MM/YYYY sem timezone
                 const partesData = t.data.split('-'); 
                 const dataVisual = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
 
-                // 2. INTELIGÊNCIA: Detecta Fornecedor e Forma de Pagamento
+                // --- INTELIGÊNCIA DE DETECÇÃO (ATUALIZADA) ---
                 let formaDetectada = "Outros";
-                const descLower = t.descricao.toLowerCase();
+                const descLower = (t.descricao || "").toLowerCase();
                 
-                if (descLower.includes('pix')) formaDetectada = "Pix";
-                else if (descLower.includes('boleto')) formaDetectada = "Boleto";
-                else if (descLower.includes('compra') || descLower.includes('pagto') || descLower.includes('uber') || descLower.includes('ifood') || descLower.includes('card')) formaDetectada = "Cartão";
-                else if (descLower.includes('saque')) formaDetectada = "Dinheiro";
+                // 1. Prioridade Máxima: Identificar Cashback
+                if (descLower.includes('cashback')) {
+                    formaDetectada = "Cashback";
+                } 
+                // 2. Prioridade Alta: Usar o que o banco mandou (Vem do server.js)
+                else if (t.formaOriginal && t.formaOriginal !== "Outros") {
+                    formaDetectada = t.formaOriginal; 
+                }
+                // 3. Fallback: Tenta adivinhar se o banco não mandou nada
+                else {
+                    if (descLower.includes('pix')) formaDetectada = "Pix";
+                    else if (descLower.includes('boleto')) formaDetectada = "Boleto";
+                    else if (descLower.includes('saque')) formaDetectada = "Dinheiro";
+                }
+                // ---------------------------------------------
 
-                // Atualiza objeto em memória
+                // Atualiza o objeto na memória
                 t.formaPagamento = formaDetectada;
                 t.fornecedor = t.descricao; 
 

@@ -45,18 +45,18 @@
         .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; width: 80px; transition: width 0.3s ease; }
         .filter-pill:focus-within .clean-input { width: 160px; }
         .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif; width: 95px; }
-        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; cursor: pointer; width: auto; }
+        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; cursor: pointer; width: auto; min-width: 80px; }
         .btn-limpar { font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: auto; text-decoration: none; border: none; background: none; white-space: nowrap; }
         .btn-limpar:hover { color: #ed8936; text-decoration: underline; }
 
-        /* --- TABELA MODERNA FIXA --- */
+        /* --- TABELA MODERNA FIXA (ALINHAMENTO CORRIGIDO) --- */
         .table-container { background: transparent; border: none; box-shadow: none; overflow-x: auto; }
         
         .clean-table { 
             width: 100%; 
             border-collapse: separate; 
             border-spacing: 0 8px; 
-            table-layout: fixed; /* O SEGREDO DO ALINHAMENTO */
+            table-layout: fixed; /* Mantém as colunas travadas */
         }
 
         /* HEADER */
@@ -76,23 +76,25 @@
         .clean-table tbody td {
             padding: 12px 15px; font-size: 13px; color: #334155;
             border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; vertical-align: middle;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* Corta texto longo */
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .clean-table tbody td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
         .clean-table tbody td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 
-        /* LARGURA E ALINHAMENTO DAS COLUNAS (SOMA ~100%) */
+        /* LARGURAS REAJUSTADAS PARA ALINHAMENTO PERFEITO */
         .col-nome   { width: 22%; font-weight: 600; color: #1e293b; }
         .col-banco  { width: 12%; color: #4a5568; }
         .col-valor  { width: 14%; }
-        .col-forma  { width: 8%;  text-align: center; color: #4a5568; }
-        .col-data   { width: 10%; text-align: center; color: #64748b; }
-        .col-desc   { width: 26%; color: #64748b; }
-        .col-acao   { width: 8%;  text-align: right; overflow: visible !important; }
+        /* Aumentei para 10% e garanti o alinhamento central */
+        .col-forma  { width: 10%; text-align: center !important; color: #4a5568; } 
+        .col-data   { width: 10%; text-align: center !important; color: #64748b; }
+        .col-desc   { width: 24%; color: #64748b; } /* Reduzi levemente para compensar */
+        .col-acao   { width: 8%;  text-align: right !important; overflow: visible !important; padding-right: 20px; }
 
-        /* Ajuste para cabeçalho bater com conteúdo */
-        th.col-forma, th.col-data { text-align: center; }
-        th.col-acao { text-align: right; padding-right: 25px; }
+        /* Header precisa seguir o mesmo alinhamento das Células */
+        th.col-forma { text-align: center !important; }
+        th.col-data { text-align: center !important; }
+        th.col-acao { text-align: right !important; padding-right: 20px; }
 
         /* BADGES */
         .badge-valor {
@@ -154,11 +156,8 @@
             <div class="filter-pill"> 
                 <i class="far fa-credit-card"></i> 
                 <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()"> 
-                    <option value="">Todas</option> <option value="Pix">Pix</option> 
-                    <option value="Boleto">Boleto</option> 
-                    <option value="Cartão">Cartão</option> 
-                    <option value="Dinheiro">Dinheiro</option> 
-                </select> 
+                    <option value="">Todas</option>
+                    </select> 
             </div>
 
             <div class="filter-pill"> <i class="fas fa-search"></i> <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição" onkeyup="aplicarFiltros()"> </div>
@@ -229,8 +228,32 @@
             try {
                 const res = await fetch(`/transacoes?usuarioId=${usuario.id}`);
                 transacoesCache = await res.json();
+                
+                // 1. ATUALIZA O FILTRO DINAMICAMENTE
+                atualizarFiltroPagamentos();
+                
                 aplicarFiltros();
             } catch (e) { console.error(e); }
+        }
+
+        // --- FUNÇÃO NOVA: CRIA OPÇÕES NO FILTRO AUTOMATICAMENTE ---
+        function atualizarFiltroPagamentos() {
+            const select = document.getElementById('filtroPagto');
+            const valorAtual = select.value;
+            
+            // Pega todas as formas de pagamento únicas que existem nas transações
+            const formasExistentes = [...new Set(transacoesCache.map(t => t.formaPagamento).filter(f => f))];
+            
+            // Adiciona opções padrão para garantir
+            const opcoesPadrao = ['Pix', 'Boleto', 'Cartão', 'Dinheiro', 'Outros'];
+            const todasOpcoes = [...new Set([...opcoesPadrao, ...formasExistentes])].sort();
+
+            select.innerHTML = '<option value="">Todas</option>';
+            todasOpcoes.forEach(forma => {
+                select.innerHTML += `<option value="${forma}">${forma}</option>`;
+            });
+
+            select.value = valorAtual; // Mantém a seleção se estiver filtrando
         }
 
         function aplicarFiltros() {
@@ -282,7 +305,6 @@
                 const classeBadge = item.tipo === 'RECEITA' ? 'bg-receita' : 'bg-despesa';
                 const valorExibido = formatarMoeda(valorNum); 
 
-                // Tabela com classes de alinhamento rígido
                 tbody.innerHTML += `
                     <tr>
                         <td class="col-nome" title="${item.fornecedor || ''}">${item.fornecedor || 'Geral'}</td>

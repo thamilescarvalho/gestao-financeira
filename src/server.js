@@ -422,13 +422,22 @@ app.post('/conciliacao/ler-ofx', upload.single('arquivo'), (req, res) => {
             try {
                 const json = JSON.parse(fileContent);
                 if (json.data && Array.isArray(json.data)) {
-                    transacoesLimpas = json.data.map(t => ({
-                        id_banco: t.id,
-                        data: t.dateTime ? t.dateTime.split('T')[0] : new Date().toISOString().split('T')[0],
-                        descricao: t.title || "Sem descrição",
-                        valor: t.rawAmount ? Math.abs(t.rawAmount / 100) : 0,
-                        tipo: t.direction === 'in' ? 'RECEITA' : 'DESPESA'
-                    }));
+                    transacoesLimpas = json.data.map(t => {
+                        const dataFinal = t.dateTime ? t.dateTime.split('T')[0] : new Date().toISOString().split('T')[0];
+                        const valorReal = t.rawAmount ? t.rawAmount / 100 : 0;
+                        const tipoTransacao = t.direction === 'in' ? 'RECEITA' : 'DESPESA';
+
+                        return {
+                            id_banco: t.id,
+                            data: dataFinal,
+                            descricao: t.title || "Sem descrição",
+                            valor: Math.abs(valorReal),
+                            tipo: tipoTransacao,
+                            // AQUI ESTÁ O SEGREDO: Lemos o 'type' direto do banco (Cartão, Pix, etc)
+                            formaOriginal: t.type || "Outros", 
+                            rawValor: valorReal
+                        };
+                    });
                 }
             } catch(e) { console.log("Não é JSON válido"); }
         }
