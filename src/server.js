@@ -16,51 +16,118 @@ app.use(express.static('public'));
 const upload = multer({ storage: multer.memoryStorage() });
 
 // ==========================================
-// 1. ROTA UNIFICADA DE CRIAR TRANSAÇÃO
+// ROTA UNIFICADA DE CRIAR TRANSAÇÃO (COM PARCELAMENTO AUTOMÁTICO)
 // ==========================================
 app.post('/transacoes', async (req, res) => {
     try {
-        // ADICIONADO: formaPagamento
-        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento } = req.body;
+        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas } = req.body;
 
         if (!usuarioId) return res.status(400).json({ erro: "ID do usuário é obrigatório." });
 
-        let dataFinal = new Date();
+        // Tratamento de Data Inicial
+        let dataBase = new Date();
         if (data) {
             const dataString = data.includes('T') ? data : `${data}T12:00:00`;
-            dataFinal = new Date(dataString);
+            dataBase = new Date(dataString);
         }
-        if (isNaN(dataFinal.getTime())) dataFinal = new Date();
+        if (isNaN(dataBase.getTime())) dataBase = new Date();
 
-        let dataPagtoFinal = null;
+        // Tratamento de Data de Pagamento (se houver)
+        let dataPagtoBase = null;
         if (dataPagamento) {
             const dataPagtoString = dataPagamento.includes('T') ? dataPagamento : `${dataPagamento}T12:00:00`;
             const testeData = new Date(dataPagtoString);
-            if (!isNaN(testeData.getTime())) dataPagtoFinal = testeData;
+            if (!isNaN(testeData.getTime())) dataPagtoBase = testeData;
         }
 
-        const transacao = await prisma.transacao.create({
-            data: {
-                fornecedor: fornecedor || descricao, 
-                descricao: descricao || "Sem descrição",
-                // ADICIONADO: Salva a forma de pagamento
-                formaPagamento: formaPagamento || "Outros", 
-                valor: parseFloat(valor),
-                tipo,
-                categoria: categoria || 'Geral',
-                status: status || 'PENDENTE',
-                data: dataFinal,
-                dataPagamento: dataPagtoFinal,
-                banco: (bancoId && bancoId !== "") ? { connect: { id: bancoId } } : undefined,
-                usuario: { connect: { id: usuarioId } }
-            }
-        });
+        // Verifica quantas parcelas são (Se não vier nada, assume 1)
+        const qtdParcelas = parseInt(parcelas) || 1;
+        const valorParcela = parseFloat(valor); // O valor digitado é o valor DA PARCELA
 
-        res.json(transacao);
+        // Array para armazenar as operações no banco
+        const transacoesCriadas = [];
+
+        // --- LOOP DE CRIAÇÃO DAS PARCELAS ---
+        for (let i = 0; i < qtdParcelas; i++) {
+            
+            // 1. Calcula a data desta parcela (Soma meses)
+            const dataDestaParcela = new Date(dataBase);
+            dataDestaParcela.setMonth(dataDestaParcela.getMonth() + i);
+
+            // Se tiver data de pagamento (já foi pago), ajusta também, senão deixa null para as futuras
+            let dataPagtoDesta = null;
+            let statusDesta = status;
+
+            // Lógica: Se for a primeira e já estiver marcada como PAGO, mantém. 
+            // As próximas (futuras) nascem como PENDENTE, a não ser que você queira lançar tudo pago.
+            // Aqui assumirei: Se parcelou, as próximas são projeção (Pendente).
+            if (i > 0) {
+                statusDesta = 'PENDENTE'; 
+                dataPagtoDesta = null;
+            } else {
+                // A primeira parcela segue o que veio da tela
+                dataPagtoDesta = dataPagtoBase;
+            }
+
+            // 2. Ajusta a descrição (Ex: "Compra (1/5)")
+            let descricaoFinal = descricao;
+            if (qtdParcelas > 1) {
+                descricaoFinal = `${descricao} (${i + 1}/${qtdParcelas})`;
+            }
+
+            // 3. Prepara a criação
+            const novaTransacao = await prisma.transacao.create({
+                data: {
+                    fornecedor: fornecedor || descricao, 
+                    descricao: descricaoFinal,
+                    formaPagamento: formaPagamento || "Outros", 
+                    valor: valorParcela,
+                    tipo,
+                    categoria: categoria || 'Geral',
+                    status: statusDesta,
+                    data: dataDestaParcela, // Data vencimento/competência
+                    dataPagamento: dataPagtoDesta,
+                    banco: (bancoId && bancoId !== "") ? { connect: { id: bancoId } } : undefined,
+                    usuario: { connect: { id: usuarioId } }
+                }
+            });
+            transacoesCriadas.push(novaTransacao);
+        }
+
+        // --- AUTOMAGIA DO CASHBACK INFINITY (Apenas 1 vez sobre o total) ---
+        // Se for compra parcelada no crédito, o cashback geralmente vem sobre o TOTAL, de uma vez só.
+        if (
+            tipo === 'DESPESA' && 
+            (formaPagamento === 'Cartão' || formaPagamento === 'Crédito') && 
+            categoria !== 'Importação OFX'
+        ) {
+            // Calcula o valor TOTAL da compra para aplicar 1.5%
+            const valorTotalCompra = valorParcela * qtdParcelas;
+            const valorCashback = valorTotalCompra * 0.015;
+
+            await prisma.transacao.create({
+                data: {
+                    fornecedor: 'InfinityPay',
+                    descricao: `Cashback - ${descricao}`,
+                    valor: valorCashback,
+                    tipo: 'RECEITA',
+                    categoria: 'Cashback',
+                    status: 'RECEBIDO',
+                    formaPagamento: 'Automático',
+                    data: dataBase, // Data da compra (hoje)
+                    dataPagamento: dataBase,
+                    banco: (bancoId && bancoId !== "") ? { connect: { id: bancoId } } : undefined,
+                    usuario: { connect: { id: usuarioId } }
+                }
+            });
+        }
+
+        // Retorna a primeira parcela criada só para o front não dar erro
+        res.json(transacoesCriadas[0]);
 
     } catch (e) {
         console.error("ERRO GRAVE AO SALVAR TRANSAÇÃO:", e);
-        res.status(500).json({ erro: "Erro ao salvar no banco de dados." });
+        res.status(500).json({ erro: "Erro ao salvar no banco de dados.", detalhe: e.message });
     }
 });
 
@@ -545,53 +612,70 @@ app.get('/limpar-tudo', async (req, res) => {
 });
 
 // ==========================================
-// ROTA DE RELATÓRIOS AVANÇADOS (INTELIGÊNCIA)
+// ROTA DE RELATÓRIOS AVANÇADOS (DARK MODE READY)
 // ==========================================
 app.get('/relatorios/avancado', async (req, res) => {
-    const { usuarioId, inicio, fim } = req.query;
+    const { usuarioId, inicio, fim, bancoId } = req.query; // Adicionado bancoId
     if (!usuarioId) return res.json({});
 
     try {
-        // Define o período (Se não vier, pega o mês atual)
         const hoje = new Date();
         const dataInicio = inicio ? new Date(inicio + "T00:00:00") : new Date(hoje.getFullYear(), hoje.getMonth(), 1);
         const dataFim = fim ? new Date(fim + "T23:59:59") : new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
 
+        // Filtro Base
         const filtroComum = {
             usuarioId,
-            status: 'PAGO', // Só conta o que saiu de verdade
-            tipo: 'DESPESA', // Foco em gastos
+            status: { in: ['PAGO', 'RECEBIDO'] }, // Considera tudo que foi realizado
+            tipo: 'DESPESA',
             dataPagamento: { gte: dataInicio, lte: dataFim }
         };
 
-        // 1. TOTAL POR FORMA DE PAGAMENTO (Para o Gráfico)
+        // Se o usuário selecionou um banco específico no filtro
+        if (bancoId) {
+            filtroComum.bancoId = bancoId;
+        }
+
+        // 1. FORMAS DE PAGAMENTO
         const porForma = await prisma.transacao.groupBy({
             by: ['formaPagamento'],
             _sum: { valor: true },
             where: filtroComum
         });
 
-        // 2. TOP FORNECEDORES (Quem gasta mais)
+        // 2. TOP FORNECEDORES
         const porFornecedor = await prisma.transacao.groupBy({
             by: ['fornecedor'],
             _sum: { valor: true },
             where: filtroComum,
             orderBy: { _sum: { valor: 'desc' } },
-            take: 5 // Pega os top 5
+            take: 5
         });
 
-        // 3. DADOS ESPECÍFICOS DE CARTÃO
-        const gastosCartao = await prisma.transacao.aggregate({
+        // 3. DETALHAMENTO DE CARTÕES (Agrupado por BANCO)
+        // Isso resolve o problema de "vários cartões". Cada banco é um cartão.
+        const gastosPorCartao = await prisma.transacao.groupBy({
+            by: ['bancoId'],
             _sum: { valor: true },
-            _avg: { valor: true }, // Ticket médio
-            _count: { id: true },
             where: {
                 ...filtroComum,
-                formaPagamento: { in: ['Cartão', 'Crédito', 'Credit Card'] } // Ajuste conforme seus nomes
+                formaPagamento: { in: ['Cartão', 'Crédito', 'Credit Card'] }
             }
         });
 
-        // 4. TOTAL GERAL DO PERÍODO
+        // Enriquece com o nome do banco
+        const cartoesDetalhados = [];
+        for (const item of gastosPorCartao) {
+            if(item.bancoId) {
+                const b = await prisma.banco.findUnique({ where: { id: item.bancoId } });
+                cartoesDetalhados.push({ nome: b.nome, total: item._sum.valor });
+            }
+        }
+
+        // Totais gerais de Cartão
+        const totalCartao = cartoesDetalhados.reduce((acc, c) => acc + c.total, 0);
+
+        // 4. TOTAL GERAL
         const totalGeral = await prisma.transacao.aggregate({
             _sum: { valor: true },
             where: filtroComum
@@ -601,16 +685,107 @@ app.get('/relatorios/avancado', async (req, res) => {
             porForma,
             porFornecedor,
             cartao: {
-                total: gastosCartao._sum.valor || 0,
-                media: gastosCartao._avg.valor || 0,
-                qtd: gastosCartao._count.id || 0
+                total: totalCartao,
+                lista: cartoesDetalhados // Envia a lista separada por banco
             },
             totalGeral: totalGeral._sum.valor || 0
         });
 
     } catch (e) {
         console.error(e);
-        res.status(500).json({ erro: "Erro ao gerar relatórios" });
+        res.status(500).json({ erro: "Erro nos relatórios" });
+    }
+});
+
+// ==========================================
+// ROTA DE ANÁLISE DE CARTÕES (COM FILTROS)
+// ==========================================
+app.get('/relatorios/cartoes-detalhado', async (req, res) => {
+    const { usuarioId, bancoId, inicio, fim } = req.query;
+    if (!usuarioId) return res.json({});
+
+    try {
+        // Filtro Base (Despesa + Cartão)
+        const filtroBase = {
+            usuarioId,
+            tipo: 'DESPESA',
+            formaPagamento: { in: ['Cartão', 'Crédito', 'Credit Card'] }
+        };
+
+        // Se escolheu um cartão específico, filtra tudo por ele
+        if (bancoId) {
+            filtroBase.bancoId = bancoId;
+        }
+
+        // 1. HISTÓRICO (O QUE JÁ PAGUEI) - Respeita o filtro de data
+        const filtroHistorico = { ...filtroBase, status: 'PAGO' };
+        
+        if (inicio && fim) {
+            filtroHistorico.dataPagamento = { 
+                gte: new Date(inicio + "T00:00:00"), 
+                lte: new Date(fim + "T23:59:59") 
+            };
+        }
+
+        const historicoPorBanco = await prisma.transacao.groupBy({
+            by: ['bancoId'],
+            _sum: { valor: true },
+            where: filtroHistorico
+        });
+
+        const listaBancos = [];
+        for (const item of historicoPorBanco) {
+            if(item.bancoId) {
+                const b = await prisma.banco.findUnique({ where: { id: item.bancoId } });
+                listaBancos.push({ nome: b.nome, total: item._sum.valor });
+            }
+        }
+
+        // 2. PROJEÇÃO (O QUE VOU PAGAR) - Mostra do dia atual para frente
+        // (Ou respeita filtro se quiser ver o futuro específico, mas geralmente é "daqui pra frente")
+        const filtroFuturo = {
+            ...filtroBase,
+            status: 'PENDENTE',
+            dataPagamento: { gte: new Date() } // Sempre de hoje em diante
+        };
+
+        const pendentes = await prisma.transacao.findMany({
+            where: filtroFuturo,
+            orderBy: { dataPagamento: 'asc' }
+        });
+
+        // Agrupa por Mês (Ex: "02/2026")
+        const projecaoMap = {};
+        pendentes.forEach(t => {
+            if(t.dataPagamento) {
+                // Ajuste de fuso simples para pegar o mês correto
+                const dataObj = new Date(t.dataPagamento);
+                const mes = (dataObj.getMonth() + 1).toString().padStart(2, '0');
+                const ano = dataObj.getFullYear();
+                const chave = `${mes}/${ano}`;
+                
+                if(!projecaoMap[chave]) projecaoMap[chave] = 0;
+                projecaoMap[chave] += t.valor;
+            }
+        });
+
+        // Transforma em lista ordenada
+        const projecao = Object.entries(projecaoMap)
+            .map(([mes, valor]) => ({ mes, valor }))
+            // Ordenação simples por ano/mês (string MM/YYYY não ordena bem direto, mas serve para poucos meses)
+            // Ideal: ordenar pela data real, mas aqui vamos confiar na ordem do banco
+            .slice(0, 12); // Mostra os próximos 12 meses
+
+        res.json({
+            pagoPorBanco: listaBancos,
+            projecao: projecao,
+            totalPagoGeral: listaBancos.reduce((acc, i) => acc + i.total, 0),
+            totalFuturoGeral: pendentes.reduce((acc, i) => acc + i.valor, 0)
+        });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ erro: "Erro ao analisar cartões" });
     }
 });
 

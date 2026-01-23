@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Análise de Cartões</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+
+    <style>
+        /* TEMA DARK */
+        body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .navbar, .sidebar { background-color: #1e293b !important; border-right: 1px solid #334155; }
+        .menu-btn { color: white !important; }
+        
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
+
+        /* HEADER & FILTROS */
+        .page-header { display: flex; flex-direction: column; gap: 20px; margin-bottom: 30px; }
+        .header-top { display: flex; align-items: center; gap: 15px; }
+        
+        .btn-back { background: #334155; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-back:hover { background: #475569; }
+
+        .filter-bar { 
+            background: #1e293b; padding: 10px 20px; border-radius: 12px; border: 1px solid #334155;
+            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+        }
+        .dark-input { 
+            background: #0f172a; border: 1px solid #334155; color: #fff; 
+            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 13px;
+        }
+        .btn-filter { 
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; 
+            padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; 
+        }
+
+        /* GRID DASHBOARD */
+        .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-bottom: 40px; }
+        
+        .stat-card { 
+            background: linear-gradient(145deg, #1e293b, #172033); 
+            border: 1px solid #334155; border-radius: 16px; padding: 25px; 
+            display: flex; flex-direction: column; justify-content: center; position: relative;
+        }
+        .stat-label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-val { font-size: 32px; font-weight: 700; color: #fff; margin-top: 8px; }
+        .stat-icon { position: absolute; top: 20px; right: 20px; font-size: 24px; opacity: 0.3; }
+
+        /* SESSÃO PROJEÇÃO (CARDS MENSAIS) */
+        .projection-section { margin-bottom: 40px; }
+        .section-title { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .months-grid { 
+            display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; 
+            scrollbar-width: thin; scrollbar-color: #334155 #0f172a;
+        }
+        .month-card {
+            background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px;
+            min-width: 160px; flex-shrink: 0; text-align: center; transition: 0.2s;
+        }
+        .month-card:hover { transform: translateY(-3px); border-color: #f43f5e; }
+        .m-label { color: #94a3b8; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .m-value { color: #f43f5e; font-size: 20px; font-weight: 700; }
+
+        /* SESSÃO BANCOS (REALIZADO) */
+        .banks-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .bank-card { 
+            background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 20px;
+            display: flex; align-items: center; justify-content: space-between; transition: 0.2s;
+        }
+        .bank-info h4 { margin: 0; color: #fff; font-size: 16px; }
+        .bank-info p { margin: 5px 0 0; color: #10b981; font-weight: 700; font-size: 18px; }
+        .bank-chip { width: 40px; height: 28px; background: linear-gradient(135deg, #fbbf24, #d97706); border-radius: 4px; opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar"></div>
+    <div class="overlay" onclick="toggleMenu()"></div>
+    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">TG GESTÃO</div> <div></div> </nav>
+
+    <div class="content">
+        <div class="page-header">
+            <div class="header-top">
+                <button class="btn-back" onclick="location.href='relatorios.html'"><i class="fas fa-arrow-left"></i></button>
+                <div>
+                    <h1 style="margin: 0; font-size: 24px; color: #fff;">Central de Cartões</h1>
+                    <div style="color: #94a3b8; font-size: 14px;">Controle de faturas e limites.</div>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <select id="filtroBanco" class="dark-input" style="min-width: 200px;">
+                    <option value="">Todos os Cartões/Bancos</option>
+                    </select>
+
+                <div style="border-left: 1px solid #334155; height: 20px; margin: 0 10px;"></div>
+                
+                <span style="color: #94a3b8; font-size: 12px;">Histórico:</span>
+                <input type="date" id="dataInicio" class="dark-input">
+                <span style="color:#64748b; font-size: 12px;">a</span>
+                <input type="date" id="dataFim" class="dark-input">
+                
+                <button class="btn-filter" onclick="carregarDados()">
+                    <i class="fas fa-filter"></i> Filtrar
+                </button>
+            </div>
+        </div>
+
+        <div class="dash-grid">
+            <div class="stat-card" style="border-left: 4px solid #10b981;">
+                <i class="fas fa-check-circle stat-icon" style="color: #10b981;"></i>
+                <div class="stat-label">Total Já Pago (Período)</div>
+                <div class="stat-val" id="totalPago">R$ 0,00</div>
+            </div>
+            <div class="stat-card" style="border-left: 4px solid #f43f5e;">
+                <i class="fas fa-calendar-alt stat-icon" style="color: #f43f5e;"></i>
+                <div class="stat-label">Total Futuro (A Pagar)</div>
+                <div class="stat-val" id="totalFuturo" style="color: #f43f5e;">R$ 0,00</div>
+            </div>
+        </div>
+
+        <div class="projection-section">
+            <div class="section-title">
+                <i class="fas fa-chart-line" style="color: #f43f5e;"></i>
+                Previsão de Faturas (Próximos Meses)
+            </div>
+            
+            <div class="months-grid" id="gridMeses">
+                <div style="color: #64748b; padding: 20px;">Nenhuma fatura futura encontrada.</div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <i class="fas fa-history" style="color: #10b981;"></i>
+            Histórico Realizado por Cartão
+        </div>
+        <div class="banks-grid" id="gridBancos">
+            </div>
+    </div>
+
+    <script>
+        const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
+        const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        // Pega parâmetros da URL (se vier da outra tela)
+        const params = new URLSearchParams(window.location.search);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Define datas padrão se não vier na URL
+            const hoje = new Date();
+            const inicioPadrao = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+            const fimPadrao = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0).toISOString().split('T')[0];
+
+            document.getElementById('dataInicio').value = params.get('inicio') || inicioPadrao;
+            document.getElementById('dataFim').value = params.get('fim') || fimPadrao;
+
+            await carregarBancos();
+            carregarDados();
+        });
+
+        async function carregarBancos() {
+            try {
+                const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
+                const bancos = await res.json();
+                const select = document.getElementById('filtroBanco');
+                bancos.forEach(b => select.innerHTML += `<option value="${b.id}">${b.nome}</option>`);
+            } catch(e) {}
+        }
+
+        async function carregarDados() {
+            if(!usuario) return;
+            
+            const i = document.getElementById('dataInicio').value;
+            const f = document.getElementById('dataFim').value;
+            const b = document.getElementById('filtroBanco').value;
+
+            try {
+                const res = await fetch(`/relatorios/cartoes-detalhado?usuarioId=${usuario.id}&inicio=${i}&fim=${f}&bancoId=${b}`);
+                const dados = await res.json();
+                
+                renderizarTela(dados);
+            } catch(e) { console.error(e); }
+        }
+
+        function renderizarTela(dados) {
+            // 1. Totais
+            document.getElementById('totalPago').innerText = fmt.format(dados.totalPagoGeral);
+            document.getElementById('totalFuturo').innerText = fmt.format(dados.totalFuturoGeral);
+
+            // 2. Cards de Projeção (Meses)
+            const gridMeses = document.getElementById('gridMeses');
+            gridMeses.innerHTML = '';
+
+            if (dados.projecao.length === 0) {
+                gridMeses.innerHTML = '<div style="color: #64748b; padding: 10px;">Sem faturas futuras pendentes para este filtro.</div>';
+            } else {
+                dados.projecao.forEach(p => {
+                    gridMeses.innerHTML += `
+                        <div class="month-card">
+                            <div class="m-label">${p.mes}</div>
+                            <div class="m-value">${fmt.format(p.valor)}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            // 3. Grid de Bancos (Histórico)
+            const gridBancos = document.getElementById('gridBancos');
+            gridBancos.innerHTML = '';
+
+            if (dados.pagoPorBanco.length === 0) {
+                gridBancos.innerHTML = '<div style="color:#64748b;">Nenhum pagamento realizado neste período.</div>';
+            } else {
+                dados.pagoPorBanco.forEach(b => {
+                    gridBancos.innerHTML += `
+                        <div class="bank-card">
+                            <div class="bank-info">
+                                <h4>${b.nome}</h4>
+                                <p>${fmt.format(b.total)}</p>
+                            </div>
+                            <div class="bank-chip"></div>
+                        </div>
+                    `;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
