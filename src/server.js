@@ -18,119 +18,92 @@ const upload = multer({ storage: multer.memoryStorage() });
 // ==========================================
 // ROTA UNIFICADA DE CRIAR TRANSAÇÃO (COM PARCELAMENTO AUTOMÁTICO)
 // ==========================================
+// ==========================================
+// ROTA UNIFICADA DE CRIAR (COM LISTA DE PARCELAS)
+// ==========================================
 app.post('/transacoes', async (req, res) => {
     try {
-        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas } = req.body;
+        const { 
+            descricao, valor, tipo, categoria, status, 
+            data, dataPagamento, bancoId, usuarioId, 
+            fornecedor, formaPagamento, parcelas, 
+            itensParcelados // <--- NOVO: Recebe a lista pronta da tela
+        } = req.body;
 
         if (!usuarioId) return res.status(400).json({ erro: "ID do usuário é obrigatório." });
 
-        // Tratamento de Data Inicial
-        let dataBase = new Date();
-        if (data) {
-            const dataString = data.includes('T') ? data : `${data}T12:00:00`;
-            dataBase = new Date(dataString);
-        }
-        if (isNaN(dataBase.getTime())) dataBase = new Date();
-
-        // Tratamento de Data de Pagamento (se houver)
-        let dataPagtoBase = null;
-        if (dataPagamento) {
-            const dataPagtoString = dataPagamento.includes('T') ? dataPagamento : `${dataPagamento}T12:00:00`;
-            const testeData = new Date(dataPagtoString);
-            if (!isNaN(testeData.getTime())) dataPagtoBase = testeData;
-        }
-
-        // Verifica quantas parcelas são (Se não vier nada, assume 1)
-        const qtdParcelas = parseInt(parcelas) || 1;
-        const valorParcela = parseFloat(valor); // O valor digitado é o valor DA PARCELA
-
-        // Array para armazenar as operações no banco
         const transacoesCriadas = [];
 
-        // --- LOOP DE CRIAÇÃO DAS PARCELAS ---
-        for (let i = 0; i < qtdParcelas; i++) {
+        // --- CENÁRIO 1: PARCELAMENTO PERSONALIZADO (Vem da tela) ---
+        if (itensParcelados && Array.isArray(itensParcelados) && itensParcelados.length > 0) {
             
-            // 1. Calcula a data desta parcela (Soma meses)
-            const dataDestaParcela = new Date(dataBase);
-            dataDestaParcela.setMonth(dataDestaParcela.getMonth() + i);
+            for (const item of itensParcelados) {
+                // Força o meio-dia para evitar bug de data
+                const dataVencimentoSegura = new Date(`${item.data}T12:00:00`);
 
-            // Se tiver data de pagamento (já foi pago), ajusta também, senão deixa null para as futuras
-            let dataPagtoDesta = null;
-            let statusDesta = status;
-
-            // Lógica: Se for a primeira e já estiver marcada como PAGO, mantém. 
-            // As próximas (futuras) nascem como PENDENTE, a não ser que você queira lançar tudo pago.
-            // Aqui assumirei: Se parcelou, as próximas são projeção (Pendente).
-            if (i > 0) {
-                statusDesta = 'PENDENTE'; 
-                dataPagtoDesta = null;
-            } else {
-                // A primeira parcela segue o que veio da tela
-                dataPagtoDesta = dataPagtoBase;
+                const nova = await prisma.transacao.create({
+                    data: {
+                        fornecedor: fornecedor || descricao,
+                        descricao: item.descricao, // Ex: Compra (1/5)
+                        valor: parseFloat(item.valor),
+                        tipo,
+                        categoria: categoria || 'Geral',
+                        status: 'PENDENTE', // Parcelas futuras nascem pendentes
+                        formaPagamento: item.formaPagamento || "Outros",
+                        data: dataVencimentoSegura, // Data de competência
+                        dataVencimento: dataVencimentoSegura, // Data para o filtro funcionar
+                        dataPagamento: null, 
+                        banco: (bancoId && bancoId !== "") ? { connect: { id: bancoId } } : undefined,
+                        usuario: { connect: { id: usuarioId } }
+                    }
+                });
+                transacoesCriadas.push(nova);
             }
 
-            // 2. Ajusta a descrição (Ex: "Compra (1/5)")
-            let descricaoFinal = descricao;
-            if (qtdParcelas > 1) {
-                descricaoFinal = `${descricao} (${i + 1}/${qtdParcelas})`;
+        } 
+        // --- CENÁRIO 2: LANÇAMENTO SIMPLES (1x ou Importação) ---
+        else {
+            let dataFinal = new Date();
+            if (data) {
+                // Segura a data no meio-dia
+                const dataString = data.includes('T') ? data : `${data}T12:00:00`;
+                dataFinal = new Date(dataString);
             }
 
-            // 3. Prepara a criação
-            const novaTransacao = await prisma.transacao.create({
+            // Tratamento de Data Pagamento
+            let dataPagtoFinal = null;
+            if (dataPagamento) {
+                const pagtoStr = dataPagamento.includes('T') ? dataPagamento : `${dataPagamento}T12:00:00`;
+                dataPagtoFinal = new Date(pagtoStr);
+            }
+
+            const nova = await prisma.transacao.create({
                 data: {
-                    fornecedor: fornecedor || descricao, 
-                    descricao: descricaoFinal,
-                    formaPagamento: formaPagamento || "Outros", 
-                    valor: valorParcela,
+                    fornecedor: fornecedor || descricao,
+                    descricao,
+                    valor: parseFloat(valor),
                     tipo,
                     categoria: categoria || 'Geral',
-                    status: statusDesta,
-                    data: dataDestaParcela, // Data vencimento/competência
-                    dataPagamento: dataPagtoDesta,
+                    status: status || 'PENDENTE',
+                    formaPagamento: formaPagamento || "Outros",
+                    data: dataFinal,
+                    dataVencimento: dataFinal, // Preenche vencimento igual a data
+                    dataPagamento: dataPagtoFinal,
+                    parcelas: 1, // Salva só pra constar
                     banco: (bancoId && bancoId !== "") ? { connect: { id: bancoId } } : undefined,
                     usuario: { connect: { id: usuarioId } }
                 }
             });
-            transacoesCriadas.push(novaTransacao);
+            transacoesCriadas.push(nova);
         }
 
-        // --- AUTOMAGIA DO CASHBACK INFINITY (Apenas 1 vez sobre o total) ---
-        // Se for compra parcelada no crédito, o cashback geralmente vem sobre o TOTAL, de uma vez só.
-        if (
-            tipo === 'DESPESA' && 
-            (formaPagamento === 'Cartão' || formaPagamento === 'Crédito') && 
-            categoria !== 'Importação OFX'
-        ) {
-            // Calcula o valor TOTAL da compra para aplicar 1.5%
-            const valorTotalCompra = valorParcela * qtdParcelas;
-            const valorCashback = valorTotalCompra * 0.015;
-
-            await prisma.transacao.create({
-                data: {
-                    fornecedor: 'InfinityPay',
-                    descricao: `Cashback - ${descricao}`,
-                    valor: valorCashback,
-                    tipo: 'RECEITA',
-                    categoria: 'Cashback',
-                    status: 'RECEBIDO',
-                    formaPagamento: 'Automático',
-                    data: dataBase, // Data da compra (hoje)
-                    dataPagamento: dataBase,
-                    banco: (bancoId && bancoId !== "") ? { connect: { id: bancoId } } : undefined,
-                    usuario: { connect: { id: usuarioId } }
-                }
-            });
-        }
-
-        // Retorna a primeira parcela criada só para o front não dar erro
-        res.json(transacoesCriadas[0]);
+        res.json(transacoesCriadas[0] || {});
 
     } catch (e) {
-        console.error("ERRO GRAVE AO SALVAR TRANSAÇÃO:", e);
-        res.status(500).json({ erro: "Erro ao salvar no banco de dados.", detalhe: e.message });
+        console.error("ERRO GRAVE AO SALVAR:", e);
+        res.status(500).json({ erro: "Erro ao salvar no banco." });
     }
 });
-
 // ==========================================
 // 2. LISTAR TRANSAÇÕES
 // ==========================================
@@ -786,6 +759,67 @@ app.get('/relatorios/cartoes-detalhado', async (req, res) => {
     } catch (e) {
         console.error(e);
         res.status(500).json({ erro: "Erro ao analisar cartões" });
+    }
+});
+// ==========================================
+// ROTA DE PROJEÇÃO MENSAL (RECEITAS VS DESPESAS)
+// ==========================================
+app.get('/relatorios/projecao-mensal', async (req, res) => {
+    const { usuarioId, mes } = req.query; // Recebe "2026-02"
+    if (!usuarioId || !mes) return res.json({ receitas: 0, despesas: 0, saldo: 0 });
+
+    try {
+        // Cria datas em UTC para cobrir o mês inteiro sem erro de fuso
+        const start = new Date(`${mes}-01T00:00:00.000Z`);
+        const end = new Date(new Date(start).setMonth(start.getMonth() + 1)); // Primeiro dia do mês seguinte
+
+        // Filtro de Data: Pega qualquer conta onde 'data' OU 'dataVencimento' caia no mês
+        // Isso resolve o problema de campos diferentes
+        const filtroData = {
+            gte: start,
+            lt: end
+        };
+
+        // 1. RECEITAS PENDENTES (A RECEBER)
+        const receitas = await prisma.transacao.aggregate({
+            _sum: { valor: true },
+            where: {
+                usuarioId,
+                tipo: 'RECEITA',
+                status: 'PENDENTE',
+                OR: [
+                    { dataVencimento: filtroData },
+                    { data: filtroData } // Fallback se vencimento for nulo
+                ]
+            }
+        });
+
+        // 2. DESPESAS PENDENTES (A PAGAR)
+        const despesas = await prisma.transacao.aggregate({
+            _sum: { valor: true },
+            where: {
+                usuarioId,
+                tipo: 'DESPESA',
+                status: 'PENDENTE',
+                OR: [
+                    { dataVencimento: filtroData },
+                    { data: filtroData }
+                ]
+            }
+        });
+
+        const valReceitas = receitas._sum.valor || 0;
+        const valDespesas = despesas._sum.valor || 0;
+
+        res.json({
+            receitas: valReceitas,
+            despesas: valDespesas,
+            saldoPrevisto: valReceitas - valDespesas
+        });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ erro: "Erro na projeção" });
     }
 });
 
