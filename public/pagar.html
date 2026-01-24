@@ -15,6 +15,7 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
         .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
 
+        /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
         
@@ -33,13 +34,21 @@
         .date-group { display: flex; align-items: center; gap: 5px; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
         .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #4a5568; width: 105px; }
         
+        /* CLASSE DE ERRO (BORDA VERMELHA) */
+        .input-error-border { 
+            border: 2px solid #e53e3e !important; 
+            background-color: #fff5f5 !important; 
+            color: #e53e3e !important;
+            border-radius: 6px; 
+        }
+
         .search-box { display: flex; align-items: center; gap: 8px; flex: 1; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
         .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; width: 100%; }
         
         .btn-limpar { font-size: 12px; color: #718096; cursor: pointer; border: none; background: none; font-weight: 600; }
         .btn-limpar:hover { color: #e53e3e; text-decoration: underline; }
 
-        /* TABELA PRINCIPAL */
+        /* TABELA */
         .table-container { background: transparent; overflow-x: auto; }
         .clean-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 800px; table-layout: fixed; }
         .clean-table th { text-align: left; padding: 12px 15px; font-size: 11px; font-weight: 800; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -60,17 +69,15 @@
         .btn-edit { color: #d69e2e; background: #fffaf0; } .btn-edit:hover { background: #feebc8; }
         .btn-del { color: #e53e3e; background: #fff5f5; } .btn-del:hover { background: #fed7d7; }
 
-        /* MODAL DE IMPORTAÇÃO (ESTILOS DUPLICATA) */
+        /* MODAL DE IMPORTAÇÃO */
         .import-table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
         .import-table th { text-align: left; padding: 10px; border-bottom: 2px solid #e2e8f0; font-size: 11px; color: #4a5568; text-transform: uppercase; white-space: nowrap; }
         .import-table td { padding: 10px; border-bottom: 1px solid #edf2f7; font-size: 12px; color: #2d3748; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* LINHA DE DUPLICATA (AMARELO) */
         .row-duplicada { background-color: #fffbeb !important; }
         .row-duplicada td { color: #b45309 !important; }
         .aviso-duplicata { font-size: 10px; color: #d97706; font-weight: bold; margin-left: 5px; cursor: help; }
 
-        /* Colunas do Modal */
         .col-w-check { width: 40px; text-align: center; }
         .col-w-data  { width: 100px; }
         .col-w-parc  { width: 80px; text-align: center; }
@@ -87,7 +94,6 @@
         .parcela-row { display: grid; grid-template-columns: 40px 1fr 120px 100px; gap: 10px; margin-bottom: 10px; align-items: center; }
         .parcela-row input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; width: 100%; }
         .p-idx { font-size: 11px; font-weight: 700; color: #718096; text-align: center; }
-        
         div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
     </style>
 </head>
@@ -118,14 +124,14 @@
             
             <div class="date-group">
                 <i class="far fa-calendar" style="color:#94a3b8"></i>
-                <input type="date" id="filtroInicio" class="date-input" onchange="carregar()">
+                <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()" onkeyup="aplicarFiltros()">
                 <span style="color:#cbd5e0; font-size:10px">ATÉ</span>
-                <input type="date" id="filtroFim" class="date-input" onchange="carregar()">
+                <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()" onkeyup="aplicarFiltros()">
             </div>
 
             <div class="search-box">
                 <i class="fas fa-search" style="color:#cbd5e0"></i>
-                <input type="text" id="filtroBusca" class="clean-input" placeholder="Buscar fornecedor..." onkeyup="carregar()">
+                <input type="text" id="filtroBusca" class="clean-input" placeholder="Buscar fornecedor..." onkeyup="aplicarFiltros()">
             </div>
 
             <button class="btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
@@ -155,7 +161,6 @@
             <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
                 <i class="fas fa-info-circle"></i> Itens em <span style="background:#fffbeb; color:#b45309; padding:2px 5px; border-radius:4px; font-weight:bold;">amarelo</span> são possíveis duplicatas e vêm desmarcados.
             </p>
-            
             <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
                 <table class="import-table">
                     <thead style="background: #f8fafc; position: sticky; top: 0; z-index: 10;">
@@ -171,7 +176,6 @@
                     <tbody id="listaImport"></tbody>
                 </table>
             </div>
-
             <div class="modal-footer" style="margin-top: 20px;">
                 <button class="btn-outline" onclick="document.getElementById('modalImportar').style.display='none'">Cancelar</button>
                 <button class="btn-new" style="background:#2f855a;" onclick="confirmarImportacao()">Confirmar Importação</button>
@@ -189,7 +193,7 @@
                 <div class="form-group"><label>1ª Vencimento</label><input type="date" id="dataVenc" onchange="gerarParcelasVisuais()"></div>
             </div>
             <div class="form-row">
-                <div class="form-group"><label>Forma Pagto</label><select id="formaPagto" onchange="gerarParcelasVisuais()"><option value="Boleto">Boleto</option><option value="Pix">Pix</option><option value="Cartão">Cartão</option><option value="Outros">Outros</option></select></div>
+                <div class="form-group"><label>Forma Pagto</label><select id="formaPagto" onchange="gerarParcelasVisuais()"><option value="Boleto">Boleto</option><option value="Pix">Pix</option><option value="Cartão de crédito">Cartão de crédito</option><option value="Débito">Débito</option><option value="Cashback">Cashbak</option><option value="Outros">Outros</option></select></div>
                 <div class="form-group"><label>Parcelas</label><input type="number" id="parcelas" value="1" min="1" onchange="gerarParcelasVisuais()"></div>
             </div>
             <div class="form-group"><label>Descrição</label><input type="text" id="inputDescricao" placeholder="Ex: Compra"></div>
@@ -229,49 +233,91 @@
             carregar(); 
         });
 
+        // --- VALIDAÇÃO ROBUSTA DE DATA ---
+        function validarData(inputElement) {
+            // 1. Verifica se o navegador já considerou inválido (ex: 31/04 vira "")
+            if (inputElement.validity.badInput) {
+                inputElement.classList.add('input-error-border');
+                return false;
+            }
+
+            const dataStr = inputElement.value;
+
+            // 2. Se estiver vazio (e não for badInput), é "sem filtro" (Válido)
+            if (!dataStr) {
+                inputElement.classList.remove('input-error-border');
+                return true;
+            }
+
+            // 3. Validação Lógica (Rollover Check)
+            // Impede 31/04 de virar 01/05
+            const [ano, mes, dia] = dataStr.split('-').map(Number);
+            const dataObj = new Date(ano, mes - 1, dia);
+
+            // O mês do objeto criado deve ser igual ao mês digitado
+            // Se eu digito 31/04 (Mês 3 no JS), o Date vira 01/05 (Mês 4 no JS)
+            // Logo: 4 !== 3 -> Erro
+            if (dataObj.getMonth() !== (mes - 1) || dataObj.getDate() !== dia) {
+                inputElement.classList.add('input-error-border');
+                return false;
+            } else {
+                inputElement.classList.remove('input-error-border');
+                return true;
+            }
+        }
+
+        function aplicarFiltros() { 
+            const elInicio = document.getElementById('filtroInicio');
+            const elFim = document.getElementById('filtroFim');
+
+            // Valida antes de filtrar
+            const iValido = validarData(elInicio);
+            const fValido = validarData(elFim);
+
+            // SE ALGUMA DATA FOR INVÁLIDA, PARA TUDO.
+            if (!iValido || !fValido) {
+                // Opcional: Limpar lista para forçar atenção?
+                // document.getElementById('lista').innerHTML = ''; 
+                return;
+            }
+
+            const inicio = elInicio.value;
+            const fim = elFim.value;
+            const termo = document.getElementById('filtroBusca').value.toLowerCase();
+
+            const filtrados = transacoesCache.filter(item => {
+                const dataItem = (item.dataVencimento || item.data).split('T')[0];
+                if (inicio && dataItem < inicio) return false;
+                if (fim && dataItem > fim) return false;
+                if (termo && !item.fornecedor?.toLowerCase().includes(termo) && !item.descricao?.toLowerCase().includes(termo)) return false;
+                return true;
+            });
+            renderizarLista(filtrados);
+        }
+
         async function processarArquivo() {
             const input = document.getElementById('fileImport');
             if (input.files.length === 0) return;
-
             const arquivo = input.files[0];
             const nomeArquivo = arquivo.name.toLowerCase();
             const leitor = new FileReader();
-
             leitor.onload = async function(e) {
                 const texto = e.target.result;
                 let urlRota = '/importar/ler-ofx'; 
                 if (nomeArquivo.endsWith('.csv')) urlRota = '/importar/ler-csv';
-
                 try {
-                    // Manda USUARIO_ID para o servidor checar duplicidade
                     const payload = { conteudo: texto, usuarioId: usuario.id };
                     let res;
-                    
                     if (nomeArquivo.endsWith('.csv')) {
-                        res = await fetch(urlRota, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
+                        res = await fetch(urlRota, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                     } else {
-                        // OFX envia FormData
-                        const formData = new FormData();
-                        formData.append('arquivo', arquivo);
-                        formData.append('usuarioId', usuario.id);
+                        const formData = new FormData(); formData.append('arquivo', arquivo); formData.append('usuarioId', usuario.id);
                         res = await fetch('/conciliacao/ler-ofx', { method: 'POST', body: formData });
                     }
-                    
-                    if (res.ok) {
-                        const dados = await res.json();
-                        importacaoCache = dados.transacoes || dados;
-                        exibirModalImportacao(importacaoCache);
-                    } else {
-                        Swal.fire('Erro', 'Falha ao ler arquivo.', 'error');
-                    }
+                    if (res.ok) { const dados = await res.json(); importacaoCache = dados.transacoes || dados; exibirModalImportacao(importacaoCache); } 
+                    else { Swal.fire('Erro', 'Falha ao ler arquivo.', 'error'); }
                 } catch (err) { console.error(err); Swal.fire('Erro', 'Erro de conexão.', 'error'); }
             };
-            
-            // Leitura como texto serve para CSV (e o upload OFX lida com o binário)
             leitor.readAsText(arquivo);
             input.value = ''; 
         }
@@ -279,65 +325,29 @@
         function exibirModalImportacao(lista) {
             const tbody = document.getElementById('listaImport');
             tbody.innerHTML = '';
-
             lista.forEach((item, index) => {
                 const dataFmt = new Date(item.data + 'T12:00:00').toLocaleDateString('pt-BR');
                 const badge = item.tipo === 'RECEITA' ? 'bg-receita' : 'bg-despesa';
                 const parcInfo = item.parcelaInfo || '-';
-                
-                // LÓGICA VISUAL DE DUPLICATA
                 const isDup = item.duplicata === true;
                 const rowClass = isDup ? 'row-duplicada' : '';
-                const checked = isDup ? '' : 'checked'; // Desmarca se for duplicata
+                const checked = isDup ? '' : 'checked';
                 const tooltip = isDup ? item.duplicataInfo : item.descricao;
                 const iconWarn = isDup ? '<i class="fas fa-exclamation-triangle aviso-duplicata"></i>' : '';
-
-                tbody.innerHTML += `
-                    <tr class="${rowClass}" title="${tooltip}">
-                        <td class="col-w-check"><input type="checkbox" class="chk-import" data-index="${index}" ${checked}></td>
-                        <td class="col-w-data">${dataFmt}</td>
-                        <td class="col-w-desc">
-                            ${item.fornecedor || item.descricao}
-                            ${iconWarn}
-                        </td>
-                        <td class="col-w-parc"><span class="badge-parc">${parcInfo}</span></td>
-                        <td class="col-w-tipo"><span class="badge-tipo ${badge}">${item.tipo}</span></td>
-                        <td class="col-w-valor">${fmt.format(item.valor)}</td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr class="${rowClass}" title="${tooltip}"><td class="col-w-check"><input type="checkbox" class="chk-import" data-index="${index}" ${checked}></td><td class="col-w-data">${dataFmt}</td><td class="col-w-desc">${item.fornecedor || item.descricao} ${iconWarn}</td><td class="col-w-parc"><span class="badge-parc">${parcInfo}</span></td><td class="col-w-tipo"><span class="badge-tipo ${badge}">${item.tipo}</span></td><td class="col-w-valor">${fmt.format(item.valor)}</td></tr>`;
             });
-
             document.getElementById('modalImportar').style.display = 'flex';
         }
 
-        function toggleTodosImport(source) {
-            document.querySelectorAll('.chk-import').forEach(chk => chk.checked = source.checked);
-        }
+        function toggleTodosImport(source) { document.querySelectorAll('.chk-import').forEach(chk => chk.checked = source.checked); }
 
         async function confirmarImportacao() {
             const selecionados = [];
-            document.querySelectorAll('.chk-import:checked').forEach(chk => {
-                const idx = chk.getAttribute('data-index');
-                selecionados.push(importacaoCache[idx]);
-            });
-
+            document.querySelectorAll('.chk-import:checked').forEach(chk => { const idx = chk.getAttribute('data-index'); selecionados.push(importacaoCache[idx]); });
             if (selecionados.length === 0) return Swal.fire('Atenção', 'Selecione itens para importar.', 'warning');
-
             let sucesso = 0;
             for (const item of selecionados) {
-                const dados = {
-                    fornecedor: item.fornecedor || item.descricao,
-                    descricao: item.descricao,
-                    valor: item.valor,
-                    tipo: item.tipo, 
-                    status: 'PENDENTE',
-                    data: item.data,
-                    dataVencimento: item.data,
-                    formaPagamento: 'Outros',
-                    categoria: 'Importação',
-                    usuarioId: usuario.id,
-                    parcelas: item.parcelas || 1
-                };
+                const dados = { fornecedor: item.fornecedor || item.descricao, descricao: item.descricao, valor: item.valor, tipo: item.tipo, status: 'PENDENTE', data: item.data, dataVencimento: item.data, formaPagamento: item.formaPagamento || 'Outros', categoria: 'Importação', usuarioId: usuario.id, parcelas: item.parcelas || 1 };
                 await fetch('/transacoes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados) });
                 sucesso++;
             }
@@ -346,26 +356,42 @@
             Swal.fire({ icon: 'success', title: 'Concluído', text: `${sucesso} itens importados!` });
         }
 
-        // --- Resto das funções (CRUD) iguais ---
-        function gerarParcelasVisuais() { /*...igual...*/ }
+        function gerarParcelasVisuais() {
+            const qtd = parseInt(document.getElementById('parcelas').value);
+            const valorTotal = parseFloat(document.getElementById('valor').value);
+            const dataBase = document.getElementById('dataVenc').value;
+            const forma = document.getElementById('formaPagto').value;
+            const desc = document.getElementById('inputDescricao').value || "Parcela";
+            const container = document.getElementById('containerParcelas');
+            const lista = document.getElementById('listaParcelas');
+            if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; }
+            container.style.display = 'block'; lista.innerHTML = '';
+            const valorParcela = (valorTotal / qtd).toFixed(2); let soma = 0;
+            const [ano, mes, dia] = dataBase.split('-'); const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0);
+            for (let i = 0; i < qtd; i++) {
+                let val = parseFloat(valorParcela); if (i === qtd - 1) val = valorTotal - soma; soma += val;
+                const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i);
+                const dataStr = novaData.toISOString().split('T')[0];
+                lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc} (${i+1}/${qtd})"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`;
+            }
+        }
+
         async function carregar() { 
             if(!usuario) return;
             try { const res = await fetch(`/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`); transacoesCache = await res.json(); aplicarFiltros(); } catch (e) { console.error(e); }
         }
-        function aplicarFiltros() { /*...igual...*/ 
-            const inicio = document.getElementById('filtroInicio').value; const fim = document.getElementById('filtroFim').value; const termo = document.getElementById('filtroBusca').value.toLowerCase();
-            const filtrados = transacoesCache.filter(item => { const dataItem = (item.dataVencimento || item.data).split('T')[0]; if (inicio && dataItem < inicio) return false; if (fim && dataItem > fim) return false; if (termo && !item.fornecedor?.toLowerCase().includes(termo) && !item.descricao?.toLowerCase().includes(termo)) return false; return true; });
-            renderizarLista(filtrados);
-        }
+
         function limparFiltros() { document.getElementById('filtroInicio').value = ''; document.getElementById('filtroFim').value = ''; document.getElementById('filtroBusca').value = ''; aplicarFiltros(); }
-        function renderizarLista(lista) { /*...igual...*/ 
+
+        function renderizarLista(lista) { 
             const tbody = document.getElementById('lista'); tbody.innerHTML = ''; let total = 0;
             if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta encontrada.</td></tr>'; document.getElementById('total-esteira').innerText = 'R$ 0,00'; return; }
             lista.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
             lista.forEach(item => { total += parseFloat(item.valor); const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR'); tbody.innerHTML += `<tr><td class="col-forn" title="${item.fornecedor}">${item.fornecedor || 'Fornecedor'}</td><td class="col-venc">${dataVenc}</td><td class="col-valor">${fmt.format(item.valor)}</td><td class="col-forma">${item.formaPagamento || '-'}</td><td class="col-parc">${item.parcelas ? (item.descricao.match(/\(\d+\/\d+\)/) || ['1/1'])[0] : '1/1'}</td><td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td><td class="col-acao"><button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Pagar"><i class="fas fa-check"></i></button><button onclick="editarConta('${item.id}')" class="action-btn btn-edit" title="Editar"><i class="fas fa-pen"></i></button><button onclick="deletar('${item.id}')" class="action-btn btn-del" title="Excluir"><i class="fas fa-trash"></i></button></td></tr>`; });
             document.getElementById('total-esteira').innerText = fmt.format(total);
         }
-        async function salvarConta() { /*...igual...*/ 
+
+        async function salvarConta() { 
             const idEdicao = document.getElementById('editId').value; const qtd = parseInt(document.getElementById('parcelas').value); let itensParcelados = [];
             if (!idEdicao && qtd > 1) { document.querySelectorAll('.parcela-row').forEach(row => { itensParcelados.push({ descricao: row.querySelector('.p-desc').value, data: row.querySelector('.p-data').value, valor: row.querySelector('.p-valor').value, formaPagamento: row.querySelector('.p-forma').value }); }); }
             const dados = { fornecedor: document.getElementById('inputFornecedor').value, valor: document.getElementById('valor').value, dataVencimento: document.getElementById('dataVenc').value, data: document.getElementById('dataVenc').value, formaPagamento: document.getElementById('formaPagto').value, descricao: document.getElementById('inputDescricao').value, parcelas: document.getElementById('parcelas').value, tipo: 'DESPESA', status: 'PENDENTE', usuarioId: usuario.id, itensParcelados: itensParcelados.length > 0 ? itensParcelados : null };

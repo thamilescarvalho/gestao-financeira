@@ -14,15 +14,23 @@ app.use(express.static('public'));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// ==========================================
-// FUNÇÃO AUXILIAR: CHECAR DUPLICIDADE
-// ==========================================
+// --- FUNÇÃO AUXILIAR: DETECTAR FORMA DE PAGAMENTO ---
+function detectarFormaPagamento(texto) {
+    if (!texto) return "Outros";
+    const t = texto.toLowerCase();
+    if (t.includes('cashback')) return "Cashback";
+    if (t.includes('pix')) return "Pix";
+    // Você pode adicionar outras regras aqui no futuro
+    return "Outros";
+}
+
+// --- FUNÇÃO AUXILIAR: CHECAR DUPLICIDADE ---
 async function checarDuplicidade(usuarioId, transacoes) {
     if (!usuarioId) return transacoes;
 
     return await Promise.all(transacoes.map(async (t) => {
         const dataExata = new Date(t.data + "T12:00:00");
-        const termoBusca = (t.fornecedor || t.descricao || "").split(' ')[0]; // Pega 1º nome
+        const termoBusca = (t.fornecedor || t.descricao || "").split(' ')[0]; 
 
         if (!termoBusca) return { ...t, duplicata: false };
 
@@ -193,6 +201,9 @@ app.post('/importar/ler-csv', async (req, res) => {
             const [d, m, y] = dataRaw.split('/');
             const dataBase = new Date(y, m-1, d, 12, 0, 0);
 
+            // DETECTA FORMA DE PAGAMENTO PELO NOME
+            const formaDetectada = detectarFormaPagamento(fornecedor);
+
             for (let p = atual; p <= total; p++) {
                 const dt = new Date(dataBase);
                 dt.setMonth(dataBase.getMonth() + (p - atual));
@@ -203,8 +214,14 @@ app.post('/importar/ler-csv', async (req, res) => {
                 if(total > 1) { desc = `${fornecedor} (${p}/${total})`; info = `${p}/${total}`; }
 
                 lista.push({
-                    data: dataIso, descricao: desc, fornecedor, valor,
-                    tipo: 'DESPESA', parcelas: total, parcelaInfo: info,
+                    data: dataIso, 
+                    descricao: desc, 
+                    fornecedor, 
+                    valor,
+                    tipo: 'DESPESA', 
+                    parcelas: total, 
+                    parcelaInfo: info,
+                    formaPagamento: formaDetectada, // CAMPO NOVO
                     id_transacao: `csv-${i}-${p}`
                 });
             }
@@ -228,7 +245,8 @@ app.post('/conciliacao/ler-ofx', upload.single('arquivo'), async (req, res) => {
                     data: t.dateTime.split('T')[0],
                     descricao: t.title,
                     valor: Math.abs(t.rawAmount/100),
-                    tipo: t.direction === 'in' ? 'RECEITA' : 'DESPESA'
+                    tipo: t.direction === 'in' ? 'RECEITA' : 'DESPESA',
+                    formaPagamento: detectarFormaPagamento(t.title) // DETECTA AQUI
                 }));
             } catch(e){}
         } 
@@ -243,10 +261,19 @@ app.post('/conciliacao/ler-ofx', upload.single('arquivo'), async (req, res) => {
                     const d = t.DTPOSTED.substring(0,8);
                     const dt = `${d.substring(0,4)}-${d.substring(4,6)}-${d.substring(6,8)}`;
                     const v = parseFloat(String(t.TRNAMT).replace(',', '.'));
-                    return { data: dt, descricao: t.MEMO, valor: Math.abs(v), tipo: v<0 ? 'DESPESA' : 'RECEITA' };
+                    const nome = t.MEMO || "Sem descrição";
+                    return { 
+                        data: dt, 
+                        descricao: nome, 
+                        valor: Math.abs(v), 
+                        tipo: v<0 ? 'DESPESA' : 'RECEITA',
+                        formaPagamento: detectarFormaPagamento(nome) // DETECTA AQUI
+                    };
                 });
             }
         }
+
+        if (lista.length === 0) return res.status(400).json({ erro: "Formato não reconhecido." });
 
         const verificados = await checarDuplicidade(usuarioId, lista);
         res.json({ transacoes: verificados });
@@ -254,55 +281,16 @@ app.post('/conciliacao/ler-ofx', upload.single('arquivo'), async (req, res) => {
 });
 
 // ==========================================
-// 3. ROTAS DE USUÁRIOS (RESTAURADAS!)
+// OUTRAS ROTAS (USUÁRIOS, BANCOS, EVENTOS)
 // ==========================================
 app.get('/usuarios', async (req, res) => {
-    try {
-        const usuarios = await prisma.usuario.findMany({
-            select: { id: true, nome: true, email: true, role: true },
-            orderBy: { nome: 'asc' }
-        });
-        res.json(usuarios);
-    } catch (e) { res.status(500).json({ erro: "Erro ao buscar usuários" }); }
+    try { const u = await prisma.usuario.findMany({ select: { id: true, nome: true, email: true, role: true }, orderBy: { nome: 'asc' } }); res.json(u); } catch (e) { res.status(500).json({ erro: "Erro usuarios" }); }
 });
+app.patch('/usuarios/:id/role', async (req, res) => { try { const u = await prisma.usuario.update({ where: { id: req.params.id }, data: { role: req.body.role } }); res.json(u); } catch (e) { res.status(500).json({ erro: "Erro role" }); } });
+app.delete('/usuarios/:id', async (req, res) => { try { await prisma.usuario.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch (e) { res.status(500).json({ erro: "Erro excluir" }); } });
+app.put('/usuarios/:id', async (req, res) => { const { id } = req.params; const { nome, email, role, novaSenha } = req.body; try { const d = { nome, email, role }; if (novaSenha) d.senha = await bcrypt.hash(novaSenha, 10); const u = await prisma.usuario.update({ where: { id }, data: d }); res.json(u); } catch (e) { res.status(500).json({ erro: "Erro atualizar" }); } });
+app.post('/usuarios/:id/reset-link', async (req, res) => { res.json({ mensagem: "Link enviado" }); });
 
-app.patch('/usuarios/:id/role', async (req, res) => {
-    try {
-        const usuario = await prisma.usuario.update({
-            where: { id: req.params.id },
-            data: { role: req.body.role }
-        });
-        res.json(usuario);
-    } catch (e) { res.status(500).json({ erro: "Erro ao alterar permissão" }); }
-});
-
-app.delete('/usuarios/:id', async (req, res) => {
-    try {
-        await prisma.usuario.delete({ where: { id: req.params.id } });
-        res.status(204).send();
-    } catch (e) { res.status(500).json({ erro: "Erro ao excluir" }); }
-});
-
-app.put('/usuarios/:id', async (req, res) => {
-    const { id } = req.params;
-    const { nome, email, role, novaSenha } = req.body;
-    try {
-        const dados = { nome, email, role };
-        if (novaSenha && novaSenha.trim() !== '') {
-            dados.senha = await bcrypt.hash(novaSenha, 10);
-        }
-        const usuario = await prisma.usuario.update({ where: { id }, data: dados });
-        res.json(usuario);
-    } catch (e) { res.status(500).json({ erro: "Erro ao atualizar" }); }
-});
-
-app.post('/usuarios/:id/reset-link', async (req, res) => {
-    res.json({ mensagem: "Link de redefinição enviado (Simulação)" });
-});
-
-// ==========================================
-// 4. ROTAS DE BANCOS (RESTAURADAS)
-// ==========================================
 app.get('/bancos', async (req, res) => {
     const { usuarioId } = req.query; if(!usuarioId) return res.json([]);
     try {
@@ -315,54 +303,15 @@ app.get('/bancos', async (req, res) => {
         res.json(comSaldo);
     } catch(e) { res.status(500).json({ erro: "Erro bancos" }); }
 });
+app.post('/bancos', async (req, res) => { try { const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo, usuarioId } = req.body; const b = await prisma.banco.create({ data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo, usuario: { connect: { id: usuarioId } } } }); res.json(b); } catch(e) { res.status(500).json({ erro: "Erro criar banco" }); } });
+app.put('/bancos/:id', async (req, res) => { try { const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo } = req.body; const b = await prisma.banco.update({ where: { id: req.params.id }, data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo } }); res.json(b); } catch(e) { res.status(500).json({ erro: "Erro atualizar banco" }); } });
+app.delete('/bancos/:id', async (req, res) => { try { await prisma.banco.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(400).json({ erro: "Banco com movimento" }); } });
 
-app.post('/bancos', async (req, res) => {
-    try {
-        const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo, usuarioId } = req.body;
-        const b = await prisma.banco.create({
-            data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo, usuario: { connect: { id: usuarioId } } }
-        });
-        res.json(b);
-    } catch(e) { res.status(500).json({ erro: "Erro criar banco" }); }
-});
+app.get('/eventos', async (req, res) => { const { usuarioId } = req.query; if(!usuarioId) return res.json([]); const evs = await prisma.evento.findMany({ where: { usuarioId }, orderBy: { data: 'asc' } }); res.json(evs); });
+app.post('/eventos', async (req, res) => { const { titulo, descricao, data, tipo, usuarioId } = req.body; try { const ev = await prisma.evento.create({ data: { titulo, descricao, data: new Date(data), tipo, usuario: { connect: { id: usuarioId } } } }); res.json(ev); } catch(e){ res.status(500).send(); } });
+app.delete('/eventos/:id', async (req, res) => { await prisma.evento.delete({ where: { id: req.params.id } }); res.status(204).send(); });
+app.patch('/eventos/:id/toggle', async (req, res) => { const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { concluido: req.body.concluido } }); res.json(ev); });
 
-app.put('/bancos/:id', async (req, res) => {
-    try {
-        const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo } = req.body;
-        const b = await prisma.banco.update({
-            where: { id: req.params.id },
-            data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo }
-        });
-        res.json(b);
-    } catch(e) { res.status(500).json({ erro: "Erro atualizar banco" }); }
-});
-
-app.delete('/bancos/:id', async (req, res) => {
-    try { await prisma.banco.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(400).json({ erro: "Banco tem movimentos" }); }
-});
-
-// ==========================================
-// 5. ROTAS DE EVENTOS (RESTAURADAS)
-// ==========================================
-app.get('/eventos', async (req, res) => {
-    const { usuarioId } = req.query; if(!usuarioId) return res.json([]);
-    const evs = await prisma.evento.findMany({ where: { usuarioId }, orderBy: { data: 'asc' } });
-    res.json(evs);
-});
-app.post('/eventos', async (req, res) => {
-    const { titulo, descricao, data, tipo, usuarioId } = req.body;
-    try { const ev = await prisma.evento.create({ data: { titulo, descricao, data: new Date(data), tipo, usuario: { connect: { id: usuarioId } } } }); res.json(ev); } catch(e){ res.status(500).send(); }
-});
-app.delete('/eventos/:id', async (req, res) => {
-    await prisma.evento.delete({ where: { id: req.params.id } }); res.status(204).send();
-});
-app.patch('/eventos/:id/toggle', async (req, res) => {
-    const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { concluido: req.body.concluido } }); res.json(ev);
-});
-
-// ==========================================
-// 6. ROTAS DE DASHBOARD & RELATÓRIOS
-// ==========================================
 app.get('/dashboard/resumo', async (req, res) => {
     const { usuarioId } = req.query; if (!usuarioId) return res.json({ saldoTotal: 0 });
     const hoje = new Date(); const i = new Date(hoje.getFullYear(), hoje.getMonth(), 1); const f = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
@@ -372,21 +321,16 @@ app.get('/dashboard/resumo', async (req, res) => {
     const pagGeral = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PAGO' } });
     const recMes = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'RECEBIDO', data: { gte: i, lte: f } } });
     const despMes = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PAGO', data: { gte: i, lte: f } } });
-    res.json({
-        saldoTotal: saldoIni + (recGeral._sum.valor||0) - (pagGeral._sum.valor||0),
-        receitaReal: recMes._sum.valor || 0, despesaReal: despMes._sum.valor || 0
-    });
+    res.json({ saldoTotal: saldoIni + (recGeral._sum.valor||0) - (pagGeral._sum.valor||0), receitaReal: recMes._sum.valor || 0, despesaReal: despMes._sum.valor || 0 });
 });
 
 app.get('/relatorios/projecao-mensal', async (req, res) => {
-    const { usuarioId, mes } = req.query;
-    if(!usuarioId || !mes) return res.json({ receitas: 0, despesas: 0, saldo: 0 });
+    const { usuarioId, mes } = req.query; if(!usuarioId || !mes) return res.json({ receitas: 0, despesas: 0, saldo: 0 });
     const start = new Date(`${mes}-01T00:00:00.000Z`); const end = new Date(new Date(start).setMonth(start.getMonth()+1));
     const filtro = { gte: start, lt: end };
     const rec = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'PENDENTE', OR: [{data: filtro}, {dataVencimento: filtro}] } });
     const desp = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PENDENTE', OR: [{data: filtro}, {dataVencimento: filtro}] } });
-    const r = rec._sum.valor||0; const d = desp._sum.valor||0;
-    res.json({ receitas: r, despesas: d, saldoPrevisto: r - d });
+    res.json({ receitas: rec._sum.valor||0, despesas: desp._sum.valor||0, saldoPrevisto: (rec._sum.valor||0) - (desp._sum.valor||0) });
 });
 
 app.get('/relatorios/avancado', async (req, res) => {
@@ -394,46 +338,19 @@ app.get('/relatorios/avancado', async (req, res) => {
     const i = new Date(inicio + "T00:00:00"); const f = new Date(fim + "T23:59:59");
     const where = { usuarioId, status: { in: ['PAGO', 'RECEBIDO'] }, tipo: 'DESPESA', dataPagamento: { gte: i, lte: f } };
     if(bancoId) where.bancoId = bancoId;
-    
     const formas = await prisma.transacao.groupBy({ by: ['formaPagamento'], _sum: { valor: true }, where });
     const top5 = await prisma.transacao.groupBy({ by: ['fornecedor'], _sum: { valor: true }, where, orderBy: { _sum: { valor: 'desc' } }, take: 5 });
     const total = await prisma.transacao.aggregate({ _sum: { valor: true }, where });
-    
-    // Cartões
     const cartoes = await prisma.transacao.groupBy({ by: ['bancoId'], _sum: { valor: true }, where: { ...where, formaPagamento: { in: ['Cartão', 'Crédito'] } } });
-    const listaCartoes = [];
-    for(const c of cartoes) { if(c.bancoId) { const b = await prisma.banco.findUnique({where:{id:c.bancoId}}); listaCartoes.push({nome: b.nome, total: c._sum.valor}); } }
-
+    const listaCartoes = []; for(const c of cartoes) { if(c.bancoId) { const b = await prisma.banco.findUnique({where:{id:c.bancoId}}); listaCartoes.push({nome: b.nome, total: c._sum.valor}); } }
     res.json({ porForma: formas, porFornecedor: top5, totalGeral: total._sum.valor||0, cartao: { total: listaCartoes.reduce((a,b)=>a+b.total,0), lista: listaCartoes } });
 });
 
-// ==========================================
-// 7. AUTH E LIMPEZA
-// ==========================================
 app.post('/auth/login', async (req, res) => {
-    const { email, senha } = req.body;
-    try {
-        const u = await prisma.usuario.findUnique({ where: { email } });
-        if(!u || !(await bcrypt.compare(senha, u.senha))) return res.status(401).json({ erro: "Login inválido" });
-        res.json({ id: u.id, nome: u.nome, email: u.email, role: u.role });
-    } catch(e) { res.status(500).json({ erro: "Erro login" }); }
+    const { email, senha } = req.body; try { const u = await prisma.usuario.findUnique({ where: { email } }); if(!u || !(await bcrypt.compare(senha, u.senha))) return res.status(401).json({ erro: "Login inválido" }); res.json({ id: u.id, nome: u.nome, email: u.email, role: u.role }); } catch(e) { res.status(500).json({ erro: "Erro login" }); }
 });
-
-app.post('/auth/registrar', async (req, res) => {
-    try {
-        const { nome, email, senha } = req.body;
-        const hash = await bcrypt.hash(senha, 10);
-        const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } });
-        res.json(u);
-    } catch(e) { res.status(500).json({ erro: "Erro registro" }); }
-});
-
-app.get('/limpar-tudo', async (req, res) => {
-    await prisma.transacao.deleteMany({});
-    await prisma.banco.deleteMany({});
-    await prisma.evento.deleteMany({});
-    res.send("Sistema Zerado.");
-});
+app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });
+app.get('/limpar-tudo', async (req, res) => { await prisma.transacao.deleteMany({}); await prisma.banco.deleteMany({}); await prisma.evento.deleteMany({}); res.send("Sistema Zerado."); });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Servidor completo rodando na porta ${PORT}`); });
