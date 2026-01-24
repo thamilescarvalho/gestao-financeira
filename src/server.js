@@ -307,10 +307,65 @@ app.post('/bancos', async (req, res) => { try { const { nome, agencia, conta, sa
 app.put('/bancos/:id', async (req, res) => { try { const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo } = req.body; const b = await prisma.banco.update({ where: { id: req.params.id }, data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo } }); res.json(b); } catch(e) { res.status(500).json({ erro: "Erro atualizar banco" }); } });
 app.delete('/bancos/:id', async (req, res) => { try { await prisma.banco.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(400).json({ erro: "Banco com movimento" }); } });
 
-app.get('/eventos', async (req, res) => { const { usuarioId } = req.query; if(!usuarioId) return res.json([]); const evs = await prisma.evento.findMany({ where: { usuarioId }, orderBy: { data: 'asc' } }); res.json(evs); });
-app.post('/eventos', async (req, res) => { const { titulo, descricao, data, tipo, usuarioId } = req.body; try { const ev = await prisma.evento.create({ data: { titulo, descricao, data: new Date(data), tipo, usuario: { connect: { id: usuarioId } } } }); res.json(ev); } catch(e){ res.status(500).send(); } });
-app.delete('/eventos/:id', async (req, res) => { await prisma.evento.delete({ where: { id: req.params.id } }); res.status(204).send(); });
-app.patch('/eventos/:id/toggle', async (req, res) => { const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { concluido: req.body.concluido } }); res.json(ev); });
+// =================
+// ROTA DE EVENTOS 
+// =================
+app.get('/eventos', async (req, res) => {
+    const { usuarioId } = req.query;
+    if (!usuarioId) return res.json([]);
+    const eventos = await prisma.evento.findMany({ 
+        where: { usuarioId }, 
+        orderBy: { data: 'asc' } 
+    });
+    res.json(eventos);
+});
+
+// CRIAR 
+app.post('/eventos', async (req, res) => {
+    const { titulo, descricao, local, data, tipo, usuarioId } = req.body;
+    try {
+        const evento = await prisma.evento.create({
+            data: {
+                titulo, 
+                descricao, 
+                local, // Novo campo
+                data: new Date(data),
+                tipo: tipo || 'TAREFA',
+                usuario: { connect: { id: usuarioId } }
+            }
+        });
+        res.json(evento);
+    } catch (e) { res.status(500).json({ erro: "Erro ao criar evento" }); }
+});
+
+// EDITAR
+app.put('/eventos/:id', async (req, res) => {
+    const { id } = req.params;
+    const { titulo, descricao, local, data, tipo } = req.body;
+    try {
+        const evento = await prisma.evento.update({
+            where: { id },
+            data: {
+                titulo,
+                descricao,
+                local,
+                data: new Date(data),
+                tipo
+            }
+        });
+        res.json(evento);
+    } catch (e) { res.status(500).json({ erro: "Erro ao editar evento" }); }
+});
+
+// EXCLUIR E TOGGLE 
+app.delete('/eventos/:id', async (req, res) => {
+    await prisma.evento.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+});
+app.patch('/eventos/:id/toggle', async (req, res) => {
+    const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { concluido: req.body.concluido } }); 
+    res.json(ev);
+});
 
 app.get('/dashboard/resumo', async (req, res) => {
     const { usuarioId } = req.query; if (!usuarioId) return res.json({ saldoTotal: 0 });
