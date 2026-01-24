@@ -94,13 +94,22 @@ function gerarMenuLateral() {
 }
 
 // --- LÓGICA DE ABRIR/FECHAR ---
-function toggleMenu() { 
-    const sidebar = document.getElementById('sidebar');
+function toggleMenu() {
+    const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.overlay');
     
-    if(sidebar) sidebar.classList.toggle('aberto'); 
-    if(overlay) overlay.classList.toggle('ativo');
+    // Alterna classes
+    sidebar.classList.toggle('aberto');
+    overlay.classList.toggle('ativo');
 }
+
+// Fecha ao clicar fora
+document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.querySelector('.overlay');
+    if(overlay) {
+        overlay.addEventListener('click', toggleMenu);
+    }
+});
 
 function toggleSubmenu(element) {
     const submenu = element.nextElementSibling;
