@@ -231,53 +231,92 @@ app.post('/importar/ler-csv', async (req, res) => {
     } catch (e) { console.error(e); res.status(500).json({ erro: "Erro CSV" }); }
 });
 
+// ==========================================
+// ROTA INTELIGENTE: IMPORTAR OFX (COM RESUMO)
+// ==========================================
 app.post('/conciliacao/ler-ofx', upload.single('arquivo'), async (req, res) => {
     try {
-        if (!req.file) return res.status(400).json({ erro: "Sem arquivo" });
-        const usuarioId = req.body.usuarioId;
-        const txt = req.file.buffer.toString('utf8');
-        let lista = [];
-
-        if (txt.trim().startsWith('{')) { // JSON
-            try {
-                const json = JSON.parse(txt);
-                if(json.data) lista = json.data.map(t => ({
-                    data: t.dateTime.split('T')[0],
-                    descricao: t.title,
-                    valor: Math.abs(t.rawAmount/100),
-                    tipo: t.direction === 'in' ? 'RECEITA' : 'DESPESA',
-                    formaPagamento: detectarFormaPagamento(t.title) // DETECTA AQUI
-                }));
-            } catch(e){}
-        } 
+        if (!req.file) return res.status(400).json({ erro: "Nenhum arquivo enviado." });
         
-        if (lista.length === 0) { // OFX
-            const data = ofx.parse(txt);
-            let raw = data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST?.STMTTRN 
-                   || data.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST?.STMTTRN;
-            if(raw) {
-                if(!Array.isArray(raw)) raw = [raw];
-                lista = raw.map(t => {
-                    const d = t.DTPOSTED.substring(0,8);
-                    const dt = `${d.substring(0,4)}-${d.substring(4,6)}-${d.substring(6,8)}`;
-                    const v = parseFloat(String(t.TRNAMT).replace(',', '.'));
+        const usuarioId = req.body.usuarioId; 
+        const fileContent = req.file.buffer.toString('utf8');
+        let transacoesLimpas = [];
+
+        // 1. TENTA LER COMO JSON
+        if (fileContent.trim().startsWith('{')) {
+            try {
+                const json = JSON.parse(fileContent);
+                if (json.data && Array.isArray(json.data)) {
+                    transacoesLimpas = json.data.map(t => {
+                        return {
+                            data: t.dateTime ? t.dateTime.split('T')[0] : new Date().toISOString().split('T')[0],
+                            descricao: t.title || "Sem descrição",
+                            valor: Math.abs(t.rawAmount ? t.rawAmount / 100 : 0),
+                            tipo: (t.direction === 'in') ? 'RECEITA' : 'DESPESA',
+                            formaPagamento: detectarFormaPagamento(t.title) // Detecta se é Cashback/Pix/etc
+                        };
+                    });
+                }
+            } catch(e) {}
+        }
+
+        // 2. SE NÃO FOR JSON, TENTA LER COMO OFX
+        if (transacoesLimpas.length === 0) {
+            const data = ofx.parse(fileContent);
+            let listaBruta = data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST?.STMTTRN 
+                          || data.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST?.STMTTRN;
+            
+            if (listaBruta) {
+                const arr = Array.isArray(listaBruta) ? listaBruta : [listaBruta];
+                transacoesLimpas = arr.map(t => {
+                    // Formata Data (DTPOSTED: 20260220120000 -> 2026-02-20)
+                    const rawDate = (t.DTPOSTED || "").substring(0, 8);
+                    const dt = rawDate.length === 8 ? `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}` : new Date().toISOString().split('T')[0];
+                    
+                    const val = parseFloat(String(t.TRNAMT).replace(',', '.'));
                     const nome = t.MEMO || "Sem descrição";
-                    return { 
-                        data: dt, 
-                        descricao: nome, 
-                        valor: Math.abs(v), 
-                        tipo: v<0 ? 'DESPESA' : 'RECEITA',
-                        formaPagamento: detectarFormaPagamento(nome) // DETECTA AQUI
+
+                    return {
+                        data: dt,
+                        descricao: nome,
+                        valor: Math.abs(val),
+                        tipo: val < 0 ? 'DESPESA' : 'RECEITA',
+                        formaPagamento: detectarFormaPagamento(nome) // Detecta se é Cashback/Pix/etc
                     };
                 });
             }
         }
 
-        if (lista.length === 0) return res.status(400).json({ erro: "Formato não reconhecido." });
+        if (transacoesLimpas.length === 0) return res.status(400).json({ erro: "Formato não reconhecido ou arquivo vazio." });
 
-        const verificados = await checarDuplicidade(usuarioId, lista);
-        res.json({ transacoes: verificados });
-    } catch (e) { res.status(500).json({ erro: "Erro OFX" }); }
+        // 3. VERIFICA DUPLICIDADE NO BANCO
+        const transacoesVerificadas = await checarDuplicidade(usuarioId, transacoesLimpas);
+
+        // 4. CALCULA O RESUMO (A CORREÇÃO ESTÁ AQUI)
+        let totalEntradas = 0;
+        let totalSaidas = 0;
+
+        transacoesVerificadas.forEach(t => {
+            if (t.tipo === 'RECEITA') totalEntradas += t.valor;
+            if (t.tipo === 'DESPESA') totalSaidas += t.valor;
+        });
+
+        const resumo = {
+            totalEntradas,
+            totalSaidas,
+            saldoPeriodo: totalEntradas - totalSaidas
+        };
+
+        // Envia transações E o resumo que o front-end espera
+        res.json({ 
+            transacoes: transacoesVerificadas, 
+            resumo: resumo 
+        });
+
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ erro: "Erro ao ler arquivo." });
+    }
 });
 
 // ==========================================
