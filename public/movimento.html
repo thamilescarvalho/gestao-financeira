@@ -204,6 +204,7 @@
                     <option value="Boleto">Boleto</option>
                     <option value="Cartão">Cartão</option>
                     <option value="Dinheiro">Dinheiro</option>
+                    <option value="Cashback">Cashback</option>
                     <option value="Outros">Outros</option>
                 </select>
             </div>
@@ -245,7 +246,7 @@
             const formasExistentes = [...new Set(transacoesCache.map(t => t.formaPagamento).filter(f => f))];
             
             // Adiciona opções padrão para garantir
-            const opcoesPadrao = ['Pix', 'Boleto', 'Cartão', 'Dinheiro', 'Outros'];
+            const opcoesPadrao = ['Pix', 'Boleto', 'Cartão', 'Dinheiro', 'Cashback',  'Outros'];
             const todasOpcoes = [...new Set([...opcoesPadrao, ...formasExistentes])].sort();
 
             select.innerHTML = '<option value="">Todas</option>';
