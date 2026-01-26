@@ -1,13 +1,18 @@
-/* style.css - Versão Final: Menu Gaveta (Drawer) Unificado */
+/* style.css - Tema Galactic Future + Drawer */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-:root { 
-    --primary: #2f855a; 
-    --primary-hover: #276749;
-    --dark-sidebar: #1e293b; 
-    --dark-submenu: rgba(0, 0, 0, 0.3);
-    --light-bg: #f0f4f8;
-    --text-color: #334155;
+:root {
+    /* PALETA GALÁCTICA */
+    --primary: #8b5cf6;       /* Roxo Neon Principal */
+    --primary-hover: #7c3aed; /* Roxo mais intenso */
+    --dark-sidebar: linear-gradient(160deg, #1e1e2e 0%, #1a1b26 100%); /* Fundo Espacial */
+    --dark-submenu: rgba(0, 0, 0, 0.3); /* Vidro escuro */
+    --text-color: #a1a1aa;    /* Cinza Estelar (Texto) */
+    --light-bg: #f3f4f6;      /* Fundo das páginas (Claro para contraste) */
+    
+    /* Cores Funcionais */
+    --danger: #ef4444;
+    --success: #10b981;
 }
 
 body { 
@@ -20,7 +25,7 @@ body {
 }
 
 /* =========================================
-   NAVBAR (TOPO - VISÍVEL SEMPRE)
+   NAVBAR (TOPO)
    ========================================= */
 .navbar {
     background-color: white; 
@@ -32,146 +37,163 @@ body {
 }
 .menu-btn { background: none; border: none; color: #1e293b; font-size: 24px; cursor: pointer; transition: 0.2s; }
 .menu-btn:hover { color: var(--primary); }
-.logo { font-size: 18px; font-weight: 800; color: #2f855a; }
+.logo { font-size: 18px; font-weight: 800; color: var(--primary); text-shadow: 0 0 10px rgba(139, 92, 246, 0.3); }
+
+/* Navbar Dark (para páginas escuras) */
+.navbar.dark {
+    background-color: #0f172a; 
+    color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    box-shadow: none;
+}
+.navbar.dark .menu-btn { color: white !important; }
 
 /* =========================================
-   SIDEBAR (MENU LATERAL)
+   SIDEBAR (MENU LATERAL - ESTILO GALÁCTICO)
    ========================================= */
 .sidebar {
     position: fixed;
-    left: -280px; /* SEMPRE ESCONDIDO POR PADRÃO (Mobile e Desktop) */
+    left: -280px; /* Escondido por padrão */
     top: 0;
     width: 260px;
     height: 100%;
-    background-color: var(--dark-sidebar);
-    color: #94a3b8;
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Animação suave */
-    z-index: 1000; /* Acima do overlay */
+    background: var(--dark-sidebar); /* Gradiente Espacial */
+    color: var(--text-color);
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
     display: flex;
     flex-direction: column;
-    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5); /* Sombra Profunda */
+    border-right: 1px solid rgba(255, 255, 255, 0.05); /* Borda sutil */
 }
 
-/* Classe para abrir (funciona em qualquer tela) */
+/* Abrir Menu */
 .sidebar.aberto { left: 0; }
 
-/* HEADER DA SIDEBAR */
-/* --- CABEÇALHO DO MENU (NOVO ESTILO PERFIL) --- */
+/* CABEÇALHO DO MENU */
 .sidebar-header {
     padding: 25px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; /* Alinha no topo */
+    display: flex; justify-content: space-between; align-items: flex-start;
     border-bottom: 1px solid rgba(255,255,255,0.05);
     min-height: 60px;
 }
 
-/* Container do Texto do Usuário */
-.header-info {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
+.header-info { display: flex; flex-direction: column; gap: 5px; }
 
-/* Nome do Usuário */
 .header-user-name {
-    font-size: 16px;
-    font-weight: 700;
-    color: white;
-    letter-spacing: -0.3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 170px;
+    font-size: 16px; font-weight: 700; color: #fff;
+    letter-spacing: 0.5px; text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
-/* Badge "MENU" Moderna */
 .header-badge {
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: #2f855a; /* Verde da marca */
-    background: rgba(47, 133, 90, 0.15); /* Fundo verde bem suave */
-    padding: 3px 8px;
-    border-radius: 6px;
-    width: fit-content;
-    letter-spacing: 1px;
+    font-size: 10px; font-weight: 800; text-transform: uppercase;
+    color: #a78bfa; /* Roxo Claro */
+    background: rgba(139, 92, 246, 0.15); 
+    padding: 3px 8px; border-radius: 6px; width: fit-content; letter-spacing: 1px;
+    border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
-.logo-text { font-size: 20px; font-weight: 800; color: white; letter-spacing: -0.5px; }
-
-/* BOTÃO FECHAR (X) - Sempre visível dentro do menu */
-/* Ajuste do botão fechar para alinhar com o novo topo */
 .btn-close-sidebar {
-    padding: 0;
-    margin-top: 2px; 
+    background: transparent; border: none; padding: 0; margin-top: 2px;
+    color: var(--text-color); font-size: 20px; cursor: pointer; transition: 0.3s;
 }
-.btn-close-sidebar:hover { transform: scale(1.1); color: #fca5a5; }
+.btn-close-sidebar:hover { transform: rotate(90deg); color: #fff; }
 
 /* LISTA DE ITENS */
 .sidebar-menu {
-    list-style: none;
-    padding: 10px 15px;
-    margin: 0;
-    flex: 1;
-    overflow-y: auto;
+    list-style: none; padding: 15px; margin: 0; flex: 1; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 5px;
 }
+/* Scrollbar fina */
+.sidebar-menu::-webkit-scrollbar { width: 4px; }
+.sidebar-menu::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
 
-/* ITEM DE MENU PRINCIPAL */
+/* ITEM DE MENU */
 .menu-item {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 15px; margin-bottom: 5px; border-radius: 8px;
-    color: #cbd5e0; text-decoration: none; font-size: 14px; font-weight: 500;
-    transition: all 0.2s ease; cursor: pointer; border: 1px solid transparent;
+    padding: 12px 15px; border-radius: 12px;
+    color: var(--text-color); text-decoration: none; font-size: 14px; font-weight: 500;
+    transition: all 0.3s ease; cursor: pointer; border: 1px solid transparent;
 }
 .menu-content { display: flex; align-items: center; gap: 12px; }
-.menu-item i { width: 20px; text-align: center; font-size: 16px; }
-.menu-item:hover { background-color: rgba(255, 255, 255, 0.05); color: white; }
-.menu-item.active { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(47, 133, 90, 0.3); }
+.menu-item i { width: 20px; text-align: center; font-size: 16px; transition: 0.3s; }
+
+/* Hover e Ativo */
+.menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #fff; transform: translateX(5px);
+}
+.menu-item:hover i { color: #c4b5fd; text-shadow: 0 0 8px rgba(167, 139, 250, 0.6); }
+
+/* Item Ativo (Glow Roxo) */
+.menu-item.active, .menu-item.open {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    color: white; border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.3); /* Efeito Neon */
+    font-weight: 600;
+}
+.menu-item.active i, .menu-item.open i { color: #fff; }
+
 .arrow { font-size: 10px; transition: transform 0.3s; opacity: 0.6; }
 .menu-item.open .arrow { transform: rotate(180deg); }
 
 /* SUBMENU */
 .submenu {
-    max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
-    margin-bottom: 5px; background-color: var(--dark-submenu);
-    border-radius: 8px; margin-top: -2px;
+    max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out;
+    background-color: transparent; margin-left: 10px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1); /* Linha Guia */
 }
 .submenu a {
-    display: block; padding: 10px 15px 10px 48px; color: #94a3b8;
-    text-decoration: none; font-size: 13px; transition: 0.2s; border-left: 2px solid transparent;
+    display: block; padding: 10px 15px 10px 20px; color: var(--text-color);
+    text-decoration: none; font-size: 13px; transition: 0.2s; position: relative;
 }
-.submenu a:hover { color: white; background-color: rgba(255,255,255,0.02); }
-.submenu a.active-link { color: #68d391; font-weight: 600; border-left-color: #68d391; background-color: rgba(104, 211, 145, 0.05); }
+.submenu a:hover { color: white; background: rgba(255,255,255,0.03); border-radius: 8px; }
 
-/* PERFIL */
+/* Subitem Ativo */
+.submenu a.active-link { color: #a78bfa; font-weight: 600; }
+.submenu a.active-link::before {
+    content: ''; position: absolute; left: -5px; top: 50%; transform: translateY(-50%);
+    width: 9px; height: 9px; background: #a78bfa; border-radius: 50%;
+    box-shadow: 0 0 10px #a78bfa; /* Ponto de luz */
+}
+
+/* PERFIL (RODAPÉ) */
 .user-profile {
     padding: 20px; border-top: 1px solid rgba(255,255,255,0.05);
-    display: flex; align-items: center; gap: 12px; background-color: rgba(0,0,0,0.2);
+    display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.2);
 }
-.user-avatar { width: 36px; height: 36px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px; }
+.user-avatar {
+    width: 38px; height: 38px; border-radius: 12px;
+    background: linear-gradient(135deg, #4f46e5, #9333ea);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
 .user-info { flex: 1; overflow: hidden; }
-.user-name { color: white; font-size: 13px; font-weight: 600; display: block; }
-.user-role { color: #64748b; font-size: 11px; display: block; }
-.btn-logout-icon { color: #ef4444; cursor: pointer; font-size: 18px; padding: 5px; transition: 0.2s; }
+.user-name { color: #fff; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.user-role { color: var(--text-color); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* OVERLAY (Fundo preto - Agora visível em Desktop também) */
+.btn-logout-icon { 
+    color: #ef4444; font-size: 18px; cursor: pointer; padding: 8px; border-radius: 8px; transition: 0.2s; 
+}
+.btn-logout-icon:hover { background: rgba(239, 68, 68, 0.15); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
+
+/* OVERLAY */
 .overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5); 
-    z-index: 999; /* Atrás do menu, frente do conteúdo */
-    display: none; 
-    backdrop-filter: blur(2px);
-    transition: opacity 0.3s;
+    background: rgba(0,0,0,0.6); z-index: 999; display: none;
+    backdrop-filter: blur(3px); transition: opacity 0.3s;
 }
 .overlay.ativo { display: block; }
 
-/* CONTEÚDO */
+/* CONTEÚDO PRINCIPAL */
 .content { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
 
-/* --- ESTILOS GERAIS (MODAIS, BOTÕES, ETC) --- */
-.btn-new, .btn-add { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(47, 133, 90, 0.2); }
-.btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+/* --- ESTILOS DE COMPONENTES GERAIS --- */
+.btn-new, .btn-add { background-color: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.3); }
+.btn-new:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+
+/* Modais, Inputs e Tabelas (Mantidos Clean/White para legibilidade) */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
 .modal { background: white; padding: 30px; border-radius: 16px; width: 90%; max-width: 450px; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); animation: slideDown 0.3s ease-out; }
 .modal h2 { margin-top: 0; color: #1e293b; font-size: 20px; margin-bottom: 20px; }
@@ -180,80 +202,25 @@ body {
 .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; outline: none; box-sizing: border-box; }
 .modal-footer { display: flex; gap: 10px; margin-top: 25px; justify-content: flex-end; }
 .btn-outline { background: white; border: 1px solid #cbd5e0; color: #64748b; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
 @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-/* Estilo para Navbar em fundo escuro (Dashboard) */
-.navbar.dark {
-    background-color: #1e293b; /* Mesma cor do fundo do dashboard */
-    color: white;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    box-shadow: none;
-}
-
-/* Força o botão hambúrguer a ficar branco dentro da navbar dark */
-.navbar.dark .menu-btn {
-    color: white !important;
-}
-/* =========================================
-   AJUSTES FINAIS DE RESPONSIVIDADE
-   ========================================= */
-
-/* 1. GRIDS (Agenda e Dashboard) */
-/* No PC: Lado a lado. No Celular: Um embaixo do outro */
-.agenda-container, .feed-grid {
-    display: grid;
-    gap: 25px;
-    grid-template-columns: 1fr; /* Mobile First: Empilhado */
-}
-
+/* RESPONSIVIDADE */
+.agenda-container, .feed-grid { display: grid; gap: 25px; grid-template-columns: 1fr; }
 @media (min-width: 900px) {
-    /* Telas grandes: Volta a ficar lado a lado */
     .agenda-container { grid-template-columns: 2fr 1fr; }
     .feed-grid { grid-template-columns: 1fr 1fr; }
 }
+.table-container { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid #e2e8f0; }
+.clean-table { min-width: 800px; width: 100%; }
 
-/* 2. TABELAS COM SCROLL HORIZONTAL */
-/* Essencial para celular não "estourar" com tabelas largas */
-.table-container { 
-    width: 100%; 
-    overflow-x: auto; 
-    -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-}
-.clean-table { 
-    min-width: 800px; /* Força a tabela a ter tamanho mínimo para não espremer */ 
-    width: 100%;
-}
-
-/* 3. AJUSTES GERAIS MOBILE */
 @media (max-width: 600px) {
-    .content { padding: 15px; } /* Menos padding no celular */
-    
-    /* Filtros (Toolbar) empilhados no celular */
-    .modern-toolbar { 
-        flex-direction: column; 
-        align-items: stretch; 
-        height: auto; 
-        gap: 15px;
-        border-radius: 16px;
-    }
+    .content { padding: 15px; }
+    .modern-toolbar { flex-direction: column; align-items: stretch; height: auto; gap: 15px; border-radius: 16px; }
     .search-box, .date-group { width: 100%; }
     .date-input { flex: 1; }
     .divider { display: none; }
-
-    /* Header da página empilhado */
-    .page-header { 
-        flex-direction: column; 
-        align-items: flex-start; 
-        gap: 15px; 
-    }
-    .header-actions { 
-        width: 100%; 
-        display: grid; 
-        grid-template-columns: 1fr 1fr; /* Botões lado a lado */
-    }
-    
-    /* Modal ocupa tela toda no celular */
+    .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .header-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
     .modal { width: 100%; height: 100%; max-height: 100%; border-radius: 0; }
 }

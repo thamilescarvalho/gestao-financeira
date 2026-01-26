@@ -18,6 +18,7 @@ function garantirOverlay() {
         overlay.className = 'overlay';
         document.body.appendChild(overlay);
     }
+    // Garante o evento de clique para fechar
     overlay.onclick = toggleMenu;
 }
 
@@ -64,15 +65,16 @@ function gerarMenuLateral() {
                 <a href="pagar.html" class="link-navegacao">Contas a Pagar</a>
                 <a href="movimento.html" class="link-navegacao">Extrato / Movimento</a>
                 <a href="conciliacao.html" class="link-navegacao">Conciliação</a>
-                <a href="relatorios.html" class="link-navegacao">Relatórios</a> </div>
+                <a href="relatorios.html" class="link-navegacao">Relatórios</a> 
+            </div>
             
             <div class="menu-item" onclick="toggleSubmenu(this)">
-                <div class="menu-content"><i class="fas fa-calendar-check"></i> Rotina</div>
+                <div class="menu-content"><i class="fas fa-calendar-alt"></i> Agenda</div>
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
-                <a href="agenda.html" class="link-navegacao">Agenda</a>
-                <a href="#" onclick="Swal.fire('Info', 'Em breve!', 'info')" class="link-navegacao">Tarefas</a>
+                <a href="agenda.html" class="link-navegacao">Calendário</a>
+                <a href="rotinas.html" class="link-navegacao">Tarefas</a>
             </div>
 
         </div>
@@ -89,49 +91,63 @@ function gerarMenuLateral() {
 
     // Garante que links de navegação também fechem o menu (mobile)
     document.querySelectorAll('.link-navegacao').forEach(link => {
-        link.addEventListener('click', () => { toggleMenu(); });
+        link.addEventListener('click', () => { 
+            // Só fecha se estiver em tela pequena
+            if (window.innerWidth <= 768) toggleMenu(); 
+        });
     });
 }
 
 // --- LÓGICA DE ABRIR/FECHAR ---
 function toggleMenu() {
-    const sidebar = document.querySelector('.sidebar');
+    const sidebar = document.querySelector('.sidebar'); // ou getElementById('sidebar')
     const overlay = document.querySelector('.overlay');
     
-    // Alterna classes
-    sidebar.classList.toggle('aberto');
-    overlay.classList.toggle('ativo');
+    if (sidebar) sidebar.classList.toggle('aberto'); // CSS deve ter .sidebar.aberto
+    if (overlay) overlay.classList.toggle('ativo');  // CSS deve ter .overlay.ativo
 }
-
-// Fecha ao clicar fora
-document.addEventListener('DOMContentLoaded', () => {
-    const overlay = document.querySelector('.overlay');
-    if(overlay) {
-        overlay.addEventListener('click', toggleMenu);
-    }
-});
 
 function toggleSubmenu(element) {
     const submenu = element.nextElementSibling;
-    element.classList.toggle('open');
-    if (submenu.style.maxHeight) { submenu.style.maxHeight = null; } 
-    else { submenu.style.maxHeight = submenu.scrollHeight + "px"; }
-}
-
-function highlightActiveLink() {
-    const path = window.location.pathname.split("/").pop() || 'index.html';
-    const activeLink = document.querySelector(`.sidebar a[href="${path}"]`);
-    if (activeLink) {
-        if (activeLink.parentElement.classList.contains('submenu')) {
-            activeLink.classList.add('active-link');
-            const parentMenu = activeLink.parentElement.previousElementSibling;
-            if(parentMenu) {
-                parentMenu.classList.add('active', 'open');
-                activeLink.parentElement.style.maxHeight = "100%";
-            }
-        } else { activeLink.classList.add('active'); }
+    element.classList.toggle('open'); // Gira seta
+    
+    if (submenu.style.maxHeight) { 
+        submenu.style.maxHeight = null; 
+    } else { 
+        submenu.style.maxHeight = submenu.scrollHeight + "px"; 
     }
 }
 
-function formatarMoeda(valor) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor); }
-function sair() { localStorage.removeItem('usuario_logado'); window.location.href = 'login.html'; }
+function highlightActiveLink() {
+    // Pega o nome do arquivo da URL (ex: "agenda.html")
+    const path = window.location.pathname.split("/").pop() || 'index.html';
+    
+    // Procura o link correspondente
+    const activeLink = document.querySelector(`.sidebar a[href="${path}"]`);
+    
+    if (activeLink) {
+        // Se for um link de submenu
+        if (activeLink.parentElement.classList.contains('submenu')) {
+            activeLink.classList.add('active-link');
+            
+            // Abre o menu pai
+            const parentMenu = activeLink.parentElement.previousElementSibling;
+            if(parentMenu) {
+                parentMenu.classList.add('active', 'open'); // Destaca pai e gira seta
+                activeLink.parentElement.style.maxHeight = "500px"; // Força abertura
+            }
+        } else { 
+            // Link direto (ex: Painel)
+            activeLink.classList.add('active'); 
+        }
+    }
+}
+
+function formatarMoeda(valor) { 
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor); 
+}
+
+function sair() { 
+    localStorage.removeItem('usuario_logado'); 
+    window.location.href = 'login.html'; 
+}
