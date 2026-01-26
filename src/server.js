@@ -191,11 +191,88 @@ app.get('/bancos', async (req, res) => { const { usuarioId } = req.query; if(!us
 app.post('/bancos', async (req, res) => { try { const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo, usuarioId } = req.body; const b = await prisma.banco.create({ data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo, usuario: { connect: { id: usuarioId } } } }); res.json(b); } catch(e) { res.status(500).json({ erro: "Erro criar banco" }); } });
 app.put('/bancos/:id', async (req, res) => { try { const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo } = req.body; const b = await prisma.banco.update({ where: { id: req.params.id }, data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo } }); res.json(b); } catch(e) { res.status(500).json({ erro: "Erro atualizar banco" }); } });
 app.delete('/bancos/:id', async (req, res) => { try { await prisma.banco.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(400).json({ erro: "Banco com movimento" }); } });
-app.get('/eventos', async (req, res) => { const { usuarioId } = req.query; if(!usuarioId) return res.json([]); const evs = await prisma.evento.findMany({ where: { usuarioId }, orderBy: { data: 'asc' } }); res.json(evs); });
-app.post('/eventos', async (req, res) => { const { titulo, descricao, local, data, tipo, usuarioId } = req.body; try { const ev = await prisma.evento.create({ data: { titulo, descricao, local, data: new Date(data), tipo: tipo||'TAREFA', usuario: { connect: { id: usuarioId } } } }); res.json(ev); } catch(e){ res.status(500).send(); } });
-app.put('/eventos/:id', async (req, res) => { const { titulo, descricao, local, data, tipo } = req.body; try { const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { titulo, descricao, local, data: new Date(data), tipo } }); res.json(ev); } catch(e) { res.status(500).send(); } });
-app.delete('/eventos/:id', async (req, res) => { await prisma.evento.delete({ where: { id: req.params.id } }); res.status(204).send(); });
-app.patch('/eventos/:id/toggle', async (req, res) => { const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { concluido: req.body.concluido } }); res.json(ev); });
+// ROTAS DE EVENTOS / AGENDA
+app.get('/eventos/alertas', async (req, res) => {
+    const { usuarioId } = req.query;
+    if (!usuarioId) return res.json([]);
+
+    const hoje = new Date();
+    const dataLimite = new Date();
+    dataLimite.setDate(hoje.getDate() + 5); // Olha 5 dias pra frente
+
+    try {
+        const eventos = await prisma.evento.findMany({
+            where: {
+                usuarioId: usuarioId,
+                lembrete: true, // Só os marcados para lembrar
+                concluido: false
+            }
+        });
+
+        // Filtragem manual para ignorar o ano do nascimento e focar no dia/mês atual
+        const proximos = eventos.filter(ev => {
+            const dataEvento = new Date(ev.data);
+            const aniversarioEsseAno = new Date(hoje.getFullYear(), dataEvento.getMonth(), dataEvento.getDate());
+            
+            // Se já passou este ano, verifica se é logo no inicio do ano que vem (opcional, aqui foca no ano atual)
+            return aniversarioEsseAno >= hoje && aniversarioEsseAno <= dataLimite;
+        });
+
+        res.json(proximos);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json([]);
+    }
+});
+
+app.get('/eventos', async (req, res) => {
+    const { usuarioId } = req.query;
+    if(!usuarioId) return res.json([]);
+    const evs = await prisma.evento.findMany({ where: { usuarioId }, orderBy: { data: 'asc' } });
+    res.json(evs);
+});
+
+app.post('/eventos', async (req, res) => {
+    const { titulo, descricao, local, data, tipo, lembrete, usuarioId } = req.body;
+    try {
+        const ev = await prisma.evento.create({
+            data: {
+                titulo, descricao, local,
+                data: new Date(data),
+                tipo: tipo || 'TAREFA',
+                lembrete: lembrete || false, // Salva o lembrete
+                usuario: { connect: { id: usuarioId } }
+            }
+        });
+        res.json(ev);
+    } catch(e){ res.status(500).send(); }
+});
+
+app.put('/eventos/:id', async (req, res) => {
+    const { titulo, descricao, local, data, tipo, lembrete } = req.body;
+    try {
+        const ev = await prisma.evento.update({
+            where: { id: req.params.id },
+            data: {
+                titulo, descricao, local,
+                data: new Date(data),
+                tipo,
+                lembrete: lembrete // Atualiza o lembrete
+            }
+        });
+        res.json(ev);
+    } catch(e) { res.status(500).send(); }
+});
+
+app.delete('/eventos/:id', async (req, res) => {
+    await prisma.evento.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+});
+
+app.patch('/eventos/:id/toggle', async (req, res) => {
+    const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { concluido: req.body.concluido } });
+    res.json(ev);
+});
 app.get('/dashboard/resumo', async (req, res) => { const { usuarioId } = req.query; if (!usuarioId) return res.json({ saldoTotal: 0 }); const hoje = new Date(); const i = new Date(hoje.getFullYear(), hoje.getMonth(), 1); const f = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0); const bancos = await prisma.banco.findMany({ where: { usuarioId } }); const saldoIni = bancos.reduce((acc, b) => acc + parseFloat(b.saldoInicial), 0); const recGeral = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'RECEBIDO' } }); const pagGeral = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PAGO' } }); const recMes = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'RECEBIDO', data: { gte: i, lte: f } } }); const despMes = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PAGO', data: { gte: i, lte: f } } }); res.json({ saldoTotal: saldoIni + (recGeral._sum.valor||0) - (pagGeral._sum.valor||0), receitaReal: recMes._sum.valor || 0, despesaReal: despMes._sum.valor || 0 }); });
 app.get('/relatorios/projecao-mensal', async (req, res) => { const { usuarioId, mes } = req.query; if(!usuarioId || !mes) return res.json({ receitas: 0, despesas: 0, saldo: 0 }); const start = new Date(`${mes}-01T00:00:00.000Z`); const end = new Date(new Date(start).setMonth(start.getMonth()+1)); const filtro = { gte: start, lt: end }; const rec = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'PENDENTE', OR: [{data: filtro}, {dataVencimento: filtro}] } }); const desp = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PENDENTE', OR: [{data: filtro}, {dataVencimento: filtro}] } }); res.json({ receitas: rec._sum.valor||0, despesas: desp._sum.valor||0, saldoPrevisto: (rec._sum.valor||0) - (desp._sum.valor||0) }); });
 app.get('/relatorios/avancado', async (req, res) => { const { usuarioId, inicio, fim, bancoId } = req.query; if(!usuarioId) return res.json({}); const i = new Date(inicio + "T00:00:00"); const f = new Date(fim + "T23:59:59"); const where = { usuarioId, status: { in: ['PAGO', 'RECEBIDO'] }, tipo: 'DESPESA', dataPagamento: { gte: i, lte: f } }; if(bancoId) where.bancoId = bancoId; const formas = await prisma.transacao.groupBy({ by: ['formaPagamento'], _sum: { valor: true }, where }); const top5 = await prisma.transacao.groupBy({ by: ['fornecedor'], _sum: { valor: true }, where, orderBy: { _sum: { valor: 'desc' } }, take: 5 }); const total = await prisma.transacao.aggregate({ _sum: { valor: true }, where }); const cartoes = await prisma.transacao.groupBy({ by: ['bancoId'], _sum: { valor: true }, where: { ...where, formaPagamento: { in: ['Cartão', 'Crédito'] } } }); const listaCartoes = []; for(const c of cartoes) { if(c.bancoId) { const b = await prisma.banco.findUnique({where:{id:c.bancoId}}); listaCartoes.push({nome: b.nome, total: c._sum.valor}); } } res.json({ porForma: formas, porFornecedor: top5, totalGeral: total._sum.valor||0, cartao: { total: listaCartoes.reduce((a,b)=>a+b.total,0), lista: listaCartoes } }); });

@@ -81,6 +81,7 @@ model Evento {
   data      DateTime
   tipo      String   @default("TAREFA")
   concluido Boolean  @default(false)
+  lembrete    Boolean  @default(false)
   usuarioId String
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 }
