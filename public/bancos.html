@@ -33,9 +33,11 @@
             transition: transform 0.2s;
         }
         .bank-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-        .bank-card.inativo { border-left-color: #cbd5e0; opacity: 0.7; }
+        .bank-card.inativo { border-left-color: #cbd5e0; opacity: 0.6; background-color: #f7fafc; }
 
-        .bank-info h3 { margin: 0 0 5px 0; font-size: 16px; color: #1e293b; }
+        .bank-info h3 { margin: 0 0 5px 0; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+        .tag-inativo { font-size: 10px; background: #cbd5e0; color: #4a5568; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 700; }
+
         .bank-details { font-size: 12px; color: #64748b; margin-bottom: 5px; }
         .bank-balance { font-weight: 700; color: #2f855a; font-size: 14px; }
         .inativo .bank-balance { color: #64748b; }
@@ -54,6 +56,8 @@
         /* MODAL CUSTOMIZADO */
         .form-row { display: flex; gap: 15px; }
         .form-row .form-group { flex: 1; }
+        
+        div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
     </style>
 </head>
 <body>
@@ -69,7 +73,8 @@
         </div>
 
         <div class="bank-list" id="listaBancos">
-            </div>
+            <div style="text-align:center; padding:30px; color:#94a3b8;">Carregando...</div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="modalBanco">
@@ -78,7 +83,7 @@
             <input type="hidden" id="editId">
             
             <div class="form-group">
-                <label>Nome do banco</label>
+                <label>Nome do banco <span style="color:red">*</span></label>
                 <input type="text" id="inputNome" placeholder="Ex: Nubank, Itaú...">
             </div>
 
@@ -104,10 +109,10 @@
             </div>
 
             <div class="form-group">
-                <label>Inativo</label>
+                <label>Status</label>
                 <select id="inputInativo">
-                    <option value="false">Não</option>
-                    <option value="true">Sim</option>
+                    <option value="false">Ativo (Padrão)</option>
+                    <option value="true">Inativo (Arquivado)</option>
                 </select>
             </div>
 
@@ -122,10 +127,12 @@
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         let bancosCache = [];
 
-        document.addEventListener('DOMContentLoaded', carregarBancos);
+        document.addEventListener('DOMContentLoaded', () => {
+            if(!usuario) return window.location.href = 'login.html';
+            carregarBancos();
+        });
 
         async function carregarBancos() {
-            if(!usuario) return;
             try {
                 const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
                 bancosCache = await res.json();
@@ -144,28 +151,25 @@
 
             lista.forEach(b => {
                 const classeInativo = b.inativo ? 'inativo' : '';
-                const dataFormatada = b.dataSaldoInicial ? new Date(b.dataSaldoInicial).toLocaleDateString('pt-BR') : '-';
+                const tagInativo = b.inativo ? '<span class="tag-inativo">Inativo</span>' : '';
                 
-                // --- LÓGICA NOVA DE SALDO ---
-                const valorParaMostrar = (b.saldoAtual !== undefined) ? b.saldoAtual : b.saldoInicial;
+                // --- LÓGICA DE SALDO ---
+                // Mostra o saldo atual calculado pelo backend, ou o inicial se não tiver movimento
+                const valorParaMostrar = (b.saldoAtual !== undefined && b.saldoAtual !== null) ? b.saldoAtual : b.saldoInicial;
                 const saldoFormatado = parseFloat(valorParaMostrar).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-                
-                // Se o saldo atual for negativo, coloca cor vermelha
                 const corSaldo = valorParaMostrar < 0 ? '#e53e3e' : '#2f855a'; 
-                // -----------------------------
+                // -----------------------
 
                 container.innerHTML += `
                     <div class="bank-card ${classeInativo}">
                         <div class="bank-info">
-                            <h3>${b.nome} ${b.inativo ? '(Inativo)' : ''}</h3>
+                            <h3>${b.nome} ${tagInativo}</h3>
                             <div class="bank-details">
                                 Ag: ${b.agencia || '-'} | CC: ${b.conta || '-'}
                             </div>
                             <div class="bank-balance">
-                                Saldo Atual: <span style="color: ${corSaldo}">${saldoFormatado}</span> 
-                                <div style="font-weight:normal; font-size:10px; color:#94a3b8; margin-top:3px;">
-                                    (Inicial: ${parseFloat(b.saldoInicial).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})})
-                                </div>
+                                <span style="color:#718096; font-size:11px; font-weight:600;">SALDO ATUAL:</span>
+                                <span style="color: ${corSaldo}; font-size:16px;">${saldoFormatado}</span> 
                             </div>
                         </div>
                         <div class="bank-actions">
@@ -185,7 +189,10 @@
             document.getElementById('inputConta').value = '';
             document.getElementById('inputSaldo').value = '';
             document.getElementById('inputDataSaldo').valueAsDate = new Date();
+            
+            // Define padrão como ATIVO (false)
             document.getElementById('inputInativo').value = 'false';
+            
             document.getElementById('modalBanco').style.display = 'flex';
         }
 
@@ -204,7 +211,10 @@
                 document.getElementById('inputDataSaldo').value = b.dataSaldoInicial.split('T')[0];
             }
             
+            // --- CORREÇÃO AQUI ---
+            // Converte o booleano b.inativo para string "true" ou "false" para o select entender
             document.getElementById('inputInativo').value = b.inativo ? 'true' : 'false';
+            
             document.getElementById('modalBanco').style.display = 'flex';
         }
 
@@ -217,19 +227,24 @@
             const nome = document.getElementById('inputNome').value;
             const agencia = document.getElementById('inputAgencia').value;
             const conta = document.getElementById('inputConta').value;
-            const saldoInicial = document.getElementById('inputSaldo').value;
+            const saldoInicial = document.getElementById('inputSaldo').value || 0;
             const dataSaldoInicial = document.getElementById('inputDataSaldo').value;
-            const inativo = document.getElementById('inputInativo').value;
+            
+            // --- CORREÇÃO AQUI ---
+            // Converte a string "true" do select para o booleano true real
+            const inativo = document.getElementById('inputInativo').value === 'true';
 
-            if(!nome) return Swal.fire('Erro', 'Nome do banco é obrigatório', 'error');
+            if(!nome) return Swal.fire('Erro', 'Nome do banco é obrigatório', 'warning');
 
             const payload = {
-                nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo,
+                nome, agencia, conta, 
+                saldoInicial: parseFloat(saldoInicial), 
+                dataSaldoInicial, 
+                inativo: inativo, // Envia como booleano puro
                 usuarioId: usuario.id
             };
 
             try {
-                // Decide se é POST (Novo) ou PUT (Editar)
                 const method = id ? 'PUT' : 'POST';
                 const url = id ? `/bancos/${id}` : '/bancos';
 
@@ -241,7 +256,13 @@
 
                 if(res.ok) {
                     fecharModal();
-                    Swal.fire('Sucesso', 'Banco salvo!', 'success');
+                    Swal.fire({ 
+                        icon: 'success', 
+                        title: 'Salvo!', 
+                        text: 'Banco atualizado com sucesso.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
                     carregarBancos();
                 } else {
                     Swal.fire('Erro', 'Erro ao salvar banco.', 'error');
@@ -265,7 +286,7 @@
                         carregarBancos();
                     } else {
                         const erro = await res.json();
-                        Swal.fire('Erro', erro.erro || 'Não foi possível excluir.', 'error');
+                        Swal.fire('Atenção', erro.erro || 'Não foi possível excluir (Possui transações vinculadas).', 'error');
                     }
                 }
             });

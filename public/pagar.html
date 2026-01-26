@@ -15,7 +15,6 @@
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
         .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
 
-        /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
         
@@ -34,19 +33,15 @@
         .date-group { display: flex; align-items: center; gap: 5px; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
         .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #4a5568; width: 105px; }
         
-        /* CLASSE DE ERRO (BORDA VERMELHA) */
-        .input-error-border { 
-            border: 2px solid #e53e3e !important; 
-            background-color: #fff5f5 !important; 
-            color: #e53e3e !important;
-            border-radius: 6px; 
-        }
-
         .search-box { display: flex; align-items: center; gap: 8px; flex: 1; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
         .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; width: 100%; }
+        /* Select ajustado */
+        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; cursor: pointer; width: 100%; min-width: 120px; }
         
-        .btn-limpar { font-size: 12px; color: #718096; cursor: pointer; border: none; background: none; font-weight: 600; }
+        .btn-limpar { font-size: 12px; color: #718096; cursor: pointer; border: none; background: none; font-weight: 600; white-space: nowrap; }
         .btn-limpar:hover { color: #e53e3e; text-decoration: underline; }
+
+        .input-error-border { border: 2px solid #e53e3e !important; background-color: #fff5f5 !important; color: #e53e3e !important; border-radius: 6px; }
 
         /* TABELA */
         .table-container { background: transparent; overflow-x: auto; }
@@ -56,13 +51,13 @@
         .clean-table td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
         .clean-table td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 
-        .col-forn { width: 25%; font-weight: 600; color: #1e293b; }
+        .col-forn { width: 22%; font-weight: 600; color: #1e293b; }
         .col-venc { width: 12%; color: #64748b; }
         .col-valor { width: 15%; font-weight: 700; color: #e53e3e; }
-        .col-forma { width: 10%; text-align: center; }
+        .col-forma { width: 12%; text-align: center; }
         .col-parc { width: 8%; text-align: center; font-weight: 600; color: #718096; }
         .col-desc { width: 20%; color: #94a3b8; }
-        .col-acao { width: 130px; text-align: right; overflow: visible !important; }
+        .col-acao { width: 120px; text-align: right; overflow: visible !important; }
 
         .action-btn { width: 30px; height: 30px; border-radius: 6px; border: none; cursor: pointer; margin-left: 3px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-pay { color: #2f855a; background: #f0fff4; } .btn-pay:hover { background: #c6f6d5; }
@@ -73,27 +68,35 @@
         .import-table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
         .import-table th { text-align: left; padding: 10px; border-bottom: 2px solid #e2e8f0; font-size: 11px; color: #4a5568; text-transform: uppercase; white-space: nowrap; }
         .import-table td { padding: 10px; border-bottom: 1px solid #edf2f7; font-size: 12px; color: #2d3748; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
         .row-duplicada { background-color: #fffbeb !important; }
         .row-duplicada td { color: #b45309 !important; }
         .aviso-duplicata { font-size: 10px; color: #d97706; font-weight: bold; margin-left: 5px; cursor: help; }
-
         .col-w-check { width: 40px; text-align: center; }
-        .col-w-data  { width: 100px; }
-        .col-w-parc  { width: 80px; text-align: center; }
-        .col-w-tipo  { width: 90px; }
+        .col-w-data { width: 100px; }
+        .col-w-parc { width: 80px; text-align: center; }
+        .col-w-tipo { width: 90px; }
         .col-w-valor { width: 110px; text-align: right; }
-        .col-w-desc  { width: auto; }
-
+        .col-w-desc { width: auto; }
         .badge-tipo { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
         .bg-receita { background: #def7ec; color: #03543f; }
         .bg-despesa { background: #fde8e8; color: #9b1c1c; }
         .badge-parc { background: #edf2f7; color: #4a5568; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
 
+        /* MODAIS GERAIS */
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
+        .modal { background: white; width: 95%; max-width: 550px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 600; }
+        
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
         #containerParcelas { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-top: 15px; max-height: 250px; overflow-y: auto; display: none; }
         .parcela-row { display: grid; grid-template-columns: 40px 1fr 120px 100px; gap: 10px; margin-bottom: 10px; align-items: center; }
         .parcela-row input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; width: 100%; }
         .p-idx { font-size: 11px; font-weight: 700; color: #718096; text-align: center; }
+
         div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
     </style>
 </head>
@@ -101,7 +104,7 @@
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">T-System</div> <div></div> </nav>
+    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">T-SYSTEM</div> <div></div> </nav>
 
     <div class="content">
         <div class="page-header">
@@ -124,14 +127,33 @@
             
             <div class="date-group">
                 <i class="far fa-calendar" style="color:#94a3b8"></i>
-                <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()" onkeyup="aplicarFiltros()">
+                <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()">
                 <span style="color:#cbd5e0; font-size:10px">ATÉ</span>
-                <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()" onkeyup="aplicarFiltros()">
+                <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()">
+            </div>
+
+            <div class="search-box">
+                <i class="fas fa-user" style="color:#cbd5e0"></i>
+                <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Fornecedor..." onkeyup="aplicarFiltros()">
+            </div>
+
+            <div class="search-box" style="flex: 0 0 160px;">
+                <i class="far fa-credit-card" style="color:#cbd5e0"></i>
+                <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()">
+                    <option value="">Forma...</option>
+                    <option value="Boleto">Boleto</option>
+                    <option value="Pix">Pix</option>
+                    <option value="Cartão">Cartão</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Transferência">Transferência</option>
+                    <option value="Cashback">Cashback</option>
+                    <option value="Outros">Outros</option>
+                </select>
             </div>
 
             <div class="search-box">
                 <i class="fas fa-search" style="color:#cbd5e0"></i>
-                <input type="text" id="filtroBusca" class="clean-input" placeholder="Buscar fornecedor..." onkeyup="aplicarFiltros()">
+                <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição..." onkeyup="aplicarFiltros()">
             </div>
 
             <button class="btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
@@ -159,7 +181,7 @@
         <div class="modal" style="width: 850px; max-width: 95%;">
             <h2 style="color: #1e293b; margin-bottom: 10px;">Confirmar Importação</h2>
             <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
-                <i class="fas fa-info-circle"></i> Itens em <span style="background:#fffbeb; color:#b45309; padding:2px 5px; border-radius:4px; font-weight:bold;">amarelo</span> são possíveis duplicatas e vêm desmarcados.
+                <i class="fas fa-info-circle"></i> Itens em <span style="background:#fffbeb; color:#b45309; padding:2px 5px; border-radius:4px; font-weight:bold;">amarelo</span> são possíveis duplicatas.
             </p>
             <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
                 <table class="import-table">
@@ -184,7 +206,7 @@
     </div>
 
     <div class="modal-overlay" id="modalConta" style="display: none;">
-        <div class="modal" style="width: 550px; max-width: 95%;">
+        <div class="modal">
             <h2 style="color: #c53030; margin-bottom: 20px;" id="tituloModal">Nova Conta</h2>
             <input type="hidden" id="editId">
             <div class="form-group"><label>Fornecedor <span style="color:red">*</span></label><input type="text" id="inputFornecedor" placeholder="Ex: Enel"></div>
@@ -193,7 +215,19 @@
                 <div class="form-group"><label>1ª Vencimento</label><input type="date" id="dataVenc" onchange="gerarParcelasVisuais()"></div>
             </div>
             <div class="form-row">
-                <div class="form-group"><label>Forma Pagto</label><select id="formaPagto" onchange="gerarParcelasVisuais()"><option value="Boleto">Boleto</option><option value="Pix">Pix</option><option value="Cartão de crédito">Cartão de crédito</option><option value="Débito">Débito</option><option value="Cashback">Cashbak</option><option value="Outros">Outros</option></select></div>
+                <div class="form-group">
+                    <label>Forma Pagto</label>
+                    <select id="formaPagto" onchange="gerarParcelasVisuais()">
+                        <option value="Boleto">Boleto</option>
+                        <option value="Pix">Pix</option>
+                        <option value="Cartão">Cartão</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Transferência">Transferência</option>
+                        <option value="Cashback">Cashback</option>
+                        <option value="Débito">Débito</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
                 <div class="form-group"><label>Parcelas</label><input type="number" id="parcelas" value="1" min="1" onchange="gerarParcelasVisuais()"></div>
             </div>
             <div class="form-group"><label>Descrição</label><input type="text" id="inputDescricao" placeholder="Ex: Compra"></div>
@@ -233,63 +267,34 @@
             carregar(); 
         });
 
-        // --- VALIDAÇÃO ROBUSTA DE DATA ---
         function validarData(inputElement) {
-            // 1. Verifica se o navegador já considerou inválido (ex: 31/04 vira "")
-            if (inputElement.validity.badInput) {
-                inputElement.classList.add('input-error-border');
-                return false;
-            }
-
+            if (inputElement.validity.badInput) { inputElement.classList.add('input-error-border'); return false; }
             const dataStr = inputElement.value;
-
-            // 2. Se estiver vazio (e não for badInput), é "sem filtro" (Válido)
-            if (!dataStr) {
-                inputElement.classList.remove('input-error-border');
-                return true;
-            }
-
-            // 3. Validação Lógica (Rollover Check)
-            // Impede 31/04 de virar 01/05
+            if (!dataStr) { inputElement.classList.remove('input-error-border'); return true; }
             const [ano, mes, dia] = dataStr.split('-').map(Number);
             const dataObj = new Date(ano, mes - 1, dia);
-
-            // O mês do objeto criado deve ser igual ao mês digitado
-            // Se eu digito 31/04 (Mês 3 no JS), o Date vira 01/05 (Mês 4 no JS)
-            // Logo: 4 !== 3 -> Erro
-            if (dataObj.getMonth() !== (mes - 1) || dataObj.getDate() !== dia) {
-                inputElement.classList.add('input-error-border');
-                return false;
-            } else {
-                inputElement.classList.remove('input-error-border');
-                return true;
-            }
+            if (dataObj.getMonth() !== (mes - 1) || dataObj.getDate() !== dia) { inputElement.classList.add('input-error-border'); return false; }
+            else { inputElement.classList.remove('input-error-border'); return true; }
         }
 
         function aplicarFiltros() { 
             const elInicio = document.getElementById('filtroInicio');
             const elFim = document.getElementById('filtroFim');
-
-            // Valida antes de filtrar
-            const iValido = validarData(elInicio);
-            const fValido = validarData(elFim);
-
-            // SE ALGUMA DATA FOR INVÁLIDA, PARA TUDO.
-            if (!iValido || !fValido) {
-                // Opcional: Limpar lista para forçar atenção?
-                // document.getElementById('lista').innerHTML = ''; 
-                return;
-            }
+            validarData(elInicio); validarData(elFim);
 
             const inicio = elInicio.value;
             const fim = elFim.value;
-            const termo = document.getElementById('filtroBusca').value.toLowerCase();
+            const termo = document.getElementById('filtroFornecedor').value.toLowerCase(); // Corrigido ID
+            const desc = document.getElementById('filtroDesc').value.toLowerCase(); // Corrigido ID
+            const pagto = document.getElementById('filtroPagto').value; // Corrigido ID
 
             const filtrados = transacoesCache.filter(item => {
                 const dataItem = (item.dataVencimento || item.data).split('T')[0];
                 if (inicio && dataItem < inicio) return false;
                 if (fim && dataItem > fim) return false;
-                if (termo && !item.fornecedor?.toLowerCase().includes(termo) && !item.descricao?.toLowerCase().includes(termo)) return false;
+                if (termo && !item.fornecedor?.toLowerCase().includes(termo)) return false;
+                if (desc && !item.descricao?.toLowerCase().includes(desc)) return false;
+                if (pagto && item.formaPagamento !== pagto) return false;
                 return true;
             });
             renderizarLista(filtrados);
@@ -347,7 +352,7 @@
             if (selecionados.length === 0) return Swal.fire('Atenção', 'Selecione itens para importar.', 'warning');
             let sucesso = 0;
             for (const item of selecionados) {
-                const dados = { fornecedor: item.fornecedor || item.descricao, descricao: item.descricao, valor: item.valor, tipo: item.tipo, status: 'PENDENTE', data: item.data, dataVencimento: item.data, formaPagamento: item.formaPagamento || 'Outros', categoria: 'Importação', usuarioId: usuario.id, parcelas: item.parcelas || 1 };
+                const dados = { fornecedor: item.fornecedor || item.descricao, descricao: item.descricao, valor: item.valor, tipo: 'DESPESA', status: 'PENDENTE', data: item.data, dataVencimento: item.data, formaPagamento: item.formaPagamento || 'Outros', categoria: 'Importação', usuarioId: usuario.id, parcelas: item.parcelas || 1 };
                 await fetch('/transacoes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados) });
                 sucesso++;
             }
@@ -378,29 +383,148 @@
 
         async function carregar() { 
             if(!usuario) return;
-            try { const res = await fetch(`/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}`); transacoesCache = await res.json(); aplicarFiltros(); } catch (e) { console.error(e); }
+            try { 
+                // ADICIONADO TIMESTAMP PARA EVITAR CACHE DO NAVEGADOR NA EDIÇÃO
+                const res = await fetch(`/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}&_=${new Date().getTime()}`); 
+                transacoesCache = await res.json(); 
+                
+                // Ordena por vencimento
+                transacoesCache.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
+                
+                aplicarFiltros(); 
+            } catch (e) { console.error(e); }
         }
 
-        function limparFiltros() { document.getElementById('filtroInicio').value = ''; document.getElementById('filtroFim').value = ''; document.getElementById('filtroBusca').value = ''; aplicarFiltros(); }
+        function limparFiltros() { 
+            document.getElementById('filtroInicio').value = ''; // Limpa Data
+            document.getElementById('filtroFim').value = '';    // Limpa Data
+            document.getElementById('filtroFornecedor').value = ''; 
+            document.getElementById('filtroDesc').value = '';
+            document.getElementById('filtroPagto').value = '';
+            
+            // Recarrega do servidor para garantir lista completa
+            carregar(); 
+        }
 
         function renderizarLista(lista) { 
-            const tbody = document.getElementById('lista'); tbody.innerHTML = ''; let total = 0;
-            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta encontrada.</td></tr>'; document.getElementById('total-esteira').innerText = 'R$ 0,00'; return; }
-            lista.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
-            lista.forEach(item => { total += parseFloat(item.valor); const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR'); tbody.innerHTML += `<tr><td class="col-forn" title="${item.fornecedor}">${item.fornecedor || 'Fornecedor'}</td><td class="col-venc">${dataVenc}</td><td class="col-valor">${fmt.format(item.valor)}</td><td class="col-forma">${item.formaPagamento || '-'}</td><td class="col-parc">${item.parcelas ? (item.descricao.match(/\(\d+\/\d+\)/) || ['1/1'])[0] : '1/1'}</td><td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td><td class="col-acao"><button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Pagar"><i class="fas fa-check"></i></button><button onclick="editarConta('${item.id}')" class="action-btn btn-edit" title="Editar"><i class="fas fa-pen"></i></button><button onclick="deletar('${item.id}')" class="action-btn btn-del" title="Excluir"><i class="fas fa-trash"></i></button></td></tr>`; });
+            const tbody = document.getElementById('lista'); 
+            tbody.innerHTML = ''; 
+            let total = 0;
+
+            if (lista.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta encontrada.</td></tr>'; 
+                document.getElementById('total-esteira').innerText = 'R$ 0,00'; 
+                return; 
+            }
+
+            lista.forEach(item => { 
+                total += parseFloat(item.valor); 
+                const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR'); 
+                
+                // Verifica se está atrasado para pintar de vermelho o vencimento
+                const hoje = new Date().toISOString().split('T')[0];
+                const corVenc = (item.dataVencimento.split('T')[0] < hoje) ? '#ef4444' : '#64748b';
+                const weightVenc = (item.dataVencimento.split('T')[0] < hoje) ? '700' : '400';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="col-forn" title="${item.fornecedor}">${item.fornecedor || 'Fornecedor'}</td>
+                        <td class="col-venc" style="color: ${corVenc}; font-weight: ${weightVenc};">${dataVenc}</td>
+                        <td class="col-valor">${fmt.format(item.valor)}</td>
+                        <td class="col-forma">${item.formaPagamento || '-'}</td>
+                        <td class="col-parc">${item.parcelas ? (item.descricao.match(/\(\d+\/\d+\)/) || ['1/1'])[0] : '1/1'}</td>
+                        <td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td>
+                        <td class="col-acao">
+                            <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Pagar"><i class="fas fa-check"></i></button>
+                            <button onclick="editarConta('${item.id}')" class="action-btn btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
+                            <button onclick="deletar('${item.id}')" class="action-btn btn-del" title="Excluir"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`; 
+            });
             document.getElementById('total-esteira').innerText = fmt.format(total);
         }
 
         async function salvarConta() { 
-            const idEdicao = document.getElementById('editId').value; const qtd = parseInt(document.getElementById('parcelas').value); let itensParcelados = [];
-            if (!idEdicao && qtd > 1) { document.querySelectorAll('.parcela-row').forEach(row => { itensParcelados.push({ descricao: row.querySelector('.p-desc').value, data: row.querySelector('.p-data').value, valor: row.querySelector('.p-valor').value, formaPagamento: row.querySelector('.p-forma').value }); }); }
-            const dados = { fornecedor: document.getElementById('inputFornecedor').value, valor: document.getElementById('valor').value, dataVencimento: document.getElementById('dataVenc').value, data: document.getElementById('dataVenc').value, formaPagamento: document.getElementById('formaPagto').value, descricao: document.getElementById('inputDescricao').value, parcelas: document.getElementById('parcelas').value, tipo: 'DESPESA', status: 'PENDENTE', usuarioId: usuario.id, itensParcelados: itensParcelados.length > 0 ? itensParcelados : null };
+            const idEdicao = document.getElementById('editId').value; 
+            const qtd = parseInt(document.getElementById('parcelas').value); 
+            let itensParcelados = [];
+            
+            if (!idEdicao && qtd > 1) { 
+                document.querySelectorAll('.parcela-row').forEach(row => { 
+                    itensParcelados.push({ 
+                        descricao: row.querySelector('.p-desc').value, 
+                        data: row.querySelector('.p-data').value, 
+                        valor: row.querySelector('.p-valor').value, 
+                        formaPagamento: row.querySelector('.p-forma').value 
+                    }); 
+                }); 
+            }
+            
+            const dados = { 
+                fornecedor: document.getElementById('inputFornecedor').value, 
+                valor: parseFloat(document.getElementById('valor').value), // Força float
+                
+                // CORREÇÃO CRÍTICA: Envia dataVencimento E data para o servidor atualizar corretamente
+                dataVencimento: document.getElementById('dataVenc').value, 
+                data: document.getElementById('dataVenc').value, 
+                
+                formaPagamento: document.getElementById('formaPagto').value, 
+                descricao: document.getElementById('inputDescricao').value, 
+                parcelas: document.getElementById('parcelas').value, 
+                tipo: 'DESPESA', 
+                status: 'PENDENTE', 
+                usuarioId: usuario.id, 
+                itensParcelados: itensParcelados.length > 0 ? itensParcelados : null 
+            };
+            
             if(!dados.fornecedor || !dados.valor) return Swal.fire('Erro', 'Preencha Fornecedor e Valor', 'warning');
-            try { const method = idEdicao ? 'PUT' : 'POST'; const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes'; const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }); if(res.ok) { fecharModal(); Toast.fire({ icon: 'success', title: 'Salvo com sucesso!' }); if(itensParcelados.length > 0) limparFiltros(); else await carregar(); } else { Swal.fire('Erro', 'Falha ao salvar', 'error'); } } catch (e) { console.error(e); }
+            
+            try { 
+                const method = idEdicao ? 'PUT' : 'POST'; 
+                const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes'; 
+                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }); 
+                if(res.ok) { 
+                    fecharModal(); 
+                    Toast.fire({ icon: 'success', title: 'Salvo com sucesso!' }); 
+                    
+                    // RECARREGA TUDO DO SERVIDOR (SEM CACHE) PARA MOSTRAR A DATA NOVA
+                    await carregar(); 
+                    
+                    // Se for novo lançamento, limpa os filtros para o usuário ver o item novo
+                    if(!idEdicao) limparFiltros(); 
+                } else { Swal.fire('Erro', 'Falha ao salvar', 'error'); } 
+            } catch (e) { console.error(e); }
         }
-        function abrirModalNovo() { document.getElementById('editId').value = ''; document.getElementById('tituloModal').innerText = 'Nova Conta'; document.getElementById('inputFornecedor').value = ''; document.getElementById('valor').value = ''; document.getElementById('parcelas').value = '1'; document.getElementById('containerParcelas').style.display = 'none'; document.getElementById('modalConta').style.display = 'flex'; }
+
+        function abrirModalNovo() { 
+            document.getElementById('editId').value = ''; 
+            document.getElementById('tituloModal').innerText = 'Nova Conta'; 
+            document.getElementById('inputFornecedor').value = ''; 
+            document.getElementById('valor').value = ''; 
+            document.getElementById('parcelas').value = '1'; 
+            document.getElementById('containerParcelas').style.display = 'none'; 
+            document.getElementById('modalConta').style.display = 'flex'; 
+        }
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
-        function editarConta(id) { const item = transacoesCache.find(t => t.id === id); if(!item) return; document.getElementById('editId').value = id; document.getElementById('tituloModal').innerText = 'Editar Conta'; document.getElementById('inputFornecedor').value = item.fornecedor; document.getElementById('valor').value = item.valor; document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0]; document.getElementById('formaPagto').value = item.formaPagamento; document.getElementById('inputDescricao').value = item.descricao; document.getElementById('parcelas').value = item.parcelas || 1; document.getElementById('containerParcelas').style.display = 'none'; document.getElementById('modalConta').style.display = 'flex'; }
+        
+        function editarConta(id) { 
+            const item = transacoesCache.find(t => t.id === id); 
+            if(!item) return; 
+            document.getElementById('editId').value = id; 
+            document.getElementById('tituloModal').innerText = 'Editar Conta'; 
+            document.getElementById('inputFornecedor').value = item.fornecedor; 
+            document.getElementById('valor').value = item.valor; 
+            
+            // PREENCHE DATA CORRETAMENTE
+            document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0]; 
+            
+            document.getElementById('formaPagto').value = item.formaPagamento; 
+            document.getElementById('inputDescricao').value = item.descricao; 
+            document.getElementById('parcelas').value = item.parcelas || 1; 
+            document.getElementById('containerParcelas').style.display = 'none'; 
+            document.getElementById('modalConta').style.display = 'flex'; 
+        }
+        
         async function prepararBaixa(id) { const item = transacoesCache.find(t => t.id === id); if(!item) return; document.getElementById('baixaId').value = id; document.getElementById('baixaValorOriginal').value = item.valor; document.getElementById('displayValorOriginal').innerText = fmt.format(item.valor); document.getElementById('baixaData').valueAsDate = new Date(); document.getElementById('baixaTotalFinal').innerText = fmt.format(item.valor); const sel = document.getElementById('baixaBanco'); sel.innerHTML = '<option value="">Selecione...</option>'; const res = await fetch(`/bancos?usuarioId=${usuario.id}`); (await res.json()).forEach(b => sel.innerHTML += `<option value="${b.id}">${b.nome}</option>`); document.getElementById('modalBaixa').style.display = 'flex'; }
         async function confirmarBaixa() { const id = document.getElementById('baixaId').value; const bancoId = document.getElementById('baixaBanco').value; if(!bancoId) return Swal.fire({icon: 'warning', text: 'Selecione o Banco de saída!'}); const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value); await fetch(`/transacoes/${id}/baixar`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoId, dataPagamento: document.getElementById('baixaData').value, valorPago: vOrig }) }); document.getElementById('modalBaixa').style.display = 'none'; Toast.fire({icon: 'success', title: 'Pago!'}); carregar(); }
         function deletar(id) { Swal.fire({ title: 'Excluir?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim' }).then(async (r) => { if (r.isConfirmed) { await fetch(`/transacoes/${id}`, {method:'DELETE'}); carregar(); } }); }
