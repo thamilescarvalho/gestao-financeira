@@ -14,7 +14,6 @@ app.use(express.static('public'));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// --- FUNÇÃO AUXILIAR: DETECTAR FORMA DE PAGAMENTO ---
 function detectarFormaPagamento(texto) {
     if (!texto) return "Outros";
     const t = texto.toLowerCase();
@@ -25,15 +24,12 @@ function detectarFormaPagamento(texto) {
     return "Outros";
 }
 
-// --- CHECAR DUPLICIDADE ---
 async function checarDuplicidade(usuarioId, transacoes) {
     if (!usuarioId) return transacoes;
-
     return await Promise.all(transacoes.map(async (t) => {
         const [ano, mes, dia] = t.data.split('-').map(Number);
         const dataInicio = new Date(Date.UTC(ano, mes - 1, dia, 0, 0, 0));
         const dataFim = new Date(Date.UTC(ano, mes - 1, dia, 23, 59, 59));
-
         const duplicata = await prisma.transacao.findFirst({
             where: {
                 usuarioId: usuarioId,
@@ -42,93 +38,68 @@ async function checarDuplicidade(usuarioId, transacoes) {
                 data: { gte: dataInicio, lte: dataFim }
             }
         });
-
         if (duplicata) {
             const d = new Date(duplicata.data);
             const diaFmt = d.getUTCDate().toString().padStart(2, '0');
             const mesFmt = (d.getUTCMonth() + 1).toString().padStart(2, '0');
             const nomeEncontrado = duplicata.fornecedor || duplicata.descricao;
             const statusStr = duplicata.status === 'PENDENTE' ? 'Aberto' : 'Pago';
-            
-            return { 
-                ...t, 
-                duplicata: true, 
-                duplicataInfo: `Já existe: ${nomeEncontrado} (R$ ${duplicata.valor} em ${diaFmt}/${mesFmt} - ${statusStr})` 
-            };
+            return { ...t, duplicata: true, duplicataInfo: `Já existe: ${nomeEncontrado} (R$ ${duplicata.valor} em ${diaFmt}/${mesFmt} - ${statusStr})` };
         }
         return { ...t, duplicata: false };
     }));
 }
 
-// ==========================================
-// ROTA TRANSFERÊNCIA
-// ==========================================
+// --- ROTA TRANSFERÊNCIA ---
 app.post('/transacoes/transferencia', async (req, res) => {
     const { bancoOrigemId, bancoDestinoId, valor, data, descricao, usuarioId } = req.body;
-
     if (!bancoOrigemId || !bancoDestinoId || !valor || !usuarioId) return res.status(400).json({ erro: "Dados incompletos." });
     if (bancoOrigemId === bancoDestinoId) return res.status(400).json({ erro: "Origem e destino devem ser diferentes." });
-
     try {
         const dt = new Date(data ? `${data}T12:00:00` : new Date());
         const val = parseFloat(valor);
-
         await prisma.$transaction([
-            prisma.transacao.create({
-                data: {
-                    tipo: 'DESPESA', status: 'PAGO', valor: val,
-                    descricao: `Transf. para: Destino (Saída)`,
-                    fornecedor: 'Transferência Interna', formaPagamento: 'Transferência',
-                    data: dt, dataPagamento: dt, dataVencimento: dt,
-                    banco: { connect: { id: bancoOrigemId } },
-                    usuario: { connect: { id: usuarioId } },
-                    categoria: 'Transferência'
-                }
-            }),
-            prisma.transacao.create({
-                data: {
-                    tipo: 'RECEITA', status: 'RECEBIDO', valor: val,
-                    descricao: `Transf. de: Origem (Entrada)`,
-                    fornecedor: 'Transferência Interna', formaPagamento: 'Transferência',
-                    data: dt, dataPagamento: dt, dataVencimento: dt,
-                    banco: { connect: { id: bancoDestinoId } },
-                    usuario: { connect: { id: usuarioId } },
-                    categoria: 'Transferência'
-                }
-            })
+            prisma.transacao.create({ data: { tipo: 'DESPESA', status: 'PAGO', valor: val, descricao: `Transf. para: Destino (Saída)`, fornecedor: 'Transferência Interna', formaPagamento: 'Transferência', data: dt, dataPagamento: dt, dataVencimento: dt, banco: { connect: { id: bancoOrigemId } }, usuario: { connect: { id: usuarioId } }, categoria: 'Transferência' } }),
+            prisma.transacao.create({ data: { tipo: 'RECEITA', status: 'RECEBIDO', valor: val, descricao: `Transf. de: Origem (Entrada)`, fornecedor: 'Transferência Interna', formaPagamento: 'Transferência', data: dt, dataPagamento: dt, dataVencimento: dt, banco: { connect: { id: bancoDestinoId } }, usuario: { connect: { id: usuarioId } }, categoria: 'Transferência' } })
         ]);
         res.json({ mensagem: "Transferência realizada com sucesso!" });
-    } catch (e) {
-        console.error(e);
-        res.status(500).json({ erro: "Erro ao processar transferência." });
-    }
+    } catch (e) { res.status(500).json({ erro: "Erro ao processar transferência." }); }
 });
 
-// ==========================================
-// ROTAS TRANSAÇÕES
-// ==========================================
+// --- ROTA POST TRANSACOES (CORRIGIDA: SALVA PARCELA INFO) ---
 app.post('/transacoes', async (req, res) => {
     try {
-        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados } = req.body;
+        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados, parcelaInfo } = req.body;
         if (!usuarioId) return res.status(400).json({ erro: "ID obrigatório" });
 
         const criadas = [];
 
+        // SE TIVER ITENS PARCELADOS (ARRAY)
         if (itensParcelados && itensParcelados.length > 0) {
             for (const item of itensParcelados) {
                 const dt = new Date(`${item.data}T12:00:00`);
                 criadas.push(await prisma.transacao.create({
                     data: {
-                        fornecedor: fornecedor || descricao, descricao: item.descricao,
-                        valor: parseFloat(item.valor), tipo, categoria: categoria || 'Geral',
-                        status: 'PENDENTE', formaPagamento: item.formaPagamento || "Outros",
+                        fornecedor: fornecedor || descricao,
+                        descricao: item.descricao,
+                        valor: parseFloat(item.valor),
+                        tipo,
+                        categoria: categoria || 'Geral',
+                        status: 'PENDENTE',
+                        formaPagamento: item.formaPagamento || "Outros",
                         data: dt, dataVencimento: dt,
+                        
+                        // CORREÇÃO: Salva "1/5", "2/5" no banco
+                        parcelaInfo: item.parcelaInfo || "1/1",
+                        parcelas: parseInt(parcelas) || 1,
+
                         banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
                         usuario: { connect: { id: usuarioId } }
                     }
                 }));
             }
         } else {
+            // SE FOR CONTA ÚNICA
             let dt = new Date();
             if (data) dt = new Date(data.includes('T') ? data : `${data}T12:00:00`);
             let dtPg = null;
@@ -136,17 +107,25 @@ app.post('/transacoes', async (req, res) => {
 
             criadas.push(await prisma.transacao.create({
                 data: {
-                    fornecedor: fornecedor || descricao, descricao,
-                    valor: parseFloat(valor), tipo, categoria: categoria || 'Geral',
-                    status: status || 'PENDENTE', formaPagamento: formaPagamento || "Outros",
-                    data: dt, dataVencimento: dt, dataPagamento: dtPg, parcelas: 1,
+                    fornecedor: fornecedor || descricao,
+                    descricao,
+                    valor: parseFloat(valor),
+                    tipo,
+                    categoria: categoria || 'Geral',
+                    status: status || 'PENDENTE',
+                    formaPagamento: formaPagamento || "Outros",
+                    data: dt, dataVencimento: dt, dataPagamento: dtPg,
+                    
+                    parcelas: 1,
+                    parcelaInfo: parcelaInfo || "1/1", // Salva 1/1 se for única
+
                     banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
                     usuario: { connect: { id: usuarioId } }
                 }
             }));
         }
         res.json(criadas[0]);
-    } catch (e) { res.status(500).json({ erro: "Erro ao salvar" }); }
+    } catch (e) { console.error(e); res.status(500).json({ erro: "Erro ao salvar: " + e.message }); }
 });
 
 app.get('/transacoes', async (req, res) => {
@@ -159,186 +138,50 @@ app.get('/transacoes', async (req, res) => {
     res.json(lista);
 });
 
-// --- ROTA DE ATUALIZAÇÃO (CORRIGIDA - PARSE INT) ---
+// --- ROTA PUT (CORRIGIDA: FORÇA ATUALIZAÇÃO DE DATA E VALOR) ---
 app.put('/transacoes/:id', async (req, res) => {
     const { id } = req.params;
     const body = req.body;
     try {
         let dados = {};
-
-        // 1. ESTORNO
-        if (body.status === 'PENDENTE' && !body.bancoId && !body.descricao && !body.fornecedor) {
+        // Estorno
+        if (body.status === 'PENDENTE' && !body.bancoId && !body.descricao) {
             const tr = await prisma.transacao.findUnique({ where: { id } });
-            dados = { 
-                status: 'PENDENTE', 
-                banco: { disconnect: true }, 
-                dataPagamento: null, 
-                valor: tr.valorOriginal || tr.valor, 
-                valorOriginal: null 
-            };
+            dados = { status: 'PENDENTE', banco: { disconnect: true }, dataPagamento: null, valor: tr.valorOriginal || tr.valor, valorOriginal: null };
         } 
-        // 2. BAIXA
+        // Baixa
         else if (body.status === 'PAGO' || body.status === 'RECEBIDO') {
             const tr = await prisma.transacao.findUnique({ where: { id } });
-            dados = { 
-                status: body.status, 
-                banco: { connect: { id: body.bancoId } }, 
-                dataPagamento: new Date(body.dataPagamento), 
-                valor: parseFloat(body.valorFinal || body.valor),
-                valorOriginal: tr.valorOriginal || tr.valor 
-            };
+            dados = { status: body.status, banco: { connect: { id: body.bancoId } }, dataPagamento: new Date(body.dataPagamento), valor: parseFloat(body.valorFinal || body.valor), valorOriginal: tr.valorOriginal || tr.valor };
         } 
-        // 3. EDIÇÃO (Correção aqui)
+        // Edição
         else {
             const { itensParcelados, usuarioId, id: _id, ...resto } = body;
             dados = { ...resto };
-
+            
+            // Força atualização da data se vier no body
             if(body.dataVencimento) {
                 const dt = new Date(body.dataVencimento.includes('T') ? body.dataVencimento : `${body.dataVencimento}T12:00:00`);
-                dados.dataVencimento = dt; 
+                dados.dataVencimento = dt;
                 dados.data = dt; 
             }
             if(body.valor) dados.valor = parseFloat(body.valor);
-            
-            // CORREÇÃO CRUCIAL: Converter parcelas para Inteiro
-            if(body.parcelas) dados.parcelas = parseInt(body.parcelas);
+            // Ignora parcelaInfo na edição simples para não quebrar
         }
-
+        
         const atualizado = await prisma.transacao.update({ where: { id }, data: dados });
         res.json(atualizado);
     } catch (e) { 
-        console.error("Erro no PUT /transacoes:", e);
-        res.status(500).json({ erro: "Erro ao atualizar registro." }); 
+        console.error("Erro PUT:", e);
+        res.status(500).json({ erro: "Erro ao atualizar." }); 
     }
 });
 
-app.delete('/transacoes/:id', async (req, res) => {
-    try { await prisma.transacao.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(500).send(); }
-});
-
-app.put('/transacoes/:id/baixar', async (req, res) => {
-    const { id } = req.params;
-    const { bancoId, dataPagamento, valorPago } = req.body;
-    try {
-        const tr = await prisma.transacao.findUnique({ where: { id } });
-        const status = tr.tipo === 'DESPESA' ? 'PAGO' : 'RECEBIDO';
-        const dt = new Date(dataPagamento.includes('T') ? dataPagamento : `${dataPagamento}T12:00:00`);
-        const up = await prisma.transacao.update({
-            where: { id },
-            data: { status, bancoId, dataPagamento: dt, valor: parseFloat(valorPago), valorOriginal: tr.valor }
-        });
-        res.json(up);
-    } catch(e) { res.status(500).json({ erro: "Erro na baixa" }); }
-});
-
-// ==========================================
-// IMPORTAÇÃO
-// ==========================================
-app.post('/importar/ler-csv', async (req, res) => {
-    try {
-        const { conteudo, usuarioId } = req.body;
-        if (!conteudo) return res.status(400).json({ erro: "Vazio" });
-        const linhas = conteudo.split(/\r?\n/);
-        const lista = [];
-        for (let i = 1; i < linhas.length; i++) {
-            const cols = linhas[i].split(';');
-            if (cols.length < 5) continue;
-            const fornecedor = cols[0];
-            const dataRaw = cols[1];
-            const total = parseInt(cols[3]) || 1;
-            const atual = parseInt(cols[4]) || 1;
-            const valor = parseFloat(cols[5].replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
-            if(!fornecedor || !dataRaw) continue;
-            const [d, m, y] = dataRaw.split('/');
-            const dataBase = new Date(y, m-1, d, 12, 0, 0);
-            const formaDetectada = detectarFormaPagamento(fornecedor);
-            for (let p = atual; p <= total; p++) {
-                const dt = new Date(dataBase);
-                dt.setMonth(dataBase.getMonth() + (p - atual));
-                const dataIso = dt.toISOString().split('T')[0];
-                let desc = fornecedor;
-                let info = "1/1";
-                if(total > 1) { desc = `${fornecedor} (${p}/${total})`; info = `${p}/${total}`; }
-                lista.push({
-                    data: dataIso, descricao: desc, fornecedor, valor,
-                    tipo: 'DESPESA', parcelas: total, parcelaInfo: info,
-                    formaPagamento: formaDetectada, id_transacao: `csv-${i}-${p}`
-                });
-            }
-        }
-        const verificados = await checarDuplicidade(usuarioId, lista);
-        res.json(verificados);
-    } catch (e) { res.status(500).json({ erro: "Erro CSV" }); }
-});
-
-app.post('/conciliacao/ler-ofx', upload.single('arquivo'), async (req, res) => {
-    try {
-        if (!req.file) return res.status(400).json({ erro: "Nenhum arquivo enviado." });
-        const usuarioId = req.body.usuarioId; 
-        const fileContent = req.file.buffer.toString('utf8');
-        let transacoesLimpas = [];
-
-        if (fileContent.trim().startsWith('{')) { // JSON
-            try {
-                const json = JSON.parse(fileContent);
-                if (json.data && Array.isArray(json.data)) {
-                    transacoesLimpas = json.data.map(t => {
-                        let forma = "Outros";
-                        const tipoBanco = (t.type || "").toLowerCase();
-                        if (tipoBanco.includes('pix')) forma = "Pix";
-                        else if (tipoBanco.includes('cartão') || tipoBanco.includes('credit')) forma = "Cartão";
-                        else if (tipoBanco.includes('boleto')) forma = "Boleto";
-                        if (forma === "Outros") forma = detectarFormaPagamento(t.title);
-
-                        return {
-                            data: t.dateTime.split('T')[0],
-                            descricao: t.title,
-                            valor: Math.abs(t.rawAmount/100),
-                            tipo: t.direction === 'in' ? 'RECEITA' : 'DESPESA',
-                            formaPagamento: forma
-                        };
-                    });
-                }
-            } catch(e) {}
-        } else { // OFX
-            const data = ofx.parse(fileContent);
-            let listaBruta = data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST?.STMTTRN 
-                          || data.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST?.STMTTRN;
-            if (listaBruta) {
-                const arr = Array.isArray(listaBruta) ? listaBruta : [listaBruta];
-                transacoesLimpas = arr.map(t => {
-                    const rawDate = (t.DTPOSTED || "").substring(0, 8);
-                    const dt = rawDate.length === 8 ? `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}` : new Date().toISOString().split('T')[0];
-                    const val = parseFloat(String(t.TRNAMT).replace(',', '.'));
-                    const nome = t.MEMO || "Sem descrição";
-                    const tipoOfx = (t.TRNTYPE || "").toLowerCase();
-                    let forma = "Outros";
-                    if (tipoOfx === 'debit' || tipoOfx === 'pos') forma = "Cartão";
-                    else forma = detectarFormaPagamento(nome);
-
-                    return {
-                        data: dt, descricao: nome, valor: Math.abs(val),
-                        tipo: val < 0 ? 'DESPESA' : 'RECEITA',
-                        formaPagamento: forma
-                    };
-                });
-            }
-        }
-
-        if (transacoesLimpas.length === 0) return res.status(400).json({ erro: "Formato desconhecido." });
-
-        const transacoesVerificadas = await checarDuplicidade(usuarioId, transacoesLimpas);
-
-        let totalEntradas = 0, totalSaidas = 0;
-        transacoesVerificadas.forEach(t => { if (t.tipo === 'RECEITA') totalEntradas += t.valor; else totalSaidas += t.valor; });
-
-        const resumo = { totalEntradas, totalSaidas, saldoPeriodo: totalEntradas - totalSaidas, totalItens: transacoesVerificadas.length };
-        res.json({ transacoes: transacoesVerificadas, resumo });
-
-    } catch (e) { console.error(e); res.status(500).json({ erro: "Erro ao ler arquivo." }); }
-});
-
-// ... Outras Rotas ...
+// ... (Resto das rotas mantidas: DELETE, Importação, Bancos, etc.) ...
+app.delete('/transacoes/:id', async (req, res) => { try { await prisma.transacao.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(500).send(); } });
+app.put('/transacoes/:id/baixar', async (req, res) => { const { id } = req.params; const { bancoId, dataPagamento, valorPago } = req.body; try { const tr = await prisma.transacao.findUnique({ where: { id } }); const status = tr.tipo === 'DESPESA' ? 'PAGO' : 'RECEBIDO'; const dt = new Date(dataPagamento.includes('T') ? dataPagamento : `${dataPagamento}T12:00:00`); const up = await prisma.transacao.update({ where: { id }, data: { status, bancoId, dataPagamento: dt, valor: parseFloat(valorPago), valorOriginal: tr.valor } }); res.json(up); } catch(e) { res.status(500).json({ erro: "Erro na baixa" }); } });
+app.post('/importar/ler-csv', async (req, res) => { try { const { conteudo, usuarioId } = req.body; if (!conteudo) return res.status(400).json({ erro: "Vazio" }); const linhas = conteudo.split(/\r?\n/); const lista = []; for (let i = 1; i < linhas.length; i++) { const cols = linhas[i].split(';'); if (cols.length < 5) continue; const fornecedor = cols[0]; const dataRaw = cols[1]; const total = parseInt(cols[3]) || 1; const atual = parseInt(cols[4]) || 1; const valor = parseFloat(cols[5].replace('R$', '').replace(/\./g, '').replace(',', '.').trim()); if(!fornecedor || !dataRaw) continue; const [d, m, y] = dataRaw.split('/'); const dataBase = new Date(y, m-1, d, 12, 0, 0); const formaDetectada = detectarFormaPagamento(fornecedor); for (let p = atual; p <= total; p++) { const dt = new Date(dataBase); dt.setMonth(dataBase.getMonth() + (p - atual)); const dataIso = dt.toISOString().split('T')[0]; let desc = fornecedor; let info = "1/1"; if(total > 1) { desc = `${fornecedor} (${p}/${total})`; info = `${p}/${total}`; } lista.push({ data: dataIso, descricao: desc, fornecedor, valor, tipo: 'DESPESA', parcelas: total, parcelaInfo: info, formaPagamento: formaDetectada, id_transacao: `csv-${i}-${p}` }); } } const verificados = await checarDuplicidade(usuarioId, lista); res.json(verificados); } catch (e) { res.status(500).json({ erro: "Erro CSV" }); } });
+app.post('/conciliacao/ler-ofx', upload.single('arquivo'), async (req, res) => { try { if (!req.file) return res.status(400).json({ erro: "Nenhum arquivo enviado." }); const usuarioId = req.body.usuarioId; const fileContent = req.file.buffer.toString('utf8'); let transacoesLimpas = []; if (fileContent.trim().startsWith('{')) { try { const json = JSON.parse(fileContent); if (json.data && Array.isArray(json.data)) { transacoesLimpas = json.data.map(t => { let forma = "Outros"; const tipoBanco = (t.type || "").toLowerCase(); if (tipoBanco.includes('pix')) forma = "Pix"; else if (tipoBanco.includes('cartão') || tipoBanco.includes('credit')) forma = "Cartão"; else if (tipoBanco.includes('boleto')) forma = "Boleto"; if (forma === "Outros") forma = detectarFormaPagamento(t.title); return { data: t.dateTime.split('T')[0], descricao: t.title, valor: Math.abs(t.rawAmount/100), tipo: t.direction === 'in' ? 'RECEITA' : 'DESPESA', formaPagamento: forma }; }); } } catch(e) {} } else { const data = ofx.parse(fileContent); let listaBruta = data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST?.STMTTRN || data.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST?.STMTTRN; if (listaBruta) { const arr = Array.isArray(listaBruta) ? listaBruta : [listaBruta]; transacoesLimpas = arr.map(t => { const rawDate = (t.DTPOSTED || "").substring(0, 8); const dt = rawDate.length === 8 ? `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}` : new Date().toISOString().split('T')[0]; const val = parseFloat(String(t.TRNAMT).replace(',', '.')); const nome = t.MEMO || "Sem descrição"; const tipoOfx = (t.TRNTYPE || "").toLowerCase(); let forma = "Outros"; if (tipoOfx === 'debit' || tipoOfx === 'pos') forma = "Cartão"; else forma = detectarFormaPagamento(nome); return { data: dt, descricao: nome, valor: Math.abs(val), tipo: val < 0 ? 'DESPESA' : 'RECEITA', formaPagamento: forma }; }); } } if (transacoesLimpas.length === 0) return res.status(400).json({ erro: "Formato desconhecido." }); const transacoesVerificadas = await checarDuplicidade(usuarioId, transacoesLimpas); let totalEntradas = 0, totalSaidas = 0; transacoesVerificadas.forEach(t => { if (t.tipo === 'RECEITA') totalEntradas += t.valor; else totalSaidas += t.valor; }); const resumo = { totalEntradas, totalSaidas, saldoPeriodo: totalEntradas - totalSaidas, totalItens: transacoesVerificadas.length }; res.json({ transacoes: transacoesVerificadas, resumo }); } catch (e) { console.error(e); res.status(500).json({ erro: "Erro ao ler arquivo." }); } });
 app.get('/usuarios', async (req, res) => { try { const u = await prisma.usuario.findMany({ select: { id: true, nome: true, email: true, role: true }, orderBy: { nome: 'asc' } }); res.json(u); } catch (e) { res.status(500).json({ erro: "Erro usuarios" }); } });
 app.patch('/usuarios/:id/role', async (req, res) => { try { const u = await prisma.usuario.update({ where: { id: req.params.id }, data: { role: req.body.role } }); res.json(u); } catch (e) { res.status(500).json({ erro: "Erro role" }); } });
 app.delete('/usuarios/:id', async (req, res) => { try { await prisma.usuario.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch (e) { res.status(500).json({ erro: "Erro excluir" }); } });

@@ -12,45 +12,33 @@
     <script src="script.js"></script>
 
     <style>
+        /* MANTIDO SEU ESTILO ORIGINAL */
         body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
         .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
-
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
-        
         .header-actions { display: flex; gap: 10px; }
         .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition:0.2s; }
         .btn-import:hover { background: #f1f5f9; border-color: #cbd5e0; }
-        
         .btn-new { background-color: #e53e3e; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(229, 62, 62, 0.2); }
         .btn-new:hover { background-color: #c53030; }
-
-        /* FILTROS */
         .modern-toolbar { background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
         .total-badge { background: #fff5f5; color: #c53030; padding: 5px 15px; border-radius: 20px; font-weight: 700; font-size: 13px; border: 1px solid #fed7d7; white-space: nowrap; }
         .divider { width: 1px; height: 25px; background-color: #e2e8f0; }
-        
         .date-group { display: flex; align-items: center; gap: 5px; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
         .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #4a5568; width: 105px; }
-        
         .search-box { display: flex; align-items: center; gap: 8px; flex: 1; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
         .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; width: 100%; }
-        /* Select ajustado */
-        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; cursor: pointer; width: 100%; min-width: 120px; }
-        
+        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; cursor: pointer; min-width: 120px; }
         .btn-limpar { font-size: 12px; color: #718096; cursor: pointer; border: none; background: none; font-weight: 600; white-space: nowrap; }
         .btn-limpar:hover { color: #e53e3e; text-decoration: underline; }
-
         .input-error-border { border: 2px solid #e53e3e !important; background-color: #fff5f5 !important; color: #e53e3e !important; border-radius: 6px; }
-
-        /* TABELA */
         .table-container { background: transparent; overflow-x: auto; }
         .clean-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 800px; table-layout: fixed; }
         .clean-table th { text-align: left; padding: 12px 15px; font-size: 11px; font-weight: 800; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; }
         .clean-table td { padding: 12px 15px; font-size: 13px; color: #334155; background: white; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .clean-table td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
         .clean-table td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-
         .col-forn { width: 22%; font-weight: 600; color: #1e293b; }
         .col-venc { width: 12%; color: #64748b; }
         .col-valor { width: 15%; font-weight: 700; color: #e53e3e; }
@@ -58,44 +46,60 @@
         .col-parc { width: 8%; text-align: center; font-weight: 600; color: #718096; }
         .col-desc { width: 20%; color: #94a3b8; }
         .col-acao { width: 120px; text-align: right; overflow: visible !important; }
-
         .action-btn { width: 30px; height: 30px; border-radius: 6px; border: none; cursor: pointer; margin-left: 3px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-pay { color: #2f855a; background: #f0fff4; } .btn-pay:hover { background: #c6f6d5; }
         .btn-edit { color: #d69e2e; background: #fffaf0; } .btn-edit:hover { background: #feebc8; }
         .btn-del { color: #e53e3e; background: #fff5f5; } .btn-del:hover { background: #fed7d7; }
-
-        /* MODAL DE IMPORTAÇÃO */
         .import-table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
         .import-table th { text-align: left; padding: 10px; border-bottom: 2px solid #e2e8f0; font-size: 11px; color: #4a5568; text-transform: uppercase; white-space: nowrap; }
         .import-table td { padding: 10px; border-bottom: 1px solid #edf2f7; font-size: 12px; color: #2d3748; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .row-duplicada { background-color: #fffbeb !important; }
         .row-duplicada td { color: #b45309 !important; }
         .aviso-duplicata { font-size: 10px; color: #d97706; font-weight: bold; margin-left: 5px; cursor: help; }
-        .col-w-check { width: 40px; text-align: center; }
-        .col-w-data { width: 100px; }
-        .col-w-parc { width: 80px; text-align: center; }
-        .col-w-tipo { width: 90px; }
-        .col-w-valor { width: 110px; text-align: right; }
-        .col-w-desc { width: auto; }
+        .col-w-check { width: 40px; text-align: center; } .col-w-data { width: 100px; } .col-w-parc { width: 80px; text-align: center; } .col-w-tipo { width: 90px; } .col-w-valor { width: 110px; text-align: right; } .col-w-desc { width: auto; }
         .badge-tipo { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-        .bg-receita { background: #def7ec; color: #03543f; }
-        .bg-despesa { background: #fde8e8; color: #9b1c1c; }
-        .badge-parc { background: #edf2f7; color: #4a5568; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
-
-        /* MODAIS GERAIS */
+        .bg-receita { background: #def7ec; color: #03543f; } .bg-despesa { background: #fde8e8; color: #9b1c1c; } .badge-parc { background: #edf2f7; color: #4a5568; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
-        .modal { background: white; width: 95%; max-width: 550px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
+        .modal { background: white; width: 95%; max-width: 600px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 600; }
-        
         .form-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
-        #containerParcelas { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-top: 15px; max-height: 250px; overflow-y: auto; display: none; }
-        .parcela-row { display: grid; grid-template-columns: 40px 1fr 120px 100px; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .parcela-row input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; width: 100%; }
-        .p-idx { font-size: 11px; font-weight: 700; color: #718096; text-align: center; }
+
+        /* --- NOVO ESTILO DA TABELA DE PARCELAS NO MODAL --- */
+        #containerParcelas { 
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; 
+            padding: 0; margin-top: 15px; max-height: 250px; overflow-y: auto; display: none; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        /* CABEÇALHO FIXO E BONITO */
+        .parcela-header { 
+            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
+            padding: 12px 15px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+            font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;
+            position: sticky; top: 0; z-index: 5;
+        }
+        
+        .parcela-row { 
+            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
+            padding: 10px 15px; align-items: center; border-bottom: 1px solid #f1f5f9;
+        }
+        .parcela-row:last-child { border-bottom: none; }
+        .parcela-row:hover { background-color: #fcfcfc; }
+        
+        .p-idx { 
+            font-size: 12px; font-weight: 700; color: #475569; 
+            text-align: center; background: #e2e8f0; border-radius: 4px; padding: 4px 0; 
+        }
+        
+        .parcela-row input { 
+            padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; 
+            font-size: 13px; color: #334155; transition: 0.2s;
+        }
+        .parcela-row input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
 
         div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
     </style>
@@ -231,7 +235,14 @@
                 <div class="form-group"><label>Parcelas</label><input type="number" id="parcelas" value="1" min="1" onchange="gerarParcelasVisuais()"></div>
             </div>
             <div class="form-group"><label>Descrição</label><input type="text" id="inputDescricao" placeholder="Ex: Compra"></div>
-            <div id="containerParcelas"><div style="font-size:13px; font-weight:700; color:#2d3748; margin-bottom:10px;">Parcelas:</div><div id="listaParcelas"></div></div>
+            
+            <div id="containerParcelas">
+                <div class="parcela-header">
+                    <div>Parcelas</div> <div>Descrição</div> <div>Vencimento</div> <div>Valor</div>
+                </div>
+                <div id="listaParcelas"></div>
+            </div>
+
             <div class="modal-footer"><button class="btn-outline" onclick="fecharModal()">Cancelar</button><button class="btn-new" onclick="salvarConta()">SALVAR</button></div>
         </div>
     </div>
@@ -284,20 +295,38 @@
 
             const inicio = elInicio.value;
             const fim = elFim.value;
-            const termo = document.getElementById('filtroFornecedor').value.toLowerCase(); // Corrigido ID
-            const desc = document.getElementById('filtroDesc').value.toLowerCase(); // Corrigido ID
-            const pagto = document.getElementById('filtroPagto').value; // Corrigido ID
+            const termo = document.getElementById('filtroFornecedor').value.toLowerCase(); 
+            const desc = document.getElementById('filtroDesc').value.toLowerCase(); 
+            const pagto = document.getElementById('filtroPagto').value; 
 
             const filtrados = transacoesCache.filter(item => {
                 const dataItem = (item.dataVencimento || item.data).split('T')[0];
                 if (inicio && dataItem < inicio) return false;
                 if (fim && dataItem > fim) return false;
+                
                 if (termo && !item.fornecedor?.toLowerCase().includes(termo)) return false;
                 if (desc && !item.descricao?.toLowerCase().includes(desc)) return false;
                 if (pagto && item.formaPagamento !== pagto) return false;
+
                 return true;
             });
             renderizarLista(filtrados);
+        }
+
+        // --- ATUALIZAR FILTRO DE FORMAS DE PAGAMENTO ---
+        function atualizarFiltroPagamentos() {
+            const select = document.getElementById('filtroPagto');
+            const valorAtual = select.value;
+            
+            const padrao = ['Boleto', 'Pix', 'Cartão', 'Dinheiro', 'Transferência', 'Cashback', 'Outros'];
+            const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f);
+            const unicas = [...new Set([...padrao, ...doBanco])].sort();
+
+            select.innerHTML = '<option value="">Forma...</option>';
+            unicas.forEach(f => {
+                select.innerHTML += `<option value="${f}">${f}</option>`;
+            });
+            select.value = valorAtual;
         }
 
         async function processarArquivo() {
@@ -361,6 +390,7 @@
             Swal.fire({ icon: 'success', title: 'Concluído', text: `${sucesso} itens importados!` });
         }
 
+        // --- GERAÇÃO DAS PARCELAS COM CAPTURA DO ÍNDICE ---
         function gerarParcelasVisuais() {
             const qtd = parseInt(document.getElementById('parcelas').value);
             const valorTotal = parseFloat(document.getElementById('valor').value);
@@ -369,40 +399,49 @@
             const desc = document.getElementById('inputDescricao').value || "Parcela";
             const container = document.getElementById('containerParcelas');
             const lista = document.getElementById('listaParcelas');
+            
             if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; }
+            
             container.style.display = 'block'; lista.innerHTML = '';
             const valorParcela = (valorTotal / qtd).toFixed(2); let soma = 0;
             const [ano, mes, dia] = dataBase.split('-'); const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0);
+            
             for (let i = 0; i < qtd; i++) {
                 let val = parseFloat(valorParcela); if (i === qtd - 1) val = valorTotal - soma; soma += val;
                 const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i);
                 const dataStr = novaData.toISOString().split('T')[0];
-                lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc} (${i+1}/${qtd})"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`;
+                
+                // CRIAÇÃO DAS LINHAS DA TABELA DE PARCELAS
+                lista.innerHTML += `
+                    <div class="parcela-row">
+                        <span class="p-idx">${i+1}/${qtd}</span>
+                        <input type="text" class="p-desc" value="${desc}">
+                        <input type="date" class="p-data" value="${dataStr}">
+                        <input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01">
+                        <input type="hidden" class="p-forma" value="${forma}">
+                    </div>`;
             }
         }
 
         async function carregar() { 
             if(!usuario) return;
             try { 
-                // ADICIONADO TIMESTAMP PARA EVITAR CACHE DO NAVEGADOR NA EDIÇÃO
                 const res = await fetch(`/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}&_=${new Date().getTime()}`); 
                 transacoesCache = await res.json(); 
                 
-                // Ordena por vencimento
                 transacoesCache.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
                 
+                atualizarFiltroPagamentos();
                 aplicarFiltros(); 
             } catch (e) { console.error(e); }
         }
 
         function limparFiltros() { 
-            document.getElementById('filtroInicio').value = ''; // Limpa Data
-            document.getElementById('filtroFim').value = '';    // Limpa Data
+            document.getElementById('filtroInicio').value = '';
+            document.getElementById('filtroFim').value = '';
             document.getElementById('filtroFornecedor').value = ''; 
             document.getElementById('filtroDesc').value = '';
             document.getElementById('filtroPagto').value = '';
-            
-            // Recarrega do servidor para garantir lista completa
             carregar(); 
         }
 
@@ -421,10 +460,12 @@
                 total += parseFloat(item.valor); 
                 const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR'); 
                 
-                // Verifica se está atrasado para pintar de vermelho o vencimento
                 const hoje = new Date().toISOString().split('T')[0];
                 const corVenc = (item.dataVencimento.split('T')[0] < hoje) ? '#ef4444' : '#64748b';
                 const weightVenc = (item.dataVencimento.split('T')[0] < hoje) ? '700' : '400';
+
+                // --- LÓGICA DE EXIBIÇÃO DE PARCELA ---
+                const parcelaTexto = item.parcelaInfo || '1/1';
 
                 tbody.innerHTML += `
                     <tr>
@@ -432,7 +473,7 @@
                         <td class="col-venc" style="color: ${corVenc}; font-weight: ${weightVenc};">${dataVenc}</td>
                         <td class="col-valor">${fmt.format(item.valor)}</td>
                         <td class="col-forma">${item.formaPagamento || '-'}</td>
-                        <td class="col-parc">${item.parcelas ? (item.descricao.match(/\(\d+\/\d+\)/) || ['1/1'])[0] : '1/1'}</td>
+                        <td class="col-parc">${parcelaTexto}</td>
                         <td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td>
                         <td class="col-acao">
                             <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Pagar"><i class="fas fa-check"></i></button>
@@ -455,26 +496,27 @@
                         descricao: row.querySelector('.p-desc').value, 
                         data: row.querySelector('.p-data').value, 
                         valor: row.querySelector('.p-valor').value, 
-                        formaPagamento: row.querySelector('.p-forma').value 
+                        formaPagamento: row.querySelector('.p-forma').value,
+                        // --- AQUI CAPTURAMOS A INFO DA PARCELA DO HTML (1/3) ---
+                        parcelaInfo: row.querySelector('.p-idx').innerText 
                     }); 
                 }); 
             }
             
             const dados = { 
                 fornecedor: document.getElementById('inputFornecedor').value, 
-                valor: parseFloat(document.getElementById('valor').value), // Força float
-                
-                // CORREÇÃO CRÍTICA: Envia dataVencimento E data para o servidor atualizar corretamente
+                valor: parseFloat(document.getElementById('valor').value), 
                 dataVencimento: document.getElementById('dataVenc').value, 
                 data: document.getElementById('dataVenc').value, 
-                
                 formaPagamento: document.getElementById('formaPagto').value, 
                 descricao: document.getElementById('inputDescricao').value, 
                 parcelas: document.getElementById('parcelas').value, 
                 tipo: 'DESPESA', 
                 status: 'PENDENTE', 
                 usuarioId: usuario.id, 
-                itensParcelados: itensParcelados.length > 0 ? itensParcelados : null 
+                itensParcelados: itensParcelados.length > 0 ? itensParcelados : null,
+                // SE NÃO TIVER PARCELAS, MANDA 1/1
+                parcelaInfo: (itensParcelados.length === 0) ? '1/1' : null
             };
             
             if(!dados.fornecedor || !dados.valor) return Swal.fire('Erro', 'Preencha Fornecedor e Valor', 'warning');
@@ -487,10 +529,10 @@
                     fecharModal(); 
                     Toast.fire({ icon: 'success', title: 'Salvo com sucesso!' }); 
                     
-                    // RECARREGA TUDO DO SERVIDOR (SEM CACHE) PARA MOSTRAR A DATA NOVA
-                    await carregar(); 
+                    // RECARREGA TUDO
+                    await carregar();
                     
-                    // Se for novo lançamento, limpa os filtros para o usuário ver o item novo
+                    // SE FOR NOVO, LIMPA FILTRO PARA APARECER NA TELA
                     if(!idEdicao) limparFiltros(); 
                 } else { Swal.fire('Erro', 'Falha ao salvar', 'error'); } 
             } catch (e) { console.error(e); }
@@ -514,10 +556,7 @@
             document.getElementById('tituloModal').innerText = 'Editar Conta'; 
             document.getElementById('inputFornecedor').value = item.fornecedor; 
             document.getElementById('valor').value = item.valor; 
-            
-            // PREENCHE DATA CORRETAMENTE
             document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0]; 
-            
             document.getElementById('formaPagto').value = item.formaPagamento; 
             document.getElementById('inputDescricao').value = item.descricao; 
             document.getElementById('parcelas').value = item.parcelas || 1; 

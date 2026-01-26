@@ -22,6 +22,7 @@
         .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition:0.2s; }
         .btn-import:hover { background: #f1f5f9; border-color: #cbd5e0; }
         
+        /* BOTÃO VERDE (RECEITA) */
         .btn-new { background-color: #2f855a; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(47, 133, 90, 0.2); }
         .btn-new:hover { background-color: #276749; }
 
@@ -35,7 +36,7 @@
         
         .search-box { display: flex; align-items: center; gap: 8px; flex: 1; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
         .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; width: 100%; }
-        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; cursor: pointer; min-width: 120px; }
+        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; cursor: pointer; width: 100%; min-width: 120px; }
         
         .btn-limpar { font-size: 12px; color: #718096; cursor: pointer; border: none; background: none; font-weight: 600; white-space: nowrap; }
         .btn-limpar:hover { color: #2f855a; text-decoration: underline; }
@@ -52,7 +53,7 @@
 
         .col-forn { width: 22%; font-weight: 600; color: #1e293b; }
         .col-venc { width: 12%; color: #64748b; }
-        .col-valor { width: 15%; font-weight: 700; color: #2f855a; }
+        .col-valor { width: 15%; font-weight: 700; color: #2f855a; } /* Verde para receita */
         .col-forma { width: 12%; text-align: center; }
         .col-parc { width: 8%; text-align: center; font-weight: 600; color: #718096; }
         .col-desc { width: 20%; color: #94a3b8; }
@@ -63,18 +64,7 @@
         .btn-edit { color: #d69e2e; background: #fffaf0; } .btn-edit:hover { background: #feebc8; }
         .btn-del { color: #e53e3e; background: #fff5f5; } .btn-del:hover { background: #fed7d7; }
 
-        /* MODAIS GERAIS (MESMO CSS) */
-        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
-        .modal { background: white; width: 95%; max-width: 550px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 600; }
-        
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .form-group { margin-bottom: 15px; }
-        
-        /* Modal Importação */
+        /* MODAL DE IMPORTAÇÃO */
         .import-table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
         .import-table th { text-align: left; padding: 10px; border-bottom: 2px solid #e2e8f0; font-size: 11px; color: #4a5568; text-transform: uppercase; white-space: nowrap; }
         .import-table td { padding: 10px; border-bottom: 1px solid #edf2f7; font-size: 12px; color: #2d3748; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -84,11 +74,49 @@
         .col-w-check { width: 40px; text-align: center; } .col-w-data { width: 100px; } .col-w-parc { width: 80px; text-align: center; } .col-w-tipo { width: 90px; } .col-w-valor { width: 110px; text-align: right; } .col-w-desc { width: auto; }
         .badge-tipo { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
         .bg-receita { background: #def7ec; color: #03543f; } .bg-despesa { background: #fde8e8; color: #9b1c1c; } .badge-parc { background: #edf2f7; color: #4a5568; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
+
+        /* MODAIS GERAIS */
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
+        .modal { background: white; width: 95%; max-width: 600px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 600; }
         
-        #containerParcelas { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-top: 15px; max-height: 250px; overflow-y: auto; display: none; }
-        .parcela-row { display: grid; grid-template-columns: 40px 1fr 120px 100px; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .parcela-row input { padding: 8px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; width: 100%; }
-        .p-idx { font-size: 11px; font-weight: 700; color: #718096; text-align: center; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+
+        /* --- ESTILO TABELA DE PARCELAS (MODAL) --- */
+        #containerParcelas { 
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; 
+            padding: 0; margin-top: 15px; max-height: 250px; overflow-y: auto; display: none; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        .parcela-header { 
+            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
+            padding: 12px 15px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+            font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;
+            position: sticky; top: 0; z-index: 5;
+        }
+        
+        .parcela-row { 
+            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
+            padding: 10px 15px; align-items: center; border-bottom: 1px solid #f1f5f9;
+        }
+        .parcela-row:last-child { border-bottom: none; }
+        .parcela-row:hover { background-color: #fcfcfc; }
+        
+        .p-idx { 
+            font-size: 12px; font-weight: 700; color: #276749; /* Verde */
+            text-align: center; background: #f0fff4; border-radius: 4px; padding: 4px 0; 
+        }
+        
+        .parcela-row input { 
+            padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; 
+            font-size: 13px; color: #334155; transition: 0.2s;
+        }
+        .parcela-row input:focus { border-color: #2f855a; box-shadow: 0 0 0 2px rgba(47,133,90,0.1); }
 
         div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
     </style>
@@ -172,7 +200,7 @@
 
     <div class="modal-overlay" id="modalImportar" style="display: none; align-items: flex-start; padding-top: 50px; overflow-y: auto;">
         <div class="modal" style="width: 850px; max-width: 95%;">
-            <h2 style="color: #2f855a; margin-bottom: 10px;">Confirmar Importação</h2>
+            <h2 style="color: #1e293b; margin-bottom: 10px;">Confirmar Importação</h2>
             <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
                 <i class="fas fa-info-circle"></i> Itens em <span style="background:#fffbeb; color:#b45309; padding:2px 5px; border-radius:4px; font-weight:bold;">amarelo</span> são possíveis duplicatas.
             </p>
@@ -202,10 +230,10 @@
         <div class="modal">
             <h2 style="color: #2f855a; margin-bottom: 20px;" id="tituloModal">Nova Receita</h2>
             <input type="hidden" id="editId">
-            <div class="form-group"><label>Cliente <span style="color:red">*</span></label><input type="text" id="inputFornecedor" placeholder="Ex: Cliente João"></div>
+            <div class="form-group"><label>Cliente <span style="color:red">*</span></label><input type="text" id="inputFornecedor" placeholder="Ex: João"></div>
             <div class="form-row">
                 <div class="form-group"><label>Valor Total (R$) <span style="color:red">*</span></label><input type="number" id="valor" step="0.01" onchange="gerarParcelasVisuais()"></div>
-                <div class="form-group"><label>1ª Vencimento <span style="color:red">*</span></label><input type="date" id="dataVenc" onchange="gerarParcelasVisuais()"></div>
+                <div class="form-group"><label>1ª Vencimento</label><input type="date" id="dataVenc" onchange="gerarParcelasVisuais()"></div>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -223,8 +251,15 @@
                 </div>
                 <div class="form-group"><label>Parcelas</label><input type="number" id="parcelas" value="1" min="1" onchange="gerarParcelasVisuais()"></div>
             </div>
-            <div class="form-group"><label>Descrição (Opcional)</label><input type="text" id="inputDescricao" placeholder="Ex: Venda de Produto"></div>
-            <div id="containerParcelas"><div style="font-size:13px; font-weight:700; color:#2d3748; margin-bottom:10px;">Parcelas:</div><div id="listaParcelas"></div></div>
+            <div class="form-group"><label>Descrição</label><input type="text" id="inputDescricao" placeholder="Ex: Venda"></div>
+            
+            <div id="containerParcelas">
+                <div class="parcela-header">
+                    <div>Parcelas</div> <div>Descrição</div> <div>Vencimento</div> <div>Valor</div>
+                </div>
+                <div id="listaParcelas"></div>
+            </div>
+
             <div class="modal-footer"><button class="btn-outline" onclick="fecharModal()">Cancelar</button><button class="btn-new" onclick="salvarConta()">SALVAR</button></div>
         </div>
     </div>
@@ -260,6 +295,7 @@
             carregar(); 
         });
 
+        // --- VALIDAÇÃO DE DATA ---
         function validarData(inputElement) {
             if (inputElement.validity.badInput) { inputElement.classList.add('input-error-border'); return false; }
             const dataStr = inputElement.value;
@@ -291,6 +327,21 @@
                 return true;
             });
             renderizarLista(filtrados);
+        }
+
+        // --- ATUALIZAR FILTRO DE FORMAS DE PAGAMENTO ---
+        function atualizarFiltroPagamentos() {
+            const select = document.getElementById('filtroPagto');
+            const valorAtual = select.value;
+            const padrao = ['Boleto', 'Pix', 'Cartão', 'Dinheiro', 'Transferência', 'Cashback', 'Outros'];
+            const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f);
+            const unicas = [...new Set([...padrao, ...doBanco])].sort();
+
+            select.innerHTML = '<option value="">Forma...</option>';
+            unicas.forEach(f => {
+                select.innerHTML += `<option value="${f}">${f}</option>`;
+            });
+            select.value = valorAtual;
         }
 
         async function processarArquivo() {
@@ -354,6 +405,7 @@
             Swal.fire({ icon: 'success', title: 'Concluído', text: `${sucesso} itens importados!` });
         }
 
+        // --- GERAÇÃO VISUAL DAS PARCELAS (COM TABELA) ---
         function gerarParcelasVisuais() {
             const qtd = parseInt(document.getElementById('parcelas').value);
             const valorTotal = parseFloat(document.getElementById('valor').value);
@@ -362,41 +414,49 @@
             const desc = document.getElementById('inputDescricao').value || "Parcela";
             const container = document.getElementById('containerParcelas');
             const lista = document.getElementById('listaParcelas');
+            
             if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; }
+            
             container.style.display = 'block'; lista.innerHTML = '';
             const valorParcela = (valorTotal / qtd).toFixed(2); let soma = 0;
             const [ano, mes, dia] = dataBase.split('-'); const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0);
+            
             for (let i = 0; i < qtd; i++) {
                 let val = parseFloat(valorParcela); if (i === qtd - 1) val = valorTotal - soma; soma += val;
                 const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i);
                 const dataStr = novaData.toISOString().split('T')[0];
-                lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc} (${i+1}/${qtd})"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`;
+                
+                lista.innerHTML += `
+                    <div class="parcela-row">
+                        <span class="p-idx">${i+1}/${qtd}</span>
+                        <input type="text" class="p-desc" value="${desc}">
+                        <input type="date" class="p-data" value="${dataStr}">
+                        <input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01">
+                        <input type="hidden" class="p-forma" value="${forma}">
+                    </div>`;
             }
         }
 
         async function carregar() { 
             if(!usuario) return;
             try { 
-                // ADICIONADO TIMESTAMP PARA EVITAR CACHE DE NAVEGADOR
                 const res = await fetch(`/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}&_=${new Date().getTime()}`); 
                 transacoesCache = await res.json(); 
                 
                 // Ordena por vencimento
                 transacoesCache.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
                 
+                atualizarFiltroPagamentos();
                 aplicarFiltros(); 
             } catch (e) { console.error(e); }
         }
 
-        // --- CORREÇÃO DA FUNÇÃO LIMPAR FILTROS ---
         function limparFiltros() { 
             document.getElementById('filtroInicio').value = '';
             document.getElementById('filtroFim').value = '';
             document.getElementById('filtroCliente').value = ''; 
-            document.getElementById('filtroPagto').value = ''; 
-            document.getElementById('filtroDesc').value = ''; 
-            
-            // Recarrega do servidor
+            document.getElementById('filtroDesc').value = '';
+            document.getElementById('filtroPagto').value = '';
             carregar(); 
         }
 
@@ -416,16 +476,19 @@
                 const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR'); 
                 
                 const hoje = new Date().toISOString().split('T')[0];
-                const corData = (item.dataVencimento || item.data).split('T')[0] < hoje ? '#e53e3e' : '#64748b';
-                const pesoData = (item.dataVencimento || item.data).split('T')[0] < hoje ? '700' : '400';
+                const corVenc = (item.dataVencimento.split('T')[0] < hoje) ? '#ef4444' : '#64748b';
+                const weightVenc = (item.dataVencimento.split('T')[0] < hoje) ? '700' : '400';
+
+                // Lógica da parcela (Campo novo)
+                const parcelaTexto = item.parcelaInfo || '1/1';
 
                 tbody.innerHTML += `
                     <tr>
                         <td class="col-forn" title="${item.fornecedor}">${item.fornecedor || 'Cliente'}</td>
-                        <td class="col-venc" style="color: ${corData}; font-weight: ${pesoData}">${dataVenc}</td>
+                        <td class="col-venc" style="color: ${corVenc}; font-weight: ${weightVenc};">${dataVenc}</td>
                         <td class="col-valor">${fmt.format(item.valor)}</td>
                         <td class="col-forma">${item.formaPagamento || '-'}</td>
-                        <td class="col-parc">${item.parcelas ? (item.descricao.match(/\(\d+\/\d+\)/) || ['1/1'])[0] : '1/1'}</td>
+                        <td class="col-parc">${parcelaTexto}</td>
                         <td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td>
                         <td class="col-acao">
                             <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Receber"><i class="fas fa-check"></i></button>
@@ -437,7 +500,6 @@
             document.getElementById('total-esteira').innerText = fmt.format(total);
         }
 
-        // --- CORREÇÃO DA FUNÇÃO DE EDITAR/SALVAR ---
         async function salvarConta() { 
             const idEdicao = document.getElementById('editId').value; 
             const qtd = parseInt(document.getElementById('parcelas').value); 
@@ -449,26 +511,26 @@
                         descricao: row.querySelector('.p-desc').value, 
                         data: row.querySelector('.p-data').value, 
                         valor: row.querySelector('.p-valor').value, 
-                        formaPagamento: row.querySelector('.p-forma').value 
+                        formaPagamento: row.querySelector('.p-forma').value,
+                        // CAPTURA A INFORMAÇÃO DA PARCELA DO HTML
+                        parcelaInfo: row.querySelector('.p-idx').innerText 
                     }); 
                 }); 
             }
             
             const dados = { 
                 fornecedor: document.getElementById('inputFornecedor').value, 
-                valor: parseFloat(document.getElementById('valor').value), // Força float
-                
-                // CORREÇÃO CRÍTICA: Envia os campos corretos para atualizar no banco
+                valor: parseFloat(document.getElementById('valor').value), 
                 dataVencimento: document.getElementById('dataVenc').value, 
                 data: document.getElementById('dataVenc').value, 
-                
                 formaPagamento: document.getElementById('formaPagto').value, 
                 descricao: document.getElementById('inputDescricao').value, 
                 parcelas: document.getElementById('parcelas').value, 
                 tipo: 'RECEITA', 
                 status: 'PENDENTE', 
                 usuarioId: usuario.id, 
-                itensParcelados: itensParcelados.length > 0 ? itensParcelados : null 
+                itensParcelados: itensParcelados.length > 0 ? itensParcelados : null,
+                parcelaInfo: (itensParcelados.length === 0) ? '1/1' : null
             };
             
             if(!dados.fornecedor || !dados.valor) return Swal.fire('Erro', 'Preencha Cliente e Valor', 'warning');
@@ -477,16 +539,10 @@
                 const method = idEdicao ? 'PUT' : 'POST'; 
                 const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes'; 
                 const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }); 
-                
                 if(res.ok) { 
                     fecharModal(); 
                     Toast.fire({ icon: 'success', title: 'Salvo com sucesso!' }); 
-                    
-                    // FORÇA RECARREGAMENTO DO SERVIDOR (SEM FILTROS ANTIGOS ESCONDENDO O ITEM EDITADO)
-                    await carregar();
-                    
-                    // Se for novo, limpa filtros para o usuário ver
-                    if(!idEdicao) limparFiltros(); 
+                    if(itensParcelados.length > 0) limparFiltros(); else await carregar(); 
                 } else { Swal.fire('Erro', 'Falha ao salvar', 'error'); } 
             } catch (e) { console.error(e); }
         }
@@ -509,10 +565,7 @@
             document.getElementById('tituloModal').innerText = 'Editar Receita'; 
             document.getElementById('inputFornecedor').value = item.fornecedor; 
             document.getElementById('valor').value = item.valor; 
-            
-            // PREENCHE DATA CORRETAMENTE
             document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0]; 
-            
             document.getElementById('formaPagto').value = item.formaPagamento; 
             document.getElementById('inputDescricao').value = item.descricao; 
             document.getElementById('parcelas').value = item.parcelas || 1; 
