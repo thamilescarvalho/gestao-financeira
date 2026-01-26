@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="auth.js"></script>
     <script src="script.js"></script>
 
@@ -23,83 +23,97 @@
         .content { padding: 30px; max-width: 1300px; margin: 0 auto; }
 
         /* HEADER */
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px; }
+        .page-header { margin-bottom: 30px; }
         .page-title { font-size: 28px; font-weight: 700; color: #fff; margin: 0; }
         
-        .filter-bar { 
-            background: #1e293b; padding: 8px 15px; border-radius: 12px; border: 1px solid #334155;
-            display: flex; gap: 10px; align-items: center; 
-        }
-        .dark-input { 
-            background: #0f172a; border: 1px solid #334155; color: #fff; 
-            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 13px;
-        }
-        .btn-filter { 
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; 
-            padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; 
-        }
-
-        /* KPI CARDS (REALIZADO - TOPO) */
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 35px; }
-        
-        .kpi-card { 
-            background: #1e293b; padding: 25px; border-radius: 16px; 
-            border: 1px solid #334155; position: relative; overflow: hidden; transition: 0.3s;
-        }
-        .kpi-card:hover { transform: translateY(-5px); border-color: #475569; }
-        
-        .kpi-icon { 
-            position: absolute; top: 20px; right: 20px; font-size: 24px; opacity: 0.5; 
-            background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px;
-        }
-        .kpi-label { font-size: 12px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-        .kpi-value { font-size: 32px; font-weight: 700; color: #fff; margin-top: 15px; }
-        
-        .card-clickable { 
-            cursor: pointer; background: linear-gradient(145deg, #1e293b, #252f46); border: 1px solid #8b5cf6; 
-        }
-
-        /* ÁREA DE PREVISÃO (CARDS COLORIDOS) */
-        .details-grid { display: grid; grid-template-columns: 1fr; gap: 30px; } /* Ajustado para coluna única vertical ou manter dividido se quiser */
-        
+        /* CONTAINERS PADRONIZADOS */
         .box-container { 
             background: #1e293b; padding: 25px; border-radius: 16px; 
             border: 1px solid #334155; display: flex; flex-direction: column; margin-bottom: 30px;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.3);
         }
+        
         .box-header { 
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; 
-            border-bottom: 1px solid #334155; padding-bottom: 15px;
+            border-bottom: 1px solid #334155; padding-bottom: 15px; flex-wrap: wrap; gap: 15px;
         }
+        
         .box-title { font-size: 18px; font-weight: 600; color: #fff; display: flex; gap: 10px; align-items: center; }
+        
+        .filter-group { display: flex; gap: 10px; align-items: center; }
 
-        /* GRID DE 3 CARDS */
-        .projecao-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); /* 3 Colunas Iguais */
-            gap: 20px; 
+        /* INPUTS ESCUROS PADRONIZADOS */
+        .dark-input { 
+            background: #0f172a; border: 1px solid #334155; color: #fff; 
+            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 13px;
+            color-scheme: dark; 
         }
+        .dark-input:focus { border-color: #38bdf8; }
+
+        /* GRID DA PREVISÃO */
+        .projecao-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         
         .proj-card {
             border-radius: 12px; padding: 25px; display: flex; flex-direction: column; justify-content: center;
-            position: relative; overflow: hidden; min-height: 120px;
+            position: relative; overflow: hidden; min-height: 120px; cursor: pointer; transition: 0.3s;
         }
-        /* Verde (Receber) */
+        .proj-card:hover { transform: translateY(-5px); filter: brightness(1.2); }
+
         .proj-green { background: linear-gradient(135deg, #064e3b, #065f46); border: 1px solid #059669; }
         .proj-green i { color: #34d399; opacity: 0.3; font-size: 60px; position: absolute; bottom: -10px; right: -10px; }
         
-        /* Vermelho (Pagar) */
         .proj-red { background: linear-gradient(135deg, #7f1d1d, #991b1b); border: 1px solid #dc2626; }
         .proj-red i { color: #f87171; opacity: 0.3; font-size: 60px; position: absolute; bottom: -10px; right: -10px; }
 
-        /* Azul/Roxo (Saldo) */
-        .proj-blue { background: linear-gradient(135deg, #1e3a8a, #1e40af); border: 1px solid #3b82f6; }
+        .proj-blue { background: linear-gradient(135deg, #1e3a8a, #1e40af); border: 1px solid #3b82f6; cursor: default; }
         .proj-blue i { color: #60a5fa; opacity: 0.3; font-size: 60px; position: absolute; bottom: -10px; right: -10px; }
 
         .proj-label { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 600; text-transform: uppercase; z-index: 1; }
         .proj-value { font-size: 28px; font-weight: 700; color: #fff; margin-top: 5px; z-index: 1; }
         .proj-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 5px; z-index: 1; }
 
-        @media (max-width: 900px) { .projecao-grid { grid-template-columns: 1fr; } }
+        /* GRID DOS INDICADORES (KPI) */
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        
+        .kpi-card { 
+            background: #0f172a; padding: 20px; border-radius: 12px; 
+            border: 1px solid #334155; position: relative; overflow: hidden; transition: 0.3s;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .kpi-card:hover { transform: translateY(-3px); border-color: #475569; }
+        
+        /* Estilo Discreto e Moderno para os KPIs de baixo */
+        .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .kpi-label { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .kpi-icon-small { font-size: 14px; opacity: 0.7; }
+        
+        .kpi-value { font-size: 24px; font-weight: 700; color: #fff; }
+        .kpi-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+        
+        /* Card Clicável */
+        .card-clickable { cursor: pointer; border: 1px solid #334155; background: linear-gradient(145deg, #0f172a, #161e31); }
+        .card-clickable:hover { border-color: #38bdf8; }
+
+        @media (max-width: 900px) { 
+            .projecao-grid, .kpi-grid { grid-template-columns: 1fr; } 
+            .box-header { flex-direction: column; align-items: flex-start; }
+        }
+
+        /* MODAL DE DETALHES */
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(5px); }
+        .modal { background: #1e293b; width: 90%; max-width: 500px; padding: 0; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; max-height: 80vh; }
+        .modal-header { padding: 20px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 16px; font-weight: 700; color: #fff; margin: 0; }
+        .modal-body { padding: 0; overflow-y: auto; flex: 1; }
+        
+        .detail-item { padding: 15px 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .detail-item:hover { background: #334155; }
+        .dt-info h4 { margin: 0 0 3px 0; font-size: 14px; color: #e2e8f0; font-weight: 600; }
+        .dt-info span { font-size: 11px; color: #94a3b8; }
+        .dt-val { font-weight: 700; font-size: 14px; }
+        .val-rec { color: #34d399; } .val-desp { color: #f87171; }
+        
+        .btn-close-modal { border: none; background: transparent; cursor: pointer; color: #94a3b8; font-size: 18px; }
     </style>
 </head>
 <body>
@@ -110,65 +124,31 @@
 
     <div class="content">
         <div class="page-header">
-            <div>
-                <h1 class="page-title">Relatórios & Inteligência</h1>
-                <div style="color: #94a3b8; font-size: 14px;">Análise realizada e previsões.</div>
-            </div>
-            
-            <div class="filter-bar">
-                <select id="filtroBanco" class="dark-input" style="min-width: 150px;">
-                    <option value="">Todos os Bancos</option>
-                </select>
-                <input type="date" id="dataInicio" class="dark-input">
-                <span style="color:#64748b; font-size: 12px;">ATÉ</span>
-                <input type="date" id="dataFim" class="dark-input">
-                <button class="btn-filter" onclick="carregarRelatorioRealizado()"><i class="fas fa-bolt"></i> Histórico</button>
-            </div>
-        </div>
-
-        <div class="kpi-grid">
-            <div class="kpi-card">
-                <i class="fas fa-wallet kpi-icon" style="color: #38bdf8;"></i>
-                <div class="kpi-label" style="color: #38bdf8;">Total Pago (Período)</div>
-                <div class="kpi-value" id="valTotal">R$ 0,00</div>
-            </div>
-
-            <div class="kpi-card card-clickable" onclick="irParaCartoes()">
-                <i class="far fa-credit-card kpi-icon" style="color: #a78bfa;"></i>
-                <div class="kpi-label" style="color: #a78bfa;">Gasto com Cartão</div>
-                <div class="kpi-value" id="valCartao">R$ 0,00</div>
-                <div style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Clique para detalhar</div>
-            </div>
-
-            <div class="kpi-card">
-                <i class="fas fa-fire kpi-icon" style="color: #f43f5e;"></i>
-                <div class="kpi-label" style="color: #f43f5e;">Maior Despesa</div>
-                <div class="kpi-value" id="valTopForn" style="font-size: 22px; margin-top: 18px;">-</div>
-                <div style="font-size: 13px; color: #cbd5e0;" id="subTopForn">R$ 0,00</div>
-            </div>
+            <h1 class="page-title">Relatórios & Inteligência</h1>
+            <div style="color: #94a3b8; font-size: 14px;">Visão completa da saúde financeira.</div>
         </div>
 
         <div class="box-container">
             <div class="box-header">
-                <div class="box-title"><i class="fas fa-calendar-alt"></i> Previsão Futura (Planejamento)</div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 12px; color: #94a3b8;">Mês de Referência:</span>
+                <div class="box-title"><i class="fas fa-calendar-alt" style="color:#38bdf8"></i> PREVISÃO (PLANEJAMENTO)</div>
+                <div class="filter-group">
+                    <span style="font-size: 12px; color: #94a3b8;">Mês:</span>
                     <input type="month" id="mesProjecao" class="dark-input" onchange="carregarProjecaoMensal()">
                 </div>
             </div>
 
             <div class="projecao-grid">
-                <div class="proj-card proj-green">
+                <div class="proj-card proj-green" onclick="abrirDetalhes('RECEITA')">
                     <div class="proj-label">A Receber</div>
                     <div class="proj-value" id="projReceita">R$ 0,00</div>
-                    <div class="proj-sub">Receitas pendentes</div>
+                    <div class="proj-sub">Receitas pendentes (Clique para ver)</div>
                     <i class="fas fa-arrow-up"></i>
                 </div>
 
-                <div class="proj-card proj-red">
+                <div class="proj-card proj-red" onclick="abrirDetalhes('DESPESA')">
                     <div class="proj-label">A Pagar</div>
                     <div class="proj-value" id="projDespesa">R$ 0,00</div>
-                    <div class="proj-sub">Contas e Faturas pendentes</div>
+                    <div class="proj-sub">Contas pendentes (Clique para ver)</div>
                     <i class="fas fa-arrow-down"></i>
                 </div>
 
@@ -181,36 +161,93 @@
             </div>
         </div>
 
+        <div class="box-container">
+            <div class="box-header">
+                <div class="box-title"><i class="fas fa-chart-pie" style="color:#a78bfa"></i> HISTÓRICO DE PAGAMENTOS</div>
+                <div class="filter-group">
+                    <select id="filtroBanco" class="dark-input" style="min-width: 150px;" onchange="carregarRelatorioRealizado()">
+                        <option value="">Todos os Bancos</option>
+                    </select>
+                    <span style="font-size: 12px; color: #94a3b8;">Mês:</span>
+                    <input type="month" id="mesRealizado" class="dark-input" onchange="carregarRelatorioRealizado()">
+                </div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card card-clickable" onclick="abrirDetalhesRealizado('TOTAL')">
+                    <div class="kpi-header">
+                        <div class="kpi-label" style="color: #38bdf8;">Total Pago (Mês)</div>
+                        <i class="fas fa-wallet kpi-icon-small" style="color: #38bdf8;"></i>
+                    </div>
+                    <div class="kpi-value" id="valTotal">R$ 0,00</div>
+                    <div class="kpi-sub">Clique para detalhar</div>
+                </div>
+
+                <div class="kpi-card card-clickable" onclick="abrirDetalhesRealizado('CARTAO')">
+                    <div class="kpi-header">
+                        <div class="kpi-label" style="color: #a78bfa;">Gasto com Cartão</div>
+                        <i class="far fa-credit-card kpi-icon-small" style="color: #a78bfa;"></i>
+                    </div>
+                    <div class="kpi-value" id="valCartao">R$ 0,00</div>
+                    <div class="kpi-sub">Clique para detalhar</div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <div class="kpi-label" style="color: #f43f5e;">Maior Despesa</div>
+                        <i class="fas fa-fire kpi-icon-small" style="color: #f43f5e;"></i>
+                    </div>
+                    <div class="kpi-value" id="valTopForn" style="font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                    <div class="kpi-sub" id="subTopForn" style="color: #fff; font-weight: 700; opacity: 0.8;">R$ 0,00</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-overlay" id="modalDetalhes" onclick="if(event.target === this) fecharDetalhes()">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="tituloDetalhes">Detalhes</h3>
+                <button class="btn-close-modal" onclick="fecharDetalhes()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="listaDetalhes"></div>
+        </div>
     </div>
 
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        let detalhesCache = { receita: [], despesa: [] };
+        let detalhesRealizadoCache = { total: [], cartao: [] };
 
         document.addEventListener('DOMContentLoaded', () => {
             const hoje = new Date();
-            
-            const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-            const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-            document.getElementById('dataInicio').valueAsDate = inicio;
-            document.getElementById('dataFim').valueAsDate = fim;
-
-            // Define mês atual como padrão ou próximo
             const mesStr = hoje.toISOString().slice(0, 7); 
+            
             document.getElementById('mesProjecao').value = mesStr;
+            document.getElementById('mesRealizado').value = mesStr;
 
             carregarBancosNoFiltro();
             carregarRelatorioRealizado(); 
             carregarProjecaoMensal(); 
         });
 
+        // 1. CARREGA DADOS DO REALIZADO E PREPARA CACHE PARA MODAL
         async function carregarRelatorioRealizado() {
             if(!usuario) return;
-            const i = document.getElementById('dataInicio').value;
-            const f = document.getElementById('dataFim').value;
+            
+            const mesInput = document.getElementById('mesRealizado').value;
+            if(!mesInput) return;
+
+            const [ano, mes] = mesInput.split('-');
+            const i = `${ano}-${mes}-01`;
+            const f = new Date(ano, mes, 0).toISOString().split('T')[0];
             const b = document.getElementById('filtroBanco').value;
 
             try {
+                // 1. Busca os totais agregados (para o card de maior despesa e resumo)
                 const res = await fetch(`/relatorios/avancado?usuarioId=${usuario.id}&inicio=${i}&fim=${f}&bancoId=${b}`);
                 const dados = await res.json();
                 
@@ -219,17 +256,39 @@
 
                 if(dados.porFornecedor.length > 0) {
                     const top = dados.porFornecedor[0];
-                    document.getElementById('valTopForn').innerText = top.fornecedor.substring(0, 18);
+                    document.getElementById('valTopForn').innerText = top.fornecedor;
                     document.getElementById('subTopForn').innerText = fmt.format(top._sum.valor);
                 } else {
                     document.getElementById('valTopForn').innerText = "-";
                     document.getElementById('subTopForn').innerText = "R$ 0,00";
                 }
+
+                // 2. Busca a lista completa de pagamentos para o Modal (Drill-down)
+                // Precisamos buscar as transações PAGAS do mês
+                const resDet = await fetch(`/transacoes?usuarioId=${usuario.id}&status=PAGO&tipo=DESPESA`);
+                const todosPagos = await resDet.json();
+
+                // Filtra pelo mês e banco selecionado
+                const realizadosNoMes = todosPagos.filter(t => {
+                    const dataPag = (t.dataPagamento || t.data).split('T')[0];
+                    const mesmoBanco = b ? (t.banco && t.banco.id === b) : true;
+                    return dataPag >= i && dataPag <= f && mesmoBanco;
+                });
+
+                // Separa para os caches
+                detalhesRealizadoCache.total = realizadosNoMes;
+                
+                detalhesRealizadoCache.cartao = realizadosNoMes.filter(t => {
+                    const forma = (t.formaPagamento || "").toLowerCase();
+                    return forma.includes('cart') || forma.includes('credit');
+                });
+
             } catch (e) { console.error(e); }
         }
 
+        // 2. CARREGA DADOS DE PREVISÃO
         async function carregarProjecaoMensal() {
-            const mes = document.getElementById('mesProjecao').value; // YYYY-MM
+            const mes = document.getElementById('mesProjecao').value; 
             if(!mes) return;
 
             try {
@@ -238,24 +297,86 @@
 
                 document.getElementById('projReceita').innerText = fmt.format(dados.receitas);
                 document.getElementById('projDespesa').innerText = fmt.format(dados.despesas);
-                
                 const elSaldo = document.getElementById('projSaldo');
                 elSaldo.innerText = fmt.format(dados.saldoPrevisto);
                 
-                // Muda cor do card de saldo se for negativo
                 const cardSaldo = elSaldo.parentElement;
                 if(dados.saldoPrevisto < 0) {
-                    cardSaldo.classList.remove('proj-blue');
-                    cardSaldo.classList.add('proj-red');
-                    cardSaldo.style.borderColor = '#fca5a5';
+                    cardSaldo.classList.remove('proj-blue'); cardSaldo.classList.add('proj-red'); cardSaldo.style.borderColor = '#dc2626';
                 } else {
-                    cardSaldo.classList.remove('proj-red');
-                    cardSaldo.classList.add('proj-blue');
-                    cardSaldo.style.borderColor = '#3b82f6';
+                    cardSaldo.classList.remove('proj-red'); cardSaldo.classList.add('proj-blue'); cardSaldo.style.borderColor = '#3b82f6';
                 }
+
+                // Busca detalhes pendentes
+                const [ano, m] = mes.split('-');
+                const i = `${ano}-${m}-01`;
+                const f = new Date(ano, m, 0).toISOString().split('T')[0];
+
+                const resDet = await fetch(`/transacoes?usuarioId=${usuario.id}&status=PENDENTE`);
+                const todas = await resDet.json();
+
+                const doMes = todas.filter(t => {
+                    const dataRef = (t.dataVencimento || t.data).split('T')[0];
+                    return dataRef >= i && dataRef <= f;
+                });
+
+                detalhesCache.receita = doMes.filter(t => t.tipo === 'RECEITA');
+                detalhesCache.despesa = doMes.filter(t => t.tipo === 'DESPESA');
 
             } catch(e) { console.error(e); }
         }
+
+        // --- DRILL DOWN PREVISÃO (PENDENTES) ---
+        function abrirDetalhes(tipo) {
+            const titulo = tipo === 'RECEITA' ? 'Receitas Previstas' : 'Despesas Previstas';
+            document.getElementById('tituloDetalhes').innerText = titulo;
+            const lista = document.getElementById('listaDetalhes');
+            lista.innerHTML = '';
+
+            const itens = tipo === 'RECEITA' ? detalhesCache.receita : detalhesCache.despesa;
+            renderizarModal(itens, tipo);
+        }
+
+        // --- DRILL DOWN REALIZADO (PAGOS) ---
+        function abrirDetalhesRealizado(tipo) {
+            const titulo = tipo === 'CARTAO' ? 'Gastos com Cartão (Realizado)' : 'Pagamentos Totais (Realizado)';
+            document.getElementById('tituloDetalhes').innerText = titulo;
+            
+            const itens = tipo === 'CARTAO' ? detalhesRealizadoCache.cartao : detalhesRealizadoCache.total;
+            renderizarModal(itens, 'DESPESA'); // Sempre despesa aqui
+        }
+
+        function renderizarModal(itens, tipo) {
+            const lista = document.getElementById('listaDetalhes');
+            lista.innerHTML = '';
+
+            if (itens.length === 0) {
+                lista.innerHTML = '<div style="text-align:center; padding:30px; color:#64748b;">Nenhum lançamento.</div>';
+            } else {
+                // Ordena por data
+                itens.sort((a,b) => {
+                    const dA = a.dataPagamento || a.dataVencimento || a.data;
+                    const dB = b.dataPagamento || b.dataVencimento || b.data;
+                    return new Date(dA) - new Date(dB);
+                });
+
+                itens.forEach(t => {
+                    // Usa data pagamento se existir (Realizado), senão vencimento (Previsão)
+                    const dataRaw = t.dataPagamento || t.dataVencimento || t.data;
+                    const dataFmt = new Date(dataRaw).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
+                    const corVal = tipo === 'RECEITA' ? 'val-rec' : 'val-desp';
+                    
+                    lista.innerHTML += `
+                        <div class="detail-item">
+                            <div class="dt-info"><h4>${t.fornecedor || t.descricao}</h4><span>Data: ${dataFmt}</span></div>
+                            <div class="dt-val ${corVal}">${fmt.format(t.valor)}</div>
+                        </div>`;
+                });
+            }
+            document.getElementById('modalDetalhes').style.display = 'flex';
+        }
+
+        function fecharDetalhes() { document.getElementById('modalDetalhes').style.display = 'none'; }
 
         async function carregarBancosNoFiltro() {
             try {
@@ -264,12 +385,6 @@
                 const select = document.getElementById('filtroBanco');
                 bancos.forEach(b => select.innerHTML += `<option value="${b.id}">${b.nome}</option>`);
             } catch(e) {}
-        }
-
-        function irParaCartoes() {
-            const i = document.getElementById('dataInicio').value;
-            const f = document.getElementById('dataFim').value;
-            window.location.href = `analise-cartoes.html?inicio=${i}&fim=${f}`;
         }
     </script>
 </body>
