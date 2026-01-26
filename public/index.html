@@ -14,17 +14,16 @@
         body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; color: #1e293b; }
         .content { padding: 40px; max-width: 1000px; margin: 0 auto; }
 
-        /* HEADER DE BOAS VINDAS */
+        /* HEADER */
         .welcome-header { margin-bottom: 40px; }
         .welcome-title { font-size: 32px; font-weight: 700; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
         .welcome-date { color: #64748b; font-size: 16px; margin-top: 5px; font-weight: 400; }
 
-        /* GRID PRINCIPAL (FEED) */
+        /* GRID PRINCIPAL */
         .feed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        
         @media (max-width: 900px) { .feed-grid { grid-template-columns: 1fr; } }
 
-        /* CARDS DO FEED */
+        /* CARDS */
         .feed-section { display: flex; flex-direction: column; gap: 20px; }
         .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
 
@@ -35,7 +34,7 @@
         }
         .feed-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
 
-        /* ESTILOS DE ALERTAS FINANCEIROS */
+        /* ALERTAS FINANCEIROS */
         .alert-urgent { border-left: 5px solid #ef4444; }
         .alert-warning { border-left: 5px solid #f59e0b; }
         .alert-info { border-left: 5px solid #3b82f6; }
@@ -50,7 +49,7 @@
         .tag-hoje { background: #fef2f2; color: #ef4444; }
         .tag-prox { background: #eff6ff; color: #3b82f6; }
 
-        /* ESTILOS DA AGENDA */
+        /* AGENDA & ANIVERSÁRIOS */
         .task-item { 
             display: flex; align-items: center; gap: 15px; padding: 15px; 
             background: white; border-radius: 12px; border: 1px solid #f1f5f9;
@@ -65,6 +64,25 @@
         .task-time { font-size: 12px; color: #94a3b8; font-weight: 600; }
         .task-text { font-size: 15px; color: #334155; font-weight: 500; }
         .task-done .task-text { text-decoration: line-through; color: #cbd5e0; }
+
+        /* CARD ANIVERSÁRIO (NOVO) */
+        .niver-card { 
+            background: white; padding: 0; border-radius: 16px; border: 1px solid #f1f5f9; overflow: hidden;
+        }
+        .niver-item { 
+            padding: 15px 20px; border-bottom: 1px solid #f8fafc; display: flex; align-items: center; gap: 15px; 
+            transition: 0.2s;
+        }
+        .niver-item:last-child { border-bottom: none; }
+        .niver-item:hover { background: #fdf2f8; }
+        
+        .niver-icon { 
+            width: 40px; height: 40px; background: #fff1f2; border-radius: 10px; color: #be123c; 
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+        }
+        .niver-info { flex: 1; }
+        .niver-name { font-size: 14px; font-weight: 700; color: #be123c; }
+        .niver-date { font-size: 12px; color: #fb7185; font-weight: 500; }
 
         /* Empty State */
         .empty-state { text-align: center; padding: 40px; color: #94a3b8; background: white; border-radius: 16px; border: 1px dashed #e2e8f0; }
@@ -124,6 +142,13 @@
                         <p>Buscando sua agenda...</p>
                     </div>
                 </div>
+
+                <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes do Mês</div>
+                <div id="niver-feed" class="niver-card">
+                    <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 13px;">
+                        Carregando...
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -137,6 +162,7 @@
             configurarData();
             carregarFeedFinanceiro();
             carregarFeedAgenda();
+            carregarAniversariantes(); // NOVA FUNÇÃO
         });
 
         function configurarData() {
@@ -147,39 +173,26 @@
             document.getElementById('txtData').innerText = hoje.toLocaleDateString('pt-BR', opcoes);
         }
 
-        // --- 1. CARREGA CONTAS PENDENTES (HOJE + 3 DIAS) ---
+        // --- 1. FINANCEIRO (MANTIDO) ---
         async function carregarFeedFinanceiro() {
             if(!usuario) return;
             try {
-                // Busca TUDO pendente
                 const res = await fetch(`/transacoes?status=PENDENTE&usuarioId=${usuario.id}`);
                 const lista = await res.json();
+                const hoje = new Date(); hoje.setHours(0,0,0,0);
+                const limite = new Date(hoje); limite.setDate(limite.getDate() + 3);
 
-                const hoje = new Date();
-                hoje.setHours(0,0,0,0);
-                
-                const limite = new Date(hoje);
-                limite.setDate(limite.getDate() + 3); // Janela de 3 dias
-
-                // Filtra no Front (Mais rápido para esse propósito)
                 const criticos = lista.filter(t => {
-                    // Usa dataVencimento ou data
                     const dtItem = new Date((t.dataVencimento || t.data).split('T')[0] + 'T00:00:00');
-                    return dtItem <= limite; // Vencidos ou vencendo em breve
+                    return dtItem <= limite;
                 });
-
-                // Ordena: Atrasados primeiro, depois hoje, depois futuro
                 criticos.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
 
                 const container = document.getElementById('financeiro-feed');
                 container.innerHTML = '';
 
                 if (criticos.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-smile-beam empty-icon" style="color: #10b981;"></i>
-                            <p>Tudo tranquilo! Nenhuma conta urgente para os próximos 3 dias.</p>
-                        </div>`;
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-smile-beam empty-icon" style="color: #10b981;"></i><p>Tudo tranquilo! Nenhuma conta urgente.</p></div>`;
                     return;
                 }
 
@@ -187,30 +200,11 @@
                     const dtItem = new Date((t.dataVencimento || t.data).split('T')[0] + 'T00:00:00');
                     const isHoje = dtItem.getTime() === hoje.getTime();
                     const isAtrasado = dtItem < hoje;
-                    
-                    let classeCard = 'alert-info';
-                    let textoTag = 'Em Breve';
-                    let classeTag = 'tag-prox';
-                    let corValor = '#3b82f6'; // Azul
+                    let classeCard = 'alert-info'; let textoTag = 'Em Breve'; let classeTag = 'tag-prox'; let corValor = '#3b82f6';
 
-                    if (isAtrasado) {
-                        classeCard = 'alert-urgent';
-                        textoTag = 'ATRASADO';
-                        classeTag = 'tag-hoje'; // Reusa estilo vermelho
-                        corValor = '#ef4444';
-                    } else if (isHoje) {
-                        classeCard = 'alert-warning';
-                        textoTag = 'VENCE HOJE';
-                        classeTag = 'tag-hoje';
-                        corValor = '#f59e0b'; // Laranja
-                    }
-
-                    // Se for Receita, muda pra verde
-                    if (t.tipo === 'RECEITA') {
-                        classeCard = 'alert-info'; // Ou criar um alert-success
-                        corValor = '#10b981';
-                        textoTag = isHoje ? 'RECEBER HOJE' : 'A RECEBER';
-                    }
+                    if (isAtrasado) { classeCard = 'alert-urgent'; textoTag = 'ATRASADO'; classeTag = 'tag-hoje'; corValor = '#ef4444'; }
+                    else if (isHoje) { classeCard = 'alert-warning'; textoTag = 'VENCE HOJE'; classeTag = 'tag-hoje'; corValor = '#f59e0b'; }
+                    if (t.tipo === 'RECEITA') { classeCard = 'alert-info'; corValor = '#10b981'; textoTag = isHoje ? 'RECEBER HOJE' : 'A RECEBER'; }
 
                     container.innerHTML += `
                         <div class="feed-card ${classeCard}">
@@ -224,37 +218,27 @@
                                     ${t.tipo === 'DESPESA' ? '-' : '+'} ${fmt.format(t.valor)}
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
-
             } catch (e) { console.error(e); }
         }
 
-        // --- 2. CARREGA AGENDA (SÓ DE HOJE) ---
+        // --- 2. AGENDA HOJE (MANTIDO) ---
         async function carregarFeedAgenda() {
             if(!usuario) return;
             try {
                 const res = await fetch(`/eventos?usuarioId=${usuario.id}`);
                 const todosEventos = await res.json();
-
                 const hojeStr = new Date().toISOString().split('T')[0];
                 
-                // Filtra só os de HOJE
-                const agendaHoje = todosEventos.filter(e => e.data.split('T')[0] === hojeStr);
+                // Filtra HOJE e remove Aniversários (pois já terão card próprio)
+                const agendaHoje = todosEventos.filter(e => e.data.split('T')[0] === hojeStr && e.tipo !== 'ANIVERSARIO');
 
                 const container = document.getElementById('agenda-feed');
                 container.innerHTML = '';
 
                 if (agendaHoje.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-calendar-check empty-icon"></i>
-                            <p>Agenda livre por enquanto.</p>
-                            <button class="btn-quick btn-q-tarefa" onclick="location.href='rotinas.html'" style="margin: 10px auto; width: fit-content;">
-                                Adicionar Tarefa
-                            </button>
-                        </div>`;
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-check empty-icon"></i><p>Agenda livre hoje.</p><button class="btn-quick btn-q-tarefa" onclick="location.href='rotinas.html'" style="margin: 10px auto; width: fit-content;">Adicionar Tarefa</button></div>`;
                     return;
                 }
 
@@ -262,18 +246,54 @@
                     const checkClass = ev.concluido ? 'checked' : '';
                     const rowClass = ev.concluido ? 'task-done' : '';
                     const icone = ev.concluido ? '<i class="fas fa-check" style="font-size:12px;"></i>' : '';
-
                     container.innerHTML += `
                         <div class="task-item ${rowClass}">
-                            <div class="task-check ${checkClass}" onclick="toggleTarefa('${ev.id}', ${!ev.concluido})">
-                                ${icone}
-                            </div>
+                            <div class="task-check ${checkClass}" onclick="toggleTarefa('${ev.id}', ${!ev.concluido})">${icone}</div>
                             <div class="task-content">
                                 <div class="task-time">${ev.tipo || 'TAREFA'}</div>
                                 <div class="task-text">${ev.titulo}</div>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // --- 3. ANIVERSARIANTES DO MÊS (NOVO) ---
+        async function carregarAniversariantes() {
+            if(!usuario) return;
+            try {
+                const res = await fetch(`/eventos?usuarioId=${usuario.id}`);
+                const todos = await res.json();
+                const mesAtual = new Date().getMonth();
+
+                // Filtra tipo ANIVERSARIO e Mês Atual
+                const nivers = todos.filter(e => {
+                    if (e.tipo !== 'ANIVERSARIO') return false;
+                    const dt = new Date(e.data);
+                    return dt.getMonth() === mesAtual;
+                });
+
+                // Ordena por dia
+                nivers.sort((a,b) => new Date(a.data).getDate() - new Date(b.data).getDate());
+
+                const container = document.getElementById('niver-feed');
+                container.innerHTML = '';
+
+                if (nivers.length === 0) {
+                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 13px;">Nenhum aniversário neste mês.</div>`;
+                    return;
+                }
+
+                nivers.forEach(n => {
+                    const dia = new Date(n.data).getDate();
+                    container.innerHTML += `
+                        <div class="niver-item">
+                            <div class="niver-icon"><i class="fas fa-birthday-cake"></i></div>
+                            <div class="niver-info">
+                                <div class="niver-name">${n.titulo}</div>
+                                <div class="niver-date">Dia ${dia}</div>
+                            </div>
+                        </div>`;
                 });
 
             } catch (e) { console.error(e); }
@@ -281,12 +301,8 @@
 
         async function toggleTarefa(id, novoStatus) {
             try {
-                await fetch(`/eventos/${id}/toggle`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ concluido: novoStatus })
-                });
-                carregarFeedAgenda(); // Recarrega para atualizar visual
+                await fetch(`/eventos/${id}/toggle`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ concluido: novoStatus }) });
+                carregarFeedAgenda(); 
             } catch(e) {}
         }
     </script>
