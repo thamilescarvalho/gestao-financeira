@@ -4,19 +4,31 @@
     <meta charset="UTF-8">
     <title>Dashboard - Feed Diário</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="auth.js"></script>
     <script src="script.js"></script>
 
     <style>
-        /* TEMA: TITANIUM LIGHT (Cinza Tech Equilibrado) */
-        
+        /* --- PADRONIZAÇÃO GLOBAL (FONTE + CAIXA ALTA) --- */
+        *:not(i) {
+            font-family: 'Outfit', sans-serif !important;
+            text-transform: uppercase !important; 
+        }
+
+        /* --- PROTEÇÃO DOS ÍCONES (ESSENCIAL) --- */
+        .fas, .far, .fab, .fa, i {
+            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important;
+            text-transform: none !important;
+            font-style: normal;
+        }
+
+        /* TEMA: TITANIUM LIGHT */
         body { 
-            font-family: 'Outfit', sans-serif; 
             background-color: #e2e8f0; 
             color: #1e293b; 
+            font-size: 11px; /* Base reduzida para compensar o maiúsculo */
         }
         
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
@@ -35,8 +47,8 @@
 
         /* HEADER */
         .welcome-header { margin-bottom: 40px; display: flex; flex-direction: column; gap: 5px; }
-        .welcome-title { font-size: 32px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
-        .welcome-date { color: #64748b; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
+        .welcome-title { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+        .welcome-date { color: #64748b; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
 
         /* GRID */
         .feed-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; }
@@ -45,25 +57,22 @@
         /* SEÇÕES */
         .feed-section { display: flex; flex-direction: column; gap: 20px; }
         .section-title { 
-            font-size: 12px; font-weight: 700; text-transform: uppercase; 
-            color: #64748b; 
-            letter-spacing: 1.5px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; 
+            font-size: 11px; font-weight: 800; color: #64748b; 
+            letter-spacing: 1px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; 
         }
 
-        /* --- NOVO ESTILO: CARDS FINANCEIROS COMPACTOS --- */
-        /* Substitui o antigo .feed-card apenas para o radar financeiro */
+        /* --- CARDS FINANCEIROS COMPACTOS --- */
         .fin-card {
-            background-color: #f1f5f9; /* Cinza Gelo (Não é branco, nem o fundo) */
+            background-color: #f1f5f9; 
             border: 1px solid #cbd5e1;
             border-radius: 12px;
-            padding: 15px 20px; /* Mais compacto */
-            margin-bottom: 0; /* Controlado pelo gap do pai */
+            padding: 15px 20px; 
+            margin-bottom: 0; 
             transition: 0.2s;
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
         }
         .fin-card:hover {
-            background-color: #ffffff; /* Fica branco ao passar o mouse para destaque */
+            background-color: #ffffff; 
             transform: scale(1.01);
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border-color: #94a3b8;
@@ -75,17 +84,17 @@
         .alert-info { border-left: 4px solid #3b82f6; }
         
         .card-row { display: flex; justify-content: space-between; align-items: center; }
-        .card-main { display: flex; flex-direction: column; gap: 4px; } /* Gap menor */
+        .card-main { display: flex; flex-direction: column; gap: 4px; } 
         
-        .card-title { font-weight: 700; font-size: 15px; color: #1e293b; } /* Fonte um pouco menor */
-        .card-sub { font-size: 12px; color: #64748b; }
-        .card-value { font-weight: 800; font-size: 16px; color: #0f172a; }
+        .card-title { font-weight: 800; font-size: 14px; color: #1e293b; }
+        .card-sub { font-size: 11px; color: #64748b; font-weight: 500; }
+        .card-value { font-weight: 800; font-size: 15px; color: #0f172a; }
         
-        .tag-date { font-size: 9px; padding: 3px 8px; border-radius: 6px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; width: fit-content; }
+        .tag-date { font-size: 9px; padding: 3px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 0.5px; width: fit-content; }
         .tag-hoje { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
         .tag-prox { background: #dbeafe; color: #3b82f6; border: 1px solid #bfdbfe; }
 
-        /* AGENDA (Mantida) */
+        /* AGENDA */
         .task-item { 
             display: flex; align-items: center; gap: 15px; padding: 15px; 
             background: #ffffff; border-radius: 12px; border: 1px solid #cbd5e1;
@@ -102,8 +111,8 @@
         .task-check.checked { background: #8b5cf6; border-color: #8b5cf6; }
         
         .task-content { flex: 1; }
-        .task-time { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
-        .task-text { font-size: 14px; color: #334155; font-weight: 500; }
+        .task-time { font-size: 10px; color: #94a3b8; font-weight: 800; margin-bottom: 2px; }
+        .task-text { font-size: 13px; color: #334155; font-weight: 600; }
         .task-done .task-text { text-decoration: line-through; color: #94a3b8; }
 
         /* ANIVERSÁRIOS */
@@ -124,8 +133,8 @@
             border: 1px solid #fecdd3;
         }
         .niver-info { flex: 1; }
-        .niver-name { font-size: 14px; font-weight: 700; color: #1e293b; }
-        .niver-date { font-size: 12px; color: #e11d48; font-weight: 500; }
+        .niver-name { font-size: 13px; font-weight: 700; color: #1e293b; }
+        .niver-date { font-size: 11px; color: #e11d48; font-weight: 600; }
 
         /* Empty State */
         .empty-state { text-align: center; padding: 40px; color: #94a3b8; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; }
@@ -134,7 +143,7 @@
         /* BOTÃO GLASS HARMONIZADO */
         .btn-glass-soft { 
             margin: 10px auto; width: fit-content;
-            padding: 10px 25px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+            padding: 10px 25px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer;
             display: flex; align-items: center; gap: 8px; transition: 0.3s;
             background: transparent;
             border: 2px solid #94a3b8; 
@@ -162,7 +171,7 @@
     <div class="content">
         
         <div class="welcome-header">
-            <h1 class="welcome-title" id="txtSaudacao">Carregando...</h1>
+            <h1 class="welcome-title" id="txtSaudacao">CARREGANDO...</h1>
             <div class="welcome-date" id="txtData">...</div>
         </div>
 
@@ -173,7 +182,7 @@
                 <div id="financeiro-feed" style="display: flex; flex-direction: column; gap: 10px;">
                     <div class="empty-state">
                         <i class="fas fa-spinner fa-spin empty-icon"></i>
-                        <p>Analisando contas...</p>
+                        <p>ANALISANDO CONTAS...</p>
                     </div>
                 </div>
             </div>
@@ -183,14 +192,14 @@
                 <div id="agenda-feed">
                     <div class="empty-state">
                         <i class="fas fa-coffee empty-icon"></i>
-                        <p>Buscando sua agenda...</p>
+                        <p>BUSCANDO SUA AGENDA...</p>
                     </div>
                 </div>
 
                 <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes do Mês</div>
                 <div id="niver-feed" class="niver-card">
-                    <div style="padding: 20px; text-align: center; color: #64748b; font-size: 13px;">
-                        Carregando...
+                    <div style="padding: 20px; text-align: center; color: #64748b; font-size: 12px;">
+                        CARREGANDO...
                     </div>
                 </div>
             </div>
@@ -210,10 +219,10 @@
         });
 
         function configurarData() {
-            if(usuario) document.getElementById('txtSaudacao').innerText = `Olá, ${usuario.nome.split(' ')[0]}!`;
+            if(usuario) document.getElementById('txtSaudacao').innerText = `OLÁ, ${usuario.nome.split(' ')[0]}!`;
             const hoje = new Date();
             const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('txtData').innerText = hoje.toLocaleDateString('pt-BR', opcoes).toUpperCase();
+            document.getElementById('txtData').innerText = hoje.toLocaleDateString('pt-BR', opcoes); // Uppercase já é forçado pelo CSS
         }
 
         async function carregarFeedFinanceiro() {
@@ -242,7 +251,7 @@
                     const dtItem = new Date((t.dataVencimento || t.data).split('T')[0] + 'T00:00:00');
                     const isHoje = dtItem.getTime() === hoje.getTime();
                     const isAtrasado = dtItem < hoje;
-                    let classeCard = 'alert-info'; let textoTag = 'Em Breve'; let classeTag = 'tag-prox'; let corValor = '#3b82f6';
+                    let classeCard = 'alert-info'; let textoTag = 'EM BREVE'; let classeTag = 'tag-prox'; let corValor = '#3b82f6';
 
                     if (isAtrasado) { classeCard = 'alert-urgent'; textoTag = 'ATRASADO'; classeTag = 'tag-hoje'; corValor = '#ef4444'; }
                     else if (isHoje) { classeCard = 'alert-warning'; textoTag = 'VENCE HOJE'; classeTag = 'tag-hoje'; corValor = '#f59e0b'; }

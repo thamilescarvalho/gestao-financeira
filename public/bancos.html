@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Meus Bancos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,13 +12,32 @@
     <script src="script.js"></script>
 
     <style>
-        /* TEMA: TITANIUM LIGHT (Igual ao Dashboard) */
+        /* --- PADRONIZAÇÃO GLOBAL (FONTE + CAIXA ALTA) --- */
+        *:not(i) {
+            font-family: 'Outfit', sans-serif !important;
+            text-transform: uppercase !important; 
+        }
+
+        /* --- PROTEÇÃO DOS ÍCONES (ESSENCIAL) --- */
+        .fas, .far, .fab, .fa, i {
+            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important;
+            text-transform: none !important;
+            font-style: normal;
+        }
+
+        /* TEMA: TITANIUM LIGHT */
         body { 
-            font-family: 'Outfit', sans-serif; 
             background-color: #e2e8f0; 
             color: #1e293b; 
+            font-size: 12px; /* Base reduzida */
         }
         
+        /* GARANTIR QUE INPUTS E BOTÕES HERDEM */
+        input, select, textarea, button {
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+        }
+
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
 
         /* NAVBAR DARK */
@@ -35,19 +54,19 @@
 
         /* HEADER DA PÁGINA */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .page-title { font-size: 28px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
-        .page-title i { color: #64748b; font-size: 24px; }
+        .page-title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
+        .page-title i { color: #64748b; font-size: 20px; }
 
         /* BOTÃO PRINCIPAL (DARK/ROXO) */
         .btn-main {
             background-color: #1e293b; 
             color: white; 
             border: none; 
-            padding: 12px 24px; 
-            border-radius: 12px; 
-            font-weight: 600; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            font-weight: 700; 
             cursor: pointer; 
-            display: flex; align-items: center; gap: 8px; font-size: 14px;
+            display: flex; align-items: center; gap: 8px; font-size: 11px;
             transition: 0.3s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
@@ -56,7 +75,7 @@
         /* LISTA DE BANCOS (GRID) */
         .bank-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         
-        /* CARD DE BANCO (ESTILO GLASS/CLEAN) */
+        /* CARD DE BANCO */
         .bank-card {
             background: #ffffff;
             border-radius: 16px;
@@ -70,42 +89,54 @@
             min-height: 140px;
         }
         
-        /* Faixa lateral colorida indicando status */
         .bank-card::before {
             content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
-            background: #10b981; /* Verde (Ativo) */
+            background: #10b981; 
         }
-        .bank-card.inativo::before { background: #94a3b8; /* Cinza (Inativo) */ }
+        .bank-card.inativo::before { background: #94a3b8; }
         .bank-card.inativo { opacity: 0.7; background: #f1f5f9; }
 
         .bank-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #94a3b8; }
 
         /* INFO DO BANCO */
         .bank-header-card { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .bank-name { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
-        .tag-inativo { font-size: 10px; background: #e2e8f0; color: #64748b; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 700; display: inline-block; margin-top: 5px; }
+        .bank-name { font-size: 16px; font-weight: 800; color: #1e293b; margin: 0; }
+        .tag-inativo { font-size: 9px; background: #e2e8f0; color: #64748b; padding: 2px 8px; border-radius: 6px; font-weight: 700; display: inline-block; margin-top: 5px; }
 
-        .bank-details { font-size: 13px; color: #64748b; margin-bottom: 20px; font-family: monospace; letter-spacing: 0.5px; background: #f8fafc; padding: 5px 10px; border-radius: 6px; width: fit-content; }
+        .bank-details { font-size: 11px; color: #64748b; margin-bottom: 20px; font-family: monospace; letter-spacing: 0.5px; background: #f8fafc; padding: 5px 10px; border-radius: 6px; width: fit-content; font-weight: 600; }
         
         .bank-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; }
         
-        .bank-balance-label { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
-        .bank-balance-value { font-weight: 800; font-size: 20px; color: #1e293b; letter-spacing: -0.5px; }
+        .bank-balance-label { font-size: 10px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px; }
+        .bank-balance-value { font-weight: 800; font-size: 18px; color: #1e293b; letter-spacing: -0.5px; }
         
         /* AÇÕES */
         .bank-actions { display: flex; gap: 8px; }
         .btn-icon-small {
             width: 32px; height: 32px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 13px; color: #64748b;
+            display: flex; align-items: center; justify-content: center; font-size: 12px; color: #64748b;
             transition: 0.2s;
         }
         .btn-icon-small:hover { border-color: #94a3b8; color: #1e293b; background: #f1f5f9; }
         .btn-del:hover { border-color: #fca5a5; color: #ef4444; background: #fef2f2; }
 
-        /* MODAL CUSTOMIZADO (Mantido clean) */
+        /* MODAL CUSTOMIZADO */
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
+        .modal { background: white; width: 95%; max-width: 450px; padding: 30px; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
         .form-row { display: flex; gap: 15px; }
         .form-row .form-group { flex: 1; }
-        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 12px; box-sizing: border-box; outline: none; background: #f8fafc; font-weight: 600; }
+        .form-group input:focus, .form-group select:focus { background: white; border-color: #1e293b; box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1); }
+        .form-group { margin-bottom: 15px; }
+
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
+        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; }
+        .btn-outline:hover { background: #f8fafc; color: #1e293b; }
+
+        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         
         @media (max-width: 600px) {
             .bank-list { grid-template-columns: 1fr; }
@@ -138,7 +169,7 @@
 
     <div class="modal-overlay" id="modalBanco">
         <div class="modal">
-            <h2 id="tituloModal" style="font-weight: 800; color: #1e293b;">Novo Banco</h2>
+            <h2 id="tituloModal" style="font-weight: 800; color: #1e293b; margin-top: 0; font-size: 18px;">Novo Banco</h2>
             <input type="hidden" id="editId">
             
             <div class="form-group">
