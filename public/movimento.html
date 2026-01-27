@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Movimentação</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,115 +12,211 @@
     <script src="script.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
-        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
+        /* TEMA: TITANIUM LIGHT + TUDO MAIÚSCULO */
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: #e2e8f0; 
+            color: #1e293b; 
+            text-transform: uppercase; /* AQUI: FORÇA TUDO PARA MAIÚSCULO */
+            font-size: 12px; /* Ajuste fino para não ficar gigante em caixa alta */
+        }
+        
+        .content { padding: 40px; max-width: 1280px; margin: 0 auto; }
+
+        /* NAVBAR DARK */
+        .navbar-custom {
+            background-color: #1e293b; 
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
 
         /* HEADER */
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
-        .header-left { display: flex; align-items: center; gap: 20px; }
-        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .page-title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
 
         /* ABAS */
-        .header-tabs { display: flex; gap: 5px; background: #e2e8f0; padding: 4px; border-radius: 8px; }
+        .header-tabs { display: flex; gap: 3px; background: #cbd5e1; padding: 3px; border-radius: 8px; }
         .tab-link { 
-            text-decoration: none; color: #64748b; font-weight: 600; font-size: 14px; 
-            padding: 6px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: none;
+            text-decoration: none; color: #475569; font-weight: 700; font-size: 11px; /* Fonte ajustada */
+            padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: none; background: transparent;
+            font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;
         }
         .tab-link:hover { color: #1e293b; }
         .tab-link.active { background-color: white; color: #1e293b; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-        .header-actions { display: flex; gap: 10px; }
-        .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .header-actions { display: flex; gap: 8px; }
         
-        .btn-transf { background-color: #ed8936; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(237, 137, 54, 0.2); transition: 0.2s; display: flex; align-items: center; gap: 8px; }
-        .btn-transf:hover { background-color: #dd6b20; transform: translateY(-1px); }
+        /* BOTÕES */
+        .btn-import { 
+            background: white; color: #64748b; border: 1px solid #cbd5e1; 
+            padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; 
+            display: flex; align-items: center; gap: 6px; transition:0.2s; font-size: 11px; font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+        }
+        .btn-import:hover { background: #f8fafc; border-color: #94a3b8; color: #1e293b; }
+        
+        .btn-transf { 
+            background-color: #f97316; color: white; 
+            padding: 8px 16px; border-radius: 8px; font-weight: 700; border: none; 
+            cursor: pointer; display: flex; align-items: center; gap: 6px; 
+            box-shadow: 0 4px 6px rgba(249, 115, 22, 0.2); font-size: 11px; transition: 0.2s; font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+        }
+        .btn-transf:hover { background-color: #ea580c; transform: translateY(-2px); }
 
-        /* FILTROS */
-        .modern-toolbar { background: white; padding: 8px 15px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; margin-bottom: 25px; }
-        .total-badge { background: #fffaf0; color: #ed8936; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid #fbd38d; flex-shrink: 0; }
+        /* TOOLBAR */
+        .modern-toolbar { 
+            background: white; padding: 8px 12px; border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #cbd5e1; 
+            display: flex; align-items: center; gap: 8px; margin-bottom: 20px; 
+            flex-wrap: nowrap; overflow-x: auto;
+        }
+        
+        .total-badge { 
+            background: #fff7ed; color: #ea580c; 
+            padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 12px; 
+            border: 1px solid #fed7aa; white-space: nowrap; flex-shrink: 0;
+        }
+        
         .divider { width: 1px; height: 20px; background-color: #e2e8f0; flex-shrink: 0; }
-        .filter-pill { display: flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 20px; transition: all 0.3s ease; background: transparent; border: 1px solid transparent; flex-shrink: 0; }
-        .filter-pill:hover, .filter-pill:focus-within { background-color: #f8fafc; border-color: #e2e8f0; }
-        .filter-pill i { color: #94a3b8; font-size: 14px; }
-        .filter-pill:focus-within i { color: #ed8936; }
-        .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; width: 80px; transition: width 0.3s ease; }
-        .filter-pill:focus-within .clean-input { width: 160px; }
-        .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #64748b; font-family: 'Inter', sans-serif; width: 95px; }
-        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #475569; font-weight: 500; cursor: pointer; width: auto; min-width: 80px; }
-        .btn-limpar { font-size: 11px; color: #94a3b8; cursor: pointer; margin-left: auto; text-decoration: none; border: none; background: none; white-space: nowrap; }
-        .btn-limpar:hover { color: #ed8936; text-decoration: underline; }
+        
+        .filter-pill { 
+            display: flex; align-items: center; gap: 5px; background: #f8fafc; 
+            padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0; flex-shrink: 0;
+            transition: 0.2s;
+        }
+        .filter-pill:focus-within { border-color: #f97316; background: white; }
+        .filter-pill i { color: #94a3b8; font-size: 11px; }
+        
+        /* INPUTS - Garantindo caixa alta também na digitação */
+        input, select, textarea { text-transform: uppercase; }
+
+        .date-input { 
+            border: none; background: transparent; outline: none; 
+            font-size: 11px; color: #475569; width: 80px; 
+            font-family: 'Outfit', sans-serif; font-weight: 600; 
+        }
+        
+        .clean-input { 
+            border: none; background: transparent; outline: none; 
+            font-size: 11px; color: #334155; width: 70px; 
+            font-family: 'Outfit', sans-serif; transition: width 0.2s; font-weight: 600;
+        }
+        .clean-input:focus { width: 120px; }
+        
+        .clean-select { 
+            border: none; background: transparent; outline: none; 
+            font-size: 11px; color: #334155; cursor: pointer; 
+            min-width: 60px; font-family: 'Outfit', sans-serif; font-weight: 600;
+        }
+        
+        .btn-limpar { 
+            font-size: 10px; color: #64748b; cursor: pointer; border: none; background: none; 
+            font-weight: 700; white-space: nowrap; transition: 0.2s; margin-left: auto; font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+        }
+        .btn-limpar:hover { color: #f97316; text-decoration: underline; }
 
         /* TABELA */
-        .table-container { background: transparent; border: none; box-shadow: none; overflow-x: auto; }
-        .clean-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; table-layout: fixed; }
-        .clean-table thead tr { background-color: #dbe4ef; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .clean-table thead th { text-align: left; padding: 12px 15px; font-size: 11px; font-weight: 800; color: #2d3748; text-transform: uppercase; letter-spacing: 0.8px; border: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .clean-table thead th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
-        .clean-table thead th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
-        .clean-table tbody tr { background-color: #ffffff; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease; }
-        .clean-table tbody tr:hover { transform: translateY(-1px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .clean-table tbody td { padding: 12px 15px; font-size: 13px; color: #334155; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .clean-table tbody td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-        .clean-table tbody td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+        .table-container { 
+            background: white; border-radius: 16px; border: 1px solid #cbd5e1; 
+            overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+        }
+        .clean-table { width: 100%; border-collapse: collapse; min-width: 900px; table-layout: fixed; }
+        
+        .clean-table th { 
+            text-align: left; padding: 14px 15px; font-size: 10px; font-weight: 800; 
+            color: #1e293b; text-transform: uppercase; letter-spacing: 0.8px; 
+            background: #cbd5e1; border-bottom: 1px solid #94a3b8;
+        }
+        
+        .clean-table td { 
+            padding: 12px 15px; font-size: 12px; color: #334155; 
+            border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+            font-family: 'Outfit', sans-serif; font-weight: 500;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .clean-table tr:last-child td { border-bottom: none; }
+        .clean-table tbody tr:hover { background-color: #f8fafc; }
 
+        /* COLUNAS */
         .col-nome { width: 22%; font-weight: 600; color: #1e293b; }
-        .col-banco { width: 12%; color: #4a5568; }
-        .col-valor { width: 14%; }
-        .col-forma { width: 10%; text-align: center !important; color: #4a5568; } 
-        .col-data { width: 10%; text-align: center !important; color: #64748b; }
-        .col-desc { width: 24%; color: #64748b; } 
-        .col-acao { width: 8%; text-align: right !important; overflow: visible !important; padding-right: 20px; }
-        th.col-forma, th.col-data { text-align: center !important; }
-        th.col-acao { text-align: right !important; padding-right: 20px; }
+        .col-banco { width: 13%; color: #64748b; font-size: 11px; font-weight: 600; }
+        .col-valor { width: 12%; font-weight: 800; }
+        .col-forma { width: 10%; text-align: center; color: #64748b; font-size: 11px; font-weight: 600; }
+        .col-data { width: 10%; text-align: center; color: #64748b; font-family: 'Outfit', monospace; font-size: 11px; font-weight: 600; }
+        .col-desc { width: 23%; color: #94a3b8; font-size: 11px; font-weight: 500; } 
+        
+        .col-acao { width: 90px; }
+        .clean-table thead th.col-acao { text-align: center; }
+        .clean-table tbody td.col-acao { 
+            display: flex !important; justify-content: flex-end; align-items: center; 
+            gap: 4px; padding-right: 15px; border-bottom: 1px solid #f1f5f9;
+        }
 
-        .badge-valor { padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; display: inline-block; }
-        .bg-receita { background-color: #def7ec; color: #03543f; border: 1px solid #bcf0da; }
-        .bg-despesa { background-color: #fde8e8; color: #9b1c1c; border: 1px solid #fbd5d5; }
+        .action-btn { 
+            width: 26px; height: 26px; border-radius: 6px; border: 1px solid transparent; 
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
+            transition: 0.2s; background: white; border-color: #e2e8f0; color: #64748b; font-size: 11px;
+        }
+        .action-btn:hover { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+        .btn-trash:hover { background: #fff7ed; color: #c2410c; border-color: #ffedd5; }
 
-        .action-btn { width: 32px; height: 32px; border-radius: 6px; border: none; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; color: #718096; margin-left: 2px; }
-        .action-btn:hover { background-color: #edf2f7; color: #3182ce; }
-        .action-btn.btn-trash:hover { background-color: #fff5f5; color: #e53e3e; }
+        .badge-valor { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; display: inline-block; }
+        .bg-receita { background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .bg-despesa { background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
 
         /* MODAIS */
-        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
-        .modal { background: white; width: 90%; max-width: 450px; padding: 25px; border-radius: 12px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); animation: slideDown 0.3s ease-out; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #edf2f7; padding-bottom: 15px; margin-bottom: 20px; }
-        .modal-title { font-size: 18px; font-weight: 700; color: #ed8936; margin: 0; }
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
+        .modal { background: white; width: 95%; max-width: 450px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-title { font-size: 18px; font-weight: 800; color: #1e293b; margin: 0; }
         
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 13px; box-sizing: border-box; outline: none; background: #f8fafc; font-family: 'Outfit', sans-serif; font-weight: 600; }
+        .form-input:focus { background: white; border-color: #1e293b; box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1); }
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
-        .form-input { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; outline: none; }
-        .form-input:focus { border-color: #ed8936; box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.1); }
 
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
-        .btn-cancel { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 600; }
-        .btn-confirm { padding: 10px 20px; border: none; background: #ed8936; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        .btn-confirm:hover { background: #dd6b20; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
+        .btn-cancel { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 10px; cursor: pointer; color: #4a5568; font-weight: 700; font-family: 'Outfit', sans-serif; text-transform: uppercase; }
+        .btn-cancel:hover { background: #f8fafc; color: #1e293b; }
+        .btn-confirm { padding: 10px 20px; border: none; background: #f97316; color: white; border-radius: 10px; cursor: pointer; font-weight: 700; font-family: 'Outfit', sans-serif; text-transform: uppercase; }
+        .btn-confirm:hover { background: #ea580c; }
 
-        div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
-        div:where(.swal2-popup) { border-radius: 15px !important; font-size: 14px !important; }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase; }
     </style>
 </head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">T-SYSTEM</div> <div></div> </nav>
+    
+    <nav class="navbar-custom"> 
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        <div class="logo">T-SYSTEM</div> 
+        <div></div> 
+    </nav>
 
     <div class="content">
         <div class="page-header">
             <div class="header-left">
                 <h1 class="page-title">Movimentação</h1>
                 <div class="header-tabs">
-                    <a onclick="setAba('TODOS', this)" class="tab-link active">Todas</a>
-                    <a onclick="setAba('RECEITA', this)" class="tab-link">Entradas</a>
-                    <a onclick="setAba('DESPESA', this)" class="tab-link">Saídas</a>
+                    <button onclick="setAba('TODOS', this)" class="tab-link active">Todas</button>
+                    <button onclick="setAba('RECEITA', this)" class="tab-link">Entradas</button>
+                    <button onclick="setAba('DESPESA', this)" class="tab-link">Saídas</button>
                 </div>
             </div>
             <div class="header-actions">
                 <button class="btn-import" onclick="location.href='conciliacao.html'"><i class="fas fa-file-import"></i> Importar</button>
-                <button class="btn-transf" onclick="abrirModalTransferencia()"><i class="fas fa-exchange-alt"></i> Transferência</button>
+                <button class="btn-transf" onclick="abrirModalTransferencia()"><i class="fas fa-exchange-alt"></i> Transferir</button>
             </div>
         </div>
 
@@ -128,37 +224,35 @@
             <div class="total-badge">Total: <span id="total-display">R$ 0,00</span></div>
             <div class="divider"></div>
             
-            <div class="filter-pill" style="gap: 2px;">
+            <div class="filter-pill">
                 <i class="far fa-calendar"></i>
                 <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()">
-                <span style="color: #cbd5e0; font-size: 10px;">ATÉ</span>
+                <span style="color: #cbd5e0; font-size: 9px; font-weight: 700;">-</span>
                 <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()">
             </div>
             
-            <div class="divider"></div>
-            
             <div class="filter-pill"> 
                 <i class="far fa-user"></i> 
-                <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Cliente/Forn." onkeyup="aplicarFiltros()"> 
+                <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Nome" onkeyup="aplicarFiltros()"> 
             </div>
             
             <div class="filter-pill"> 
                 <i class="far fa-credit-card"></i> 
                 <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()"> 
-                    <option value="">Todas</option>
+                    <option value="">Forma</option>
                 </select> 
             </div>
 
             <div class="filter-pill"> 
                 <i class="fas fa-university"></i> 
                 <select id="filtroBanco" class="clean-select" onchange="aplicarFiltros()"> 
-                    <option value="">Todos Bancos</option>
+                    <option value="">Banco</option>
                 </select> 
             </div>
 
             <div class="filter-pill"> 
                 <i class="fas fa-search"></i> 
-                <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição" onkeyup="aplicarFiltros()"> 
+                <input type="text" id="filtroDesc" class="clean-input" placeholder="Busca" onkeyup="aplicarFiltros()"> 
             </div>
             
             <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
@@ -168,7 +262,7 @@
             <table class="clean-table">
                 <thead> 
                     <tr> 
-                        <th class="col-nome">Cliente / Fornecedor</th> 
+                        <th class="col-nome">Nome</th> 
                         <th class="col-banco">Banco</th> 
                         <th class="col-valor">Valor</th> 
                         <th class="col-forma"><i class="fas fa-wallet" title="Forma Pagto"></i></th>
@@ -185,7 +279,8 @@
     <div class="modal-overlay" id="modalEdicao">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title" style="color: #3182ce;">Editar Detalhes</h3>
+                <h3 class="modal-title">Editar Detalhes</h3>
+                <button onclick="document.getElementById('modalEdicao').style.display='none'" style="border:none; background:transparent; cursor:pointer; color:#718096;"><i class="fas fa-times"></i></button>
             </div>
             <input type="hidden" id="editId">
             <div class="form-group"><label>Cliente / Fornecedor</label><input type="text" id="editFornecedor" class="form-input"></div>
@@ -198,7 +293,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" onclick="document.getElementById('modalEdicao').style.display='none'">Cancelar</button>
-                <button class="btn-confirm" onclick="salvarEdicaoRapida()" style="background: #3182ce;">Salvar Alterações</button>
+                <button class="btn-confirm" onclick="salvarEdicaoRapida()" style="background: #1e293b;">Salvar</button>
             </div>
         </div>
     </div>
@@ -209,8 +304,8 @@
                 <h3 class="modal-title">Adicionar Transferência</h3>
                 <button onclick="document.getElementById('modalTransferencia').style.display='none'" style="border:none; background:transparent; cursor:pointer; color:#718096;"><i class="fas fa-times"></i></button>
             </div>
-            <div class="form-group"><label>Banco de Origem (Sai dinheiro)</label><select id="transfOrigem" class="form-input"></select></div>
-            <div class="form-group"><label>Banco de Destino (Entra dinheiro)</label><select id="transfDestino" class="form-input"></select></div>
+            <div class="form-group"><label>Banco de Origem (Sai)</label><select id="transfOrigem" class="form-input"></select></div>
+            <div class="form-group"><label>Banco de Destino (Entra)</label><select id="transfDestino" class="form-input"></select></div>
             <div class="form-group"><label>Valor (R$)</label><input type="number" id="transfValor" class="form-input" step="0.01" placeholder="0,00"></div>
             <div class="form-group"><label>Data</label><input type="date" id="transfData" class="form-input"></div>
             <div class="modal-footer">
@@ -247,17 +342,14 @@
                 const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
                 bancosCache = await res.json();
                 
-                // Preenche o FILTRO DE BANCOS na tela principal
                 const filtroSel = document.getElementById('filtroBanco');
                 filtroSel.innerHTML = '<option value="">Todos Bancos</option>';
                 bancosCache.forEach(b => {
                     filtroSel.innerHTML += `<option value="${b.id}">${b.nome}</option>`;
                 });
-
             } catch(e) { console.error(e); }
         }
 
-        // --- LÓGICA DE TRANSFERÊNCIA ---
         function abrirModalTransferencia() {
             const selOrigem = document.getElementById('transfOrigem');
             const selDestino = document.getElementById('transfDestino');
@@ -298,14 +390,13 @@
             } catch(e) { console.error(e); }
         }
 
-        // --- MANIPULAÇÃO DA TABELA E FILTROS ---
         function atualizarFiltroPagamentos() {
             const select = document.getElementById('filtroPagto');
             const valorAtual = select.value;
             const formasExistentes = [...new Set(transacoesCache.map(t => t.formaPagamento).filter(f => f))];
             const opcoesPadrao = ['Pix', 'Boleto', 'Cartão', 'Dinheiro', 'Transferência', 'Outros'];
             const todasOpcoes = [...new Set([...opcoesPadrao, ...formasExistentes])].sort();
-            select.innerHTML = '<option value="">Todas</option>';
+            select.innerHTML = '<option value="">Forma</option>';
             todasOpcoes.forEach(forma => { select.innerHTML += `<option value="${forma}">${forma}</option>`; });
             select.value = valorAtual;
         }
@@ -316,7 +407,7 @@
             const forn = document.getElementById('filtroFornecedor').value.toLowerCase();
             const desc = document.getElementById('filtroDesc').value.toLowerCase();
             const pagto = document.getElementById('filtroPagto').value; 
-            const bancoId = document.getElementById('filtroBanco').value; // PEGA O VALOR DO FILTRO DE BANCO
+            const bancoId = document.getElementById('filtroBanco').value;
 
             const filtrados = transacoesCache.filter(item => {
                 if(item.status !== 'PAGO' && item.status !== 'RECEBIDO') return false; 
@@ -328,8 +419,6 @@
                 if (forn && !(item.fornecedor || '').toLowerCase().includes(forn)) return false;
                 if (desc && !(item.descricao || '').toLowerCase().includes(desc)) return false;
                 if (pagto && item.formaPagamento !== pagto) return false;
-                
-                // LÓGICA DO FILTRO DE BANCO
                 if (bancoId && (!item.banco || item.banco.id !== bancoId)) return false;
 
                 return true;
@@ -375,8 +464,8 @@
                         <td class="col-data">${dataFormatada}</td>
                         <td class="col-desc" title="${item.descricao || ''}">${item.descricao || ''}</td>
                         <td class="col-acao">
-                            <button onclick="abrirEdicao('${item.id}')" class="action-btn" title="Editar Detalhes"><i class="fas fa-pen"></i></button>
-                            <button onclick="estornarConta('${item.id}', '${item.tipo}')" class="action-btn btn-trash" title="Excluir do Movimento"><i class="fas fa-trash-alt"></i></button>
+                            <button onclick="abrirEdicao('${item.id}')" class="action-btn" title="Editar"><i class="fas fa-pen"></i></button>
+                            <button onclick="estornarConta('${item.id}', '${item.tipo}')" class="action-btn btn-trash" title="Estornar"><i class="fas fa-trash-alt"></i></button>
                         </td>
                     </tr>
                 `;
@@ -411,19 +500,18 @@
         function estornarConta(id, tipo) {
             const destinoTexto = tipo === 'RECEITA' ? "'Contas a Receber'" : "'Contas a Pagar'";
             Swal.fire({
-                title: 'Excluir do Movimento?',
-                text: `Essa conta sairá do extrato e voltará para ${destinoTexto} como pendente.`,
+                title: 'Estornar?',
+                text: `Essa conta voltará para ${destinoTexto} como pendente.`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#ed8936',
-                cancelButtonColor: '#718096',
+                confirmButtonColor: '#f97316',
                 confirmButtonText: 'Sim, estornar!'
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
                         const res = await fetch(`/transacoes/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'PENDENTE', bancoId: null }) });
-                        if(res.ok) { Toast.fire({ icon: 'success', title: 'Estornado com sucesso!' }); carregar(); } 
-                        else { Swal.fire('Erro', 'Não foi possível estornar.', 'error'); }
+                        if(res.ok) { Toast.fire({ icon: 'success', title: 'Estornado!' }); carregar(); } 
+                        else { Swal.fire('Erro', 'Falha ao estornar.', 'error'); }
                     } catch (e) { console.error(e); }
                 }
             })

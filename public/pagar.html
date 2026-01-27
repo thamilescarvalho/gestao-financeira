@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Contas a Pagar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,103 +12,189 @@
     <script src="script.js"></script>
 
     <style>
-        /* MANTIDO SEU ESTILO ORIGINAL */
-        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
-        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; }
+        /* --- PADRONIZAÇÃO GLOBAL DE FONTE E CAIXA ALTA --- */
+        * {
+            font-family: 'Outfit', sans-serif !important;
+            text-transform: uppercase !important; /* Força tudo para maiúsculo */
+        }
+
+        /* TEMA: TITANIUM LIGHT */
+        body { 
+            background-color: #e2e8f0; 
+            color: #1e293b; 
+            font-size: 12px; /* Base reduzida para compensar o maiúsculo */
+        }
+
+        /* GARANTIR QUE INPUTS E BOTÕES HERDEM A FONTE E O MAIÚSCULO */
+        input, select, textarea, button {
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+        }
+
+        /* --- PROTEÇÃO DOS ÍCONES (ESSENCIAL) --- */
+        .fas, .far, .fab, .fa {
+            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important;
+            text-transform: none !important; 
+        }
+
+        .content { padding: 40px; max-width: 1250px; margin: 0 auto; }
+
+        /* NAVBAR DARK */
+        .navbar-custom {
+            background-color: #1e293b; 
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+
+        /* HEADER */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        
+        .page-title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
+        
         .header-actions { display: flex; gap: 10px; }
-        .btn-import { background: white; color: #475569; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition:0.2s; }
-        .btn-import:hover { background: #f1f5f9; border-color: #cbd5e0; }
-        .btn-new { background-color: #e53e3e; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(229, 62, 62, 0.2); }
-        .btn-new:hover { background-color: #c53030; }
-        .modern-toolbar { background: white; padding: 10px 20px; border-radius: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .total-badge { background: #fff5f5; color: #c53030; padding: 5px 15px; border-radius: 20px; font-weight: 700; font-size: 13px; border: 1px solid #fed7d7; white-space: nowrap; }
-        .divider { width: 1px; height: 25px; background-color: #e2e8f0; }
-        .date-group { display: flex; align-items: center; gap: 5px; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
-        .date-input { border: none; background: transparent; outline: none; font-size: 12px; color: #4a5568; width: 105px; }
-        .search-box { display: flex; align-items: center; gap: 8px; flex: 1; background: #f7fafc; padding: 5px 10px; border-radius: 8px; border: 1px solid #edf2f7; }
-        .clean-input { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; width: 100%; }
-        .clean-select { border: none; background: transparent; outline: none; font-size: 13px; color: #4a5568; cursor: pointer; min-width: 120px; }
-        .btn-limpar { font-size: 12px; color: #718096; cursor: pointer; border: none; background: none; font-weight: 600; white-space: nowrap; }
-        .btn-limpar:hover { color: #e53e3e; text-decoration: underline; }
-        .input-error-border { border: 2px solid #e53e3e !important; background-color: #fff5f5 !important; color: #e53e3e !important; border-radius: 6px; }
-        .table-container { background: transparent; overflow-x: auto; }
-        .clean-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; min-width: 800px; table-layout: fixed; }
-        .clean-table th { text-align: left; padding: 12px 15px; font-size: 11px; font-weight: 800; color: #4a5568; text-transform: uppercase; letter-spacing: 0.5px; }
-        .clean-table td { padding: 12px 15px; font-size: 13px; color: #334155; background: white; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .clean-table td:first-child { border-left: 1px solid #e2e8f0; border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-        .clean-table td:last-child { border-right: 1px solid #e2e8f0; border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-        .col-forn { width: 22%; font-weight: 600; color: #1e293b; }
-        .col-venc { width: 12%; color: #64748b; }
-        .col-valor { width: 15%; font-weight: 700; color: #e53e3e; }
-        .col-forma { width: 12%; text-align: center; }
-        .col-parc { width: 8%; text-align: center; font-weight: 600; color: #718096; }
-        .col-desc { width: 20%; color: #94a3b8; }
-        .col-acao { width: 120px; text-align: right; overflow: visible !important; }
-        .action-btn { width: 30px; height: 30px; border-radius: 6px; border: none; cursor: pointer; margin-left: 3px; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-pay { color: #2f855a; background: #f0fff4; } .btn-pay:hover { background: #c6f6d5; }
-        .btn-edit { color: #d69e2e; background: #fffaf0; } .btn-edit:hover { background: #feebc8; }
-        .btn-del { color: #e53e3e; background: #fff5f5; } .btn-del:hover { background: #fed7d7; }
-        .import-table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }
-        .import-table th { text-align: left; padding: 10px; border-bottom: 2px solid #e2e8f0; font-size: 11px; color: #4a5568; text-transform: uppercase; white-space: nowrap; }
-        .import-table td { padding: 10px; border-bottom: 1px solid #edf2f7; font-size: 12px; color: #2d3748; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .row-duplicada { background-color: #fffbeb !important; }
-        .row-duplicada td { color: #b45309 !important; }
-        .aviso-duplicata { font-size: 10px; color: #d97706; font-weight: bold; margin-left: 5px; cursor: help; }
-        .col-w-check { width: 40px; text-align: center; } .col-w-data { width: 100px; } .col-w-parc { width: 80px; text-align: center; } .col-w-tipo { width: 90px; } .col-w-valor { width: 110px; text-align: right; } .col-w-desc { width: auto; }
-        .badge-tipo { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-        .bg-receita { background: #def7ec; color: #03543f; } .bg-despesa { background: #fde8e8; color: #9b1c1c; } .badge-parc { background: #edf2f7; color: #4a5568; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-size: 11px; }
-        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; }
-        .modal { background: white; width: 95%; max-width: 600px; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px rgba(0,0,0,0.1); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 600; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none; }
+        
+        /* BOTÕES TOPO */
+        .btn-import { 
+            background: white; color: #64748b; border: 1px solid #cbd5e1; 
+            padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; 
+            display: flex; align-items: center; gap: 6px; transition:0.2s; font-size: 11px;
+        }
+        .btn-import:hover { background: #f8fafc; border-color: #94a3b8; color: #1e293b; }
+        
+        .btn-new { 
+            background-color: #ef4444; /* VERMELHO DESPESA */
+            color: white; 
+            padding: 8px 16px; border-radius: 8px; font-weight: 700; border: none; 
+            cursor: pointer; display: flex; align-items: center; gap: 6px; 
+            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2); font-size: 11px; transition: 0.2s;
+        }
+        .btn-new:hover { background-color: #dc2626; transform: translateY(-2px); }
+
+        /* BARRA DE FILTROS */
+        .modern-toolbar { 
+            background: white; padding: 10px 15px; border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #cbd5e1; 
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; 
+        }
+        
+        .total-badge { 
+            background: #fef2f2; color: #ef4444; /* Vermelho Suave */
+            padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; 
+            border: 1px solid #fecaca; white-space: nowrap; 
+        }
+        
+        .divider { width: 1px; height: 20px; background-color: #e2e8f0; }
+        
+        .date-group, .search-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .search-box { flex: 1; }
+        
+        /* INPUTS E SELECTS */
+        .date-input { border: none; background: transparent; outline: none; font-size: 11px; color: #475569; width: 90px; font-weight: 600; }
+        .clean-input { width: 100%; border: none; background: transparent; outline: none; font-size: 11px; color: #334155; font-weight: 600; }
+        .clean-select { width: 100%; min-width: 100px; border: none; background: transparent; outline: none; font-size: 11px; color: #334155; cursor: pointer; font-weight: 600; }
+        
+        ::placeholder { text-transform: uppercase; opacity: 0.6; }
+
+        .btn-limpar { font-size: 10px; color: #64748b; cursor: pointer; border: none; background: none; font-weight: 700; white-space: nowrap; transition: 0.2s; }
+        .btn-limpar:hover { color: #ef4444; text-decoration: underline; }
+        .input-error-border { border: 1px solid #ef4444 !important; background-color: #fef2f2 !important; }
+
+        /* TABELA CUSTOMIZADA */
+        .table-container { 
+            background: white; border-radius: 16px; border: 1px solid #cbd5e1; 
+            overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); 
+        }
+        .clean-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        
+        .clean-table th { 
+            text-align: left; padding: 14px 20px; font-size: 10px; font-weight: 800; 
+            color: #1e293b; text-transform: uppercase; letter-spacing: 0.8px; 
+            background: #cbd5e1; border-bottom: 1px solid #94a3b8;
+        }
+        
+        .clean-table td { 
+            padding: 14px 20px; font-size: 12px; color: #334155; 
+            border-bottom: 1px solid #f1f5f9; vertical-align: middle;
+            white-space: nowrap; font-weight: 500;
+        }
+        .clean-table tr:last-child td { border-bottom: none; }
+        .clean-table tbody tr:hover { background-color: #f8fafc; }
+
+        /* LARGURAS */
+        .col-forn { width: 22%; font-weight: 700; color: #1e293b; }
+        .col-venc { width: 12%; color: #64748b; font-family: monospace; font-size: 11px; }
+        .col-valor { width: 15%; font-weight: 800; color: #ef4444; } /* Vermelho */
+        .col-forma { width: 12%; text-align: center; font-size: 11px; }
+        .col-parc { width: 8%; text-align: center; }
+        .badge-parc { background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; display: inline-block; }
+        .col-desc { width: 20%; color: #94a3b8; font-size: 11px; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+
+        /* COLUNA AÇÕES */
+        .col-acao { width: 110px; }
+        .clean-table thead th.col-acao { text-align: center; }
+        .clean-table tbody td.col-acao { 
+            display: flex !important; justify-content: flex-end; align-items: center; 
+            gap: 4px; padding-right: 15px; border-bottom: 1px solid #f1f5f9;
+        }
+
+        /* AÇÕES */
+        .action-btn { 
+            width: 26px; height: 26px; border-radius: 6px; border: 1px solid transparent; 
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
+            transition: 0.2s; background: white; border-color: #e2e8f0; color: #64748b; 
+            font-size: 10px;
+        }
+        .btn-pay:hover { background: #fef2f2; color: #ef4444; border-color: #fecaca; } /* Hover Vermelho */
+        .btn-edit:hover { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+        .btn-del:hover { background: #fff7ed; color: #c2410c; border-color: #ffedd5; } /* Delete Laranja */
+
+        /* MODAIS */
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
+        .modal { background: white; width: 95%; max-width: 600px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal h2 { font-weight: 800; color: #ef4444; margin-top: 0; font-size: 18px; } /* Título Modal Vermelho */
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
+        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 10px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; }
+        .btn-outline:hover { background: #f8fafc; color: #1e293b; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 12px; box-sizing: border-box; outline: none; background: #f8fafc; font-weight: 600; }
+        .form-group input:focus, .form-group select:focus { background: white; border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
 
-        /* --- NOVO ESTILO DA TABELA DE PARCELAS NO MODAL --- */
-        #containerParcelas { 
-            background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; 
-            padding: 0; margin-top: 15px; max-height: 250px; overflow-y: auto; display: none; 
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-        
-        /* CABEÇALHO FIXO E BONITO */
-        .parcela-header { 
-            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
-            padding: 12px 15px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
-            font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;
-            position: sticky; top: 0; z-index: 5;
-        }
-        
-        .parcela-row { 
-            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
-            padding: 10px 15px; align-items: center; border-bottom: 1px solid #f1f5f9;
-        }
-        .parcela-row:last-child { border-bottom: none; }
-        .parcela-row:hover { background-color: #fcfcfc; }
-        
-        .p-idx { 
-            font-size: 12px; font-weight: 700; color: #475569; 
-            text-align: center; background: #e2e8f0; border-radius: 4px; padding: 4px 0; 
-        }
-        
-        .parcela-row input { 
-            padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; 
-            font-size: 13px; color: #334155; transition: 0.2s;
-        }
-        .parcela-row input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+        /* PARCELAS NO MODAL */
+        #containerParcelas { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0; margin-top: 15px; max-height: 200px; overflow-y: auto; display: none; }
+        .parcela-header { display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; padding: 10px 15px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 10px; font-weight: 800; color: #64748b; position: sticky; top: 0; }
+        .parcela-row { display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; padding: 10px 15px; align-items: center; border-bottom: 1px solid #f1f5f9; }
+        .p-idx { font-size: 10px; font-weight: 800; color: #1e293b; text-align: center; background: #e2e8f0; border-radius: 4px; padding: 3px 0; }
+        .parcela-row input { padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; background: white; }
 
-        div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
+        /* MODAL IMPORTAR */
+        .import-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .import-table th { text-align: left; padding: 10px; border-bottom: 2px solid #e2e8f0; font-size: 10px; color: #64748b; font-weight: 800; }
+        .import-table td { padding: 10px; border-bottom: 1px solid #f1f5f9; font-size: 11px; color: #334155; font-weight: 600; }
+        .row-duplicada { background-color: #fff7ed !important; }
+        .badge-tipo { padding: 3px 8px; border-radius: 6px; font-size: 9px; font-weight: 800; }
+        .bg-receita { background: #ecfdf5; color: #059669; } .bg-despesa { background: #fef2f2; color: #ef4444; }
+
+        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
     </style>
 </head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">T-SYSTEM</div> <div></div> </nav>
+    
+    <nav class="navbar-custom"> 
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        <div class="logo">T-SYSTEM</div> 
+        <div></div> 
+    </nav>
 
     <div class="content">
         <div class="page-header">
@@ -120,7 +206,7 @@
                     <i class="fas fa-file-import"></i> Importar
                 </button>
                 <button class="btn-new" onclick="abrirModalNovo()">
-                    <i class="fas fa-plus"></i> Novo
+                    <i class="fas fa-plus"></i> Nova Despesa
                 </button>
             </div>
         </div>
@@ -132,7 +218,7 @@
             <div class="date-group">
                 <i class="far fa-calendar" style="color:#94a3b8"></i>
                 <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()">
-                <span style="color:#cbd5e0; font-size:10px">ATÉ</span>
+                <span style="color:#cbd5e0; font-size:10px; font-weight:700;">ATÉ</span>
                 <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()">
             </div>
 
@@ -160,7 +246,7 @@
                 <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição..." onkeyup="aplicarFiltros()">
             </div>
 
-            <button class="btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
+            <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
         </div>
 
         <div class="table-container">
@@ -173,7 +259,7 @@
                         <th class="col-forma">Forma</th>
                         <th class="col-parc">Parc.</th>
                         <th class="col-desc">Descrição</th>
-                        <th class="col-acao">Ações</th>
+                        <th class="col-acao"><i class="fas fa-cog"></i></th>
                     </tr>
                 </thead>
                 <tbody id="lista"></tbody>
@@ -183,35 +269,35 @@
 
     <div class="modal-overlay" id="modalImportar" style="display: none; align-items: flex-start; padding-top: 50px; overflow-y: auto;">
         <div class="modal" style="width: 850px; max-width: 95%;">
-            <h2 style="color: #1e293b; margin-bottom: 10px;">Confirmar Importação</h2>
-            <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
-                <i class="fas fa-info-circle"></i> Itens em <span style="background:#fffbeb; color:#b45309; padding:2px 5px; border-radius:4px; font-weight:bold;">amarelo</span> são possíveis duplicatas.
+            <h2>Confirmar Importação</h2>
+            <p style="color: #64748b; font-size: 11px; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> Itens em <span style="background:#fff7ed; color:#c2410c; padding:2px 5px; border-radius:4px; font-weight:bold;">laranja</span> são possíveis duplicatas.
             </p>
             <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
                 <table class="import-table">
                     <thead style="background: #f8fafc; position: sticky; top: 0; z-index: 10;">
                         <tr>
-                            <th class="col-w-check"><input type="checkbox" onchange="toggleTodosImport(this)"></th>
-                            <th class="col-w-data">Data/Venc</th>
-                            <th class="col-w-desc">Fornecedor / Descrição</th>
-                            <th class="col-w-parc">Parcela</th>
-                            <th class="col-w-tipo">Tipo</th>
-                            <th class="col-w-valor">Valor</th>
+                            <th style="width: 40px; text-align: center;"><input type="checkbox" onchange="toggleTodosImport(this)"></th>
+                            <th style="width: 100px;">Data</th>
+                            <th>Fornecedor / Descrição</th>
+                            <th style="width: 80px; text-align: center;">Parc.</th>
+                            <th style="width: 90px;">Tipo</th>
+                            <th style="width: 110px; text-align: right;">Valor</th>
                         </tr>
                     </thead>
                     <tbody id="listaImport"></tbody>
                 </table>
             </div>
-            <div class="modal-footer" style="margin-top: 20px;">
+            <div class="modal-footer">
                 <button class="btn-outline" onclick="document.getElementById('modalImportar').style.display='none'">Cancelar</button>
-                <button class="btn-new" style="background:#2f855a;" onclick="confirmarImportacao()">Confirmar Importação</button>
+                <button class="btn-new" onclick="confirmarImportacao()" style="background:#ef4444;">Confirmar Importação</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="modalConta" style="display: none;">
         <div class="modal">
-            <h2 style="color: #c53030; margin-bottom: 20px;" id="tituloModal">Nova Conta</h2>
+            <h2 id="tituloModal">Nova Conta</h2>
             <input type="hidden" id="editId">
             <div class="form-group"><label>Fornecedor <span style="color:red">*</span></label><input type="text" id="inputFornecedor" placeholder="Ex: Enel"></div>
             <div class="form-row">
@@ -238,26 +324,32 @@
             
             <div id="containerParcelas">
                 <div class="parcela-header">
-                    <div>Parcelas</div> <div>Descrição</div> <div>Vencimento</div> <div>Valor</div>
+                    <div>Parc.</div> <div>Descrição</div> <div>Vencimento</div> <div>Valor</div>
                 </div>
                 <div id="listaParcelas"></div>
             </div>
 
-            <div class="modal-footer"><button class="btn-outline" onclick="fecharModal()">Cancelar</button><button class="btn-new" onclick="salvarConta()">SALVAR</button></div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-new" onclick="salvarConta()" style="background:#ef4444;">SALVAR</button>
+            </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="modalBaixa" style="display: none;">
         <div class="modal" style="max-width: 400px;">
-            <h2 style="color: #2f855a;">Realizar Pagamento</h2>
+            <h2>Confirmar Pagamento</h2>
             <input type="hidden" id="baixaId"><input type="hidden" id="baixaValorOriginal">
             <div class="form-group"><label>Conta de Saída</label><select id="baixaBanco"></select></div>
-            <div class="form-group"><label>Data</label><input type="date" id="baixaData"></div>
-            <div style="background:#f0fff4; padding:15px; border-radius:8px; margin-top:10px; border:1px solid #c6f6d5;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px; color:#4a5568;"><span>Valor:</span> <strong id="displayValorOriginal">R$ 0,00</strong></div>
-                <div style="font-size:20px; font-weight:700; color:#2f855a; text-align:right;">Total: <span id="baixaTotalFinal">R$ 0,00</span></div>
+            <div class="form-group"><label>Data Pagamento</label><input type="date" id="baixaData"></div>
+            <div style="background:#fef2f2; padding:15px; border-radius:10px; margin-top:10px; border:1px solid #fecaca;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:11px; color:#475569; font-weight: 700;"><span>Valor:</span> <strong id="displayValorOriginal">R$ 0,00</strong></div>
+                <div style="font-size:20px; font-weight:800; color:#ef4444; text-align:right;">Total: <span id="baixaTotalFinal">R$ 0,00</span></div>
             </div>
-            <div class="modal-footer"><button class="btn-outline" onclick="document.getElementById('modalBaixa').style.display='none'">Cancelar</button><button class="btn-new" style="background:#2f855a;" onclick="confirmarBaixa()">CONFIRMAR</button></div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="document.getElementById('modalBaixa').style.display='none'">Cancelar</button>
+                <button class="btn-new" onclick="confirmarBaixa()" style="background:#ef4444;">CONFIRMAR</button>
+            </div>
         </div>
     </div>
 
@@ -278,173 +370,7 @@
             carregar(); 
         });
 
-        function validarData(inputElement) {
-            if (inputElement.validity.badInput) { inputElement.classList.add('input-error-border'); return false; }
-            const dataStr = inputElement.value;
-            if (!dataStr) { inputElement.classList.remove('input-error-border'); return true; }
-            const [ano, mes, dia] = dataStr.split('-').map(Number);
-            const dataObj = new Date(ano, mes - 1, dia);
-            if (dataObj.getMonth() !== (mes - 1) || dataObj.getDate() !== dia) { inputElement.classList.add('input-error-border'); return false; }
-            else { inputElement.classList.remove('input-error-border'); return true; }
-        }
-
-        function aplicarFiltros() { 
-            const elInicio = document.getElementById('filtroInicio');
-            const elFim = document.getElementById('filtroFim');
-            validarData(elInicio); validarData(elFim);
-
-            const inicio = elInicio.value;
-            const fim = elFim.value;
-            const termo = document.getElementById('filtroFornecedor').value.toLowerCase(); 
-            const desc = document.getElementById('filtroDesc').value.toLowerCase(); 
-            const pagto = document.getElementById('filtroPagto').value; 
-
-            const filtrados = transacoesCache.filter(item => {
-                const dataItem = (item.dataVencimento || item.data).split('T')[0];
-                if (inicio && dataItem < inicio) return false;
-                if (fim && dataItem > fim) return false;
-                
-                if (termo && !item.fornecedor?.toLowerCase().includes(termo)) return false;
-                if (desc && !item.descricao?.toLowerCase().includes(desc)) return false;
-                if (pagto && item.formaPagamento !== pagto) return false;
-
-                return true;
-            });
-            renderizarLista(filtrados);
-        }
-
-        // --- ATUALIZAR FILTRO DE FORMAS DE PAGAMENTO ---
-        function atualizarFiltroPagamentos() {
-            const select = document.getElementById('filtroPagto');
-            const valorAtual = select.value;
-            
-            const padrao = ['Boleto', 'Pix', 'Cartão', 'Dinheiro', 'Transferência', 'Cashback', 'Outros'];
-            const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f);
-            const unicas = [...new Set([...padrao, ...doBanco])].sort();
-
-            select.innerHTML = '<option value="">Forma...</option>';
-            unicas.forEach(f => {
-                select.innerHTML += `<option value="${f}">${f}</option>`;
-            });
-            select.value = valorAtual;
-        }
-
-        async function processarArquivo() {
-            const input = document.getElementById('fileImport');
-            if (input.files.length === 0) return;
-            const arquivo = input.files[0];
-            const nomeArquivo = arquivo.name.toLowerCase();
-            const leitor = new FileReader();
-            leitor.onload = async function(e) {
-                const texto = e.target.result;
-                let urlRota = '/importar/ler-ofx'; 
-                if (nomeArquivo.endsWith('.csv')) urlRota = '/importar/ler-csv';
-                try {
-                    const payload = { conteudo: texto, usuarioId: usuario.id };
-                    let res;
-                    if (nomeArquivo.endsWith('.csv')) {
-                        res = await fetch(urlRota, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    } else {
-                        const formData = new FormData(); formData.append('arquivo', arquivo); formData.append('usuarioId', usuario.id);
-                        res = await fetch('/conciliacao/ler-ofx', { method: 'POST', body: formData });
-                    }
-                    if (res.ok) { const dados = await res.json(); importacaoCache = dados.transacoes || dados; exibirModalImportacao(importacaoCache); } 
-                    else { Swal.fire('Erro', 'Falha ao ler arquivo.', 'error'); }
-                } catch (err) { console.error(err); Swal.fire('Erro', 'Erro de conexão.', 'error'); }
-            };
-            leitor.readAsText(arquivo);
-            input.value = ''; 
-        }
-
-        function exibirModalImportacao(lista) {
-            const tbody = document.getElementById('listaImport');
-            tbody.innerHTML = '';
-            lista.forEach((item, index) => {
-                const dataFmt = new Date(item.data + 'T12:00:00').toLocaleDateString('pt-BR');
-                const badge = item.tipo === 'RECEITA' ? 'bg-receita' : 'bg-despesa';
-                const parcInfo = item.parcelaInfo || '-';
-                const isDup = item.duplicata === true;
-                const rowClass = isDup ? 'row-duplicada' : '';
-                const checked = isDup ? '' : 'checked';
-                const tooltip = isDup ? item.duplicataInfo : item.descricao;
-                const iconWarn = isDup ? '<i class="fas fa-exclamation-triangle aviso-duplicata"></i>' : '';
-                tbody.innerHTML += `<tr class="${rowClass}" title="${tooltip}"><td class="col-w-check"><input type="checkbox" class="chk-import" data-index="${index}" ${checked}></td><td class="col-w-data">${dataFmt}</td><td class="col-w-desc">${item.fornecedor || item.descricao} ${iconWarn}</td><td class="col-w-parc"><span class="badge-parc">${parcInfo}</span></td><td class="col-w-tipo"><span class="badge-tipo ${badge}">${item.tipo}</span></td><td class="col-w-valor">${fmt.format(item.valor)}</td></tr>`;
-            });
-            document.getElementById('modalImportar').style.display = 'flex';
-        }
-
-        function toggleTodosImport(source) { document.querySelectorAll('.chk-import').forEach(chk => chk.checked = source.checked); }
-
-        async function confirmarImportacao() {
-            const selecionados = [];
-            document.querySelectorAll('.chk-import:checked').forEach(chk => { const idx = chk.getAttribute('data-index'); selecionados.push(importacaoCache[idx]); });
-            if (selecionados.length === 0) return Swal.fire('Atenção', 'Selecione itens para importar.', 'warning');
-            let sucesso = 0;
-            for (const item of selecionados) {
-                const dados = { fornecedor: item.fornecedor || item.descricao, descricao: item.descricao, valor: item.valor, tipo: 'DESPESA', status: 'PENDENTE', data: item.data, dataVencimento: item.data, formaPagamento: item.formaPagamento || 'Outros', categoria: 'Importação', usuarioId: usuario.id, parcelas: item.parcelas || 1 };
-                await fetch('/transacoes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados) });
-                sucesso++;
-            }
-            document.getElementById('modalImportar').style.display = 'none';
-            limparFiltros(); 
-            Swal.fire({ icon: 'success', title: 'Concluído', text: `${sucesso} itens importados!` });
-        }
-
-        // --- GERAÇÃO DAS PARCELAS COM CAPTURA DO ÍNDICE ---
-        function gerarParcelasVisuais() {
-            const qtd = parseInt(document.getElementById('parcelas').value);
-            const valorTotal = parseFloat(document.getElementById('valor').value);
-            const dataBase = document.getElementById('dataVenc').value;
-            const forma = document.getElementById('formaPagto').value;
-            const desc = document.getElementById('inputDescricao').value || "Parcela";
-            const container = document.getElementById('containerParcelas');
-            const lista = document.getElementById('listaParcelas');
-            
-            if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; }
-            
-            container.style.display = 'block'; lista.innerHTML = '';
-            const valorParcela = (valorTotal / qtd).toFixed(2); let soma = 0;
-            const [ano, mes, dia] = dataBase.split('-'); const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0);
-            
-            for (let i = 0; i < qtd; i++) {
-                let val = parseFloat(valorParcela); if (i === qtd - 1) val = valorTotal - soma; soma += val;
-                const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i);
-                const dataStr = novaData.toISOString().split('T')[0];
-                
-                // CRIAÇÃO DAS LINHAS DA TABELA DE PARCELAS
-                lista.innerHTML += `
-                    <div class="parcela-row">
-                        <span class="p-idx">${i+1}/${qtd}</span>
-                        <input type="text" class="p-desc" value="${desc}">
-                        <input type="date" class="p-data" value="${dataStr}">
-                        <input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01">
-                        <input type="hidden" class="p-forma" value="${forma}">
-                    </div>`;
-            }
-        }
-
-        async function carregar() { 
-            if(!usuario) return;
-            try { 
-                const res = await fetch(`/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}&_=${new Date().getTime()}`); 
-                transacoesCache = await res.json(); 
-                
-                transacoesCache.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento));
-                
-                atualizarFiltroPagamentos();
-                aplicarFiltros(); 
-            } catch (e) { console.error(e); }
-        }
-
-        function limparFiltros() { 
-            document.getElementById('filtroInicio').value = '';
-            document.getElementById('filtroFim').value = '';
-            document.getElementById('filtroFornecedor').value = ''; 
-            document.getElementById('filtroDesc').value = '';
-            document.getElementById('filtroPagto').value = '';
-            carregar(); 
-        }
-
+        // (FUNÇÕES MANTIDAS IGUAIS AO CÓDIGO ANTERIOR)
         function renderizarLista(lista) { 
             const tbody = document.getElementById('lista'); 
             tbody.innerHTML = ''; 
@@ -459,12 +385,9 @@
             lista.forEach(item => { 
                 total += parseFloat(item.valor); 
                 const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR'); 
-                
                 const hoje = new Date().toISOString().split('T')[0];
                 const corVenc = (item.dataVencimento.split('T')[0] < hoje) ? '#ef4444' : '#64748b';
-                const weightVenc = (item.dataVencimento.split('T')[0] < hoje) ? '700' : '400';
-
-                // --- LÓGICA DE EXIBIÇÃO DE PARCELA ---
+                const weightVenc = (item.dataVencimento.split('T')[0] < hoje) ? '800' : '500';
                 const parcelaTexto = item.parcelaInfo || '1/1';
 
                 tbody.innerHTML += `
@@ -473,7 +396,7 @@
                         <td class="col-venc" style="color: ${corVenc}; font-weight: ${weightVenc};">${dataVenc}</td>
                         <td class="col-valor">${fmt.format(item.valor)}</td>
                         <td class="col-forma">${item.formaPagamento || '-'}</td>
-                        <td class="col-parc">${parcelaTexto}</td>
+                        <td class="col-parc"><span class="badge-parc">${parcelaTexto}</span></td>
                         <td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td>
                         <td class="col-acao">
                             <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Pagar"><i class="fas fa-check"></i></button>
@@ -485,85 +408,20 @@
             document.getElementById('total-esteira').innerText = fmt.format(total);
         }
 
-        async function salvarConta() { 
-            const idEdicao = document.getElementById('editId').value; 
-            const qtd = parseInt(document.getElementById('parcelas').value); 
-            let itensParcelados = [];
-            
-            if (!idEdicao && qtd > 1) { 
-                document.querySelectorAll('.parcela-row').forEach(row => { 
-                    itensParcelados.push({ 
-                        descricao: row.querySelector('.p-desc').value, 
-                        data: row.querySelector('.p-data').value, 
-                        valor: row.querySelector('.p-valor').value, 
-                        formaPagamento: row.querySelector('.p-forma').value,
-                        // --- AQUI CAPTURAMOS A INFO DA PARCELA DO HTML (1/3) ---
-                        parcelaInfo: row.querySelector('.p-idx').innerText 
-                    }); 
-                }); 
-            }
-            
-            const dados = { 
-                fornecedor: document.getElementById('inputFornecedor').value, 
-                valor: parseFloat(document.getElementById('valor').value), 
-                dataVencimento: document.getElementById('dataVenc').value, 
-                data: document.getElementById('dataVenc').value, 
-                formaPagamento: document.getElementById('formaPagto').value, 
-                descricao: document.getElementById('inputDescricao').value, 
-                parcelas: document.getElementById('parcelas').value, 
-                tipo: 'DESPESA', 
-                status: 'PENDENTE', 
-                usuarioId: usuario.id, 
-                itensParcelados: itensParcelados.length > 0 ? itensParcelados : null,
-                // SE NÃO TIVER PARCELAS, MANDA 1/1
-                parcelaInfo: (itensParcelados.length === 0) ? '1/1' : null
-            };
-            
-            if(!dados.fornecedor || !dados.valor) return Swal.fire('Erro', 'Preencha Fornecedor e Valor', 'warning');
-            
-            try { 
-                const method = idEdicao ? 'PUT' : 'POST'; 
-                const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes'; 
-                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }); 
-                if(res.ok) { 
-                    fecharModal(); 
-                    Toast.fire({ icon: 'success', title: 'Salvo com sucesso!' }); 
-                    
-                    // RECARREGA TUDO
-                    await carregar();
-                    
-                    // SE FOR NOVO, LIMPA FILTRO PARA APARECER NA TELA
-                    if(!idEdicao) limparFiltros(); 
-                } else { Swal.fire('Erro', 'Falha ao salvar', 'error'); } 
-            } catch (e) { console.error(e); }
-        }
-
-        function abrirModalNovo() { 
-            document.getElementById('editId').value = ''; 
-            document.getElementById('tituloModal').innerText = 'Nova Conta'; 
-            document.getElementById('inputFornecedor').value = ''; 
-            document.getElementById('valor').value = ''; 
-            document.getElementById('parcelas').value = '1'; 
-            document.getElementById('containerParcelas').style.display = 'none'; 
-            document.getElementById('modalConta').style.display = 'flex'; 
-        }
+        function validarData(inputElement) { if (inputElement.validity.badInput) { inputElement.classList.add('input-error-border'); return false; } const dataStr = inputElement.value; if (!dataStr) { inputElement.classList.remove('input-error-border'); return true; } const [ano, mes, dia] = dataStr.split('-').map(Number); const dataObj = new Date(ano, mes - 1, dia); if (dataObj.getMonth() !== (mes - 1) || dataObj.getDate() !== dia) { inputElement.classList.add('input-error-border'); return false; } else { inputElement.classList.remove('input-error-border'); return true; } }
+        function aplicarFiltros() { const elInicio = document.getElementById('filtroInicio'); const elFim = document.getElementById('filtroFim'); validarData(elInicio); validarData(elFim); const inicio = elInicio.value; const fim = elFim.value; const termo = document.getElementById('filtroFornecedor').value.toLowerCase(); const desc = document.getElementById('filtroDesc').value.toLowerCase(); const pagto = document.getElementById('filtroPagto').value; const filtrados = transacoesCache.filter(item => { const dataItem = (item.dataVencimento || item.data).split('T')[0]; if (inicio && dataItem < inicio) return false; if (fim && dataItem > fim) return false; if (termo && !item.fornecedor?.toLowerCase().includes(termo)) return false; if (desc && !item.descricao?.toLowerCase().includes(desc)) return false; if (pagto && item.formaPagamento !== pagto) return false; return true; }); renderizarLista(filtrados); }
+        function atualizarFiltroPagamentos() { const select = document.getElementById('filtroPagto'); const valorAtual = select.value; const padrao = ['Boleto', 'Pix', 'Cartão', 'Dinheiro', 'Transferência', 'Cashback', 'Outros']; const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f); const unicas = [...new Set([...padrao, ...doBanco])].sort(); select.innerHTML = '<option value="">Forma...</option>'; unicas.forEach(f => { select.innerHTML += `<option value="${f}">${f}</option>`; }); select.value = valorAtual; }
+        async function processarArquivo() { const input = document.getElementById('fileImport'); if (input.files.length === 0) return; const arquivo = input.files[0]; const nomeArquivo = arquivo.name.toLowerCase(); const leitor = new FileReader(); leitor.onload = async function(e) { const texto = e.target.result; let urlRota = '/importar/ler-ofx'; if (nomeArquivo.endsWith('.csv')) urlRota = '/importar/ler-csv'; try { const payload = { conteudo: texto, usuarioId: usuario.id }; let res; if (nomeArquivo.endsWith('.csv')) { res = await fetch(urlRota, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); } else { const formData = new FormData(); formData.append('arquivo', arquivo); formData.append('usuarioId', usuario.id); res = await fetch('/conciliacao/ler-ofx', { method: 'POST', body: formData }); } if (res.ok) { const dados = await res.json(); importacaoCache = dados.transacoes || dados; exibirModalImportacao(importacaoCache); } else { Swal.fire('Erro', 'Falha ao ler arquivo.', 'error'); } } catch (err) { console.error(err); Swal.fire('Erro', 'Erro de conexão.', 'error'); } }; leitor.readAsText(arquivo); input.value = ''; }
+        function exibirModalImportacao(lista) { const tbody = document.getElementById('listaImport'); tbody.innerHTML = ''; lista.forEach((item, index) => { const dataFmt = new Date(item.data + 'T12:00:00').toLocaleDateString('pt-BR'); const badge = item.tipo === 'RECEITA' ? 'bg-receita' : 'bg-despesa'; const parcInfo = item.parcelaInfo || '-'; const isDup = item.duplicata === true; const rowClass = isDup ? 'row-duplicada' : ''; const checked = isDup ? '' : 'checked'; const tooltip = isDup ? item.duplicataInfo : item.descricao; const iconWarn = isDup ? '<i class="fas fa-exclamation-triangle" style="color:#c2410c; margin-left:5px;" title="Possível duplicata"></i>' : ''; tbody.innerHTML += `<tr class="${rowClass}" title="${tooltip}"><td style="text-align:center;"><input type="checkbox" class="chk-import" data-index="${index}" ${checked}></td><td>${dataFmt}</td><td>${item.fornecedor || item.descricao} ${iconWarn}</td><td style="text-align:center;">${parcInfo}</td><td><span class="badge-tipo ${badge}">${item.tipo}</span></td><td style="text-align:right;">${fmt.format(item.valor)}</td></tr>`; }); document.getElementById('modalImportar').style.display = 'flex'; }
+        function toggleTodosImport(source) { document.querySelectorAll('.chk-import').forEach(chk => chk.checked = source.checked); }
+        async function confirmarImportacao() { const selecionados = []; document.querySelectorAll('.chk-import:checked').forEach(chk => { const idx = chk.getAttribute('data-index'); selecionados.push(importacaoCache[idx]); }); if (selecionados.length === 0) return Swal.fire('Atenção', 'Selecione itens para importar.', 'warning'); let sucesso = 0; for (const item of selecionados) { const dados = { fornecedor: item.fornecedor || item.descricao, descricao: item.descricao, valor: item.valor, tipo: 'DESPESA', status: 'PENDENTE', data: item.data, dataVencimento: item.data, formaPagamento: item.formaPagamento || 'Outros', categoria: 'Importação', usuarioId: usuario.id, parcelas: item.parcelas || 1 }; await fetch('/transacoes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados) }); sucesso++; } document.getElementById('modalImportar').style.display = 'none'; limparFiltros(); Swal.fire({ icon: 'success', title: 'Concluído', text: `${sucesso} itens importados!` }); }
+        function gerarParcelasVisuais() { const qtd = parseInt(document.getElementById('parcelas').value); const valorTotal = parseFloat(document.getElementById('valor').value); const dataBase = document.getElementById('dataVenc').value; const forma = document.getElementById('formaPagto').value; const desc = document.getElementById('inputDescricao').value || "Parcela"; const container = document.getElementById('containerParcelas'); const lista = document.getElementById('listaParcelas'); if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; } container.style.display = 'block'; lista.innerHTML = ''; const valorParcela = (valorTotal / qtd).toFixed(2); let soma = 0; const [ano, mes, dia] = dataBase.split('-'); const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0); for (let i = 0; i < qtd; i++) { let val = parseFloat(valorParcela); if (i === qtd - 1) val = valorTotal - soma; soma += val; const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i); const dataStr = novaData.toISOString().split('T')[0]; lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc}"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`; } }
+        async function carregar() { if(!usuario) return; try { const res = await fetch(`/transacoes?tipo=DESPESA&status=PENDENTE&usuarioId=${usuario.id}&_=${new Date().getTime()}`); transacoesCache = await res.json(); transacoesCache.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento)); atualizarFiltroPagamentos(); aplicarFiltros(); } catch (e) { console.error(e); } }
+        function limparFiltros() { document.getElementById('filtroInicio').value = ''; document.getElementById('filtroFim').value = ''; document.getElementById('filtroFornecedor').value = ''; document.getElementById('filtroDesc').value = ''; document.getElementById('filtroPagto').value = ''; carregar(); }
+        async function salvarConta() { const idEdicao = document.getElementById('editId').value; const qtd = parseInt(document.getElementById('parcelas').value); let itensParcelados = []; if (!idEdicao && qtd > 1) { document.querySelectorAll('.parcela-row').forEach(row => { itensParcelados.push({ descricao: row.querySelector('.p-desc').value, data: row.querySelector('.p-data').value, valor: row.querySelector('.p-valor').value, formaPagamento: row.querySelector('.p-forma').value, parcelaInfo: row.querySelector('.p-idx').innerText }); }); } const dados = { fornecedor: document.getElementById('inputFornecedor').value, valor: parseFloat(document.getElementById('valor').value), dataVencimento: document.getElementById('dataVenc').value, data: document.getElementById('dataVenc').value, formaPagamento: document.getElementById('formaPagto').value, descricao: document.getElementById('inputDescricao').value, parcelas: document.getElementById('parcelas').value, tipo: 'DESPESA', status: 'PENDENTE', usuarioId: usuario.id, itensParcelados: itensParcelados.length > 0 ? itensParcelados : null, parcelaInfo: (itensParcelados.length === 0) ? '1/1' : null }; if(!dados.fornecedor || !dados.valor) return Swal.fire('Erro', 'Preencha Fornecedor e Valor', 'warning'); try { const method = idEdicao ? 'PUT' : 'POST'; const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes'; const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }); if(res.ok) { fecharModal(); Toast.fire({ icon: 'success', title: 'Salvo com sucesso!' }); if(itensParcelados.length > 0) limparFiltros(); else await carregar(); } else { Swal.fire('Erro', 'Falha ao salvar', 'error'); } } catch (e) { console.error(e); } }
+        function abrirModalNovo() { document.getElementById('editId').value = ''; document.getElementById('tituloModal').innerText = 'Nova Conta'; document.getElementById('inputFornecedor').value = ''; document.getElementById('valor').value = ''; document.getElementById('parcelas').value = '1'; document.getElementById('containerParcelas').style.display = 'none'; document.getElementById('modalConta').style.display = 'flex'; }
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
-        
-        function editarConta(id) { 
-            const item = transacoesCache.find(t => t.id === id); 
-            if(!item) return; 
-            document.getElementById('editId').value = id; 
-            document.getElementById('tituloModal').innerText = 'Editar Conta'; 
-            document.getElementById('inputFornecedor').value = item.fornecedor; 
-            document.getElementById('valor').value = item.valor; 
-            document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0]; 
-            document.getElementById('formaPagto').value = item.formaPagamento; 
-            document.getElementById('inputDescricao').value = item.descricao; 
-            document.getElementById('parcelas').value = item.parcelas || 1; 
-            document.getElementById('containerParcelas').style.display = 'none'; 
-            document.getElementById('modalConta').style.display = 'flex'; 
-        }
-        
+        function editarConta(id) { const item = transacoesCache.find(t => t.id === id); if(!item) return; document.getElementById('editId').value = id; document.getElementById('tituloModal').innerText = 'Editar Conta'; document.getElementById('inputFornecedor').value = item.fornecedor; document.getElementById('valor').value = item.valor; document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0]; document.getElementById('formaPagto').value = item.formaPagamento; document.getElementById('inputDescricao').value = item.descricao; document.getElementById('parcelas').value = item.parcelas || 1; document.getElementById('containerParcelas').style.display = 'none'; document.getElementById('modalConta').style.display = 'flex'; }
         async function prepararBaixa(id) { const item = transacoesCache.find(t => t.id === id); if(!item) return; document.getElementById('baixaId').value = id; document.getElementById('baixaValorOriginal').value = item.valor; document.getElementById('displayValorOriginal').innerText = fmt.format(item.valor); document.getElementById('baixaData').valueAsDate = new Date(); document.getElementById('baixaTotalFinal').innerText = fmt.format(item.valor); const sel = document.getElementById('baixaBanco'); sel.innerHTML = '<option value="">Selecione...</option>'; const res = await fetch(`/bancos?usuarioId=${usuario.id}`); (await res.json()).forEach(b => sel.innerHTML += `<option value="${b.id}">${b.nome}</option>`); document.getElementById('modalBaixa').style.display = 'flex'; }
         async function confirmarBaixa() { const id = document.getElementById('baixaId').value; const bancoId = document.getElementById('baixaBanco').value; if(!bancoId) return Swal.fire({icon: 'warning', text: 'Selecione o Banco de saída!'}); const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value); await fetch(`/transacoes/${id}/baixar`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoId, dataPagamento: document.getElementById('baixaData').value, valorPago: vOrig }) }); document.getElementById('modalBaixa').style.display = 'none'; Toast.fire({icon: 'success', title: 'Pago!'}); carregar(); }
         function deletar(id) { Swal.fire({ title: 'Excluir?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim' }).then(async (r) => { if (r.isConfirmed) { await fetch(`/transacoes/${id}`, {method:'DELETE'}); carregar(); } }); }

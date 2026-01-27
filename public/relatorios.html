@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Inteligência Financeira</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,87 +12,131 @@
     <script src="script.js"></script>
 
     <style>
-        /* TEMA DARK FUTURISTA */
-        body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #e2e8f0; }
-        .navbar, .sidebar { background-color: #1e293b !important; border-right: 1px solid #334155; }
-        .logo { color: #38bdf8 !important; text-shadow: 0 0 10px rgba(56,189,248,0.5); }
-        .sidebar a { color: #94a3b8 !important; }
-        .sidebar a:hover, .sidebar a.active-link { background: #334155 !important; color: #fff !important; }
-        .menu-btn { color: #ffffff !important; } 
+        /* PADRONIZAÇÃO DE FONTE E CAIXA ALTA */
+        /* Aplica em tudo, exceto ícones */
+        *:not(i) {
+            font-family: 'Outfit', sans-serif !important;
+            text-transform: uppercase !important; 
+        }
 
-        .content { padding: 30px; max-width: 1300px; margin: 0 auto; }
+        /* PROTEÇÃO ABSOLUTA DOS ÍCONES */
+        .fas, .far, .fab, .fa, i {
+            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important;
+            text-transform: none !important; /* Ícones não podem ser uppercase */
+            font-style: normal;
+        }
+
+        /* TEMA: TITANIUM LIGHT */
+        body { 
+            background-color: #e2e8f0; 
+            color: #1e293b; 
+            font-size: 11px; /* Base menor para caixa alta */
+        }
+        
+        .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
+
+        /* NAVBAR DARK */
+        .navbar-custom {
+            background-color: #1e293b; 
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
 
         /* HEADER */
-        .page-header { margin-bottom: 30px; }
-        .page-title { font-size: 28px; font-weight: 700; color: #fff; margin: 0; }
-        
-        /* CONTAINERS PADRONIZADOS */
+        .page-header { margin-bottom: 35px; }
+        .page-title { font-size: 26px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
+        .page-sub { color: #64748b; font-size: 12px; margin-top: 5px; font-weight: 600; }
+
+        /* CONTAINER PRINCIPAL (Branco Limpo) */
         .box-container { 
-            background: #1e293b; padding: 25px; border-radius: 16px; 
-            border: 1px solid #334155; display: flex; flex-direction: column; margin-bottom: 30px;
-            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.3);
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px; 
+            border: 1px solid #cbd5e1; 
+            display: flex; flex-direction: column; margin-bottom: 35px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); 
         }
         
         .box-header { 
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; 
-            border-bottom: 1px solid #334155; padding-bottom: 15px; flex-wrap: wrap; gap: 15px;
+            border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; flex-wrap: wrap; gap: 15px;
         }
         
-        .box-title { font-size: 18px; font-weight: 600; color: #fff; display: flex; gap: 10px; align-items: center; }
+        .box-title { 
+            font-size: 14px; font-weight: 700; color: #1e293b; 
+            display: flex; gap: 10px; align-items: center; letter-spacing: 1px; 
+        }
         
         .filter-group { display: flex; gap: 10px; align-items: center; }
 
-        /* INPUTS ESCUROS PADRONIZADOS */
-        .dark-input { 
-            background: #0f172a; border: 1px solid #334155; color: #fff; 
-            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 13px;
-            color-scheme: dark; 
+        /* INPUTS PADRONIZADOS */
+        .light-input { 
+            background: #ffffff; border: 1px solid #cbd5e1; color: #334155; 
+            padding: 8px 12px; border-radius: 8px; outline: none; font-size: 12px;
+            font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        .dark-input:focus { border-color: #38bdf8; }
+        .light-input:focus { border-color: #1e293b; }
 
-        /* GRID DA PREVISÃO */
-        .projecao-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        /* GRID */
+        .projecao-grid, .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         
-        .proj-card {
-            border-radius: 12px; padding: 25px; display: flex; flex-direction: column; justify-content: center;
-            position: relative; overflow: hidden; min-height: 120px; cursor: pointer; transition: 0.3s;
-        }
-        .proj-card:hover { transform: translateY(-5px); filter: brightness(1.2); }
-
-        .proj-green { background: linear-gradient(135deg, #064e3b, #065f46); border: 1px solid #059669; }
-        .proj-green i { color: #34d399; opacity: 0.3; font-size: 60px; position: absolute; bottom: -10px; right: -10px; }
-        
-        .proj-red { background: linear-gradient(135deg, #7f1d1d, #991b1b); border: 1px solid #dc2626; }
-        .proj-red i { color: #f87171; opacity: 0.3; font-size: 60px; position: absolute; bottom: -10px; right: -10px; }
-
-        .proj-blue { background: linear-gradient(135deg, #1e3a8a, #1e40af); border: 1px solid #3b82f6; cursor: default; }
-        .proj-blue i { color: #60a5fa; opacity: 0.3; font-size: 60px; position: absolute; bottom: -10px; right: -10px; }
-
-        .proj-label { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 600; text-transform: uppercase; z-index: 1; }
-        .proj-value { font-size: 28px; font-weight: 700; color: #fff; margin-top: 5px; z-index: 1; }
-        .proj-sub { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 5px; z-index: 1; }
-
-        /* GRID DOS INDICADORES (KPI) */
-        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        
-        .kpi-card { 
-            background: #0f172a; padding: 20px; border-radius: 12px; 
-            border: 1px solid #334155; position: relative; overflow: hidden; transition: 0.3s;
+        /* CARDS CLEAN */
+        .proj-card, .kpi-card {
+            background: #f8fafc; 
+            border: 1px solid #e2e8f0;
+            border-radius: 12px; 
+            padding: 25px; 
             display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden; 
+            min-height: 120px; 
+            cursor: pointer; transition: 0.2s;
         }
-        .kpi-card:hover { transform: translateY(-3px); border-color: #475569; }
+        .proj-card:hover, .kpi-card:hover { 
+            transform: translateY(-3px); 
+            background: #ffffff; 
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); 
+            border-color: #cbd5e1;
+        }
+
+        /* Cores das Bordas Inferiores */
+        .proj-green { border-bottom: 4px solid #10b981; }
+        .proj-red { border-bottom: 4px solid #ef4444; }
+        .proj-blue { border-bottom: 4px solid #3b82f6; cursor: default; }
+
+        /* Ícones marca d'água */
+        .proj-card i { 
+            color: #e2e8f0; 
+            font-size: 80px; position: absolute; bottom: -20px; right: -20px; opacity: 0.8; 
+            transition: 0.3s;
+        }
+        .proj-card:hover i { transform: scale(1.1); color: #f1f5f9; }
+
+        /* Textos Padronizados */
+        .proj-label, .kpi-label { 
+            font-size: 10px; color: #64748b; font-weight: 700; 
+            z-index: 1; letter-spacing: 0.5px; 
+        }
         
-        /* Estilo Discreto e Moderno para os KPIs de baixo */
+        .proj-value, .kpi-value { 
+            font-size: 26px; font-weight: 800; margin-top: 8px; z-index: 1; 
+            letter-spacing: -1px; color: #0f172a; 
+        }
+        
+        .proj-sub, .kpi-sub { 
+            font-size: 11px; color: #94a3b8; margin-top: 5px; z-index: 1; font-weight: 600; 
+        }
+
+        /* KPIs de Baixo */
         .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .kpi-label { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-        .kpi-icon-small { font-size: 14px; opacity: 0.7; }
-        
-        .kpi-value { font-size: 24px; font-weight: 700; color: #fff; }
-        .kpi-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
-        
-        /* Card Clicável */
-        .card-clickable { cursor: pointer; border: 1px solid #334155; background: linear-gradient(145deg, #0f172a, #161e31); }
-        .card-clickable:hover { border-color: #38bdf8; }
+        .kpi-icon-small { font-size: 16px; color: #cbd5e1; }
+        .kpi-card:hover .kpi-icon-small { color: #1e293b; }
+
+        .card-clickable { cursor: pointer; }
 
         @media (max-width: 900px) { 
             .projecao-grid, .kpi-grid { grid-template-columns: 1fr; } 
@@ -100,40 +144,52 @@
         }
 
         /* MODAL DE DETALHES */
-        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(5px); }
-        .modal { background: #1e293b; width: 90%; max-width: 500px; padding: 0; border-radius: 16px; border: 1px solid #334155; box-shadow: 0 20px 50px rgba(0,0,0,0.5); overflow: hidden; display: flex; flex-direction: column; max-height: 80vh; }
-        .modal-header { padding: 20px; background: #0f172a; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-size: 16px; font-weight: 700; color: #fff; margin: 0; }
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
+        .modal { background: white; width: 95%; max-width: 500px; padding: 0; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 80vh; animation: zoomIn 0.2s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal-header { padding: 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 14px; font-weight: 800; color: #1e293b; margin: 0; }
         .modal-body { padding: 0; overflow-y: auto; flex: 1; }
         
-        .detail-item { padding: 15px 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
-        .detail-item:hover { background: #334155; }
-        .dt-info h4 { margin: 0 0 3px 0; font-size: 14px; color: #e2e8f0; font-weight: 600; }
-        .dt-info span { font-size: 11px; color: #94a3b8; }
-        .dt-val { font-weight: 700; font-size: 14px; }
-        .val-rec { color: #34d399; } .val-desp { color: #f87171; }
+        .detail-item { padding: 15px 25px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .detail-item:hover { background: #f8fafc; }
+        .dt-info h4 { margin: 0 0 4px 0; font-size: 12px; color: #334155; font-weight: 700; }
+        .dt-info span { font-size: 10px; color: #94a3b8; font-weight: 600; }
+        
+        .dt-val { font-weight: 700; font-size: 13px; }
+        .val-green { color: #10b981; }
+        .val-red { color: #ef4444; }
         
         .btn-close-modal { border: none; background: transparent; cursor: pointer; color: #94a3b8; font-size: 18px; }
+        .btn-close-modal:hover { color: #ef4444; }
+        
+        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
     </style>
 </head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">T-SYSTEM</div> <div></div> </nav>
+    
+    <nav class="navbar-custom"> 
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        <div class="logo">T-SYSTEM</div> 
+        <div></div> 
+    </nav>
 
     <div class="content">
         <div class="page-header">
             <h1 class="page-title">Relatórios e Inteligência</h1>
-            <div style="color: #94a3b8; font-size: 14px;">Visão completa da saúde financeira.</div>
+            <div class="page-sub">Visão completa da saúde financeira.</div>
         </div>
 
         <div class="box-container">
             <div class="box-header">
-                <div class="box-title"><i class="fas fa-calendar-alt" style="color:#38bdf8"></i> PREVISÃO (PLANEJAMENTO)</div>
+                <div class="box-title"><i class="fas fa-calendar-alt" style="color:#64748b"></i> Previsão (Planejamento)</div>
                 <div class="filter-group">
-                    <span style="font-size: 12px; color: #94a3b8;">Mês:</span>
-                    <input type="month" id="mesProjecao" class="dark-input" onchange="carregarProjecaoMensal()">
+                    <span style="font-size: 11px; color: #64748b; font-weight: 700;">MÊS:</span>
+                    <input type="month" id="mesProjecao" class="light-input" onchange="carregarProjecaoMensal()">
                 </div>
             </div>
 
@@ -141,14 +197,14 @@
                 <div class="proj-card proj-green" onclick="abrirDetalhes('RECEITA')">
                     <div class="proj-label">A Receber</div>
                     <div class="proj-value" id="projReceita">R$ 0,00</div>
-                    <div class="proj-sub">Receitas pendentes (Clique para ver)</div>
+                    <div class="proj-sub">Receitas pendentes</div>
                     <i class="fas fa-arrow-up"></i>
                 </div>
 
                 <div class="proj-card proj-red" onclick="abrirDetalhes('DESPESA')">
                     <div class="proj-label">A Pagar</div>
                     <div class="proj-value" id="projDespesa">R$ 0,00</div>
-                    <div class="proj-sub">Contas pendentes (Clique para ver)</div>
+                    <div class="proj-sub">Contas pendentes</div>
                     <i class="fas fa-arrow-down"></i>
                 </div>
 
@@ -163,21 +219,21 @@
 
         <div class="box-container">
             <div class="box-header">
-                <div class="box-title"><i class="fas fa-chart-pie" style="color:#a78bfa"></i> HISTÓRICO DE PAGAMENTOS</div>
+                <div class="box-title"><i class="fas fa-chart-pie" style="color:#64748b"></i> Histórico de Pagamentos</div>
                 <div class="filter-group">
-                    <select id="filtroBanco" class="dark-input" style="min-width: 150px;" onchange="carregarRelatorioRealizado()">
+                    <select id="filtroBanco" class="light-input" style="min-width: 150px;" onchange="carregarRelatorioRealizado()">
                         <option value="">Todos os Bancos</option>
                     </select>
-                    <span style="font-size: 12px; color: #94a3b8;">Mês:</span>
-                    <input type="month" id="mesRealizado" class="dark-input" onchange="carregarRelatorioRealizado()">
+                    <span style="font-size: 11px; color: #64748b; font-weight: 700;">MÊS:</span>
+                    <input type="month" id="mesRealizado" class="light-input" onchange="carregarRelatorioRealizado()">
                 </div>
             </div>
 
             <div class="kpi-grid">
                 <div class="kpi-card card-clickable" onclick="abrirDetalhesRealizado('TOTAL')">
                     <div class="kpi-header">
-                        <div class="kpi-label" style="color: #38bdf8;">Total Pago (Mês)</div>
-                        <i class="fas fa-wallet kpi-icon-small" style="color: #38bdf8;"></i>
+                        <div class="kpi-label">Total Pago (Mês)</div>
+                        <i class="fas fa-wallet kpi-icon-small"></i>
                     </div>
                     <div class="kpi-value" id="valTotal">R$ 0,00</div>
                     <div class="kpi-sub">Clique para detalhar</div>
@@ -185,8 +241,8 @@
 
                 <div class="kpi-card card-clickable" onclick="abrirDetalhesRealizado('CARTAO')">
                     <div class="kpi-header">
-                        <div class="kpi-label" style="color: #a78bfa;">Gasto com Cartão</div>
-                        <i class="far fa-credit-card kpi-icon-small" style="color: #a78bfa;"></i>
+                        <div class="kpi-label">Gasto com Cartão</div>
+                        <i class="far fa-credit-card kpi-icon-small"></i>
                     </div>
                     <div class="kpi-value" id="valCartao">R$ 0,00</div>
                     <div class="kpi-sub">Clique para detalhar</div>
@@ -194,11 +250,11 @@
 
                 <div class="kpi-card">
                     <div class="kpi-header">
-                        <div class="kpi-label" style="color: #f43f5e;">Maior Despesa</div>
-                        <i class="fas fa-fire kpi-icon-small" style="color: #f43f5e;"></i>
+                        <div class="kpi-label">Maior Despesa</div>
+                        <i class="fas fa-fire kpi-icon-small"></i>
                     </div>
-                    <div class="kpi-value" id="valTopForn" style="font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
-                    <div class="kpi-sub" id="subTopForn" style="color: #fff; font-weight: 700; opacity: 0.8;">R$ 0,00</div>
+                    <div class="kpi-value" id="valTopForn" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
+                    <div class="kpi-sub" id="subTopForn" style="color: #ef4444; font-weight: 800;">R$ 0,00</div>
                 </div>
             </div>
         </div>
@@ -234,7 +290,7 @@
             carregarProjecaoMensal(); 
         });
 
-        // 1. CARREGA DADOS DO REALIZADO E PREPARA CACHE PARA MODAL
+        // 1. CARREGA DADOS DO REALIZADO
         async function carregarRelatorioRealizado() {
             if(!usuario) return;
             
@@ -247,7 +303,6 @@
             const b = document.getElementById('filtroBanco').value;
 
             try {
-                // 1. Busca os totais agregados (para o card de maior despesa e resumo)
                 const res = await fetch(`/relatorios/avancado?usuarioId=${usuario.id}&inicio=${i}&fim=${f}&bancoId=${b}`);
                 const dados = await res.json();
                 
@@ -263,21 +318,16 @@
                     document.getElementById('subTopForn').innerText = "R$ 0,00";
                 }
 
-                // 2. Busca a lista completa de pagamentos para o Modal (Drill-down)
-                // Precisamos buscar as transações PAGAS do mês
                 const resDet = await fetch(`/transacoes?usuarioId=${usuario.id}&status=PAGO&tipo=DESPESA`);
                 const todosPagos = await resDet.json();
 
-                // Filtra pelo mês e banco selecionado
                 const realizadosNoMes = todosPagos.filter(t => {
                     const dataPag = (t.dataPagamento || t.data).split('T')[0];
                     const mesmoBanco = b ? (t.banco && t.banco.id === b) : true;
                     return dataPag >= i && dataPag <= f && mesmoBanco;
                 });
 
-                // Separa para os caches
                 detalhesRealizadoCache.total = realizadosNoMes;
-                
                 detalhesRealizadoCache.cartao = realizadosNoMes.filter(t => {
                     const forma = (t.formaPagamento || "").toLowerCase();
                     return forma.includes('cart') || forma.includes('credit');
@@ -302,12 +352,11 @@
                 
                 const cardSaldo = elSaldo.parentElement;
                 if(dados.saldoPrevisto < 0) {
-                    cardSaldo.classList.remove('proj-blue'); cardSaldo.classList.add('proj-red'); cardSaldo.style.borderColor = '#dc2626';
+                    cardSaldo.classList.remove('proj-blue'); cardSaldo.classList.add('proj-red'); 
                 } else {
-                    cardSaldo.classList.remove('proj-red'); cardSaldo.classList.add('proj-blue'); cardSaldo.style.borderColor = '#3b82f6';
+                    cardSaldo.classList.remove('proj-red'); cardSaldo.classList.add('proj-blue'); 
                 }
 
-                // Busca detalhes pendentes
                 const [ano, m] = mes.split('-');
                 const i = `${ano}-${m}-01`;
                 const f = new Date(ano, m, 0).toISOString().split('T')[0];
@@ -326,24 +375,18 @@
             } catch(e) { console.error(e); }
         }
 
-        // --- DRILL DOWN PREVISÃO (PENDENTES) ---
         function abrirDetalhes(tipo) {
             const titulo = tipo === 'RECEITA' ? 'Receitas Previstas' : 'Despesas Previstas';
             document.getElementById('tituloDetalhes').innerText = titulo;
-            const lista = document.getElementById('listaDetalhes');
-            lista.innerHTML = '';
-
             const itens = tipo === 'RECEITA' ? detalhesCache.receita : detalhesCache.despesa;
             renderizarModal(itens, tipo);
         }
 
-        // --- DRILL DOWN REALIZADO (PAGOS) ---
         function abrirDetalhesRealizado(tipo) {
             const titulo = tipo === 'CARTAO' ? 'Gastos com Cartão (Realizado)' : 'Pagamentos Totais (Realizado)';
             document.getElementById('tituloDetalhes').innerText = titulo;
-            
             const itens = tipo === 'CARTAO' ? detalhesRealizadoCache.cartao : detalhesRealizadoCache.total;
-            renderizarModal(itens, 'DESPESA'); // Sempre despesa aqui
+            renderizarModal(itens, 'DESPESA'); 
         }
 
         function renderizarModal(itens, tipo) {
@@ -351,9 +394,8 @@
             lista.innerHTML = '';
 
             if (itens.length === 0) {
-                lista.innerHTML = '<div style="text-align:center; padding:30px; color:#64748b;">Nenhum lançamento.</div>';
+                lista.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">Nenhum lançamento.</div>';
             } else {
-                // Ordena por data
                 itens.sort((a,b) => {
                     const dA = a.dataPagamento || a.dataVencimento || a.data;
                     const dB = b.dataPagamento || b.dataVencimento || b.data;
@@ -361,10 +403,9 @@
                 });
 
                 itens.forEach(t => {
-                    // Usa data pagamento se existir (Realizado), senão vencimento (Previsão)
                     const dataRaw = t.dataPagamento || t.dataVencimento || t.data;
                     const dataFmt = new Date(dataRaw).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
-                    const corVal = tipo === 'RECEITA' ? 'val-rec' : 'val-desp';
+                    const corVal = tipo === 'RECEITA' ? 'val-green' : 'val-red';
                     
                     lista.innerHTML += `
                         <div class="detail-item">

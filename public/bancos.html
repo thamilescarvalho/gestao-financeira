@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Meus Bancos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,74 +12,133 @@
     <script src="script.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
-        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
-
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .page-title { font-size: 24px; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 10px; }
-
-        /* LISTA DE BANCOS (CARDS) */
-        .bank-list { display: flex; flex-direction: column; gap: 15px; }
-        
-        .bank-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-left: 5px solid #2f855a; /* Cor padrão */
-            transition: transform 0.2s;
+        /* TEMA: TITANIUM LIGHT (Igual ao Dashboard) */
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: #e2e8f0; 
+            color: #1e293b; 
         }
-        .bank-card:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
-        .bank-card.inativo { border-left-color: #cbd5e0; opacity: 0.6; background-color: #f7fafc; }
+        
+        .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
 
-        .bank-info h3 { margin: 0 0 5px 0; font-size: 16px; color: #1e293b; display: flex; align-items: center; gap: 10px; }
-        .tag-inativo { font-size: 10px; background: #cbd5e0; color: #4a5568; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: 700; }
+        /* NAVBAR DARK */
+        .navbar-custom {
+            background-color: #1e293b; 
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
 
-        .bank-details { font-size: 12px; color: #64748b; margin-bottom: 5px; }
-        .bank-balance { font-weight: 700; color: #2f855a; font-size: 14px; }
-        .inativo .bank-balance { color: #64748b; }
+        /* HEADER DA PÁGINA */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-size: 28px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px; }
+        .page-title i { color: #64748b; font-size: 24px; }
 
-        .bank-actions { display: flex; gap: 10px; }
-        .btn-icon {
-            width: 35px; height: 35px; border-radius: 6px; border: none; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 14px;
+        /* BOTÃO PRINCIPAL (DARK/ROXO) */
+        .btn-main {
+            background-color: #1e293b; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            display: flex; align-items: center; gap: 8px; font-size: 14px;
+            transition: 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-main:hover { background-color: #334155; transform: translateY(-2px); }
+
+        /* LISTA DE BANCOS (GRID) */
+        .bank-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        
+        /* CARD DE BANCO (ESTILO GLASS/CLEAN) */
+        .bank-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 25px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border: 1px solid #cbd5e1;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            min-height: 140px;
+        }
+        
+        /* Faixa lateral colorida indicando status */
+        .bank-card::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+            background: #10b981; /* Verde (Ativo) */
+        }
+        .bank-card.inativo::before { background: #94a3b8; /* Cinza (Inativo) */ }
+        .bank-card.inativo { opacity: 0.7; background: #f1f5f9; }
+
+        .bank-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-color: #94a3b8; }
+
+        /* INFO DO BANCO */
+        .bank-header-card { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .bank-name { font-size: 18px; font-weight: 700; color: #1e293b; margin: 0; }
+        .tag-inativo { font-size: 10px; background: #e2e8f0; color: #64748b; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 700; display: inline-block; margin-top: 5px; }
+
+        .bank-details { font-size: 13px; color: #64748b; margin-bottom: 20px; font-family: monospace; letter-spacing: 0.5px; background: #f8fafc; padding: 5px 10px; border-radius: 6px; width: fit-content; }
+        
+        .bank-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto; }
+        
+        .bank-balance-label { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+        .bank-balance-value { font-weight: 800; font-size: 20px; color: #1e293b; letter-spacing: -0.5px; }
+        
+        /* AÇÕES */
+        .bank-actions { display: flex; gap: 8px; }
+        .btn-icon-small {
+            width: 32px; height: 32px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px; color: #64748b;
             transition: 0.2s;
         }
-        .btn-edit-bank { background-color: #f6e05e; color: #744210; }
-        .btn-edit-bank:hover { background-color: #ecc94b; }
-        .btn-del-bank { background-color: #fc8181; color: #742a2a; }
-        .btn-del-bank:hover { background-color: #f56565; }
+        .btn-icon-small:hover { border-color: #94a3b8; color: #1e293b; background: #f1f5f9; }
+        .btn-del:hover { border-color: #fca5a5; color: #ef4444; background: #fef2f2; }
 
-        /* MODAL CUSTOMIZADO */
+        /* MODAL CUSTOMIZADO (Mantido clean) */
         .form-row { display: flex; gap: 15px; }
         .form-row .form-group { flex: 1; }
+        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; }
         
-        div:where(.swal2-container) { font-family: 'Inter', sans-serif !important; }
+        @media (max-width: 600px) {
+            .bank-list { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .btn-main { width: 100%; justify-content: center; }
+        }
     </style>
 </head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">T-SYSTEM</div> <div></div> </nav>
+    
+    <nav class="navbar-custom"> 
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        <div class="logo">T-SYSTEM</div> 
+        <div></div> 
+    </nav>
 
     <div class="content">
         <div class="page-header">
-            <h1 class="page-title"><i class="fas fa-university" style="color: #718096;"></i> Meus Bancos</h1>
-            <button class="btn-new" onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Banco</button>
+            <h1 class="page-title"><i class="fas fa-university"></i> Meus Bancos</h1>
+            <button class="btn-main" onclick="abrirModal()"><i class="fas fa-plus"></i> Cadastrar Banco</button>
         </div>
 
         <div class="bank-list" id="listaBancos">
-            <div style="text-align:center; padding:30px; color:#94a3b8;">Carregando...</div>
+            <div style="text-align:center; padding:30px; color:#94a3b8; grid-column: 1/-1;">Carregando...</div>
         </div>
     </div>
 
     <div class="modal-overlay" id="modalBanco">
         <div class="modal">
-            <h2 id="tituloModal">Novo Banco</h2>
+            <h2 id="tituloModal" style="font-weight: 800; color: #1e293b;">Novo Banco</h2>
             <input type="hidden" id="editId">
             
             <div class="form-group">
@@ -118,7 +177,7 @@
 
             <div class="modal-footer">
                 <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
-                <button class="btn-new" onclick="salvarBanco()">SALVAR</button>
+                <button class="btn-main" onclick="salvarBanco()">SALVAR</button>
             </div>
         </div>
     </div>
@@ -145,36 +204,40 @@
             container.innerHTML = '';
 
             if(lista.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:30px;">Nenhum banco cadastrado.</div>';
+                container.innerHTML = '<div style="text-align:center; color:#94a3b8; padding:30px; grid-column: 1/-1;">Nenhum banco cadastrado.</div>';
                 return;
             }
 
             lista.forEach(b => {
                 const classeInativo = b.inativo ? 'inativo' : '';
-                const tagInativo = b.inativo ? '<span class="tag-inativo">Inativo</span>' : '';
+                const tagInativo = b.inativo ? '<div class="tag-inativo">Inativo</div>' : '';
                 
-                // --- LÓGICA DE SALDO ---
-                // Mostra o saldo atual calculado pelo backend, ou o inicial se não tiver movimento
+                // LÓGICA DE SALDO
                 const valorParaMostrar = (b.saldoAtual !== undefined && b.saldoAtual !== null) ? b.saldoAtual : b.saldoInicial;
                 const saldoFormatado = parseFloat(valorParaMostrar).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-                const corSaldo = valorParaMostrar < 0 ? '#e53e3e' : '#2f855a'; 
-                // -----------------------
-
+                const corSaldo = valorParaMostrar < 0 ? '#ef4444' : '#10b981'; // Vermelho ou Verde Neon
+                
                 container.innerHTML += `
                     <div class="bank-card ${classeInativo}">
-                        <div class="bank-info">
-                            <h3>${b.nome} ${tagInativo}</h3>
-                            <div class="bank-details">
-                                Ag: ${b.agencia || '-'} | CC: ${b.conta || '-'}
+                        <div>
+                            <div class="bank-header-card">
+                                <h3 class="bank-name">${b.nome}</h3>
+                                ${tagInativo}
                             </div>
-                            <div class="bank-balance">
-                                <span style="color:#718096; font-size:11px; font-weight:600;">SALDO ATUAL:</span>
-                                <span style="color: ${corSaldo}; font-size:16px;">${saldoFormatado}</span> 
+                            <div class="bank-details">
+                                Ag: ${b.agencia || '-'} / CC: ${b.conta || '-'}
                             </div>
                         </div>
-                        <div class="bank-actions">
-                            <button class="btn-icon btn-edit-bank" onclick="editarBanco('${b.id}')"><i class="fas fa-pen"></i></button>
-                            <button class="btn-icon btn-del-bank" onclick="excluirBanco('${b.id}')"><i class="fas fa-trash"></i></button>
+                        
+                        <div class="bank-footer">
+                            <div>
+                                <span class="bank-balance-label">SALDO ATUAL</span>
+                                <span class="bank-balance-value" style="color: ${corSaldo};">${saldoFormatado}</span> 
+                            </div>
+                            <div class="bank-actions">
+                                <button class="btn-icon-small" onclick="editarBanco('${b.id}')" title="Editar"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon-small btn-del" onclick="excluirBanco('${b.id}')" title="Excluir"><i class="fas fa-trash"></i></button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -189,10 +252,7 @@
             document.getElementById('inputConta').value = '';
             document.getElementById('inputSaldo').value = '';
             document.getElementById('inputDataSaldo').valueAsDate = new Date();
-            
-            // Define padrão como ATIVO (false)
             document.getElementById('inputInativo').value = 'false';
-            
             document.getElementById('modalBanco').style.display = 'flex';
         }
 
@@ -211,10 +271,7 @@
                 document.getElementById('inputDataSaldo').value = b.dataSaldoInicial.split('T')[0];
             }
             
-            // --- CORREÇÃO AQUI ---
-            // Converte o booleano b.inativo para string "true" ou "false" para o select entender
             document.getElementById('inputInativo').value = b.inativo ? 'true' : 'false';
-            
             document.getElementById('modalBanco').style.display = 'flex';
         }
 
@@ -229,9 +286,6 @@
             const conta = document.getElementById('inputConta').value;
             const saldoInicial = document.getElementById('inputSaldo').value || 0;
             const dataSaldoInicial = document.getElementById('inputDataSaldo').value;
-            
-            // --- CORREÇÃO AQUI ---
-            // Converte a string "true" do select para o booleano true real
             const inativo = document.getElementById('inputInativo').value === 'true';
 
             if(!nome) return Swal.fire('Erro', 'Nome do banco é obrigatório', 'warning');
@@ -240,7 +294,7 @@
                 nome, agencia, conta, 
                 saldoInicial: parseFloat(saldoInicial), 
                 dataSaldoInicial, 
-                inativo: inativo, // Envia como booleano puro
+                inativo: inativo,
                 usuarioId: usuario.id
             };
 
@@ -276,7 +330,7 @@
                 text: "Se houver contas vinculadas, você não conseguirá excluir.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#e53e3e',
+                confirmButtonColor: '#ef4444',
                 confirmButtonText: 'Sim, excluir'
             }).then(async (result) => {
                 if(result.isConfirmed) {
