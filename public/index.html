@@ -11,92 +11,140 @@
     <script src="script.js"></script>
 
     <style>
-        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .content { padding: 40px; max-width: 1000px; margin: 0 auto; }
+        /* TEMA: TITANIUM LIGHT (Cinza Tech Equilibrado) */
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: #e2e8f0; 
+            color: #1e293b; 
+        }
+        
+        .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
+
+        /* NAVBAR DARK */
+        .navbar-custom {
+            background-color: #1e293b; 
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
 
         /* HEADER */
-        .welcome-header { margin-bottom: 40px; }
-        .welcome-title { font-size: 32px; font-weight: 700; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
-        .welcome-date { color: #64748b; font-size: 16px; margin-top: 5px; font-weight: 400; }
+        .welcome-header { margin-bottom: 40px; display: flex; flex-direction: column; gap: 5px; }
+        .welcome-title { font-size: 32px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
+        .welcome-date { color: #64748b; font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* GRID PRINCIPAL */
-        .feed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        /* GRID */
+        .feed-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; }
         @media (max-width: 900px) { .feed-grid { grid-template-columns: 1fr; } }
 
-        /* CARDS */
+        /* SEÇÕES */
         .feed-section { display: flex; flex-direction: column; gap: 20px; }
-        .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-
-        .feed-card { 
-            background: white; border-radius: 16px; padding: 20px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9;
-            transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden;
+        .section-title { 
+            font-size: 12px; font-weight: 700; text-transform: uppercase; 
+            color: #64748b; 
+            letter-spacing: 1.5px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; 
         }
-        .feed-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
 
-        /* ALERTAS FINANCEIROS */
-        .alert-urgent { border-left: 5px solid #ef4444; }
-        .alert-warning { border-left: 5px solid #f59e0b; }
-        .alert-info { border-left: 5px solid #3b82f6; }
+        /* --- NOVO ESTILO: CARDS FINANCEIROS COMPACTOS --- */
+        /* Substitui o antigo .feed-card apenas para o radar financeiro */
+        .fin-card {
+            background-color: #f1f5f9; /* Cinza Gelo (Não é branco, nem o fundo) */
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 15px 20px; /* Mais compacto */
+            margin-bottom: 0; /* Controlado pelo gap do pai */
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .fin-card:hover {
+            background-color: #ffffff; /* Fica branco ao passar o mouse para destaque */
+            transform: scale(1.01);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-color: #94a3b8;
+        }
+
+        /* ALERTAS DO RADAR */
+        .alert-urgent { border-left: 4px solid #ef4444; }
+        .alert-warning { border-left: 4px solid #f59e0b; }
+        .alert-info { border-left: 4px solid #3b82f6; }
         
         .card-row { display: flex; justify-content: space-between; align-items: center; }
-        .card-main { display: flex; flex-direction: column; gap: 4px; }
-        .card-title { font-weight: 600; font-size: 16px; color: #334155; }
-        .card-sub { font-size: 13px; color: #64748b; }
-        .card-value { font-weight: 700; font-size: 18px; }
+        .card-main { display: flex; flex-direction: column; gap: 4px; } /* Gap menor */
         
-        .tag-date { font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600; }
-        .tag-hoje { background: #fef2f2; color: #ef4444; }
-        .tag-prox { background: #eff6ff; color: #3b82f6; }
+        .card-title { font-weight: 700; font-size: 15px; color: #1e293b; } /* Fonte um pouco menor */
+        .card-sub { font-size: 12px; color: #64748b; }
+        .card-value { font-weight: 800; font-size: 16px; color: #0f172a; }
+        
+        .tag-date { font-size: 9px; padding: 3px 8px; border-radius: 6px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; width: fit-content; }
+        .tag-hoje { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
+        .tag-prox { background: #dbeafe; color: #3b82f6; border: 1px solid #bfdbfe; }
 
-        /* AGENDA & ANIVERSÁRIOS */
+        /* AGENDA (Mantida) */
         .task-item { 
             display: flex; align-items: center; gap: 15px; padding: 15px; 
-            background: white; border-radius: 12px; border: 1px solid #f1f5f9;
+            background: #ffffff; border-radius: 12px; border: 1px solid #cbd5e1;
+            transition: 0.2s; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .task-item:hover { border-color: #94a3b8; background: #f8fafc; }
+
+        .task-check { 
+            width: 22px; height: 22px; border-radius: 8px; border: 2px solid #cbd5e0; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; color: white;
             transition: 0.2s;
         }
-        .task-check { 
-            width: 22px; height: 22px; border-radius: 6px; border: 2px solid #cbd5e0; 
-            cursor: pointer; display: flex; align-items: center; justify-content: center; color: white;
-        }
-        .task-check.checked { background: #10b981; border-color: #10b981; }
+        .task-check:hover { border-color: #8b5cf6; }
+        .task-check.checked { background: #8b5cf6; border-color: #8b5cf6; }
+        
         .task-content { flex: 1; }
-        .task-time { font-size: 12px; color: #94a3b8; font-weight: 600; }
-        .task-text { font-size: 15px; color: #334155; font-weight: 500; }
-        .task-done .task-text { text-decoration: line-through; color: #cbd5e0; }
+        .task-time { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+        .task-text { font-size: 14px; color: #334155; font-weight: 500; }
+        .task-done .task-text { text-decoration: line-through; color: #94a3b8; }
 
-        /* CARD ANIVERSÁRIO (NOVO) */
+        /* ANIVERSÁRIOS */
         .niver-card { 
-            background: white; padding: 0; border-radius: 16px; border: 1px solid #f1f5f9; overflow: hidden;
+            background: #ffffff; padding: 0; border-radius: 16px; border: 1px solid #cbd5e1; overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
         .niver-item { 
-            padding: 15px 20px; border-bottom: 1px solid #f8fafc; display: flex; align-items: center; gap: 15px; 
+            padding: 15px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; 
             transition: 0.2s;
         }
         .niver-item:last-child { border-bottom: none; }
-        .niver-item:hover { background: #fdf2f8; }
+        .niver-item:hover { background: #fff1f2; }
         
         .niver-icon { 
-            width: 40px; height: 40px; background: #fff1f2; border-radius: 10px; color: #be123c; 
+            width: 40px; height: 40px; background: #ffe4e6; border-radius: 12px; color: #be123c; 
             display: flex; align-items: center; justify-content: center; font-size: 18px;
+            border: 1px solid #fecdd3;
         }
         .niver-info { flex: 1; }
-        .niver-name { font-size: 14px; font-weight: 700; color: #be123c; }
-        .niver-date { font-size: 12px; color: #fb7185; font-weight: 500; }
+        .niver-name { font-size: 14px; font-weight: 700; color: #1e293b; }
+        .niver-date { font-size: 12px; color: #e11d48; font-weight: 500; }
 
         /* Empty State */
-        .empty-state { text-align: center; padding: 40px; color: #94a3b8; background: white; border-radius: 16px; border: 1px dashed #e2e8f0; }
+        .empty-state { text-align: center; padding: 40px; color: #94a3b8; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; }
         .empty-icon { font-size: 30px; margin-bottom: 10px; color: #cbd5e0; }
 
-        /* Quick Actions */
-        .quick-actions { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-quick { 
-            flex: 1; padding: 12px; border: none; border-radius: 12px; 
-            font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            font-size: 14px; transition: 0.2s;
+        /* BOTÃO GLASS HARMONIZADO */
+        .btn-glass-soft { 
+            margin: 10px auto; width: fit-content;
+            padding: 10px 25px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+            background: transparent;
+            border: 2px solid #94a3b8; 
+            color: #94a3b8; 
         }
-        .btn-q-pagar { background: #fff1f2; color: #e11d48; } .btn-q-pagar:hover { background: #ffe4e6; }
-        .btn-q-tarefa { background: #f0f9ff; color: #0284c7; } .btn-q-tarefa:hover { background: #e0f2fe; }
+        .btn-glass-soft:hover {
+            background: #94a3b8; color: #ffffff;
+            box-shadow: 0 5px 15px rgba(148, 163, 184, 0.3);
+            transform: translateY(-2px);
+        }
 
     </style>
 </head>
@@ -104,29 +152,25 @@
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-    <nav class="navbar"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">T-System</div> <div></div> </nav>
+    
+    <nav class="navbar-custom"> 
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        <div class="logo">T-SYSTEM</div> 
+        <div></div> 
+    </nav>
 
     <div class="content">
         
         <div class="welcome-header">
             <h1 class="welcome-title" id="txtSaudacao">Carregando...</h1>
             <div class="welcome-date" id="txtData">...</div>
-            
-            <div class="quick-actions">
-                <button class="btn-quick btn-q-pagar" onclick="location.href='pagar.html'">
-                    <i class="fas fa-minus-circle"></i> Nova Conta
-                </button>
-                <button class="btn-quick btn-q-tarefa" onclick="location.href='rotinas.html'">
-                    <i class="fas fa-check-circle"></i> Nova Tarefa
-                </button>
-            </div>
         </div>
 
         <div class="feed-grid">
             
             <div class="feed-section">
                 <div class="section-title"><i class="fas fa-money-bill-wave"></i> Radar Financeiro (3 Dias)</div>
-                <div id="financeiro-feed">
+                <div id="financeiro-feed" style="display: flex; flex-direction: column; gap: 10px;">
                     <div class="empty-state">
                         <i class="fas fa-spinner fa-spin empty-icon"></i>
                         <p>Analisando contas...</p>
@@ -145,7 +189,7 @@
 
                 <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes do Mês</div>
                 <div id="niver-feed" class="niver-card">
-                    <div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 13px;">
+                    <div style="padding: 20px; text-align: center; color: #64748b; font-size: 13px;">
                         Carregando...
                     </div>
                 </div>
@@ -162,18 +206,16 @@
             configurarData();
             carregarFeedFinanceiro();
             carregarFeedAgenda();
-            carregarAniversariantes(); // NOVA FUNÇÃO
+            carregarAniversariantes();
         });
 
         function configurarData() {
             if(usuario) document.getElementById('txtSaudacao').innerText = `Olá, ${usuario.nome.split(' ')[0]}!`;
-            
             const hoje = new Date();
             const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('txtData').innerText = hoje.toLocaleDateString('pt-BR', opcoes);
+            document.getElementById('txtData').innerText = hoje.toLocaleDateString('pt-BR', opcoes).toUpperCase();
         }
 
-        // --- 1. FINANCEIRO (MANTIDO) ---
         async function carregarFeedFinanceiro() {
             if(!usuario) return;
             try {
@@ -204,10 +246,12 @@
 
                     if (isAtrasado) { classeCard = 'alert-urgent'; textoTag = 'ATRASADO'; classeTag = 'tag-hoje'; corValor = '#ef4444'; }
                     else if (isHoje) { classeCard = 'alert-warning'; textoTag = 'VENCE HOJE'; classeTag = 'tag-hoje'; corValor = '#f59e0b'; }
+                    
                     if (t.tipo === 'RECEITA') { classeCard = 'alert-info'; corValor = '#10b981'; textoTag = isHoje ? 'RECEBER HOJE' : 'A RECEBER'; }
 
+                    // AQUI USO A NOVA CLASSE .fin-card
                     container.innerHTML += `
-                        <div class="feed-card ${classeCard}">
+                        <div class="fin-card ${classeCard}">
                             <div class="card-row">
                                 <div class="card-main">
                                     <div class="card-title">${t.fornecedor || t.descricao}</div>
@@ -223,22 +267,26 @@
             } catch (e) { console.error(e); }
         }
 
-        // --- 2. AGENDA HOJE (MANTIDO) ---
         async function carregarFeedAgenda() {
             if(!usuario) return;
             try {
                 const res = await fetch(`/eventos?usuarioId=${usuario.id}`);
                 const todosEventos = await res.json();
                 const hojeStr = new Date().toISOString().split('T')[0];
-                
-                // Filtra HOJE e remove Aniversários (pois já terão card próprio)
                 const agendaHoje = todosEventos.filter(e => e.data.split('T')[0] === hojeStr && e.tipo !== 'ANIVERSARIO');
 
                 const container = document.getElementById('agenda-feed');
                 container.innerHTML = '';
 
                 if (agendaHoje.length === 0) {
-                    container.innerHTML = `<div class="empty-state"><i class="fas fa-calendar-check empty-icon"></i><p>Agenda livre hoje.</p><button class="btn-quick btn-q-tarefa" onclick="location.href='rotinas.html'" style="margin: 10px auto; width: fit-content;">Adicionar Tarefa</button></div>`;
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-check empty-icon"></i>
+                            <p>Agenda livre hoje.</p>
+                            <button class="btn-glass-soft" onclick="location.href='rotinas.html'">
+                                <i class="fas fa-plus"></i> Adicionar Tarefa
+                            </button>
+                        </div>`;
                     return;
                 }
 
@@ -247,8 +295,8 @@
                     const rowClass = ev.concluido ? 'task-done' : '';
                     const icone = ev.concluido ? '<i class="fas fa-check" style="font-size:12px;"></i>' : '';
                     container.innerHTML += `
-                        <div class="task-item ${rowClass}">
-                            <div class="task-check ${checkClass}" onclick="toggleTarefa('${ev.id}', ${!ev.concluido})">${icone}</div>
+                        <div class="task-item ${rowClass}" onclick="toggleTarefa('${ev.id}', ${!ev.concluido})">
+                            <div class="task-check ${checkClass}">${icone}</div>
                             <div class="task-content">
                                 <div class="task-time">${ev.tipo || 'TAREFA'}</div>
                                 <div class="task-text">${ev.titulo}</div>
@@ -258,29 +306,24 @@
             } catch (e) { console.error(e); }
         }
 
-        // --- 3. ANIVERSARIANTES DO MÊS (NOVO) ---
         async function carregarAniversariantes() {
             if(!usuario) return;
             try {
                 const res = await fetch(`/eventos?usuarioId=${usuario.id}`);
                 const todos = await res.json();
                 const mesAtual = new Date().getMonth();
-
-                // Filtra tipo ANIVERSARIO e Mês Atual
                 const nivers = todos.filter(e => {
                     if (e.tipo !== 'ANIVERSARIO') return false;
                     const dt = new Date(e.data);
                     return dt.getMonth() === mesAtual;
                 });
-
-                // Ordena por dia
                 nivers.sort((a,b) => new Date(a.data).getDate() - new Date(b.data).getDate());
 
                 const container = document.getElementById('niver-feed');
                 container.innerHTML = '';
 
                 if (nivers.length === 0) {
-                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: #94a3b8; font-size: 13px;">Nenhum aniversário neste mês.</div>`;
+                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b; font-size: 13px;">Nenhum aniversário neste mês.</div>`;
                     return;
                 }
 
@@ -295,7 +338,6 @@
                             </div>
                         </div>`;
                 });
-
             } catch (e) { console.error(e); }
         }
 
