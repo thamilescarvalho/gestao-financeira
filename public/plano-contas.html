@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Plano de Contas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+
+    <style>
+        /* PADRONIZAÇÃO GLOBAL */
+        *:not(i) {
+            font-family: 'Outfit', sans-serif !important;
+            text-transform: uppercase !important; 
+        }
+
+        /* PROTEÇÃO DOS ÍCONES */
+        .fas, .far, .fab, .fa, i {
+            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important;
+            text-transform: none !important;
+            font-style: normal;
+        }
+
+        /* TEMA: TITANIUM LIGHT */
+        body { 
+            background-color: #e2e8f0; 
+            color: #1e293b; 
+            font-size: 11px; 
+        }
+        
+        /* INPUTS E BOTÕES */
+        input, select, textarea, button {
+            font-family: 'Outfit', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
+
+        /* NAVBAR DARK */
+        .navbar-custom {
+            background-color: #1e293b; 
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+
+        /* HEADER */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .page-title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
+        
+        .btn-new { 
+            background-color: #1e293b; color: white; 
+            padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; 
+            cursor: pointer; display: flex; align-items: center; gap: 8px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 11px; transition: 0.2s;
+        }
+        .btn-new:hover { background-color: #334155; transform: translateY(-2px); }
+
+        /* CARD PRINCIPAL (CONTAINER) */
+        .main-card {
+            background: white; border-radius: 16px; border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden;
+            padding: 0;
+        }
+
+        /* ABAS SUPERIORES (Estilo da Imagem) */
+        .tabs-header {
+            display: flex;
+            padding: 0 20px;
+            border-bottom: 1px solid #e2e8f0;
+            background: white;
+            gap: 20px;
+        }
+        
+        .tab-btn {
+            background: none; border: none; padding: 20px 5px;
+            color: #64748b; font-weight: 700; font-size: 12px; cursor: pointer;
+            border-bottom: 3px solid transparent; transition: 0.2s;
+            letter-spacing: 0.5px;
+        }
+        
+        .tab-btn:hover { color: #1e293b; }
+        
+        /* ABA ATIVA (Laranja - Referência) */
+        .tab-btn.active {
+            color: #ea580c; /* Laranja Escuro */
+            border-bottom-color: #f97316; /* Laranja Vivo */
+        }
+
+        /* BARRA DE PESQUISA */
+        .toolbar { padding: 20px; display: flex; gap: 15px; align-items: center; border-bottom: 1px solid #f1f5f9; }
+        .search-box {
+            display: flex; align-items: center; gap: 10px; background: #f8fafc;
+            padding: 10px 15px; border-radius: 8px; border: 1px solid #e2e8f0; flex: 1; max-width: 400px;
+        }
+        .search-input { border: none; background: transparent; outline: none; width: 100%; color: #334155; font-weight: 600; font-size: 12px; }
+        .search-input::placeholder { opacity: 0.5; }
+
+        /* LISTA / TABELA */
+        .plan-list { width: 100%; border-collapse: collapse; }
+        
+        .plan-list th {
+            text-align: left; padding: 15px 25px; font-size: 10px; font-weight: 800;
+            color: #1e293b; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .plan-list td {
+            padding: 15px 25px; font-size: 13px; color: #334155;
+            border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600;
+        }
+        .plan-list tr:last-child td { border-bottom: none; }
+        .plan-list tr:hover { background-color: #fafafa; }
+
+        /* COLUNAS */
+        .col-nome { width: 40%; display: flex; align-items: center; gap: 8px; }
+        .col-sub { width: 30%; color: #64748b; font-size: 12px; }
+        .col-ver { width: 20%; }
+        .col-acao { width: 10%; text-align: right; }
+
+        /* ÍCONE DE SUBPLANOS (Laranja) */
+        .btn-sub {
+            color: #f97316; cursor: pointer; font-size: 14px; background: #fff7ed;
+            padding: 6px 12px; border-radius: 6px; border: 1px solid #ffedd5;
+            display: inline-flex; align-items: center; gap: 5px; font-weight: 700; font-size: 10px;
+            transition: 0.2s;
+        }
+        .btn-sub:hover { background: #f97316; color: white; border-color: #f97316; }
+
+        /* BOTÕES DE AÇÃO */
+        .btn-edit-icon { color: #64748b; cursor: pointer; font-size: 12px; margin-left: 5px; transition: 0.2s; }
+        .btn-edit-icon:hover { color: #3b82f6; }
+        
+        .btn-del-icon { color: #cbd5e1; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .btn-del-icon:hover { color: #ef4444; }
+
+        /* BREADCRUMB (Navegação) */
+        .breadcrumb {
+            display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; 
+            color: #64748b; margin-bottom: 15px; padding-left: 5px;
+        }
+        .bc-item { cursor: pointer; transition: 0.2s; }
+        .bc-item:hover { color: #f97316; text-decoration: underline; }
+        .bc-sep { color: #cbd5e1; font-size: 10px; }
+        .bc-current { color: #1e293b; cursor: default; pointer-events: none; }
+
+        /* MODAL */
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
+        .modal { background: white; width: 95%; max-width: 450px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .modal h2 { font-weight: 800; color: #1e293b; margin-top: 0; font-size: 18px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 12px; outline: none; background: #f8fafc; font-weight: 600; }
+        .form-group input:focus, .form-group select:focus { background: white; border-color: #1e293b; box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1); }
+        
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
+        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; }
+        .btn-confirm { background: #1e293b; border: none; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 11px; }
+    </style>
+</head>
+<body>
+    
+    <div class="sidebar" id="sidebar"></div>
+    <div class="overlay" onclick="toggleMenu()"></div>
+    
+    <nav class="navbar-custom"> 
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        <div class="logo">T-SYSTEM</div> 
+        <div></div> 
+    </nav>
+
+    <div class="content">
+        <div class="page-header">
+            <h1 class="page-title">Plano de Contas</h1>
+            <button class="btn-new" onclick="abrirModalNovo()">
+                <i class="fas fa-plus"></i> Nova Conta
+            </button>
+        </div>
+
+        <div class="main-card">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="mudarAba('RECEITA', this)">RECEITAS</button>
+                <button class="tab-btn" onclick="mudarAba('DESPESA', this)">DESPESAS</button>
+                <button class="tab-btn" onclick="mudarAba('INVESTIMENTO', this)">INVESTIMENTOS</button>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search" style="color: #cbd5e1;"></i>
+                    <input type="text" class="search-input" id="searchBox" placeholder="PESQUISE POR PLANO..." onkeyup="renderizarLista()">
+                </div>
+            </div>
+
+            <div id="breadcrumb" class="breadcrumb" style="padding: 15px 25px 0 25px; display: none;">
+                <span class="bc-item" onclick="voltarRaiz()">INÍCIO</span>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table class="plan-list">
+                    <thead>
+                        <tr>
+                            <th style="width: 45%;">Nome</th>
+                            <th style="width: 25%;">Subplanos</th>
+                            <th style="width: 20%;">Ações</th>
+                            <th style="width: 10%; text-align:right;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaCorpo">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalCategoria">
+        <div class="modal">
+            <h2 id="tituloModal">Nova Conta</h2>
+            <input type="hidden" id="editId">
+            <input type="hidden" id="paiIdAtual"> <div class="form-group">
+                <label>Nome da Conta</label>
+                <input type="text" id="inputNome" placeholder="Ex: Vendas, Aluguel...">
+            </div>
+
+            <div class="form-group">
+                <label>Tipo</label>
+                <select id="inputTipo" disabled style="opacity: 0.7; cursor: not-allowed;">
+                    <option value="RECEITA">RECEITA</option>
+                    <option value="DESPESA">DESPESA</option>
+                    <option value="INVESTIMENTO">INVESTIMENTO</option>
+                </select>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-confirm" onclick="salvarCategoria()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MOCK DATA (Simulando o banco)
+        let planoContas = [
+            // RECEITAS
+            { id: 1, nome: 'VENDAS DE PRODUTOS', tipo: 'RECEITA', paiId: null },
+            { id: 2, nome: 'SERVIÇOS PRESTADOS', tipo: 'RECEITA', paiId: null },
+            { id: 3, nome: 'VENDA LOJA 1', tipo: 'RECEITA', paiId: 1 },
+            { id: 4, nome: 'VENDA LOJA 2', tipo: 'RECEITA', paiId: 1 },
+
+            // DESPESAS
+            { id: 10, nome: 'GASTOS FIXOS', tipo: 'DESPESA', paiId: null },
+            { id: 11, nome: 'GASTOS VARIÁVEIS', tipo: 'DESPESA', paiId: null },
+            { id: 12, nome: 'ALUGUEL', tipo: 'DESPESA', paiId: 10 },
+            { id: 13, nome: 'ENERGIA', tipo: 'DESPESA', paiId: 10 },
+            { id: 14, nome: 'COMISSÕES', tipo: 'DESPESA', paiId: 11 },
+            
+            // INVESTIMENTOS
+            { id: 20, nome: 'APLICAÇÕES', tipo: 'INVESTIMENTO', paiId: null }
+        ];
+
+        let abaAtual = 'RECEITA';
+        let nivelAtualId = null; // null = Raiz, ID = dentro de uma categoria
+        let trilhaNavegacao = []; // Para o breadcrumb
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderizarLista();
+        });
+
+        function mudarAba(tipo, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            abaAtual = tipo;
+            nivelAtualId = null; // Reseta navegação
+            trilhaNavegacao = [];
+            renderizarLista();
+        }
+
+        function renderizarLista() {
+            const tbody = document.getElementById('listaCorpo');
+            const search = document.getElementById('searchBox').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            // Atualiza Breadcrumb
+            atualizarBreadcrumb();
+
+            // Filtra itens: Pelo tipo da aba E pelo nível atual (paiId)
+            // Se tiver pesquisa, ignora nível e busca em tudo daquele tipo
+            let itens = planoContas.filter(i => i.tipo === abaAtual);
+
+            if (search) {
+                itens = itens.filter(i => i.nome.toLowerCase().includes(search));
+            } else {
+                itens = itens.filter(i => i.paiId === nivelAtualId);
+            }
+
+            if(itens.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum registro encontrado.</td></tr>';
+                return;
+            }
+
+            itens.forEach(item => {
+                // Conta quantos filhos esse item tem
+                const qtdFilhos = planoContas.filter(x => x.paiId === item.id).length;
+                const textoSub = qtdFilhos > 0 ? `${qtdFilhos} SUB PLANO(S)` : 'NENHUM SUB PLANO';
+                
+                // Botão de ver subplanos (Drill-down)
+                const btnVer = `<div class="btn-sub" onclick="entrarNivel(${item.id}, '${item.nome}')"><i class="fas fa-list-ul"></i> VER SUB PLANOS</div>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="col-nome">
+                            ${item.nome} 
+                            <i class="fas fa-pencil-alt btn-edit-icon" onclick="editar(${item.id})" title="Editar"></i>
+                        </td>
+                        <td class="col-sub">${textoSub}</td>
+                        <td class="col-ver">${btnVer}</td>
+                        <td class="col-acao">
+                            <i class="fas fa-trash-alt btn-del-icon" onclick="excluir(${item.id})"></i>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- NAVEGAÇÃO DRILL-DOWN ---
+        function entrarNivel(id, nome) {
+            nivelAtualId = id;
+            trilhaNavegacao.push({ id, nome });
+            document.getElementById('searchBox').value = ''; // Limpa busca ao navegar
+            renderizarLista();
+        }
+
+        function voltarRaiz() {
+            nivelAtualId = null;
+            trilhaNavegacao = [];
+            renderizarLista();
+        }
+
+        function voltarParaNivel(index) {
+            // Volta para um nível específico do breadcrumb
+            // index é a posição no array trilhaNavegacao
+            const item = trilhaNavegacao[index];
+            nivelAtualId = item.id;
+            // Remove tudo depois desse index
+            trilhaNavegacao = trilhaNavegacao.slice(0, index + 1);
+            renderizarLista();
+        }
+
+        function atualizarBreadcrumb() {
+            const container = document.getElementById('breadcrumb');
+            if (nivelAtualId === null) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'flex';
+            
+            let html = `<span class="bc-item" onclick="voltarRaiz()">INÍCIO</span>`;
+            
+            trilhaNavegacao.forEach((passo, idx) => {
+                html += `<span class="bc-sep">/</span>`;
+                if (idx === trilhaNavegacao.length - 1) {
+                    html += `<span class="bc-current">${passo.nome}</span>`;
+                } else {
+                    html += `<span class="bc-item" onclick="voltarParaNivel(${idx})">${passo.nome}</span>`;
+                }
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // --- CRUD ---
+        function abrirModalNovo() {
+            document.getElementById('editId').value = '';
+            document.getElementById('tituloModal').innerText = 'Nova Conta';
+            document.getElementById('inputNome').value = '';
+            document.getElementById('inputTipo').value = abaAtual; // Trava no tipo da aba
+            document.getElementById('paiIdAtual').value = nivelAtualId || ''; // Salva onde estamos criando
+            
+            document.getElementById('modalCategoria').style.display = 'flex';
+        }
+
+        function editar(id) {
+            const item = planoContas.find(i => i.id === id);
+            if(!item) return;
+
+            document.getElementById('editId').value = item.id;
+            document.getElementById('tituloModal').innerText = 'Editar Conta';
+            document.getElementById('inputNome').value = item.nome;
+            document.getElementById('inputTipo').value = item.tipo;
+            document.getElementById('paiIdAtual').value = item.paiId || '';
+            
+            document.getElementById('modalCategoria').style.display = 'flex';
+        }
+
+        function fecharModal() { document.getElementById('modalCategoria').style.display = 'none'; }
+
+        function salvarCategoria() {
+            const id = document.getElementById('editId').value;
+            const nome = document.getElementById('inputNome').value;
+            const tipo = document.getElementById('inputTipo').value;
+            const paiId = document.getElementById('paiIdAtual').value ? parseInt(document.getElementById('paiIdAtual').value) : null;
+
+            if(!nome) return Swal.fire('Erro', 'Nome obrigatório.', 'warning');
+
+            if(id) {
+                const idx = planoContas.findIndex(x => x.id == id);
+                planoContas[idx].nome = nome;
+            } else {
+                planoContas.push({
+                    id: Date.now(),
+                    nome, tipo, paiId
+                });
+            }
+            fecharModal();
+            renderizarLista();
+            Swal.fire({ icon: 'success', title: 'Salvo!', timer: 1500, showConfirmButton: false });
+        }
+
+        function excluir(id) {
+            Swal.fire({
+                title: 'Excluir?',
+                text: "Isso apagará também os subplanos.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'SIM, EXCLUIR'
+            }).then((r) => {
+                if(r.isConfirmed) {
+                    // Remove o item e seus filhos (recursivo simples para 1 nível, em prod seria backend)
+                    planoContas = planoContas.filter(x => x.id !== id && x.paiId !== id);
+                    renderizarLista();
+                    Swal.fire('Excluído!', '', 'success');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
