@@ -56,6 +56,7 @@ model Transacao {
   status         String    @default("PENDENTE")
   parcelas       Int?      @default(1)
   parcelaInfo     String?
+  cartaoId       String?
   
   // Datas
   data           DateTime  @default(now())

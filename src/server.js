@@ -66,10 +66,12 @@ app.post('/transacoes/transferencia', async (req, res) => {
     } catch (e) { res.status(500).json({ erro: "Erro ao processar transferência." }); }
 });
 
-// --- ROTA POST TRANSACOES (CORRIGIDA: SALVA PARCELA INFO) ---
+// --- ROTA POST TRANSACOES (CORRIGIDA: ADD CARTAO ID) ---
 app.post('/transacoes', async (req, res) => {
     try {
-        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados, parcelaInfo } = req.body;
+        // 1. Recebe cartaoId do body
+        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados, parcelaInfo, cartaoId } = req.body;
+        
         if (!usuarioId) return res.status(400).json({ erro: "ID obrigatório" });
 
         const criadas = [];
@@ -89,9 +91,11 @@ app.post('/transacoes', async (req, res) => {
                         formaPagamento: item.formaPagamento || "Outros",
                         data: dt, dataVencimento: dt,
                         
-                        // CORREÇÃO: Salva "1/5", "2/5" no banco
                         parcelaInfo: item.parcelaInfo || "1/1",
                         parcelas: parseInt(parcelas) || 1,
+                        
+                        // 2. Salva o cartaoId nas parcelas
+                        cartaoId: cartaoId || null,
 
                         banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
                         usuario: { connect: { id: usuarioId } }
@@ -117,7 +121,10 @@ app.post('/transacoes', async (req, res) => {
                     data: dt, dataVencimento: dt, dataPagamento: dtPg,
                     
                     parcelas: 1,
-                    parcelaInfo: parcelaInfo || "1/1", // Salva 1/1 se for única
+                    parcelaInfo: parcelaInfo || "1/1",
+                    
+                    // 3. Salva o cartaoId na conta única
+                    cartaoId: cartaoId || null,
 
                     banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
                     usuario: { connect: { id: usuarioId } }
@@ -138,7 +145,7 @@ app.get('/transacoes', async (req, res) => {
     res.json(lista);
 });
 
-// --- ROTA PUT (CORRIGIDA: FORÇA ATUALIZAÇÃO DE DATA E VALOR) ---
+// --- ROTA PUT (CORRIGIDA: ADD CARTAO ID) ---
 app.put('/transacoes/:id', async (req, res) => {
     const { id } = req.params;
     const body = req.body;
@@ -166,7 +173,9 @@ app.put('/transacoes/:id', async (req, res) => {
                 dados.data = dt; 
             }
             if(body.valor) dados.valor = parseFloat(body.valor);
-            // Ignora parcelaInfo na edição simples para não quebrar
+            
+            // 4. Permite atualizar o cartaoId na edição
+            if(body.cartaoId) dados.cartaoId = body.cartaoId;
         }
         
         const atualizado = await prisma.transacao.update({ where: { id }, data: dados });
@@ -198,23 +207,20 @@ app.get('/eventos/alertas', async (req, res) => {
 
     const hoje = new Date();
     const dataLimite = new Date();
-    dataLimite.setDate(hoje.getDate() + 5); // Olha 5 dias pra frente
+    dataLimite.setDate(hoje.getDate() + 5); 
 
     try {
         const eventos = await prisma.evento.findMany({
             where: {
                 usuarioId: usuarioId,
-                lembrete: true, // Só os marcados para lembrar
+                lembrete: true, 
                 concluido: false
             }
         });
 
-        // Filtragem manual para ignorar o ano do nascimento e focar no dia/mês atual
         const proximos = eventos.filter(ev => {
             const dataEvento = new Date(ev.data);
             const aniversarioEsseAno = new Date(hoje.getFullYear(), dataEvento.getMonth(), dataEvento.getDate());
-            
-            // Se já passou este ano, verifica se é logo no inicio do ano que vem (opcional, aqui foca no ano atual)
             return aniversarioEsseAno >= hoje && aniversarioEsseAno <= dataLimite;
         });
 
@@ -240,7 +246,7 @@ app.post('/eventos', async (req, res) => {
                 titulo, descricao, local,
                 data: new Date(data),
                 tipo: tipo || 'TAREFA',
-                lembrete: lembrete || false, // Salva o lembrete
+                lembrete: lembrete || false,
                 usuario: { connect: { id: usuarioId } }
             }
         });
@@ -257,7 +263,7 @@ app.put('/eventos/:id', async (req, res) => {
                 titulo, descricao, local,
                 data: new Date(data),
                 tipo,
-                lembrete: lembrete // Atualiza o lembrete
+                lembrete: lembrete
             }
         });
         res.json(ev);
