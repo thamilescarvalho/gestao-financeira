@@ -18,7 +18,7 @@
             text-transform: uppercase !important; 
         }
 
-        /* --- PROTEÇÃO DOS ÍCONES (ESSENCIAL) --- */
+        /* --- PROTEÇÃO DOS ÍCONES --- */
         .fas, .far, .fab, .fa, i {
             font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important;
             text-transform: none !important;
@@ -83,7 +83,7 @@
 
         .user-row { display: flex; align-items: center; gap: 12px; }
         .user-avatar-small {
-            width: 32px; height: 32px; border-radius: 8px; /* Quadrado arredondado */
+            width: 32px; height: 32px; border-radius: 8px; 
             background-color: #e2e8f0; color: #64748b;
             display: inline-flex; align-items: center; justify-content: center;
             font-weight: 800; font-size: 12px;
@@ -232,12 +232,21 @@
         async function carregarUsuarios() {
             try {
                 const res = await fetch('/usuarios');
-                usuariosCache = await res.json();
+                let todosUsuarios = await res.json();
                 
-                const euAtualizado = usuariosCache.find(u => u.id === usuarioLogado.id);
+                // Pega os dados mais recentes do próprio usuário logado
+                const euAtualizado = todosUsuarios.find(u => u.id === usuarioLogado.id);
                 const souAdmin = euAtualizado && euAtualizado.role === 'ADMIN';
 
-                if(souAdmin) document.getElementById('aviso-admin').style.display = 'block';
+                // LÓGICA DE FILTRAGEM
+                if(souAdmin) {
+                    document.getElementById('aviso-admin').style.display = 'block';
+                    usuariosCache = todosUsuarios; // Admin vê tudo
+                } else {
+                    document.getElementById('aviso-admin').style.display = 'none';
+                    // Usuário Comum vê APENAS ele mesmo
+                    usuariosCache = todosUsuarios.filter(u => u.id === usuarioLogado.id);
+                }
 
                 renderizarTabela(usuariosCache, souAdmin);
             } catch (e) { console.error(e); }
@@ -256,8 +265,12 @@
                 const roleLabel = user.role === 'ADMIN' ? 'Admin' : 'Usuário';
 
                 let botoesHtml = '';
+                
+                // LÓGICA DE BOTÕES
                 if (souAdmin) {
+                    // Admin vê botões para todos
                     if (isMe) {
+                        // Não pode excluir a si mesmo
                         botoesHtml = `
                         <button onclick="abrirModal('${user.id}')" class="action-btn btn-edit" title="Editar Meus Dados">
                             <i class="fas fa-pen"></i>
@@ -265,6 +278,7 @@
                         <span style="font-size:9px; color:#cbd5e0; margin-left: 5px; font-weight: 700;">(VOCÊ)</span>
                         `;
                     } else {
+                        // Pode editar/excluir outros
                         botoesHtml = `
                         <button onclick="abrirModal('${user.id}')" class="action-btn btn-edit" title="Editar Usuário">
                             <i class="fas fa-pen"></i>
@@ -275,7 +289,18 @@
                         `;
                     }
                 } else {
-                    botoesHtml = '<i class="fas fa-lock" style="color:#e2e8f0; font-size:12px;"></i>';
+                    // Usuário comum
+                    if (isMe) {
+                        // Pode apenas se editar
+                        botoesHtml = `
+                        <button onclick="abrirModal('${user.id}')" class="action-btn btn-edit" title="Editar Meus Dados">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        `;
+                    } else {
+                        // Não deve acontecer pois já filtramos a lista, mas por segurança:
+                        botoesHtml = '<i class="fas fa-lock" style="color:#e2e8f0; font-size:12px;"></i>';
+                    }
                 }
                 
                 tbody.innerHTML += `
@@ -303,6 +328,14 @@
             document.getElementById('editEmail').value = user.email;
             document.getElementById('editRole').value = user.role;
             document.getElementById('editSenha').value = ''; 
+            
+            // Trava o select de permissão se não for Admin
+            const euAtualizado = usuariosCache.find(u => u.id === usuarioLogado.id);
+            // ATENÇÃO: Aqui usamos usuarioLogado.role se não tivermos atualizado a cache ainda,
+            // mas como carregamos a cache, podemos checar
+            const souAdmin = (euAtualizado && euAtualizado.role === 'ADMIN') || (usuarioLogado.role === 'ADMIN');
+            
+            document.getElementById('editRole').disabled = !souAdmin; 
             
             document.getElementById('modalEditar').style.display = 'flex';
         }
