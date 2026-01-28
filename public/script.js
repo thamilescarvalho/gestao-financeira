@@ -131,14 +131,14 @@ function gerarMenuLateral() {
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
-                <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
                 <a href="receber.html" class="link-navegacao">Contas a Receber</a>
-                <a href="plano-contas.html" class="link-navegacao">Plano de Contas</a>
                 <a href="pagar.html" class="link-navegacao">Contas a Pagar</a>
                 <a href="cartoes.html" class="link-navegacao">Meus Cartões</a> 
                 <a href="movimento.html" class="link-navegacao">Extrato / Movimento</a>
                 <a href="conciliacao.html" class="link-navegacao">Conciliação</a>
+                <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
                 <a href="relatorios.html" class="link-navegacao">Relatórios</a> 
+                <a href="plano-contas.html" class="link-navegacao">Plano de Contas</a>
             </div>
             
             <div class="menu-item" onclick="toggleSubmenu(this)">

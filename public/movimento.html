@@ -17,8 +17,8 @@
             font-family: 'Outfit', sans-serif; 
             background-color: #e2e8f0; 
             color: #1e293b; 
-            text-transform: uppercase; /* AQUI: FORÇA TUDO PARA MAIÚSCULO */
-            font-size: 12px; /* Ajuste fino para não ficar gigante em caixa alta */
+            text-transform: uppercase; 
+            font-size: 12px; 
         }
         
         .content { padding: 40px; max-width: 1280px; margin: 0 auto; }
@@ -43,7 +43,7 @@
         /* ABAS */
         .header-tabs { display: flex; gap: 3px; background: #cbd5e1; padding: 3px; border-radius: 8px; }
         .tab-link { 
-            text-decoration: none; color: #475569; font-weight: 700; font-size: 11px; /* Fonte ajustada */
+            text-decoration: none; color: #475569; font-weight: 700; font-size: 11px; 
             padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: none; background: transparent;
             font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;
         }
@@ -94,7 +94,6 @@
         .filter-pill:focus-within { border-color: #f97316; background: white; }
         .filter-pill i { color: #94a3b8; font-size: 11px; }
         
-        /* INPUTS - Garantindo caixa alta também na digitação */
         input, select, textarea { text-transform: uppercase; }
 
         .date-input { 
@@ -145,7 +144,6 @@
         .clean-table tr:last-child td { border-bottom: none; }
         .clean-table tbody tr:hover { background-color: #f8fafc; }
 
-        /* COLUNAS */
         .col-nome { width: 22%; font-weight: 600; color: #1e293b; }
         .col-banco { width: 13%; color: #64748b; font-size: 11px; font-weight: 600; }
         .col-valor { width: 12%; font-weight: 800; }
@@ -448,6 +446,12 @@
             lista.sort((a,b) => new Date(b.data) - new Date(a.data));
 
             lista.forEach(item => {
+                // --- FILTRO DE EXIBIÇÃO ---
+                // Se for item de cartão (tem cartaoId) E NÃO tem bancoId, esconda.
+                // Isso significa que é um item da fatura ainda não pago ou pago via consolidação.
+                if (item.cartaoId && !item.banco) return; 
+                // ---------------------------
+
                 const valorNum = parseFloat(item.valorFinal || item.valor); 
                 if(item.tipo === 'RECEITA') total += valorNum; else total -= valorNum;
 

@@ -12,7 +12,7 @@
     <script src="script.js"></script>
 
     <style>
-        /* MANTIDO O CSS ORIGINAL E ADICIONADO O ESTILO DO SELECT DE CARTÃO */
+        /* MANTIDO O CSS ORIGINAL */
         *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
         body { background-color: #e2e8f0; color: #1e293b; font-size: 11px; }
@@ -52,7 +52,10 @@
         .col-parc { width: 8%; text-align: center; }
         .badge-parc { background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; display: inline-block; }
         .col-desc { width: 20%; color: #94a3b8; font-size: 11px; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
-        .col-acao { width: 110px; }
+        
+        /* AJUSTE NA LARGURA DA COLUNA AÇÃO PARA CABER O CHECKBOX */
+        .col-acao { width: 130px; }
+        
         .clean-table thead th.col-acao { text-align: center; }
         .clean-table tbody td.col-acao { display: flex !important; justify-content: flex-end; align-items: center; gap: 4px; padding-right: 15px; border-bottom: 1px solid #f1f5f9; }
         .action-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; background: white; border-color: #e2e8f0; color: #64748b; font-size: 10px; }
@@ -76,13 +79,30 @@
         .parcela-row { display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; padding: 10px 15px; align-items: center; border-bottom: 1px solid #f1f5f9; }
         .p-idx { font-size: 10px; font-weight: 800; color: #1e293b; text-align: center; background: #e2e8f0; border-radius: 4px; padding: 3px 0; }
         .parcela-row input { padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; background: white; }
-        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
-        
-        /* ESTILO DO CAMPO DE CARTÃO (NOVO) */
         #divSelectCartao { border: 1px dashed #ef4444; padding: 10px; border-radius: 8px; background: #fef2f2; margin-bottom: 15px; }
+        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+
+        /* --- CSS NOVO PARA O BOTÃO DE EXCLUIR EM MASSA --- */
+        .btn-mass-delete {
+            background-color: #dc2626; color: white; padding: 10px 16px; border-radius: 8px; 
+            font-weight: 700; border: none; cursor: pointer; display: none; 
+            align-items: center; gap: 6px; font-size: 11px; transition: 0.2s;
+            margin-right: 5px;
+        }
+        .btn-mass-delete:hover { background-color: #b91c1c; transform: translateY(-2px); }
+        
+        /* Checkbox na linha */
+        .chk-row {
+            width: 16px; height: 16px; cursor: pointer; accent-color: #ef4444;
+            margin-right: 12px;
+        }
+        
+        /* Container no cabeçalho da coluna ações para alinhar checkbox e título */
+        .header-actions-col { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
     </style>
 </head>
 <body>
+    
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
     <nav class="navbar-custom"> 
@@ -96,6 +116,11 @@
             <h1 class="page-title">Contas a Pagar</h1>
             <div class="header-actions">
                 <input type="file" id="fileImport" accept=".ofx, .csv" style="display: none;" onchange="processarArquivo()">
+                
+                <button id="btnMassDelete" class="btn-mass-delete" onclick="excluirMassa()">
+                    <i class="fas fa-trash"></i> EXCLUIR (<span id="countSelected">0</span>)
+                </button>
+
                 <button class="btn-import" onclick="document.getElementById('fileImport').click()"><i class="fas fa-file-import"></i> Importar</button>
                 <button class="btn-new" onclick="abrirModalNovo()"><i class="fas fa-plus"></i> Nova Despesa</button>
             </div>
@@ -144,7 +169,12 @@
                         <th class="col-forma">Forma</th>
                         <th class="col-parc">Parc.</th>
                         <th class="col-desc">Descrição</th>
-                        <th class="col-acao"><i class="fas fa-cog"></i></th>
+                        <th class="col-acao">
+                            <div class="header-actions-col">
+                                <input type="checkbox" id="chkTodos" class="chk-row" onchange="toggleTodos(this)" style="margin:0;">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="lista"></tbody>
@@ -252,7 +282,7 @@
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         let transacoesCache = [];
         let importacaoCache = []; 
-        let cartoesDisponiveis = []; // Cache dos cartões
+        let cartoesDisponiveis = []; 
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
@@ -264,11 +294,11 @@
             document.getElementById('filtroFim').value = fim;
             document.getElementById('dataVenc').valueAsDate = new Date(); 
             
-            carregarCartoes(); // Carrega os cartões do LocalStorage
+            carregarCartoes(); 
             carregar(); 
         });
 
-        // CARREGA OS CARTÕES PARA O SELECT
+        // --- CARREGAR CARTÕES E SELECT ---
         function carregarCartoes() {
             const stored = localStorage.getItem('meus_cartoes');
             if(stored) {
@@ -281,20 +311,21 @@
             }
         }
 
-        // MOSTRA/ESCONDE SELECT DE CARTÃO
         function verificarFormaPagamento() {
             const forma = document.getElementById('formaPagto').value;
             const divCartao = document.getElementById('divSelectCartao');
-            
             if (forma === 'Cartão') {
                 divCartao.style.display = 'block';
             } else {
                 divCartao.style.display = 'none';
                 document.getElementById('selectCartaoId').value = '';
             }
-            gerarParcelasVisuais();
+            if(!document.getElementById('editId').value) {
+                gerarParcelasVisuais();
+            }
         }
 
+        // --- RENDERIZAR LISTA COM CHECKBOXES ---
         function renderizarLista(lista) { 
             const tbody = document.getElementById('lista'); 
             tbody.innerHTML = ''; 
@@ -314,7 +345,6 @@
                 const weightVenc = (item.dataVencimento.split('T')[0] < hoje) ? '800' : '500';
                 const parcelaTexto = item.parcelaInfo || '1/1';
 
-                // Mostra ícone se for cartão
                 let descExtra = item.cartaoId ? ` <i class="fas fa-credit-card" style="font-size:9px; color:#94a3b8;" title="No Cartão"></i>` : '';
 
                 tbody.innerHTML += `
@@ -326,6 +356,8 @@
                         <td class="col-parc"><span class="badge-parc">${parcelaTexto}</span></td>
                         <td class="col-desc" title="${item.descricao}">${item.descricao || ''}${descExtra}</td>
                         <td class="col-acao">
+                            <input type="checkbox" class="chk-item chk-row" value="${item.id}" onchange="atualizarBotaoMassa()">
+                            
                             <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Pagar"><i class="fas fa-check"></i></button>
                             <button onclick="editarConta('${item.id}')" class="action-btn btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
                             <button onclick="deletar('${item.id}')" class="action-btn btn-del" title="Excluir"><i class="fas fa-trash"></i></button>
@@ -333,8 +365,71 @@
                     </tr>`; 
             });
             document.getElementById('total-esteira').innerText = fmt.format(total);
+            
+            // Reseta "Selecionar Todos"
+            document.getElementById('chkTodos').checked = false;
+            atualizarBotaoMassa();
         }
 
+        // --- LÓGICA DE EXCLUSÃO EM MASSA ---
+        function toggleTodos(source) {
+            const checkboxes = document.querySelectorAll('.chk-item');
+            checkboxes.forEach(chk => chk.checked = source.checked);
+            atualizarBotaoMassa();
+        }
+
+        function atualizarBotaoMassa() {
+            const count = document.querySelectorAll('.chk-item:checked').length;
+            const btn = document.getElementById('btnMassDelete');
+            const chkTodos = document.getElementById('chkTodos');
+            
+            document.getElementById('countSelected').innerText = count;
+            
+            const total = document.querySelectorAll('.chk-item').length;
+            chkTodos.checked = total > 0 && count === total;
+
+            if (count > 0) {
+                btn.style.display = 'inline-flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        async function excluirMassa() {
+            const checkboxes = document.querySelectorAll('.chk-item:checked');
+            if (checkboxes.length === 0) return;
+
+            const result = await Swal.fire({
+                title: `Excluir ${checkboxes.length} contas?`,
+                text: "Essa ação não pode ser desfeita.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'Sim, excluir tudo'
+            });
+
+            if (result.isConfirmed) {
+                let erros = 0;
+                for (const chk of checkboxes) {
+                    try {
+                        await fetch(`/transacoes/${chk.value}`, { method: 'DELETE' });
+                    } catch (e) {
+                        erros++;
+                        console.error(e);
+                    }
+                }
+
+                if (erros > 0) {
+                    Swal.fire('Atenção', `${checkboxes.length - erros} excluídos, mas ${erros} falharam.`, 'warning');
+                } else {
+                    Toast.fire({ icon: 'success', title: 'Excluídos com sucesso!' });
+                }
+                
+                carregar();
+            }
+        }
+
+        // --- FUNÇÕES AUXILIARES MANTIDAS ---
         function validarData(inputElement) { if (inputElement.validity.badInput) { inputElement.classList.add('input-error-border'); return false; } const dataStr = inputElement.value; if (!dataStr) { inputElement.classList.remove('input-error-border'); return true; } const [ano, mes, dia] = dataStr.split('-').map(Number); const dataObj = new Date(ano, mes - 1, dia); if (dataObj.getMonth() !== (mes - 1) || dataObj.getDate() !== dia) { inputElement.classList.add('input-error-border'); return false; } else { inputElement.classList.remove('input-error-border'); return true; } }
         function aplicarFiltros() { const elInicio = document.getElementById('filtroInicio'); const elFim = document.getElementById('filtroFim'); validarData(elInicio); validarData(elFim); const inicio = elInicio.value; const fim = elFim.value; const termo = document.getElementById('filtroFornecedor').value.toLowerCase(); const desc = document.getElementById('filtroDesc').value.toLowerCase(); const pagto = document.getElementById('filtroPagto').value; const filtrados = transacoesCache.filter(item => { const dataItem = (item.dataVencimento || item.data).split('T')[0]; if (inicio && dataItem < inicio) return false; if (fim && dataItem > fim) return false; if (termo && !item.fornecedor?.toLowerCase().includes(termo)) return false; if (desc && !item.descricao?.toLowerCase().includes(desc)) return false; if (pagto && item.formaPagamento !== pagto) return false; return true; }); renderizarLista(filtrados); }
         function atualizarFiltroPagamentos() { const select = document.getElementById('filtroPagto'); const valorAtual = select.value; const padrao = ['Boleto', 'Pix', 'Cartão', 'Dinheiro', 'Transferência', 'Cashback', 'Outros']; const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f); const unicas = [...new Set([...padrao, ...doBanco])].sort(); select.innerHTML = '<option value="">Forma...</option>'; unicas.forEach(f => { select.innerHTML += `<option value="${f}">${f}</option>`; }); select.value = valorAtual; }
@@ -344,7 +439,7 @@
         function toggleTodosImport(source) { document.querySelectorAll('.chk-import').forEach(chk => chk.checked = source.checked); }
         async function confirmarImportacao() { const selecionados = []; document.querySelectorAll('.chk-import:checked').forEach(chk => { const idx = chk.getAttribute('data-index'); selecionados.push(importacaoCache[idx]); }); if (selecionados.length === 0) return Swal.fire('Atenção', 'Selecione itens para importar.', 'warning'); let sucesso = 0; for (const item of selecionados) { const dados = { fornecedor: item.fornecedor || item.descricao, descricao: item.descricao, valor: item.valor, tipo: 'DESPESA', status: 'PENDENTE', data: item.data, dataVencimento: item.data, formaPagamento: item.formaPagamento || 'Outros', categoria: 'Importação', usuarioId: usuario.id, parcelas: item.parcelas || 1 }; await fetch('/transacoes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados) }); sucesso++; } document.getElementById('modalImportar').style.display = 'none'; limparFiltros(); Swal.fire({ icon: 'success', title: 'Concluído', text: `${sucesso} itens importados!` }); }
         
-        // SALVAR CONTA (ATUALIZADO E CORRIGIDO)
+        // --- FUNÇÕES CRUD (SALVAR, EDITAR, BAIXA, DELETAR) ---
         async function salvarConta() { 
             const idEdicao = document.getElementById('editId').value; 
             const qtd = parseInt(document.getElementById('parcelas').value); 
@@ -353,6 +448,17 @@
 
             if (formaPagamento === 'Cartão' && !cartaoId) {
                 return Swal.fire('Erro', 'Selecione o Cartão.', 'warning');
+            }
+
+            let descOriginal = document.getElementById('inputDescricao').value;
+            let descFinal = descOriginal;
+            
+            if (cartaoId) {
+                const sel = document.getElementById('selectCartaoId');
+                const nomeCartao = sel.options[sel.selectedIndex].text;
+                if (nomeCartao && !descFinal.includes('{Cartão:')) {
+                    descFinal = `${descOriginal} {Cartão:${nomeCartao}}`;
+                }
             }
 
             let itensParcelados = []; 
@@ -369,21 +475,29 @@
                 }); 
             } 
             
+            // Preserva numeração da parcela
+            let infoParcelaEnvio = '1/1'; 
+            if (idEdicao) {
+                const original = transacoesCache.find(t => t.id === idEdicao);
+                if (original && original.parcelaInfo) infoParcelaEnvio = original.parcelaInfo;
+            } else if (itensParcelados.length > 0) {
+                infoParcelaEnvio = null; 
+            }
+
             const dados = { 
                 fornecedor: document.getElementById('inputFornecedor').value, 
                 valor: parseFloat(document.getElementById('valor').value), 
                 dataVencimento: document.getElementById('dataVenc').value, 
                 data: document.getElementById('dataVenc').value, 
                 formaPagamento: formaPagamento,
-                descricao: document.getElementById('inputDescricao').value, 
-                // CORRIGIDO: ParseInt para evitar erro de banco
+                descricao: descFinal, 
                 parcelas: parseInt(document.getElementById('parcelas').value) || 1, 
                 tipo: 'DESPESA', 
                 status: 'PENDENTE', 
                 usuarioId: usuario.id, 
                 itensParcelados: itensParcelados.length > 0 ? itensParcelados : null, 
-                parcelaInfo: (itensParcelados.length === 0) ? '1/1' : null,
-                cartaoId: cartaoId // Envia o ID do cartão
+                parcelaInfo: infoParcelaEnvio, 
+                cartaoId: cartaoId 
             }; 
             
             if(!dados.fornecedor || !dados.valor) return Swal.fire('Erro', 'Preencha Fornecedor e Valor', 'warning'); 
@@ -414,7 +528,6 @@
             document.getElementById('containerParcelas').style.display = 'none'; 
             document.getElementById('modalConta').style.display = 'flex'; 
         }
-        
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
         
         function editarConta(id) { 
@@ -426,14 +539,13 @@
             document.getElementById('valor').value = item.valor; 
             document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0]; 
             document.getElementById('formaPagto').value = item.formaPagamento; 
-            document.getElementById('inputDescricao').value = item.descricao; 
+            document.getElementById('inputDescricao').value = item.descricao.replace(/ \{Cartão:.*?\}/, '');
             document.getElementById('parcelas').value = item.parcelas || 1; 
             
             verificarFormaPagamento();
             if(item.formaPagamento === 'Cartão') {
                 document.getElementById('selectCartaoId').value = item.cartaoId || '';
             }
-
             document.getElementById('containerParcelas').style.display = 'none'; 
             document.getElementById('modalConta').style.display = 'flex'; 
         }

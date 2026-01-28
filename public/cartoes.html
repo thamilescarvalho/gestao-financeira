@@ -12,11 +12,10 @@
     <script src="script.js"></script>
 
     <style>
-        /* MANTIDO O MESMO CSS DO SEU ARQUIVO */
+        /* MANTIDO O CSS */
         *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
         body { background-color: #e2e8f0; color: #1e293b; font-size: 11px; }
-        input, select, textarea, button { font-family: 'Outfit', sans-serif; text-transform: uppercase; }
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
         .navbar-custom { background-color: #1e293b; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: white; }
         .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
@@ -25,8 +24,9 @@
         .page-title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
         .btn-new { background-color: #1e293b; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 11px; transition: 0.2s; }
         .btn-new:hover { background-color: #334155; transform: translateY(-2px); }
+        
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-        .credit-card { background: white; border-radius: 16px; border: 1px solid #cbd5e1; padding: 25px; position: relative; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; min-height: 180px; }
+        .credit-card { background: white; border-radius: 16px; border: 1px solid #cbd5e1; padding: 25px; position: relative; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; min-height: 200px; }
         .credit-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #94a3b8; }
         .card-stripe { position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); }
         .cc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
@@ -41,29 +41,47 @@
         .limit-bar-bg { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: 5px; }
         .limit-bar-fill { height: 100%; background: #3b82f6; width: 0%; border-radius: 3px; transition: width 1s ease; }
         .limit-text { display: flex; justify-content: space-between; font-size: 10px; color: #64748b; margin-top: 5px; font-weight: 600; }
-        .cc-actions { border-top: 1px solid #f1f5f9; padding-top: 15px; display: flex; justify-content: flex-end; gap: 8px; }
+        .cc-actions { border-top: 1px solid #f1f5f9; padding-top: 15px; display: flex; justify-content: space-between; align-items: center; }
         .btn-icon { width: 28px; height: 28px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: #64748b; background: white; transition: 0.2s; font-size: 11px; }
         .btn-edit:hover { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
         .btn-del:hover { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
+        
+        .btn-fatura { background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; padding: 8px 16px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 11px; text-transform: uppercase; transition: 0.2s; }
+        .btn-fatura:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+        /* MODAIS */
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
         .modal { background: white; width: 95%; max-width: 450px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; }
+        .modal-lg { max-width: 600px; }
         @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal h2 { font-weight: 800; color: #1e293b; margin-top: 0; font-size: 18px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 12px; outline: none; background: #f8fafc; font-weight: 600; font-family: 'Outfit', sans-serif; text-transform: uppercase; }
-        .form-group input:focus, .form-group select:focus { background: white; border-color: #1e293b; box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1); }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
-        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; text-transform: uppercase; }
-        .btn-confirm { background: #1e293b; border: none; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+        
+        /* ESTILO DA FATURA */
+        .fatura-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .fatura-input-mes { border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; font-weight: 700; color: #1e293b; background: #f8fafc; }
+
+        .fatura-header { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .fatura-total { font-size: 20px; font-weight: 800; color: #ef4444; }
+        .fatura-label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 2px; }
+        
+        .fatura-lista { max-height: 250px; overflow-y: auto; border: 1px solid #f1f5f9; border-radius: 8px; }
+        .fatura-item { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-size: 11px; align-items: center; }
+        .fatura-item:last-child { border-bottom: none; }
+        .fatura-item:hover { background-color: #f8fafc; }
+        .fi-desc { font-weight: 700; color: #334155; }
+        .fi-data { color: #94a3b8; font-family: monospace; margin-right: 8px; font-weight: 600; }
+        .fi-valor { font-weight: 800; color: #1e293b; }
+        .badge-status { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 5px; }
+        .bg-pago { background: #dcfce7; color: #166534; }
+        .bg-pendente { background: #fee2e2; color: #991b1b; }
+
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; font-family: 'Outfit'; font-size: 12px; text-transform: uppercase; font-weight: 600; outline: none; }
+        input:focus, select:focus { border-color: #1e293b; }
     </style>
 </head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-    
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
         <div class="logo">T-SYSTEM</div> 
@@ -79,23 +97,81 @@
         </div>
 
         <div class="cards-grid" id="listaCartoes">
-            <div style="text-align:center; padding:40px; color:#94a3b8; grid-column:1/-1;">Carregando cartões e faturas...</div>
+            <div style="text-align:center; padding:40px; color:#94a3b8; grid-column:1/-1;">Carregando...</div>
         </div>
     </div>
 
     <div class="modal-overlay" id="modalCartao">
         <div class="modal">
-            <h2 id="tituloModal">Novo Cartão</h2>
+            <h2 id="tituloModal" style="font-weight: 800; color: #1e293b; margin-top: 0; margin-bottom:20px;">Novo Cartão</h2>
             <input type="hidden" id="editId">
-            <div class="form-group"><label>Nome do Cartão <span style="color:red">*</span></label><input type="text" id="inputNome" placeholder="Ex: Nubank Platinum"></div>
-            <div class="form-group"><label>Limite Total (R$)</label><input type="number" id="inputLimite" step="0.01" placeholder="0,00"></div>
-            <div class="form-row">
-                <div class="form-group"><label>Dia Fechamento</label><input type="number" id="inputFechamento" min="1" max="31" placeholder="Ex: 05"></div>
-                <div class="form-group"><label>Dia Vencimento</label><input type="number" id="inputVencimento" min="1" max="31" placeholder="Ex: 12"></div>
+            <label style="font-weight:700; color:#64748b;">Nome do Cartão</label>
+            <input type="text" id="inputNome" placeholder="Ex: Nubank">
+            <label style="font-weight:700; color:#64748b;">Limite Total (R$)</label>
+            <input type="number" id="inputLimite" step="0.01">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div><label style="font-weight:700; color:#64748b;">Dia Fechamento</label><input type="number" id="inputFechamento"></div>
+                <div><label style="font-weight:700; color:#64748b;">Dia Vencimento</label><input type="number" id="inputVencimento"></div>
             </div>
-            <div class="modal-footer">
-                <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
-                <button class="btn-confirm" onclick="salvarCartao()">Salvar</button>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; border-top:1px solid #f1f5f9; padding-top:20px;">
+                <button onclick="document.getElementById('modalCartao').style.display='none'" class="btn-outline">CANCELAR</button>
+                <button onclick="salvarCartao()" style="background:#1e293b; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer;">SALVAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalFatura">
+        <div class="modal modal-lg">
+            <div class="fatura-top-bar">
+                <h2 style="font-weight: 800; color: #1e293b; margin: 0; display:flex; align-items:center; gap:10px;">
+                    <i class="far fa-file-alt" style="color:#cbd5e1;"></i> <span id="faturaNomeCartao">Cartão</span>
+                </h2>
+                <input type="month" id="faturaMesSelecionado" class="fatura-input-mes" style="width: auto; margin:0;" onchange="recarregarFatura()">
+            </div>
+            
+            <div class="fatura-header">
+                <div>
+                    <div class="fatura-label">Vencimento</div>
+                    <strong style="font-size:16px; color:#1e293b;" id="faturaDataVenc">--/--</strong>
+                    <div class="fatura-label" style="margin-top:5px;">Período</div>
+                    <span style="font-size:11px; color:#64748b;" id="faturaPeriodo">-- a --</span>
+                </div>
+                <div style="text-align:right;">
+                    <div class="fatura-label">TOTAL DA FATURA</div>
+                    <div class="fatura-total" id="faturaTotal">R$ 0,00</div>
+                    <div id="faturaStatusBadge" style="margin-top:5px;"></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 10px; font-size: 10px; color:#64748b; font-weight:800; letter-spacing:0.5px;">DETALHAMENTO DA FATURA</div>
+            <div class="fatura-lista" id="listaItensFatura">
+                </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; border-top:1px solid #f1f5f9; padding-top:20px;">
+                <button onclick="document.getElementById('modalFatura').style.display='none'" class="btn-outline">FECHAR</button>
+                <button id="btnPagarFatura" onclick="pagarFatura()" style="background:#10b981; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                    <i class="fas fa-check"></i> PAGAR FATURA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalPagarFaturaConfirm">
+        <div class="modal" style="max-width:400px;">
+            <h2 style="font-weight: 800; color: #10b981; margin-top: 0;">Pagar Fatura?</h2>
+            <p style="color:#64748b; font-size:12px; line-height:1.5;">
+                Isso irá criar uma despesa única no valor total e marcará todos os itens individuais como pagos.
+            </p>
+            
+            <label style="font-weight:800; color:#1e293b; display:block; margin-top:20px;">SAIR DINHEIRO DE:</label>
+            <select id="selectBancoPagto"></select>
+            
+            <label style="font-weight:800; color:#1e293b; display:block; margin-top:10px;">DATA DO PAGAMENTO:</label>
+            <input type="date" id="dataPagtoFatura">
+
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:25px; border-top:1px solid #f1f5f9; padding-top:20px;">
+                <button onclick="document.getElementById('modalPagarFaturaConfirm').style.display='none'" class="btn-outline">VOLTAR</button>
+                <button onclick="confirmarPagamentoFatura()" style="background:#10b981; color:white; border:none; padding:10px 25px; border-radius:8px; font-weight:800; cursor:pointer;">CONFIRMAR PAGAMENTO</button>
             </div>
         </div>
     </div>
@@ -106,6 +182,7 @@
         
         let cartoesCache = [];
         let transacoesCache = [];
+        let faturaAtual = { cartao: null, itens: [], total: 0 };
 
         document.addEventListener('DOMContentLoaded', () => {
             if(!usuario) return window.location.href = 'login.html';
@@ -114,37 +191,22 @@
 
         async function carregarDados() {
             try {
-                // 1. Busca os cartões
                 const storedCartoes = localStorage.getItem('meus_cartoes');
-                if (storedCartoes) {
-                    cartoesCache = JSON.parse(storedCartoes);
-                } else {
-                    cartoesCache = [];
-                }
+                cartoesCache = storedCartoes ? JSON.parse(storedCartoes) : [];
 
-                // 2. Busca TODAS as despesas para calcular o uso
-                // Trazemos tudo para garantir que o filtro funcione
                 const resTrans = await fetch(`/transacoes?usuarioId=${usuario.id}&tipo=DESPESA`);
                 transacoesCache = await resTrans.json();
 
                 renderizarCartoes();
-
             } catch (e) { console.error(e); }
         }
 
-        // --- CORREÇÃO AQUI: COMPARAÇÃO DE ID COMO TEXTO ---
         function calcularUsoCartao(cartao) {
-            // Filtra despesas vinculadas a este cartão e que ainda consomem limite
             const gastos = transacoesCache.filter(t => 
-                // String(t.cartaoId) === String(cartao.id) é crucial!
-                // Garante que "123" (texto) seja igual a 123 (número)
                 (String(t.cartaoId) === String(cartao.id)) && 
                 (t.status === 'PENDENTE' || t.status === 'VENCIDA')
             );
-
-            // Soma os valores
-            const totalUsado = gastos.reduce((acc, t) => acc + parseFloat(t.valor), 0);
-            return totalUsado;
+            return gastos.reduce((acc, t) => acc + parseFloat(t.valor), 0);
         }
 
         function renderizarCartoes() {
@@ -157,21 +219,13 @@
             }
 
             cartoesCache.forEach(c => {
-                // Chama a função corrigida
                 const usado = calcularUsoCartao(c); 
                 const disponivel = c.limite - usado;
                 const percentual = c.limite > 0 ? (usado / c.limite) * 100 : 0;
                 
-                // Cores
-                let corBarra = '#3b82f6'; // Azul
-                let corValor = '#1e293b';
-                
-                if (disponivel < 0) {
-                    corBarra = '#ef4444'; // Vermelho (Estourado)
-                    corValor = '#ef4444';
-                } else if (percentual > 80) {
-                    corBarra = '#f59e0b'; // Laranja (Alerta)
-                }
+                let corBarra = '#3b82f6';
+                if (disponivel < 0) corBarra = '#ef4444';
+                else if (percentual > 80) corBarra = '#f59e0b';
 
                 container.innerHTML += `
                     <div class="credit-card">
@@ -182,103 +236,206 @@
                                 <i class="far fa-credit-card cc-brand"></i>
                             </div>
                             <div class="cc-info-row">
-                                <div class="cc-info-item">
-                                    <span class="cc-label">FECHAMENTO</span>
-                                    <span class="cc-value highlight-day">DIA ${String(c.fechamento).padStart(2,'0')}</span>
-                                </div>
-                                <div class="cc-info-item" style="text-align:right;">
-                                    <span class="cc-label">VENCIMENTO</span>
-                                    <span class="cc-value">DIA ${String(c.vencimento).padStart(2,'0')}</span>
-                                </div>
+                                <div class="cc-info-item"><span class="cc-label">FECHAMENTO</span><span class="cc-value highlight-day">DIA ${String(c.fechamento).padStart(2,'0')}</span></div>
+                                <div class="cc-info-item" style="text-align:right;"><span class="cc-label">VENCIMENTO</span><span class="cc-value">DIA ${String(c.vencimento).padStart(2,'0')}</span></div>
                             </div>
                             <div class="limit-container">
                                 <div class="cc-label">LIMITE DISPONÍVEL</div>
-                                <div class="cc-value" style="font-size: 18px; color: ${corValor}">
-                                    ${fmt.format(disponivel)}
-                                </div>
-                                <div class="limit-bar-bg">
-                                    <div class="limit-bar-fill" style="width: ${Math.min(percentual, 100)}%; background-color: ${corBarra};"></div>
-                                </div>
-                                <div class="limit-text">
-                                    <span>Usado: ${fmt.format(usado)}</span>
-                                    <span>Total: ${fmt.format(c.limite)}</span>
-                                </div>
+                                <div class="cc-value" style="font-size: 18px; color: #1e293b;">${fmt.format(disponivel)}</div>
+                                <div class="limit-bar-bg"><div class="limit-bar-fill" style="width: ${Math.min(percentual, 100)}%; background-color: ${corBarra};"></div></div>
+                                <div class="limit-text"><span>Usado: ${fmt.format(usado)}</span><span>Total: ${fmt.format(c.limite)}</span></div>
                             </div>
                         </div>
                         <div class="cc-actions">
-                            <button class="btn-icon btn-edit" onclick="editar('${c.id}')"><i class="fas fa-pen"></i></button>
-                            <button class="btn-icon btn-del" onclick="excluir('${c.id}')"><i class="fas fa-trash"></i></button>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-icon btn-edit" onclick="editar('${c.id}')"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon btn-del" onclick="excluir('${c.id}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <button class="btn-fatura" onclick="abrirFatura('${c.id}')">
+                                <i class="far fa-eye"></i> VER FATURA
+                            </button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // --- CRUD LOCAL ---
+        // --- LÓGICA DE FATURA ---
+        
+        async function abrirFatura(cartaoId) {
+            const cartao = cartoesCache.find(c => String(c.id) === String(cartaoId));
+            if (!cartao) return;
+
+            faturaAtual.cartao = cartao;
+
+            // Determina mês padrão (próximo vencimento)
+            const hoje = new Date();
+            let mesFatura = hoje.getMonth() + 1; 
+            let anoFatura = hoje.getFullYear();
+
+            // Se hoje >= dia fechamento, mostra mês seguinte
+            if (hoje.getDate() >= cartao.fechamento) {
+                mesFatura++;
+                if (mesFatura > 12) { mesFatura = 1; anoFatura++; }
+            }
+
+            // Define o input de mês
+            const inputMes = document.getElementById('faturaMesSelecionado');
+            inputMes.value = `${anoFatura}-${String(mesFatura).padStart(2, '0')}`;
+
+            carregarDetalhesFatura(cartao, mesFatura, anoFatura);
+            document.getElementById('modalFatura').style.display = 'flex';
+        }
+
+        function recarregarFatura() {
+            const inputMes = document.getElementById('faturaMesSelecionado').value; // "2026-02"
+            if(!inputMes) return;
+            const [ano, mes] = inputMes.split('-');
+            carregarDetalhesFatura(faturaAtual.cartao, parseInt(mes), parseInt(ano));
+        }
+
+        async function carregarDetalhesFatura(cartao, mes, ano) {
+            try {
+                const url = `/cartoes/${cartao.id}/fatura?mes=${mes}&ano=${ano}&diaFechamento=${cartao.fechamento}`;
+                const res = await fetch(url);
+                const dados = await res.json();
+
+                faturaAtual.itens = dados.itens;
+                faturaAtual.total = dados.total;
+
+                // Preenche UI
+                document.getElementById('faturaNomeCartao').innerText = cartao.nome;
+                document.getElementById('faturaTotal').innerText = fmt.format(dados.total);
+                document.getElementById('faturaDataVenc').innerText = `DIA ${String(cartao.vencimento).padStart(2,'0')}/${String(mes).padStart(2,'0')}`;
+                document.getElementById('faturaPeriodo').innerText = dados.periodo || "Período Calculado";
+                
+                // Status Badge
+                const badge = document.getElementById('faturaStatusBadge');
+                if (dados.status === 'PAGA') {
+                    badge.innerHTML = '<span class="badge-status bg-pago">FATURA PAGA</span>';
+                    document.getElementById('btnPagarFatura').style.display = 'none';
+                } else {
+                    badge.innerHTML = '<span class="badge-status bg-pendente">EM ABERTO</span>';
+                    document.getElementById('btnPagarFatura').style.display = 'flex';
+                }
+
+                const lista = document.getElementById('listaItensFatura');
+                lista.innerHTML = '';
+                
+                if(dados.itens.length === 0) {
+                    lista.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8; font-weight:600;">Nenhum lançamento neste período.</div>';
+                } else {
+                    dados.itens.forEach(t => {
+                        const dataItem = new Date(t.data).toLocaleDateString('pt-BR').substring(0,5);
+                        const statusItem = t.status === 'PAGO' ? '<i class="fas fa-check-circle text-green-500" title="Pago"></i>' : '';
+                        lista.innerHTML += `
+                            <div class="fatura-item">
+                                <div><span class="fi-data">${dataItem}</span> <span class="fi-desc">${t.descricao}</span> <span style="font-size:9px; color:#64748b; font-weight:600; margin-left:5px;">(${t.parcelaInfo || '1/1'})</span></div>
+                                <div class="fi-valor">${fmt.format(t.valor)} ${statusItem}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+            } catch (e) { console.error(e); }
+        }
+
+        async function pagarFatura() {
+            if (faturaAtual.total <= 0) return Swal.fire('Atenção', 'Fatura zerada ou negativa.', 'info');
+            
+            const res = await fetch(`/bancos?usuarioId=${usuario.id}`);
+            const bancos = await res.json();
+            
+            const sel = document.getElementById('selectBancoPagto');
+            sel.innerHTML = '';
+            bancos.forEach(b => {
+                sel.innerHTML += `<option value="${b.id}">${b.nome} (Saldo: ${fmt.format(b.saldoAtual)})</option>`;
+            });
+            
+            document.getElementById('dataPagtoFatura').valueAsDate = new Date();
+            document.getElementById('modalPagarFaturaConfirm').style.display = 'flex';
+        }
+
+        async function confirmarPagamentoFatura() {
+            const bancoId = document.getElementById('selectBancoPagto').value;
+            const dataPg = document.getElementById('dataPagtoFatura').value;
+            
+            if(!bancoId) return Swal.fire('Erro', 'Selecione uma conta.', 'warning');
+
+            const ids = faturaAtual.itens.map(t => t.id);
+
+            try {
+                const res = await fetch(`/cartoes/${faturaAtual.cartao.id}/pagar-fatura`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        idsTransacoes: ids,
+                        valorTotal: faturaAtual.total,
+                        bancoPagamentoId: bancoId,
+                        dataPagamento: dataPg,
+                        nomeCartao: faturaAtual.cartao.nome,
+                        usuarioId: usuario.id
+                    })
+                });
+
+                if(res.ok) {
+                    Swal.fire({ title: 'Sucesso!', text: 'Fatura paga.', icon: 'success', timer: 1500, showConfirmButton: false });
+                    document.getElementById('modalPagarFaturaConfirm').style.display = 'none';
+                    // Recarrega a fatura para mostrar como paga
+                    recarregarFatura();
+                    // Atualiza o card de fora
+                    carregarDados();
+                } else {
+                    Swal.fire('Erro', 'Falha ao processar.', 'error');
+                }
+            } catch(e) { console.error(e); }
+        }
+
         function abrirModalNovo() {
             document.getElementById('editId').value = '';
-            document.getElementById('tituloModal').innerText = 'NOVO CARTÃO';
+            document.getElementById('tituloModal').innerText = 'Novo Cartão';
             document.getElementById('inputNome').value = '';
             document.getElementById('inputLimite').value = '';
             document.getElementById('inputFechamento').value = '';
             document.getElementById('inputVencimento').value = '';
             document.getElementById('modalCartao').style.display = 'flex';
         }
-
         function editar(id) {
-            // Comparação solta para encontrar ID numérico ou string
-            const item = cartoesCache.find(i => i.id == id);
+            const item = cartoesCache.find(i => String(i.id) === String(id));
             if(!item) return;
             document.getElementById('editId').value = item.id;
-            document.getElementById('tituloModal').innerText = 'EDITAR CARTÃO';
+            document.getElementById('tituloModal').innerText = 'Editar Cartão';
             document.getElementById('inputNome').value = item.nome;
             document.getElementById('inputLimite').value = item.limite;
             document.getElementById('inputFechamento').value = item.fechamento;
             document.getElementById('inputVencimento').value = item.vencimento;
             document.getElementById('modalCartao').style.display = 'flex';
         }
-
-        function fecharModal() { document.getElementById('modalCartao').style.display = 'none'; }
-
         function salvarCartao() {
             const id = document.getElementById('editId').value;
             const nome = document.getElementById('inputNome').value;
             const limite = parseFloat(document.getElementById('inputLimite').value) || 0;
             const fechamento = parseInt(document.getElementById('inputFechamento').value);
             const vencimento = parseInt(document.getElementById('inputVencimento').value);
-
-            if(!nome) return Swal.fire('Erro', 'Nome obrigatório.', 'warning');
-            if(!fechamento || !vencimento) return Swal.fire('Erro', 'Datas obrigatórias.', 'warning');
+            
+            if(!nome || !fechamento || !vencimento) return Swal.fire('Erro', 'Preencha os campos obrigatórios.', 'warning');
 
             if(id) {
-                const idx = cartoesCache.findIndex(x => x.id == id);
-                cartoesCache[idx].nome = nome;
-                cartoesCache[idx].limite = limite;
-                cartoesCache[idx].fechamento = fechamento;
-                cartoesCache[idx].vencimento = vencimento;
+                const idx = cartoesCache.findIndex(x => String(x.id) === String(id));
+                cartoesCache[idx] = { ...cartoesCache[idx], nome, limite, fechamento, vencimento };
             } else {
                 cartoesCache.push({ id: Date.now(), nome, limite, fechamento, vencimento });
             }
             localStorage.setItem('meus_cartoes', JSON.stringify(cartoesCache));
-            fecharModal();
+            document.getElementById('modalCartao').style.display = 'none';
             renderizarCartoes();
-            Swal.fire({ icon: 'success', title: 'Salvo!', timer: 1500, showConfirmButton: false });
         }
-
         function excluir(id) {
-            Swal.fire({
-                title: 'Excluir?',
-                text: "Não será possível recuperar.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'SIM, EXCLUIR'
-            }).then((r) => {
+            Swal.fire({ title: 'Excluir?', icon:'warning', showCancelButton:true, confirmButtonColor:'#dc2626' }).then(r => {
                 if(r.isConfirmed) {
-                    cartoesCache = cartoesCache.filter(x => x.id != id);
+                    cartoesCache = cartoesCache.filter(x => String(x.id) !== String(id));
                     localStorage.setItem('meus_cartoes', JSON.stringify(cartoesCache));
                     renderizarCartoes();
-                    Swal.fire('Excluído!', '', 'success');
                 }
             });
         }
