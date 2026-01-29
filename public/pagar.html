@@ -21,6 +21,9 @@
         .navbar-custom { background-color: #1e293b; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: white; }
         .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
         .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+        .btn-logout { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; transition: 0.2s; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .btn-logout:hover { background-color: rgba(239, 68, 68, 0.1); transform: scale(1.1); }
+        
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
         .page-title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
         .header-actions { display: flex; gap: 10px; }
@@ -36,32 +39,41 @@
         .date-input { border: none; background: transparent; outline: none; font-size: 11px; color: #475569; width: 90px; font-weight: 600; }
         .clean-input { width: 100%; border: none; background: transparent; outline: none; font-size: 11px; color: #334155; font-weight: 600; }
         .clean-select { width: 100%; min-width: 100px; border: none; background: transparent; outline: none; font-size: 11px; color: #334155; cursor: pointer; font-weight: 600; }
-        ::placeholder { text-transform: uppercase; opacity: 0.6; }
         .btn-limpar { font-size: 10px; color: #64748b; cursor: pointer; border: none; background: none; font-weight: 700; white-space: nowrap; transition: 0.2s; }
         .btn-limpar:hover { color: #ef4444; text-decoration: underline; }
         .table-container { background: white; border-radius: 16px; border: 1px solid #cbd5e1; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .clean-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        
+        /* CORREÇÃO DO ALINHAMENTO AQUI */
         .clean-table th { text-align: left; padding: 14px 20px; font-size: 10px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.8px; background: #cbd5e1; border-bottom: 1px solid #94a3b8; }
         .clean-table td { padding: 14px 20px; font-size: 12px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; font-weight: 600; }
+        
         .clean-table tr:last-child td { border-bottom: none; }
         .clean-table tbody tr:hover { background-color: #f8fafc; }
+        
         .col-forn { width: 22%; font-weight: 700; color: #1e293b; }
         .col-venc { width: 12%; color: #64748b; font-family: monospace; font-size: 11px; }
         .col-valor { width: 15%; font-weight: 800; color: #ef4444; } 
+        
+        /* CORRIGIDO: Centralizar Header e Body */
         .col-forma { width: 12%; text-align: center; font-size: 11px; }
+        .clean-table th.col-forma { text-align: center; } /* Garante que o título tbm centralize */
+
         .col-parc { width: 8%; text-align: center; }
+        .clean-table th.col-parc { text-align: center; }
+
         .badge-parc { background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; display: inline-block; }
         .col-desc { width: 20%; color: #94a3b8; font-size: 11px; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
         
-        /* AJUSTE NA LARGURA DA COLUNA AÇÃO PARA CABER O CHECKBOX */
         .col-acao { width: 130px; }
-        
         .clean-table thead th.col-acao { text-align: center; }
         .clean-table tbody td.col-acao { display: flex !important; justify-content: flex-end; align-items: center; gap: 4px; padding-right: 15px; border-bottom: 1px solid #f1f5f9; }
         .action-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; background: white; border-color: #e2e8f0; color: #64748b; font-size: 10px; }
         .btn-pay:hover { background: #fef2f2; color: #ef4444; border-color: #fecaca; }
         .btn-edit:hover { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
         .btn-del:hover { background: #fff7ed; color: #c2410c; border-color: #ffedd5; }
+        
+        /* Modal & Form */
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
         .modal { background: white; width: 95%; max-width: 600px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; }
         @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -80,24 +92,13 @@
         .p-idx { font-size: 10px; font-weight: 800; color: #1e293b; text-align: center; background: #e2e8f0; border-radius: 4px; padding: 3px 0; }
         .parcela-row input { padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; background: white; }
         #divSelectCartao { border: 1px dashed #ef4444; padding: 10px; border-radius: 8px; background: #fef2f2; margin-bottom: 15px; }
+        input:disabled, select:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-color: #e2e8f0; }
         div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
 
-        /* --- CSS NOVO PARA O BOTÃO DE EXCLUIR EM MASSA --- */
-        .btn-mass-delete {
-            background-color: #dc2626; color: white; padding: 10px 16px; border-radius: 8px; 
-            font-weight: 700; border: none; cursor: pointer; display: none; 
-            align-items: center; gap: 6px; font-size: 11px; transition: 0.2s;
-            margin-right: 5px;
-        }
+        /* Botão Mass Delete e Checkbox */
+        .btn-mass-delete { background-color: #dc2626; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 10px; transition: 0.2s; margin-right: 5px; }
         .btn-mass-delete:hover { background-color: #b91c1c; transform: translateY(-2px); }
-        
-        /* Checkbox na linha */
-        .chk-row {
-            width: 16px; height: 16px; cursor: pointer; accent-color: #ef4444;
-            margin-right: 12px;
-        }
-        
-        /* Container no cabeçalho da coluna ações para alinhar checkbox e título */
+        .chk-row { width: 16px; height: 16px; cursor: pointer; accent-color: #ef4444; margin-right: 12px; }
         .header-actions-col { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
     </style>
 </head>
@@ -109,8 +110,8 @@
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
         <div class="logo">T-SYSTEM</div> 
         <button class="btn-logout" onclick="logout()" title="Sair do Sistema">
-        <i class="fas fa-sign-out-alt"></i>
-    </button> 
+            <i class="fas fa-sign-out-alt"></i>
+        </button> 
     </nav>
 
     <div class="content">
@@ -184,34 +185,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="modalImportar" style="display: none; align-items: flex-start; padding-top: 50px; overflow-y: auto;">
-        <div class="modal" style="width: 850px; max-width: 95%;">
-            <h2>Confirmar Importação</h2>
-            <p style="color: #64748b; font-size: 11px; margin-bottom: 20px;">
-                <i class="fas fa-info-circle"></i> Itens em <span style="background:#fff7ed; color:#c2410c; padding:2px 5px; border-radius:4px; font-weight:bold;">laranja</span> são possíveis duplicatas.
-            </p>
-            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
-                <table class="import-table">
-                    <thead style="background: #f8fafc; position: sticky; top: 0; z-index: 10;">
-                        <tr>
-                            <th style="width: 40px; text-align: center;"><input type="checkbox" onchange="toggleTodosImport(this)"></th>
-                            <th style="width: 100px;">Data</th>
-                            <th>Fornecedor / Descrição</th>
-                            <th style="width: 80px; text-align: center;">Parc.</th>
-                            <th style="width: 90px;">Tipo</th>
-                            <th style="width: 110px; text-align: right;">Valor</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listaImport"></tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-outline" onclick="document.getElementById('modalImportar').style.display='none'">Cancelar</button>
-                <button class="btn-new" onclick="confirmarImportacao()" style="background:#ef4444;">Confirmar Importação</button>
-            </div>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="modalConta" style="display: none;">
         <div class="modal">
             <h2 id="tituloModal">Nova Conta</h2>
@@ -237,7 +210,13 @@
                         <option value="Outros">Outros</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Parcelas</label><input type="number" id="parcelas" value="1" min="1" onchange="gerarParcelasVisuais()"></div>
+                <div class="form-group">
+                    <label>Parcelas</label>
+                    <input type="number" id="parcelas" value="1" min="1" onchange="gerarParcelasVisuais()">
+                    <div id="avisoParcelaEdit" style="display:none; font-size:9px; color:#f59e0b; margin-top:2px; font-weight:700;">
+                        <i class="fas fa-lock"></i> Bloqueado na edição para manter integridade.
+                    </div>
+                </div>
             </div>
 
             <div class="form-group" id="divSelectCartao" style="display: none;">
@@ -280,6 +259,31 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalImportar" style="display: none; align-items: flex-start; padding-top: 50px; overflow-y: auto;">
+        <div class="modal" style="width: 850px; max-width: 95%;">
+            <h2>Confirmar Importação</h2>
+            <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <table class="import-table">
+                    <thead style="background: #f8fafc; position: sticky; top: 0; z-index: 10;">
+                        <tr>
+                            <th style="width: 40px; text-align: center;"><input type="checkbox" onchange="toggleTodosImport(this)"></th>
+                            <th style="width: 100px;">Data</th>
+                            <th>Fornecedor / Descrição</th>
+                            <th style="width: 80px; text-align: center;">Parc.</th>
+                            <th style="width: 90px;">Tipo</th>
+                            <th style="width: 110px; text-align: right;">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaImport"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="document.getElementById('modalImportar').style.display='none'">Cancelar</button>
+                <button class="btn-new" onclick="confirmarImportacao()" style="background:#ef4444;">Confirmar Importação</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         let transacoesCache = [];
@@ -300,7 +304,6 @@
             carregar(); 
         });
 
-        // --- CARREGAR CARTÕES E SELECT ---
         function carregarCartoes() {
             const stored = localStorage.getItem('meus_cartoes');
             if(stored) {
@@ -327,7 +330,6 @@
             }
         }
 
-        // --- RENDERIZAR LISTA COM CHECKBOXES ---
         function renderizarLista(lista) { 
             const tbody = document.getElementById('lista'); 
             tbody.innerHTML = ''; 
@@ -368,12 +370,12 @@
             });
             document.getElementById('total-esteira').innerText = fmt.format(total);
             
-            // Reseta "Selecionar Todos"
+            // Reseta checkbox "Todos" e botão de massa
             document.getElementById('chkTodos').checked = false;
             atualizarBotaoMassa();
         }
 
-        // --- LÓGICA DE EXCLUSÃO EM MASSA ---
+        // --- FUNÇÕES DE EXCLUSÃO EM MASSA ---
         function toggleTodos(source) {
             const checkboxes = document.querySelectorAll('.chk-item');
             checkboxes.forEach(chk => chk.checked = source.checked);
@@ -431,7 +433,7 @@
             }
         }
 
-        // --- FUNÇÕES AUXILIARES MANTIDAS ---
+        // --- DEMAIS FUNÇÕES ---
         function validarData(inputElement) { if (inputElement.validity.badInput) { inputElement.classList.add('input-error-border'); return false; } const dataStr = inputElement.value; if (!dataStr) { inputElement.classList.remove('input-error-border'); return true; } const [ano, mes, dia] = dataStr.split('-').map(Number); const dataObj = new Date(ano, mes - 1, dia); if (dataObj.getMonth() !== (mes - 1) || dataObj.getDate() !== dia) { inputElement.classList.add('input-error-border'); return false; } else { inputElement.classList.remove('input-error-border'); return true; } }
         function aplicarFiltros() { const elInicio = document.getElementById('filtroInicio'); const elFim = document.getElementById('filtroFim'); validarData(elInicio); validarData(elFim); const inicio = elInicio.value; const fim = elFim.value; const termo = document.getElementById('filtroFornecedor').value.toLowerCase(); const desc = document.getElementById('filtroDesc').value.toLowerCase(); const pagto = document.getElementById('filtroPagto').value; const filtrados = transacoesCache.filter(item => { const dataItem = (item.dataVencimento || item.data).split('T')[0]; if (inicio && dataItem < inicio) return false; if (fim && dataItem > fim) return false; if (termo && !item.fornecedor?.toLowerCase().includes(termo)) return false; if (desc && !item.descricao?.toLowerCase().includes(desc)) return false; if (pagto && item.formaPagamento !== pagto) return false; return true; }); renderizarLista(filtrados); }
         function atualizarFiltroPagamentos() { const select = document.getElementById('filtroPagto'); const valorAtual = select.value; const padrao = ['Boleto', 'Pix', 'Cartão', 'Dinheiro', 'Transferência', 'Cashback', 'Outros']; const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f); const unicas = [...new Set([...padrao, ...doBanco])].sort(); select.innerHTML = '<option value="">Forma...</option>'; unicas.forEach(f => { select.innerHTML += `<option value="${f}">${f}</option>`; }); select.value = valorAtual; }
@@ -441,7 +443,6 @@
         function toggleTodosImport(source) { document.querySelectorAll('.chk-import').forEach(chk => chk.checked = source.checked); }
         async function confirmarImportacao() { const selecionados = []; document.querySelectorAll('.chk-import:checked').forEach(chk => { const idx = chk.getAttribute('data-index'); selecionados.push(importacaoCache[idx]); }); if (selecionados.length === 0) return Swal.fire('Atenção', 'Selecione itens para importar.', 'warning'); let sucesso = 0; for (const item of selecionados) { const dados = { fornecedor: item.fornecedor || item.descricao, descricao: item.descricao, valor: item.valor, tipo: 'DESPESA', status: 'PENDENTE', data: item.data, dataVencimento: item.data, formaPagamento: item.formaPagamento || 'Outros', categoria: 'Importação', usuarioId: usuario.id, parcelas: item.parcelas || 1 }; await fetch('/transacoes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados) }); sucesso++; } document.getElementById('modalImportar').style.display = 'none'; limparFiltros(); Swal.fire({ icon: 'success', title: 'Concluído', text: `${sucesso} itens importados!` }); }
         
-        // --- FUNÇÕES CRUD (SALVAR, EDITAR, BAIXA, DELETAR) ---
         async function salvarConta() { 
             const idEdicao = document.getElementById('editId').value; 
             const qtd = parseInt(document.getElementById('parcelas').value); 

@@ -12,55 +12,54 @@
     <script src="script.js"></script>
 
     <style>
-        /* PADRONIZAÇÃO VISUAL */
+        /* MANTIDO CSS ORIGINAL (PADRÃO DO SISTEMA) */
         *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
         body { background-color: #e2e8f0; color: #1e293b; font-size: 11px; }
         input, select, textarea, button { font-family: 'Outfit', sans-serif; text-transform: uppercase; }
         .content { padding: 40px; max-width: 1250px; margin: 0 auto; }
-        
-        /* NAVBAR */
         .navbar-custom { background-color: #1e293b; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: white; }
         .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
         .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
         .btn-logout { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; transition: 0.2s; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .btn-logout:hover { background-color: rgba(239, 68, 68, 0.1); transform: scale(1.1); }
-
-        /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
         .page-title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
         .header-actions { display: flex; gap: 10px; }
-        
         .btn-new { background-color: #10b981; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); font-size: 11px; transition: 0.2s; }
         .btn-new:hover { background-color: #059669; transform: translateY(-2px); }
-
-        /* TOOLBAR */
         .modern-toolbar { background: white; padding: 10px 15px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .total-badge { background: #ecfdf5; color: #059669; padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; border: 1px solid #a7f3d0; white-space: nowrap; }
         .divider { width: 1px; height: 20px; background-color: #e2e8f0; }
         .date-group, .search-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
         .search-box { flex: 1; }
-        
         .date-input { border: none; background: transparent; outline: none; font-size: 11px; color: #475569; width: 90px; font-weight: 600; }
         .clean-input { width: 100%; border: none; background: transparent; outline: none; font-size: 11px; color: #334155; font-weight: 600; }
         .clean-select { width: 100%; min-width: 100px; border: none; background: transparent; outline: none; font-size: 11px; color: #334155; cursor: pointer; font-weight: 600; }
         .btn-limpar { font-size: 10px; color: #64748b; cursor: pointer; border: none; background: none; font-weight: 700; white-space: nowrap; transition: 0.2s; }
         .btn-limpar:hover { color: #10b981; text-decoration: underline; }
-
-        /* TABELA */
         .table-container { background: white; border-radius: 16px; border: 1px solid #cbd5e1; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .clean-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        
         .clean-table th { text-align: left; padding: 14px 20px; font-size: 10px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.8px; background: #cbd5e1; border-bottom: 1px solid #94a3b8; }
         .clean-table td { padding: 14px 20px; font-size: 12px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; font-weight: 600; }
         .clean-table tbody tr:hover { background-color: #f8fafc; }
+        .clean-table tr:last-child td { border-bottom: none; }
         
         .col-forn { width: 22%; font-weight: 700; color: #1e293b; }
         .col-venc { width: 12%; color: #64748b; font-family: monospace; font-size: 11px; }
-        .col-valor { width: 15%; font-weight: 800; color: #10b981; } /* VERDE PARA RECEITA */
+        .col-valor { width: 15%; font-weight: 800; color: #10b981; } 
+        
+        /* CORREÇÃO DO ALINHAMENTO */
         .col-forma { width: 12%; text-align: center; font-size: 11px; }
+        .clean-table th.col-forma { text-align: center; }
+
         .col-parc { width: 8%; text-align: center; }
+        .clean-table th.col-parc { text-align: center; }
+
         .badge-parc { background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; display: inline-block; }
         .col-desc { width: 20%; color: #94a3b8; font-size: 11px; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+        
         .col-acao { width: 130px; }
         .clean-table thead th.col-acao { text-align: center; }
         .clean-table tbody td.col-acao { display: flex !important; justify-content: flex-end; align-items: center; gap: 4px; padding-right: 15px; border-bottom: 1px solid #f1f5f9; }
@@ -94,7 +93,7 @@
         .parcela-row input { padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; background: white; }
         input:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
         
-        /* EXCLUSÃO EM MASSA */
+        /* EXCLUSÃO EM MASSA (BOTÃO E CHECKBOX) */
         .btn-mass-delete { background-color: #dc2626; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 10px; transition: 0.2s; margin-right: 10px; }
         .btn-mass-delete:hover { background-color: #b91c1c; }
         .chk-row { width: 16px; height: 16px; cursor: pointer; accent-color: #10b981; margin-right: 8px; }
@@ -249,7 +248,6 @@
         async function carregar() { 
             if(!usuario) return; 
             try { 
-                // Busca apenas RECEITAS PENDENTES
                 const res = await fetch(`/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}&_=${new Date().getTime()}`); 
                 transacoesCache = await res.json(); 
                 transacoesCache.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento)); 
@@ -309,7 +307,7 @@
                 total += parseFloat(item.valor); 
                 const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR'); 
                 const hoje = new Date().toISOString().split('T')[0];
-                const corVenc = (item.dataVencimento.split('T')[0] < hoje) ? '#ef4444' : '#64748b'; // Vencido fica vermelho
+                const corVenc = (item.dataVencimento.split('T')[0] < hoje) ? '#ef4444' : '#64748b'; 
                 const parcelaTexto = item.parcelaInfo || '1/1';
 
                 tbody.innerHTML += `
@@ -322,6 +320,7 @@
                         <td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td>
                         <td class="col-acao">
                             <input type="checkbox" class="chk-item chk-row" value="${item.id}" onchange="atualizarBotaoMassa()">
+                            
                             <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Receber"><i class="fas fa-check"></i></button>
                             <button onclick="editarConta('${item.id}')" class="action-btn btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
                             <button onclick="deletar('${item.id}')" class="action-btn btn-del" title="Excluir"><i class="fas fa-trash"></i></button>
@@ -458,7 +457,7 @@
         // Parcelas Visuais
         function gerarParcelasVisuais() { const qtd = parseInt(document.getElementById('parcelas').value); const valorTotal = parseFloat(document.getElementById('valor').value); const dataBase = document.getElementById('dataVenc').value; const forma = document.getElementById('formaPagto').value; const desc = document.getElementById('inputDescricao').value || "Parcela"; const container = document.getElementById('containerParcelas'); const lista = document.getElementById('listaParcelas'); if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; } container.style.display = 'block'; lista.innerHTML = ''; const valorParcela = (valorTotal / qtd).toFixed(2); let soma = 0; const [ano, mes, dia] = dataBase.split('-'); const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0); for (let i = 0; i < qtd; i++) { let val = parseFloat(valorParcela); if (i === qtd - 1) val = valorTotal - soma; soma += val; const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i); const dataStr = novaData.toISOString().split('T')[0]; lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc}"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`; } }
 
-        // Exclusão em Massa
+        // --- EXCLUSÃO EM MASSA ---
         function toggleTodos(source) { document.querySelectorAll('.chk-item').forEach(chk => chk.checked = source.checked); atualizarBotaoMassa(); }
         function atualizarBotaoMassa() { const count = document.querySelectorAll('.chk-item:checked').length; const btn = document.getElementById('btnMassDelete'); document.getElementById('countSelected').innerText = count; if (count > 0) btn.style.display = 'inline-flex'; else btn.style.display = 'none'; }
         async function excluirMassa() { const checkboxes = document.querySelectorAll('.chk-item:checked'); if (checkboxes.length === 0) return; const result = await Swal.fire({ title: `Excluir ${checkboxes.length} itens?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'Sim' }); if (result.isConfirmed) { for (const chk of checkboxes) { await fetch(`/transacoes/${chk.value}`, { method: 'DELETE' }); } carregar(); document.getElementById('chkTodos').checked = false; atualizarBotaoMassa(); } }
