@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Painel - Feed Diário</title>
+    <title>Painel - T-System Galaxy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,44 +11,48 @@
     <script src="script.js"></script>
 
     <style>
-        /* --- PADRONIZAÇÃO GLOBAL (FONTE + CAIXA ALTA) --- */
-        *:not(i) {
-            font-family: 'Outfit', sans-serif !important;
-            text-transform: uppercase !important; 
+        /* TEMA GALAXY */
+        :root {
+            --panel-dark: #13131f;
+            --purple-primary: #8a2be2;
+            --purple-secondary: #6a0dad;
+            --neon-glow: 0 0 15px rgba(138, 43, 226, 0.4);
+            --text-white: #ffffff;
+            --text-light-purple: #d1b3ff;
+            --card-bg: rgba(255, 255, 255, 0.05);
         }
 
-        /* --- PROTEÇÃO DOS ÍCONES (ESSENCIAL) --- */
-        .fas, .far, .fab, .fa, i {
-            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important;
-            text-transform: none !important;
-            font-style: normal;
-        }
+        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
-        /* TEMA: TITANIUM LIGHT */
+        /* FUNDO E ESTRELAS */
         body { 
-            background-color: #e2e8f0; 
-            color: #1e293b; 
-            font-size: 11px; /* Base reduzida para compensar o maiúsculo */
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: var(--text-white); font-size: 11px; min-height: 100vh; position: relative;
         }
-        
-        .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px);
+            background-size: 550px 550px; opacity: 0.4; z-index: -1; pointer-events: none;
+        }
 
-        /* NAVBAR DARK */
-        .navbar-custom {
-            background-color: #1e293b; 
-            padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            color: white;
+        /* NAVBAR GALAXY */
+        .navbar-custom { 
+            background: rgba(19, 19, 31, 0.8); backdrop-filter: blur(10px);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(138, 43, 226, 0.2); 
         }
-        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+        .navbar-custom .menu-btn { color: var(--text-white) !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: var(--purple-primary); text-shadow: 0 0 10px rgba(138, 43, 226, 0.8); }
+        .btn-logout { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; transition: 0.2s; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .btn-logout:hover { background-color: rgba(239, 68, 68, 0.2); transform: scale(1.1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+        .content { padding: 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
 
         /* HEADER */
         .welcome-header { margin-bottom: 40px; display: flex; flex-direction: column; gap: 5px; }
-        .welcome-title { font-size: 28px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.5px; }
-        .welcome-date { color: #64748b; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+        .welcome-title { font-size: 28px; font-weight: 800; color: var(--text-white); margin: 0; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .welcome-date { color: var(--text-light-purple); font-size: 13px; font-weight: 700; letter-spacing: 1px; }
 
         /* GRID */
         .feed-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; }
@@ -57,88 +61,94 @@
         /* SEÇÕES */
         .feed-section { display: flex; flex-direction: column; gap: 20px; }
         .section-title { 
-            font-size: 11px; font-weight: 800; color: #64748b; 
+            font-size: 11px; font-weight: 800; color: var(--purple-primary); 
             letter-spacing: 1px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; 
+            text-shadow: 0 0 5px rgba(138, 43, 226, 0.3);
         }
 
-        /* --- CARDS FINANCEIROS COMPACTOS --- */
+        /* --- CARDS FINANCEIROS GALAXY --- */
         .fin-card {
-            background-color: #f1f5f9; 
-            border: 1px solid #cbd5e1;
+            background: var(--card-bg); backdrop-filter: blur(10px);
+            border: 1px solid rgba(138, 43, 226, 0.2);
             border-radius: 12px;
             padding: 15px 20px; 
             margin-bottom: 0; 
             transition: 0.2s;
             position: relative; overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
         .fin-card:hover {
-            background-color: #ffffff; 
+            background: rgba(255, 255, 255, 0.1); 
             transform: scale(1.01);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border-color: #94a3b8;
+            box-shadow: var(--neon-glow);
+            border-color: var(--purple-primary);
         }
 
-        /* ALERTAS DO RADAR */
-        .alert-urgent { border-left: 4px solid #ef4444; }
-        .alert-warning { border-left: 4px solid #f59e0b; }
-        .alert-info { border-left: 4px solid #3b82f6; }
+        /* ALERTAS DO RADAR (Neon Borders) */
+        .alert-urgent { border-left: 4px solid #ef4444; box-shadow: -5px 0 10px -5px rgba(239, 68, 68, 0.5); }
+        .alert-warning { border-left: 4px solid #f59e0b; box-shadow: -5px 0 10px -5px rgba(245, 158, 11, 0.5); }
+        .alert-info { border-left: 4px solid #3b82f6; box-shadow: -5px 0 10px -5px rgba(59, 130, 246, 0.5); }
         
         .card-row { display: flex; justify-content: space-between; align-items: center; }
         .card-main { display: flex; flex-direction: column; gap: 4px; } 
         
-        .card-title { font-weight: 800; font-size: 14px; color: #1e293b; }
-        .card-sub { font-size: 11px; color: #64748b; font-weight: 500; }
-        .card-value { font-weight: 800; font-size: 15px; color: #0f172a; }
+        .card-title { font-weight: 800; font-size: 14px; color: var(--text-white); }
+        .card-sub { font-size: 11px; color: var(--text-light-purple); font-weight: 500; }
+        .card-value { font-weight: 800; font-size: 15px; color: var(--text-white); text-shadow: 0 0 5px rgba(255,255,255,0.3); }
         
         .tag-date { font-size: 9px; padding: 3px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 0.5px; width: fit-content; }
-        .tag-hoje { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
-        .tag-prox { background: #dbeafe; color: #3b82f6; border: 1px solid #bfdbfe; }
+        .tag-hoje { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
+        .tag-prox { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid #3b82f6; }
 
-        /* AGENDA */
+        /* AGENDA GALAXY */
         .task-item { 
             display: flex; align-items: center; gap: 15px; padding: 15px; 
-            background: #ffffff; border-radius: 12px; border: 1px solid #cbd5e1;
-            transition: 0.2s; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            background: var(--card-bg); backdrop-filter: blur(5px);
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.2s; cursor: pointer; 
         }
-        .task-item:hover { border-color: #94a3b8; background: #f8fafc; }
+        .task-item:hover { border-color: var(--purple-primary); background: rgba(255,255,255,0.08); box-shadow: var(--neon-glow); }
 
         .task-check { 
-            width: 22px; height: 22px; border-radius: 8px; border: 2px solid #cbd5e0; 
+            width: 22px; height: 22px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); 
             cursor: pointer; display: flex; align-items: center; justify-content: center; color: white;
             transition: 0.2s;
         }
-        .task-check:hover { border-color: #8b5cf6; }
-        .task-check.checked { background: #8b5cf6; border-color: #8b5cf6; }
+        .task-check:hover { border-color: var(--purple-primary); }
+        .task-check.checked { background: var(--purple-primary); border-color: var(--purple-primary); box-shadow: 0 0 10px var(--purple-primary); }
         
         .task-content { flex: 1; }
-        .task-time { font-size: 10px; color: #94a3b8; font-weight: 800; margin-bottom: 2px; }
-        .task-text { font-size: 13px; color: #334155; font-weight: 600; }
-        .task-done .task-text { text-decoration: line-through; color: #94a3b8; }
+        .task-time { font-size: 10px; color: var(--text-light-purple); font-weight: 800; margin-bottom: 2px; }
+        .task-text { font-size: 13px; color: var(--text-white); font-weight: 600; }
+        .task-done .task-text { text-decoration: line-through; color: rgba(255,255,255,0.3); }
 
-        /* ANIVERSÁRIOS */
+        /* ANIVERSÁRIOS GALAXY */
         .niver-card { 
-            background: #ffffff; padding: 0; border-radius: 16px; border: 1px solid #cbd5e1; overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            background: var(--card-bg); padding: 0; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden;
+            backdrop-filter: blur(5px);
         }
         .niver-item { 
-            padding: 15px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; 
+            padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 15px; 
             transition: 0.2s;
         }
         .niver-item:last-child { border-bottom: none; }
-        .niver-item:hover { background: #fff1f2; }
+        .niver-item:hover { background: rgba(255, 20, 147, 0.1); } /* Rosa neon sutil */
         
         .niver-icon { 
-            width: 40px; height: 40px; background: #ffe4e6; border-radius: 12px; color: #be123c; 
+            width: 40px; height: 40px; background: rgba(255, 20, 147, 0.2); border-radius: 12px; color: #ff1493; 
             display: flex; align-items: center; justify-content: center; font-size: 18px;
-            border: 1px solid #fecdd3;
+            border: 1px solid #ff1493; box-shadow: 0 0 10px rgba(255, 20, 147, 0.3);
         }
         .niver-info { flex: 1; }
-        .niver-name { font-size: 13px; font-weight: 700; color: #1e293b; }
-        .niver-date { font-size: 11px; color: #e11d48; font-weight: 600; }
+        .niver-name { font-size: 13px; font-weight: 700; color: var(--text-white); }
+        .niver-date { font-size: 11px; color: #ff69b4; font-weight: 600; }
 
         /* Empty State */
-        .empty-state { text-align: center; padding: 40px; color: #94a3b8; background: #ffffff; border-radius: 16px; border: 1px dashed #cbd5e1; }
-        .empty-icon { font-size: 30px; margin-bottom: 10px; color: #cbd5e0; }
+        .empty-state { 
+            text-align: center; padding: 40px; color: var(--text-light-purple); 
+            background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.2); 
+        }
+        .empty-icon { font-size: 30px; margin-bottom: 10px; color: rgba(255,255,255,0.2); }
 
         /* BOTÃO GLASS HARMONIZADO */
         .btn-glass-soft { 
@@ -146,12 +156,13 @@
             padding: 10px 25px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer;
             display: flex; align-items: center; gap: 8px; transition: 0.3s;
             background: transparent;
-            border: 2px solid #94a3b8; 
-            color: #94a3b8; 
+            border: 2px solid var(--purple-primary); 
+            color: var(--text-white);
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
         }
         .btn-glass-soft:hover {
-            background: #94a3b8; color: #ffffff;
-            box-shadow: 0 5px 15px rgba(148, 163, 184, 0.3);
+            background: var(--purple-primary); color: #ffffff;
+            box-shadow: var(--neon-glow);
             transform: translateY(-2px);
         }
 
@@ -166,8 +177,8 @@
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
         <div class="logo">T-SYSTEM</div> 
         <button class="btn-logout" onclick="logout()" title="Sair do Sistema">
-        <i class="fas fa-sign-out-alt"></i>
-    </button>
+            <i class="fas fa-sign-out-alt"></i>
+        </button>
     </nav>
 
     <div class="content">
@@ -200,7 +211,7 @@
 
                 <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes do Mês</div>
                 <div id="niver-feed" class="niver-card">
-                    <div style="padding: 20px; text-align: center; color: #64748b; font-size: 12px;">
+                    <div style="padding: 20px; text-align: center; color: var(--text-light-purple); font-size: 12px;">
                         CARREGANDO...
                     </div>
                 </div>
@@ -224,7 +235,7 @@
             if(usuario) document.getElementById('txtSaudacao').innerText = `OLÁ, ${usuario.nome.split(' ')[0]}!`;
             const hoje = new Date();
             const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('txtData').innerText = hoje.toLocaleDateString('pt-BR', opcoes); // Uppercase já é forçado pelo CSS
+            document.getElementById('txtData').innerText = hoje.toLocaleDateString('pt-BR', opcoes); 
         }
 
         async function carregarFeedFinanceiro() {
@@ -260,7 +271,6 @@
                     
                     if (t.tipo === 'RECEITA') { classeCard = 'alert-info'; corValor = '#10b981'; textoTag = isHoje ? 'RECEBER HOJE' : 'A RECEBER'; }
 
-                    // AQUI USO A NOVA CLASSE .fin-card
                     container.innerHTML += `
                         <div class="fin-card ${classeCard}">
                             <div class="card-row">
@@ -334,7 +344,7 @@
                 container.innerHTML = '';
 
                 if (nivers.length === 0) {
-                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: #64748b; font-size: 13px;">Nenhum aniversário neste mês.</div>`;
+                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-light-purple); font-size: 13px;">Nenhum aniversário neste mês.</div>`;
                     return;
                 }
 
