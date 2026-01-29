@@ -170,6 +170,11 @@
             .right-panel { width: 100%; background: var(--bg-dark); }
             .auth-box { background: var(--panel-dark); box-shadow: var(--neon-glow); border: 1px solid rgba(138, 43, 226, 0.2); }
         }
+
+        /* MODAL ESQUECI SENHA */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal { background: var(--panel-dark); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; animation: slideIn 0.2s; border: 1px solid rgba(138, 43, 226, 0.3); box-shadow: var(--neon-glow); }
+        .modal h3 { margin-top: 0; color: var(--text-white); }
     </style>
 </head>
 <body>
@@ -179,7 +184,7 @@
         <div class="circle c2"></div>
         <div class="left-content">
             <div class="logo-big">T-SYSTEM</div>
-            <div class="logo-desc">Explore o universo da gestão financeira de forma simples e moderna.</div>
+            <div class="logo-desc">Explore o universo da gestão financeira com inteligência e velocidade da luz.</div>
         </div>
     </div>
 
@@ -188,7 +193,7 @@
             
             <div class="auth-header">
                 <h1 class="auth-title">Bem-vindo</h1>
-                <p class="auth-subtitle">Conecte-se ao seu universo financeiro</p>
+                <p class="auth-subtitle">Conecte-se ao seu painel de controle.</p>
             </div>
 
             <div class="tabs">
@@ -208,7 +213,7 @@
                     <i class="fas fa-eye toggle-pass" onclick="togglePass('loginSenha', this)"></i>
                 </div>
 
-                <a href="#" class="forgot-link" onclick="alert('Funcionalidade em desenvolvimento.')">Esqueceu a senha?</a>
+                <a href="#" class="forgot-link" onclick="abrirModalRecuperar()">Esqueceu a senha?</a>
 
                 <button class="btn-primary" onclick="fazerLogin()">ACESSAR SISTEMA</button>
                 <div id="msgLogin" class="msg-box"></div>
@@ -240,6 +245,23 @@
                 Continuar com Google
             </button>
 
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalRecuperar">
+        <div class="modal">
+            <h3>Recuperar Senha</h3>
+            <p style="color:var(--text-light-purple); font-size:13px; margin-bottom:20px;">Digite seu e-mail para receber um link de redefinição.</p>
+            
+            <div class="input-group">
+                <i class="far fa-envelope"></i>
+                <input type="email" id="emailRecuperar" class="input-field" placeholder="E-mail cadastrado">
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button onclick="document.getElementById('modalRecuperar').style.display='none'" style="background:transparent; border:1px solid rgba(138, 43, 226, 0.3); padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:700; color:var(--text-light-purple);">Cancelar</button>
+                <button onclick="enviarRecuperacao()" style="background:var(--purple-primary); border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:700; color:white; box-shadow: var(--neon-glow);">Enviar Link</button>
+            </div>
         </div>
     </div>
 
@@ -275,7 +297,7 @@
             el.style.display = 'block';
         }
 
-        // --- LÓGICA DE LOGIN (Mantida do anterior) ---
+        // --- LÓGICA DE LOGIN ---
         async function fazerLogin() {
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
@@ -304,7 +326,7 @@
             }
         }
 
-        // --- LÓGICA DE CADASTRO (Mantida do anterior) ---
+        // --- LÓGICA DE CADASTRO ---
         async function fazerCadastro() {
             const nome = document.getElementById('cadNome').value;
             const email = document.getElementById('cadEmail').value;
@@ -330,6 +352,25 @@
                 }
             } catch (e) {
                 showMsg('msgCadastro', 'Erro de conexão.', 'error');
+            }
+        }
+
+        // --- LÓGICA DE RECUPERAÇÃO DE SENHA ---
+        function abrirModalRecuperar() {
+            document.getElementById('modalRecuperar').style.display = 'flex';
+        }
+
+        async function enviarRecuperacao() {
+            const email = document.getElementById('emailRecuperar').value;
+            if(!email) return alert('Digite seu e-mail.');
+
+            // Simulação de verificação no banco
+            try {
+                const res = await fetch(`/usuarios/${email}/reset-link`, { method: 'POST' });
+                alert(`Link de recuperação enviado para ${email} (Simulação).`);
+                document.getElementById('modalRecuperar').style.display = 'none';
+            } catch (e) {
+                alert('Erro ao enviar solicitação.');
             }
         }
     </script>

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Meu Perfil</title>
+    <title>Meu Perfil - T-System Galaxy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,117 +12,164 @@
     <script src="script.js"></script>
 
     <style>
-        /* CSS GERAL MANTIDO */
+        /* TEMA GALAXY / FUTURISTA */
+        :root {
+            --panel-dark: #13131f;
+            --purple-primary: #8a2be2;
+            --purple-secondary: #6a0dad;
+            --neon-glow: 0 0 15px rgba(138, 43, 226, 0.4);
+            --text-white: #ffffff;
+            --text-light-purple: #d1b3ff;
+            --input-bg: #1e1e2e;
+        }
+
         *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
-        body { background-color: #e2e8f0; color: #1e293b; font-size: 11px; }
-        input, button { font-family: 'Outfit', sans-serif; text-transform: uppercase; }
-        .content { padding: 40px; max-width: 900px; margin: 0 auto; }
         
-        /* NAVBAR */
-        .navbar-custom { background-color: #1e293b; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: white; }
-        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+        body { 
+            margin: 0; 
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: var(--text-white); 
+            font-size: 11px; 
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative; 
+        }
+
+        /* EFEITO DE POEIRA ESTELAR */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            opacity: 0.4;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .circle { position: fixed; border-radius: 50%; opacity: 0.3; filter: blur(80px); z-index: -1; pointer-events: none; }
+        .c1 { width: 400px; height: 400px; background: var(--purple-primary); top: -100px; left: -100px; }
+        .c2 { width: 300px; height: 300px; background: #3b82f6; bottom: 0; right: 0; }
+
+        input, button { font-family: 'Outfit', sans-serif; text-transform: uppercase; }
+        .content { padding: 40px; max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+        
+        .navbar-custom { 
+            background: rgba(19, 19, 31, 0.8); 
+            backdrop-filter: blur(10px);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(138, 43, 226, 0.2); 
+        }
+        .navbar-custom .menu-btn { color: var(--text-white) !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: var(--purple-primary); text-shadow: 0 0 10px rgba(138, 43, 226, 0.8); }
         .btn-logout { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; transition: 0.2s; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .btn-logout:hover { background-color: rgba(239, 68, 68, 0.1); transform: scale(1.1); }
+        .btn-logout:hover { background-color: rgba(239, 68, 68, 0.2); transform: scale(1.1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
 
-        /* --- ESTILO DO PERFIL (MODERNO) --- */
+        /* PERFIL CARD */
         .profile-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-            border: 1px solid #cbd5e1;
+            /* overflow: hidden;  <-- REMOVIDO PARA A FOTO SAIR */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), var(--neon-glow);
+            border: 1px solid rgba(138, 43, 226, 0.3);
             position: relative;
+            backdrop-filter: blur(15px);
         }
 
-        /* CAPA (GRADIENTE) */
+        /* CAPA */
         .profile-cover {
-            height: 150px;
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            height: 160px;
+            background: linear-gradient(to right, #6a0dad, #8a2be2);
             position: relative;
+            border-radius: 20px 20px 0 0; /* Arredonda só em cima */
+            /* overflow: hidden; <-- REMOVIDO: ISSO QUE CORTAVA A FOTO */
+        }
+        
+        .profile-cover::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 100%);
+            border-radius: 20px 20px 0 0;
         }
 
-        /* AVATAR WRAPPER */
+        /* AVATAR */
         .avatar-container {
-            position: absolute;
-            bottom: -50px;
+            position: absolute; 
+            bottom: -50px; 
             left: 40px;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: white;
-            padding: 4px; /* Borda branca grossa */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 110px; height: 110px;
+            border-radius: 50%; 
+            background: #13131f; 
+            padding: 4px;
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+            border: 1px solid var(--purple-primary);
+            z-index: 10; /* Garante que fique acima de tudo */
         }
-
         .avatar-img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #e2e8f0;
-            cursor: pointer;
-            transition: 0.2s;
+            width: 100%; height: 100%; border-radius: 50%;
+            object-fit: cover; border: 2px solid #13131f; 
+            cursor: pointer; transition: 0.2s;
         }
         .avatar-img:hover { opacity: 0.8; }
 
         .btn-camera {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: #f97316;
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+            position: absolute; bottom: 0; right: 0;
+            background: var(--purple-primary); color: white; border: none;
+            width: 32px; height: 32px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            font-size: 12px;
+            cursor: pointer; 
+            box-shadow: 0 0 10px var(--purple-primary);
+            font-size: 14px;
+            z-index: 11;
         }
+        .btn-camera:hover { transform: scale(1.1); background: var(--purple-secondary); }
 
-        /* CORPO DO PERFIL */
-        .profile-body {
-            padding: 60px 40px 40px 40px; /* Topo maior por causa do avatar */
-        }
+        /* CORPO */
+        .profile-body { padding: 60px 40px 40px 40px; }
 
-        .user-role-badge {
-            background: #ecfdf5; color: #059669; 
+        .badge-role {
+            background: rgba(138, 43, 226, 0.2); color: var(--text-light-purple); 
             padding: 5px 12px; border-radius: 20px; 
             font-size: 10px; font-weight: 800; 
-            border: 1px solid #a7f3d0;
-            display: inline-block;
-            margin-bottom: 20px;
+            border: 1px solid var(--purple-primary);
+            display: inline-block; margin-bottom: 15px;
+            box-shadow: 0 0 5px rgba(138, 43, 226, 0.4);
         }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+        h2 { color: var(--text-white); text-shadow: 0 0 10px rgba(255,255,255,0.3); margin-top: 0; }
+        p { color: var(--text-light-purple); }
 
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 25px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: var(--text-light-purple); margin-bottom: 8px; letter-spacing: 0.5px; }
+        
         .form-input { 
             width: 100%; padding: 14px; 
-            border: 1px solid #cbd5e1; border-radius: 12px; 
-            font-size: 13px; outline: none; background: #f8fafc; font-weight: 600; 
-            transition: 0.2s;
+            border: 1px solid rgba(138, 43, 226, 0.3); border-radius: 10px; 
+            font-size: 13px; outline: none; background: rgba(30, 30, 46, 0.6); 
+            font-weight: 600; color: var(--text-white); transition: 0.2s;
         }
-        .form-input:focus { background: white; border-color: #1e293b; box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1); }
-        .form-input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+        .form-input:focus { 
+            background: rgba(30, 30, 46, 0.9); 
+            border-color: var(--purple-primary); 
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.3); 
+        }
+        .form-input:disabled { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); cursor: not-allowed; border-color: transparent; }
 
         .btn-save {
-            background-color: #1e293b; color: white;
-            padding: 15px 30px; border-radius: 12px;
-            font-weight: 700; border: none; cursor: pointer;
-            width: 100%; margin-top: 10px;
-            font-size: 12px; letter-spacing: 1px;
-            transition: 0.2s;
+            background: linear-gradient(to right, var(--purple-secondary), var(--purple-primary));
+            color: white; padding: 15px; border-radius: 10px;
+            font-weight: 800; border: none; cursor: pointer; width: 100%; margin-top: 20px;
+            font-size: 12px; letter-spacing: 1px; transition: 0.2s;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
         }
-        .btn-save:hover { background-color: #334155; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-save:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.8); 
+            filter: brightness(1.2);
+        }
 
         @media (max-width: 600px) {
             .form-grid { grid-template-columns: 1fr; }
@@ -133,8 +180,12 @@
 </head>
 <body>
     
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
+    
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
         <div class="logo">T-SYSTEM</div> 
@@ -145,7 +196,7 @@
         <div class="profile-card">
             <div class="profile-cover">
                 <div class="avatar-container">
-                    <img src="https://ui-avatars.com/api/?name=User&background=random" id="imgAvatar" class="avatar-img" onclick="document.getElementById('inputFoto').click()">
+                    <img src="" id="imgAvatar" class="avatar-img" onclick="document.getElementById('inputFoto').click()">
                     <button class="btn-camera" onclick="document.getElementById('inputFoto').click()">
                         <i class="fas fa-camera"></i>
                     </button>
@@ -154,10 +205,10 @@
             </div>
 
             <div class="profile-body">
-                <span class="user-role-badge" id="lblRole">USUÁRIO</span>
+                <span class="badge-role" id="lblRole">CARREGANDO...</span>
                 
-                <h2 style="margin: 0 0 5px 0; font-size: 24px; color: #1e293b;" id="lblNomeDisplay">Carregando...</h2>
-                <p style="margin: 0 0 30px 0; color: #64748b; font-size: 12px; text-transform: lowercase;" id="lblEmailDisplay">...</p>
+                <h2 id="lblNomeDisplay">...</h2>
+                <p id="lblEmailDisplay">...</p>
 
                 <div class="form-grid">
                     <div class="form-group">
@@ -165,7 +216,7 @@
                         <input type="text" id="inputNome" class="form-input">
                     </div>
                     <div class="form-group">
-                        <label>E-mail (Não alterável)</label>
+                        <label>E-mail (Não editável)</label>
                         <input type="email" id="inputEmail" class="form-input" disabled style="text-transform: lowercase;">
                     </div>
                     <div class="form-group">
@@ -187,7 +238,8 @@
 
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
-        const avatarDefault = `https://ui-avatars.com/api/?name=${usuario ? usuario.nome : 'User'}&background=1e293b&color=fff`;
+        // Avatar padrão roxo
+        const avatarDefault = `https://ui-avatars.com/api/?name=${usuario ? usuario.nome : 'User'}&background=8a2be2&color=fff&size=128`;
 
         document.addEventListener('DOMContentLoaded', () => {
             if(!usuario) return window.location.href = 'index.html';
@@ -202,7 +254,6 @@
             document.getElementById('inputNome').value = usuario.nome;
             document.getElementById('inputEmail').value = usuario.email;
 
-            // Tenta carregar foto do LocalStorage para agilidade
             const fotoSalva = localStorage.getItem(`avatar_${usuario.id}`);
             document.getElementById('imgAvatar').src = fotoSalva || avatarDefault;
         }
@@ -211,9 +262,7 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Atualiza visualmente
                     document.getElementById('imgAvatar').src = e.target.result;
-                    // Salva no navegador para persistir na próxima vez que abrir
                     localStorage.setItem(`avatar_${usuario.id}`, e.target.result);
                 }
                 reader.readAsDataURL(input.files[0]);
@@ -225,10 +274,10 @@
             const novaSenha = document.getElementById('inputSenha').value;
             const confirma = document.getElementById('inputConfirma').value;
 
-            if(!novoNome) return Swal.fire('Erro', 'Nome é obrigatório', 'warning');
+            if(!novoNome) return Swal.fire({ title: 'Atenção', text: 'Nome é obrigatório', icon: 'warning', confirmButtonColor: '#8a2be2' });
             
             if(novaSenha && novaSenha !== confirma) {
-                return Swal.fire('Erro', 'As senhas não coincidem.', 'error');
+                return Swal.fire({ title: 'Erro', text: 'Senhas não conferem', icon: 'error', confirmButtonColor: '#8a2be2' });
             }
 
             try {
@@ -243,25 +292,25 @@
 
                 if(res.ok) {
                     const atualizado = await res.json();
-                    
-                    // Atualiza o localStorage com o novo nome
                     const userNovo = { ...usuario, nome: atualizado.nome };
                     localStorage.setItem('usuario_logado', JSON.stringify(userNovo));
                     
                     Swal.fire({
                         title: 'Sucesso!',
-                        text: 'Perfil atualizado. A página será recarregada.',
+                        text: 'Perfil atualizado.',
                         icon: 'success',
-                        confirmButtonColor: '#1e293b'
+                        confirmButtonColor: '#8a2be2',
+                        background: '#13131f', 
+                        color: '#fff'
                     }).then(() => {
                         window.location.reload();
                     });
                 } else {
-                    Swal.fire('Erro', 'Falha ao atualizar.', 'error');
+                    Swal.fire({ title: 'Erro', text: 'Falha ao atualizar', icon: 'error', confirmButtonColor: '#8a2be2' });
                 }
             } catch (e) {
                 console.error(e);
-                Swal.fire('Erro', 'Erro de conexão.', 'error');
+                Swal.fire({ title: 'Erro', text: 'Sem conexão', icon: 'error', confirmButtonColor: '#8a2be2' });
             }
         }
     </script>
