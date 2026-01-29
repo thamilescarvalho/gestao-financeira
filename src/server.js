@@ -321,6 +321,32 @@ app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
         res.json({ ok: true, mensagem: "Fatura paga!" });
     } catch (e) { res.status(500).json({ erro: "Erro ao pagar" }); }
 });
+// --- ROTA DE ATUALIZAR USUÁRIO (PERFIL) ---
+app.put('/usuarios/:id', async (req, res) => { 
+    const { id } = req.params; 
+    const { nome, email, role, novaSenha } = req.body; 
+    try { 
+        const d = {}; 
+        if(nome) d.nome = nome;
+        if(email) d.email = email; // Geralmente bloqueado no front, mas backend aceita
+        if(role) d.role = role;
+        
+        if (novaSenha) {
+            d.senha = await bcrypt.hash(novaSenha, 10);
+        }
+        
+        const u = await prisma.usuario.update({ 
+            where: { id: id }, 
+            data: d 
+        }); 
+        
+        // Retorna dados seguros (sem senha)
+        res.json({ id: u.id, nome: u.nome, email: u.email, role: u.role }); 
+    } catch (e) { 
+        console.error(e);
+        res.status(500).json({ erro: "Erro atualizar" }); 
+    } 
+});
 
 // app.get('/emergencia/virar-admin/:email', async (req, res) => {
 //     const { email } = req.params;
