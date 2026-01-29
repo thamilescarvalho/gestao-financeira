@@ -246,7 +246,44 @@ app.get('/relatorios/avancado', async (req, res) => {
 });
 
 app.post('/auth/login', async (req, res) => { const { email, senha } = req.body; try { const u = await prisma.usuario.findUnique({ where: { email } }); if(!u || !(await bcrypt.compare(senha, u.senha))) return res.status(401).json({ erro: "Login inválido" }); res.json({ id: u.id, nome: u.nome, email: u.email, role: u.role }); } catch(e) { res.status(500).json({ erro: "Erro login" }); } });
-app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });
+// --- ROTA DE REGISTRO INTELIGENTE (CORRIGIDA) ---
+app.post('/auth/registrar', async (req, res) => { 
+    try { 
+        const { nome, email, senha } = req.body; 
+        
+        // 1. Verifica se o e-mail já existe para evitar erro 500
+        const usuarioExistente = await prisma.usuario.findUnique({
+            where: { email: email }
+        });
+
+        if (usuarioExistente) {
+            return res.status(400).json({ erro: "Este e-mail já está cadastrado. Tente fazer login." });
+        }
+
+        const hash = await bcrypt.hash(senha, 10); 
+        
+        // 2. Verifica quantos usuários existem no total
+        const totalUsuarios = await prisma.usuario.count();
+        
+        // 3. Se for o primeiro (total == 0), ganha ADMIN. Senão, USER.
+        const roleDefinida = totalUsuarios === 0 ? 'ADMIN' : 'USER';
+
+        const u = await prisma.usuario.create({ 
+            data: { 
+                nome, 
+                email, 
+                senha: hash, 
+                role: roleDefinida 
+            } 
+        }); 
+        
+        console.log(`Novo usuário criado: ${u.email} | Permissão: ${roleDefinida}`);
+        res.json(u); 
+    } catch(e) { 
+        console.error("ERRO NO REGISTRO:", e);
+        res.status(500).json({ erro: "Erro interno no servidor. Verifique o terminal." }); 
+    } 
+});
 app.get('/limpar-tudo', async (req, res) => { await prisma.transacao.deleteMany({}); await prisma.banco.deleteMany({}); await prisma.evento.deleteMany({}); res.send("Sistema Zerado."); });
 
 app.get('/cartoes/:id/fatura', async (req, res) => {
@@ -284,6 +321,19 @@ app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
         res.json({ ok: true, mensagem: "Fatura paga!" });
     } catch (e) { res.status(500).json({ erro: "Erro ao pagar" }); }
 });
+
+// app.get('/emergencia/virar-admin/:email', async (req, res) => {
+//     const { email } = req.params;
+//     try {
+//         await prisma.usuario.update({
+//             where: { email: email },
+//             data: { role: 'ADMIN' }
+//         });
+//         res.send(`Sucesso! O usuário ${email} agora é ADMIN.`);
+//     } catch (e) {
+//         res.send("Erro: Usuário não encontrado.");
+//     }
+// });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Servidor completo rodando na porta ${PORT}`); });
