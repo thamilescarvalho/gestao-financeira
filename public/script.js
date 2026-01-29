@@ -138,7 +138,6 @@ function gerarMenuLateral() {
                 <a href="conciliacao.html" class="link-navegacao">Conciliação</a>
                 <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
                 <a href="relatorios.html" class="link-navegacao">Relatórios</a> 
-                <a href="plano-contas.html" class="link-navegacao">Plano de Contas</a>
             </div>
             
             <div class="menu-item" onclick="toggleSubmenu(this)">

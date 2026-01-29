@@ -34,6 +34,8 @@
         }
         .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
         .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+        .btn-logout { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; transition: 0.2s; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .btn-logout:hover { background-color: rgba(239, 68, 68, 0.1); transform: scale(1.1); }
 
         /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
@@ -69,6 +71,15 @@
             text-transform: uppercase;
         }
         .btn-transf:hover { background-color: #ea580c; transform: translateY(-2px); }
+
+        /* NOVO BOTÃO DE EXCLUSÃO EM MASSA */
+        .btn-mass-delete {
+            background-color: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; 
+            font-weight: 700; border: none; cursor: pointer; display: none; /* Escondido por padrão */
+            align-items: center; gap: 6px; font-size: 11px; transition: 0.2s;
+            text-transform: uppercase;
+        }
+        .btn-mass-delete:hover { background-color: #b91c1c; }
 
         /* TOOLBAR */
         .modern-toolbar { 
@@ -144,6 +155,7 @@
         .clean-table tr:last-child td { border-bottom: none; }
         .clean-table tbody tr:hover { background-color: #f8fafc; }
 
+        /* COLUNAS */
         .col-nome { width: 22%; font-weight: 600; color: #1e293b; }
         .col-banco { width: 13%; color: #64748b; font-size: 11px; font-weight: 600; }
         .col-valor { width: 12%; font-weight: 800; }
@@ -151,7 +163,7 @@
         .col-data { width: 10%; text-align: center; color: #64748b; font-family: 'Outfit', monospace; font-size: 11px; font-weight: 600; }
         .col-desc { width: 23%; color: #94a3b8; font-size: 11px; font-weight: 500; } 
         
-        .col-acao { width: 90px; }
+        .col-acao { width: 110px; } /* Aumentei um pouco para caber o checkbox no header */
         .clean-table thead th.col-acao { text-align: center; }
         .clean-table tbody td.col-acao { 
             display: flex !important; justify-content: flex-end; align-items: center; 
@@ -169,6 +181,16 @@
         .badge-valor { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; display: inline-block; }
         .bg-receita { background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
         .bg-despesa { background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+
+        /* CHECKBOX CUSTOMIZADO */
+        .chk-row {
+            width: 16px; height: 16px; cursor: pointer; accent-color: #f97316; /* Laranja do tema */
+            margin-right: 8px;
+        }
+        
+        .header-actions-col {
+            display: flex; align-items: center; justify-content: flex-end; gap: 5px;
+        }
 
         /* MODAIS */
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
@@ -200,8 +222,8 @@
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
         <div class="logo">T-SYSTEM</div> 
         <button class="btn-logout" onclick="logout()" title="Sair do Sistema">
-        <i class="fas fa-sign-out-alt"></i>
-    </button>
+            <i class="fas fa-sign-out-alt"></i>
+        </button> 
     </nav>
 
     <div class="content">
@@ -215,6 +237,10 @@
                 </div>
             </div>
             <div class="header-actions">
+                <button id="btnMassDelete" class="btn-mass-delete" onclick="excluirMassa()">
+                    <i class="fas fa-trash"></i> Excluir (<span id="countSelected">0</span>)
+                </button>
+
                 <button class="btn-import" onclick="location.href='conciliacao.html'"><i class="fas fa-file-import"></i> Importar</button>
                 <button class="btn-transf" onclick="abrirModalTransferencia()"><i class="fas fa-exchange-alt"></i> Transferir</button>
             </div>
@@ -268,7 +294,12 @@
                         <th class="col-forma"><i class="fas fa-wallet" title="Forma Pagto"></i></th>
                         <th class="col-data">Data</th> 
                         <th class="col-desc">Descrição</th> 
-                        <th class="col-acao"><i class="fas fa-cog"></i></th> 
+                        <th class="col-acao">
+                            <div class="header-actions-col">
+                                <input type="checkbox" id="chkTodos" class="chk-row" onchange="toggleTodos(this)" style="margin:0;">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                        </th> 
                     </tr> 
                 </thead>
                 <tbody id="lista"></tbody>
@@ -448,11 +479,8 @@
             lista.sort((a,b) => new Date(b.data) - new Date(a.data));
 
             lista.forEach(item => {
-                // --- FILTRO DE EXIBIÇÃO ---
-                // Se for item de cartão (tem cartaoId) E NÃO tem bancoId, esconda.
-                // Isso significa que é um item da fatura ainda não pago ou pago via consolidação.
+                // Filtro para não mostrar cartão sem banco (mesmo de antes)
                 if (item.cartaoId && !item.banco) return; 
-                // ---------------------------
 
                 const valorNum = parseFloat(item.valorFinal || item.valor); 
                 if(item.tipo === 'RECEITA') total += valorNum; else total -= valorNum;
@@ -470,6 +498,7 @@
                         <td class="col-data">${dataFormatada}</td>
                         <td class="col-desc" title="${item.descricao || ''}">${item.descricao || ''}</td>
                         <td class="col-acao">
+                            <input type="checkbox" class="chk-item chk-row" value="${item.id}" onchange="atualizarBotaoMassa()">
                             <button onclick="abrirEdicao('${item.id}')" class="action-btn" title="Editar"><i class="fas fa-pen"></i></button>
                             <button onclick="estornarConta('${item.id}', '${item.tipo}')" class="action-btn btn-trash" title="Estornar"><i class="fas fa-trash-alt"></i></button>
                         </td>
@@ -477,6 +506,8 @@
                 `;
             });
             document.getElementById('total-display').innerText = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            document.getElementById('chkTodos').checked = false;
+            atualizarBotaoMassa();
         }
 
         function abrirEdicao(id) {
@@ -521,6 +552,47 @@
                     } catch (e) { console.error(e); }
                 }
             })
+        }
+        
+        // --- FUNÇÕES DE SELEÇÃO EM MASSA (NOVAS) ---
+        function toggleTodos(source) {
+            document.querySelectorAll('.chk-item').forEach(chk => chk.checked = source.checked);
+            atualizarBotaoMassa();
+        }
+
+        function atualizarBotaoMassa() {
+            const count = document.querySelectorAll('.chk-item:checked').length;
+            const btn = document.getElementById('btnMassDelete');
+            document.getElementById('countSelected').innerText = count;
+            if (count > 0) btn.style.display = 'inline-flex'; else btn.style.display = 'none';
+        }
+
+        async function excluirMassa() {
+            const checkboxes = document.querySelectorAll('.chk-item:checked');
+            if (checkboxes.length === 0) return;
+
+            const result = await Swal.fire({
+                title: `Excluir ${checkboxes.length} itens?`,
+                text: "Essa ação apaga os registros permanentemente.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'Sim, excluir tudo'
+            });
+
+            if (result.isConfirmed) {
+                let erros = 0;
+                for (const chk of checkboxes) {
+                    try { await fetch(`/transacoes/${chk.value}`, { method: 'DELETE' }); } 
+                    catch (e) { erros++; console.error(e); }
+                }
+                if (erros > 0) Swal.fire('Atenção', `${checkboxes.length - erros} excluídos, mas ${erros} falharam.`, 'warning');
+                else Toast.fire({ icon: 'success', title: 'Excluídos com sucesso!' });
+                
+                document.getElementById('chkTodos').checked = false;
+                document.getElementById('btnMassDelete').style.display = 'none';
+                carregar();
+            }
         }
         
         function formatarMoeda(val) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val); }
