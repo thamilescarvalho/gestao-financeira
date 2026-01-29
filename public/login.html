@@ -2,182 +2,289 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <title>Acesso - T-System Galaxy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acesso - Gestão Financeira</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #1a202c; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; }
-        
-        .auth-container { background: white; width: 350px; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        
-        /* Abas (Login / Cadastro) */
-        .tabs { display: flex; background: #eee; }
-        .tab { flex: 1; padding: 15px; text-align: center; cursor: pointer; font-weight: bold; color: #666; transition: 0.3s; }
-        .tab.active { background: white; color: #3182ce; border-bottom: 3px solid #3182ce; }
-        
-        /* Formulários */
-        .form-box { padding: 30px; display: none; }
-        .form-box.active { display: block; }
-
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        
-        /* --- NOVO: Estilo do Container de Senha --- */
-        .password-container {
-            position: relative;
-            width: 100%;
-            margin: 10px 0;
-        }
-        
-        .password-container input {
-            margin: 0; /* Remove margem do input pois o container já tem */
-            padding-right: 40px; /* Espaço para não digitar em cima do olho */
+        /* CORES GALAXY / FUTURISTA */
+        :root {
+            --bg-dark: #0a0a12;
+            --panel-dark: #13131f;
+            --purple-primary: #8a2be2;
+            --purple-secondary: #6a0dad;
+            --neon-glow: 0 0 15px rgba(138, 43, 226, 0.6);
+            --text-white: #ffffff;
+            --text-light-purple: #d1b3ff;
+            --input-bg: #1e1e2e;
         }
 
-        .toggle-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #aaa;
-            font-size: 16px;
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body { 
+            margin: 0; padding: 0; height: 100vh; width: 100vw; 
+            display: flex; overflow: hidden; background-color: var(--bg-dark); 
         }
-        .toggle-icon:hover { color: #3182ce; }
-        /* ------------------------------------------ */
 
-        button { width: 100%; padding: 12px; background-color: #3182ce; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        button:hover { background-color: #2c5282; }
+        /* --- LADO ESQUERDO (GALÁXIA DECORATIVA) --- */
+        .left-panel {
+            width: 50%;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%); /* Gradiente Galáxia Escura */
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--text-white); padding: 40px; text-align: center;
+            position: relative; overflow: hidden;
+            box-shadow: inset -5px 0 20px rgba(0,0,0,0.5); /* Sombra interna */
+        }
         
-        .google-btn { background-color: #db4437; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .google-btn:hover { background-color: #c53929; }
+        /* Efeito de Estrelas/Poeira Cósmica */
+        .left-panel::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            opacity: 0.4;
+        }
+
+        /* Círculos de Luz Roxa */
+        .circle { position: absolute; border-radius: 50%; opacity: 0.3; filter: blur(60px); }
+        .c1 { width: 300px; height: 300px; background: var(--purple-primary); top: -50px; left: -50px; }
+        .c2 { width: 500px; height: 500px; background: var(--purple-secondary); bottom: -100px; right: -100px; }
+
+        .left-content { z-index: 2; animation: fadeIn 1s ease-out; text-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
+        .logo-big { font-size: 46px; font-weight: 800; margin-bottom: 15px; letter-spacing: 1px; color: var(--text-white); }
+        .logo-desc { font-size: 16px; color: var(--text-light-purple); max-width: 400px; line-height: 1.6; }
+
+        /* --- LADO DIREITO (FORMULÁRIO FUTURISTA) --- */
+        .right-panel {
+            width: 50%; display: flex; justify-content: center; align-items: center;
+            background: var(--panel-dark); position: relative;
+        }
+
+        .auth-box { 
+            width: 100%; max-width: 400px; padding: 40px; animation: slideIn 0.5s ease-out; 
+            background: rgba(255, 255, 255, 0.03); /* Fundo translúcido */
+            border-radius: 20px;
+            border: 1px solid rgba(138, 43, 226, 0.2); /* Borda roxa sutil */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3), var(--neon-glow); /* Brilho LED */
+            backdrop-filter: blur(10px);
+        }
+
+        /* TÍTULOS E ABAS */
+        .auth-header { margin-bottom: 30px; text-align: center; }
+        .auth-title { font-size: 32px; font-weight: 800; color: var(--text-white); margin: 0; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+        .auth-subtitle { color: var(--text-light-purple); font-size: 14px; margin-top: 8px; }
+
+        .tabs { 
+            display: flex; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 12px; 
+            margin-bottom: 25px; border: 1px solid rgba(138, 43, 226, 0.1);
+        }
+        .tab { 
+            flex: 1; text-align: center; padding: 12px; cursor: pointer; 
+            font-weight: 700; font-size: 12px; color: var(--text-light-purple); border-radius: 8px; 
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .tab.active { 
+            background: var(--purple-primary); color: var(--text-white); 
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); 
+        }
+
+        /* INPUTS FUTURISTAS */
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group i { 
+            position: absolute; left: 15px; top: 50%; transform: translateY(-50%); 
+            color: var(--purple-primary); font-size: 16px; transition: 0.2s; 
+            text-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
+        }
         
-        .erro { color: red; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
-        .sucesso { color: green; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+        .input-field {
+            width: 100%; padding: 16px 16px 16px 50px; 
+            border: 2px solid rgba(138, 43, 226, 0.3); border-radius: 12px; 
+            font-size: 14px; outline: none; transition: 0.3s; 
+            background: var(--input-bg); color: var(--text-white); font-weight: 600;
+        }
+        .input-field::placeholder { color: rgba(209, 179, 255, 0.5); }
+        .input-field:focus { 
+            border-color: var(--purple-primary); 
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+            background: rgba(30, 30, 46, 0.9);
+        }
+        .input-field:focus + i { color: var(--text-white); }
+
+        .toggle-pass { 
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%); 
+            cursor: pointer; color: var(--text-light-purple); z-index: 2;
+        }
+        .toggle-pass:hover { color: var(--text-white); }
+
+        /* BOTÕES NEON */
+        .btn-primary {
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: linear-gradient(to right, var(--purple-secondary), var(--purple-primary));
+            color: white; font-weight: 800; font-size: 14px; cursor: pointer; 
+            transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;
+            margin-top: 15px; box-shadow: var(--neon-glow);
+        }
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 0 25px rgba(138, 43, 226, 0.8);
+            filter: brightness(1.1);
+        }
+
+        .btn-google {
+            width: 100%; padding: 14px; border: 2px solid rgba(138, 43, 226, 0.3); border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05); color: var(--text-white); 
+            font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.3s; 
+            margin-top: 25px; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-google:hover { 
+            background: rgba(138, 43, 226, 0.1); border-color: var(--purple-primary); 
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+        }
+
+        /* LINKS */
+        .forgot-link { 
+            display: block; text-align: right; font-size: 12px; color: var(--text-light-purple); 
+            margin-top: 10px; text-decoration: none; font-weight: 600; transition: 0.2s;
+        }
+        .forgot-link:hover { color: var(--text-white); text-shadow: 0 0 5px var(--purple-primary); }
+
+        /* FEEDBACK */
+        .msg-box { 
+            font-size: 12px; text-align: center; margin-top: 15px; font-weight: 700; 
+            padding: 12px; border-radius: 8px; display: none; 
+        }
+        .msg-error { background: rgba(239, 68, 68, 0.2); color: #ff6b6b; border: 1px solid #ef4444; }
+        .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+
+        /* ANIMAÇÕES */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* RESPONSIVO */
+        @media (max-width: 850px) {
+            .left-panel { display: none; }
+            .right-panel { width: 100%; background: var(--bg-dark); }
+            .auth-box { background: var(--panel-dark); box-shadow: var(--neon-glow); border: 1px solid rgba(138, 43, 226, 0.2); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="auth-container">
-        <div class="tabs">
-            <div class="tab active" onclick="abrirAba('login')">Entrar</div>
-            <div class="tab" onclick="abrirAba('cadastro')">Criar Conta</div>
+    <div class="left-panel">
+        <div class="circle c1"></div>
+        <div class="circle c2"></div>
+        <div class="left-content">
+            <div class="logo-big">T-SYSTEM</div>
+            <div class="logo-desc">Explore o universo da gestão financeira de forma simples e moderna.</div>
         </div>
+    </div>
 
-        <div id="login" class="form-box active">
-            <h2 style="text-align: center; color: #333;">Bem-vindo</h2>
+    <div class="right-panel">
+        <div class="auth-box">
             
-            <input type="email" id="loginEmail" placeholder="Seu E-mail">
-            
-            <div class="password-container">
-                <input type="password" id="loginSenha" placeholder="Sua Senha">
-                <i class="fas fa-eye toggle-icon" onclick="toggleSenha('loginSenha', this)"></i>
+            <div class="auth-header">
+                <h1 class="auth-title">Bem-vindo</h1>
+                <p class="auth-subtitle">Conecte-se ao seu universo financeiro</p>
             </div>
 
-            <button onclick="fazerLogin()">ENTRAR</button>
-            <p id="msgLogin" class="erro"></p>
-            
-            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-            <button class="google-btn" onclick="alert('Funcionalidade Google em breve!')">
-                <i class="fab fa-google"></i> Entrar com Google
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('login')" id="tab-login">Entrar</div>
+                <div class="tab" onclick="switchTab('register')" id="tab-register">Criar Conta</div>
+            </div>
+
+            <div id="form-login">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="loginEmail" class="input-field" placeholder="Seu e-mail">
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginSenha" class="input-field" placeholder="Sua senha">
+                    <i class="fas fa-eye toggle-pass" onclick="togglePass('loginSenha', this)"></i>
+                </div>
+
+                <a href="#" class="forgot-link" onclick="alert('Funcionalidade em desenvolvimento.')">Esqueceu a senha?</a>
+
+                <button class="btn-primary" onclick="fazerLogin()">ACESSAR SISTEMA</button>
+                <div id="msgLogin" class="msg-box"></div>
+            </div>
+
+            <div id="form-register" style="display: none;">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="cadNome" class="input-field" placeholder="Nome Completo">
+                </div>
+
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="cadEmail" class="input-field" placeholder="Seu melhor e-mail">
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="cadSenha" class="input-field" placeholder="Crie uma senha forte">
+                    <i class="fas fa-eye toggle-pass" onclick="togglePass('cadSenha', this)"></i>
+                </div>
+
+                <button class="btn-primary" onclick="fazerCadastro()">CRIAR CONTA GRÁTIS</button>
+                <div id="msgCadastro" class="msg-box"></div>
+            </div>
+
+            <button class="btn-google" onclick="alert('Integração com Google em breve!')">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" style="filter: brightness(0.8) contrast(1.2);">
+                Continuar com Google
             </button>
-        </div>
 
-        <div id="cadastro" class="form-box">
-            <h2 style="text-align: center; color: #333;">Criar Conta</h2>
-            
-            <input type="text" id="cadNome" placeholder="Nome Completo">
-            <input type="email" id="cadEmail" placeholder="Seu E-mail">
-            
-            <div class="password-container">
-                <input type="password" id="cadSenha" placeholder="Crie uma Senha">
-                <i class="fas fa-eye toggle-icon" onclick="toggleSenha('cadSenha', this)"></i>
-            </div>
-
-            <button onclick="fazerCadastro()">CADASTRAR</button>
-            <p id="msgCadastro" class="sucesso"></p>
         </div>
     </div>
 
     <script>
-        // --- Função Visual: Alternar senha ---
-        function toggleSenha(idInput, icone) {
-            const input = document.getElementById(idInput);
+        // --- UX / VISUAL ---
+        function switchTab(tab) {
+            document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+            
+            document.getElementById('tab-login').className = tab === 'login' ? 'tab active' : 'tab';
+            document.getElementById('tab-register').className = tab === 'register' ? 'tab active' : 'tab';
+            
+            document.querySelectorAll('.msg-box').forEach(el => el.style.display = 'none');
+        }
+
+        function togglePass(id, icon) {
+            const input = document.getElementById(id);
             if (input.type === 'password') {
                 input.type = 'text';
-                icone.classList.remove('fa-eye');
-                icone.classList.add('fa-eye-slash');
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             } else {
                 input.type = 'password';
-                icone.classList.remove('fa-eye-slash');
-                icone.classList.add('fa-eye');
-            }
-        }
-        // --- Função Visual: Troca de Abas ---
-        function abrirAba(aba) {
-            document.querySelectorAll('.form-box').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(aba).classList.add('active');
-            
-            const abas = document.querySelectorAll('.tab');
-            if(aba === 'login') abas[0].classList.add('active');
-            else abas[1].classList.add('active');
-        }
-        // =========================================
-        // LÓGICA DE CADASTRO (Corrigida)
-        // =========================================
-        async function fazerCadastro() {
-            const nome = document.getElementById('cadNome').value;
-            const email = document.getElementById('cadEmail').value;
-            const senha = document.getElementById('cadSenha').value;
-            const msg = document.getElementById('msgCadastro');
-
-            if(!nome || !email || !senha) return alert("Preencha tudo!");
-
-            msg.innerText = "Processando...";
-            msg.style.display = 'block';
-            msg.style.color = 'blue';
-
-            try {
-                // CORREÇÃO 1: Rota ajustada para /auth/registrar
-                const res = await fetch('/auth/registrar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, email, senha })
-                });
-                const dados = await res.json();
-
-                // CORREÇÃO 2: Verifica o Status HTTP (res.ok) em vez de dados.erro
-                if(!res.ok) {
-                    msg.innerText = dados.erro || "Erro ao criar conta";
-                    msg.style.color = 'red';
-                } else {
-                    msg.innerText = "Conta criada! Faça login agora.";
-                    msg.style.color = 'green';
-                    setTimeout(() => abrirAba('login'), 2000); 
-                }
-            } catch (e) {
-                msg.innerText = "Erro de conexão.";
-                msg.style.color = 'red';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         }
 
-        // =========================================
-        // LÓGICA DE LOGIN (Corrigida)
-        // =========================================
+        function showMsg(id, text, type) {
+            const el = document.getElementById(id);
+            el.innerText = text;
+            el.className = 'msg-box ' + (type === 'error' ? 'msg-error' : 'msg-success');
+            el.style.display = 'block';
+        }
+
+        // --- LÓGICA DE LOGIN (Mantida do anterior) ---
         async function fazerLogin() {
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
-            const msg = document.getElementById('msgLogin');
 
-            if(!email || !senha) return alert("Preencha e-mail e senha!");
+            if(!email || !senha) return showMsg('msgLogin', 'Preencha todos os campos.', 'error');
 
-            // Limpa mensagem anterior
-            msg.innerText = "Verificando...";
-            msg.style.display = 'block';
-            msg.style.color = 'blue';
+            showMsg('msgLogin', 'Autenticando...', 'success');
 
             try {
-                // CORREÇÃO 1: Rota ajustada para /auth/login
                 const res = await fetch('/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -186,18 +293,43 @@
                 
                 const dados = await res.json();
 
-                // CORREÇÃO 2: Se o status for OK (200), o login funcionou
                 if(res.ok) {
-                    localStorage.setItem('usuario_logado', JSON.stringify(dados)); // O backend retorna o usuário direto
-                    window.location.href = 'index.html'; // Redireciona
+                    localStorage.setItem('usuario_logado', JSON.stringify(dados));
+                    window.location.href = 'index.html';
                 } else {
-                    msg.innerText = dados.erro || "E-mail ou senha incorretos.";
-                    msg.style.color = 'red';
+                    showMsg('msgLogin', dados.erro || 'Credenciais inválidas.', 'error');
                 }
             } catch (e) {
-                console.error(e);
-                msg.innerText = "Erro ao conectar com o servidor.";
-                msg.style.color = 'red';
+                showMsg('msgLogin', 'Erro de conexão com o servidor.', 'error');
+            }
+        }
+
+        // --- LÓGICA DE CADASTRO (Mantida do anterior) ---
+        async function fazerCadastro() {
+            const nome = document.getElementById('cadNome').value;
+            const email = document.getElementById('cadEmail').value;
+            const senha = document.getElementById('cadSenha').value;
+
+            if(!nome || !email || !senha) return showMsg('msgCadastro', 'Preencha todos os campos.', 'error');
+
+            showMsg('msgCadastro', 'Criando sua conta...', 'success');
+
+            try {
+                const res = await fetch('/auth/registrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+                const dados = await res.json();
+
+                if(res.ok) {
+                    showMsg('msgCadastro', 'Conta criada com sucesso! Faça login.', 'success');
+                    setTimeout(() => switchTab('login'), 2000);
+                } else {
+                    showMsg('msgCadastro', dados.erro || 'Erro ao criar conta.', 'error');
+                }
+            } catch (e) {
+                showMsg('msgCadastro', 'Erro de conexão.', 'error');
             }
         }
     </script>
