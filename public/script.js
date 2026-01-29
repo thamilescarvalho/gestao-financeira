@@ -208,12 +208,31 @@ function highlightActiveLink() {
         }
     }
 }
-
 function formatarMoeda(valor) { 
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor); 
 }
-
 function sair() { 
     localStorage.removeItem('usuario_logado'); 
     window.location.href = 'login.html'; 
+}
+function logout() {
+    Swal.fire({
+        title: 'Sair do Sistema?',
+        text: "Você terá que fazer login novamente.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#1e293b',
+        confirmButtonText: 'Sim, sair',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Limpa os dados do usuário
+            localStorage.removeItem('usuario_logado');
+            localStorage.removeItem('token'); // Se estiver usando token
+            
+            // Redireciona para a tela de login
+            window.location.href = 'index.html'; // Ou login.html, dependendo do seu arquivo principal
+        }
+    });
 }
