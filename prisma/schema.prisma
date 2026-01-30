@@ -18,28 +18,48 @@ model Usuario {
   bancos     Banco[]
   transacoes Transacao[]
   eventos    Evento[]
+  cartoes    Cartao[]    // <--- RELAÇÃO ADICIONADA AQUI
 
   @@map("usuarios")
 }
 
 // Tabela de Bancos
 model Banco {
-  id               String      @id @default(uuid())
-  nome             String
-  cor              String?     @default("#2f855a") // Cor padrão ajustada
+  id             String      @id @default(uuid())
+  nome           String
+  cor            String?     @default("#2f855a")
   
   // Campos Detalhados
-  agencia          String?
-  conta            String?
-  saldoInicial     Float       @default(0)
-  dataSaldoInicial DateTime?   // NOME CORRIGIDO (era dataSaldo)
-  inativo          Boolean     @default(false)
+  agencia        String?
+  conta          String?
+  saldoInicial   Float       @default(0)
+  dataSaldoInicial DateTime? 
+  inativo        Boolean     @default(false)
 
-  usuarioId        String
-  usuario          Usuario     @relation(fields: [usuarioId], references: [id])
-  transacoes       Transacao[]
+  usuarioId      String
+  usuario        Usuario     @relation(fields: [usuarioId], references: [id])
+  transacoes     Transacao[]
 
   @@map("bancos")
+}
+
+// NOVA TABELA: Cartões de Crédito
+model Cartao {
+  id            String      @id @default(uuid())
+  nome          String
+  limite        Float?      @default(0.0)
+  diaFechamento Int?        // Dia que a fatura fecha
+  diaVencimento Int?        // Dia que a fatura vence
+  
+  usuarioId     String
+  usuario       Usuario     @relation(fields: [usuarioId], references: [id])
+  
+  transacoes    Transacao[] // Relacionamento com as transações
+  
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("cartoes")
 }
 
 // Tabela de Transações (Entradas e Saídas)
@@ -55,8 +75,11 @@ model Transacao {
   categoria      String?
   status         String    @default("PENDENTE")
   parcelas       Int?      @default(1)
-  parcelaInfo     String?
+  parcelaInfo    String?
+  
+  // Relação com Cartão (CORRIGIDO)
   cartaoId       String?
+  cartao         Cartao?   @relation(fields: [cartaoId], references: [id])
   
   // Datas
   data           DateTime  @default(now())
@@ -70,6 +93,9 @@ model Transacao {
   usuarioId      String?
   usuario        Usuario?  @relation(fields: [usuarioId], references: [id])
 
+  createdAt      DateTime  @default(now()) // É bom ter data de criação
+  updatedAt      DateTime  @updatedAt      // É bom ter data de atualização
+
   @@map("transacoes")
 }
 
@@ -82,7 +108,9 @@ model Evento {
   data      DateTime
   tipo      String   @default("TAREFA")
   concluido Boolean  @default(false)
-  lembrete    Boolean  @default(false)
+  lembrete  Boolean  @default(false)
   usuarioId String
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@map("eventos")
 }

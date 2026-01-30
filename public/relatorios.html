@@ -11,14 +11,12 @@
     <script src="auth.js"></script>
     <script src="script.js"></script>
     <style>
-        /* MANTENHA O CSS EXATAMENTE COMO ESTAVA NO SEU ARQUIVO */
-        /* ... (Copie o CSS do seu código anterior) ... */
-        /* Para economizar espaço, vou focar apenas na correção do Script abaixo */
+        /* MANTIDO O CSS ORIGINAL */
         *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
         body { background-color: #e2e8f0; color: #1e293b; font-size: 11px; }
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
-        /* ... resto do CSS ... */
+        
         .box-container { background: white; padding: 30px; border-radius: 16px; border: 1px solid #cbd5e1; display: flex; flex-direction: column; margin-bottom: 35px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
         .box-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; flex-wrap: wrap; gap: 15px; }
         .box-title { font-size: 14px; font-weight: 700; color: #1e293b; display: flex; gap: 10px; align-items: center; letter-spacing: 1px; }
@@ -50,10 +48,43 @@
         .navbar-custom { background-color: #1e293b; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: white; }
         .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
         .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
-        .page-header { margin-bottom: 35px; }
+        .page-header { margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; }
         .page-title { font-size: 26px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
         .page-sub { color: #64748b; font-size: 12px; margin-top: 5px; font-weight: 600; }
         @media (max-width: 900px) { .projecao-grid, .kpi-grid { grid-template-columns: 1fr; } }
+
+        /* --- NOVO CSS PARA CONTAS PARCELADAS --- */
+        .btn-galaxy-main {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            color: white; padding: 12px 25px; border-radius: 12px; font-weight: 800;
+            border: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); transition: 0.3s; font-size: 12px;
+        }
+        .btn-galaxy-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6); }
+
+        .glass-panel {
+            background: white; border: 1px solid #cbd5e1; border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1); padding: 30px; margin-bottom: 35px;
+            display: none; animation: slideUp 0.4s ease-out;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .parcel-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .parcel-table th { text-align: left; padding: 15px; color: #1e293b; background: #f8fafc; font-weight: 800; font-size: 10px; border-bottom: 2px solid #e2e8f0; }
+        .parcel-table td { padding: 15px; color: #334155; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 12px; }
+        
+        .progress-container { width: 100px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 4px; }
+        
+        .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 800; display: inline-block; }
+        .status-active { background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; }
+        .status-done { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0; }
+
+        .value-total { color: #1e293b; font-weight: 800; }
+        .value-paid { color: #10b981; }
+        .value-left { color: #ef4444; }
+        .empty-state { text-align: center; padding: 40px; color: #94a3b8; }
+        .empty-icon { font-size: 30px; margin-bottom: 10px; color: #cbd5e1; }
     </style>
 </head>
 <body>
@@ -65,8 +96,39 @@
 
     <div class="content">
         <div class="page-header">
-            <h1 class="page-title">Relatórios e Inteligência</h1>
-            <div class="page-sub">Visão completa da saúde financeira.</div>
+            <div>
+                <h1 class="page-title">Relatórios e Inteligência</h1>
+                <div class="page-sub">Visão completa da saúde financeira.</div>
+            </div>
+            <button class="btn-galaxy-main" onclick="mostrarParcelamentos()">
+                <i class="fas fa-layer-group"></i> VER CONTAS PARCELADAS
+            </button>
+        </div>
+
+        <div id="painelParcelas" class="glass-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0; color:#1e293b; font-size:18px; display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-credit-card" style="color:#a855f7;"></i> Contas Parceladas
+                </h2>
+                <button onclick="document.getElementById('painelParcelas').style.display='none'" style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table class="parcel-table">
+                    <thead>
+                        <tr>
+                            <th>Descrição / Fornecedor</th>
+                            <th style="text-align:center;">Progresso</th>
+                            <th>Status</th>
+                            <th>Valor Parcela</th>
+                            <th>Total Pago</th>
+                            <th>Falta Pagar</th>
+                            <th>Total Dívida</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaParcelamentos"></tbody>
+                </table>
+            </div>
         </div>
 
         <div class="box-container">
@@ -157,7 +219,109 @@
             carregarProjecaoMensal(); 
         });
 
-        // --- CORREÇÃO AQUI: FILTRO DE BANCO VINCULADO ---
+        // --- LÓGICA ATUALIZADA: GESTÃO DE PARCELAMENTOS ---
+        async function mostrarParcelamentos() {
+            const painel = document.getElementById('painelParcelas');
+            const tbody = document.getElementById('listaParcelamentos');
+            
+            painel.style.display = 'block';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">Calculando dívidas...</td></tr>';
+
+            try {
+                // 1. Busca TODAS as transações
+                const res = await fetch(`/transacoes?usuarioId=${usuario.id}`);
+                const todasTransacoes = await res.json();
+
+                // 2. Filtra: Apenas Despesas que tenham sido criadas com MAIS de 1 parcela
+                const despesas = todasTransacoes.filter(t => t.tipo === 'DESPESA' && t.parcelas > 1);
+
+                // 3. Agrupamento pelo nome "Raiz"
+                const grupos = {};
+
+                despesas.forEach(t => {
+                    // Limpeza Inteligente do Nome para Agrupar Corretamente
+                    // Remove " 1/10", " 05/12" e "{Cartão...}" para deixar só "Compra TV"
+                    let nomeRaiz = t.descricao
+                        .replace(/\s\d{1,2}\/\d{1,2}/g, '') // Remove numeração de parcela ex: " 1/10"
+                        .replace(/\{.*?\}/g, '')            // Remove dados do cartão ex: "{Cartão: Nubank}"
+                        .trim();
+
+                    if (!grupos[nomeRaiz]) {
+                        grupos[nomeRaiz] = {
+                            nome: nomeRaiz,
+                            totalParcelasEsperadas: t.parcelas, // Pega o total definido na criação (ex: 10)
+                            itens: [],
+                            valorTotal: 0,
+                            valorPago: 0,
+                            pagasQtd: 0
+                        };
+                    }
+                    
+                    const g = grupos[nomeRaiz];
+                    g.itens.push(t);
+                    g.valorTotal += parseFloat(t.valor);
+                    
+                    if(t.status === 'PAGO') {
+                        g.valorPago += parseFloat(t.valor);
+                        g.pagasQtd++;
+                    }
+                });
+
+                // 4. Converte para array e ordena
+                const listaFinal = Object.values(grupos);
+                listaFinal.sort((a,b) => b.valorTotal - a.valorTotal); // Maiores dívidas primeiro
+
+                tbody.innerHTML = '';
+
+                if (listaFinal.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-check-circle empty-icon"></i><p>Nenhuma conta parcelada encontrada.</p></div></td></tr>`;
+                    return;
+                }
+
+                listaFinal.forEach(g => {
+                    // Total de parcelas é o que foi definido na criação
+                    const totalQtd = g.totalParcelasEsperadas;
+                    
+                    // Cálculo da porcentagem
+                    const progresso = (g.pagasQtd / totalQtd) * 100;
+                    
+                    const statusClass = (g.pagasQtd >= totalQtd) ? 'status-done' : 'status-active';
+                    const statusText = (g.pagasQtd >= totalQtd) ? 'CONCLUÍDO' : 'EM ANDAMENTO';
+                    
+                    // Média da parcela (Valor Total / Qtd Parcelas)
+                    const valorParcelaMedia = g.valorTotal / totalQtd;
+                    const valorRestante = g.valorTotal - g.valorPago;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <div style="font-weight:800; color:#1e293b; font-size:13px;">${g.nome}</div>
+                                <div style="font-size:10px; color:#64748b;">${g.itens[0].fornecedor || ''}</div>
+                            </td>
+                            <td style="text-align:center; width: 120px;">
+                                <div style="font-size:10px; font-weight:700; margin-bottom:3px; display:flex; justify-content:space-between;">
+                                    <span>${g.pagasQtd}/${totalQtd}</span>
+                                    <span>${Math.round(progresso)}%</span>
+                                </div>
+                                <div class="progress-container">
+                                    <div class="progress-bar" style="width: ${progresso}%"></div>
+                                </div>
+                            </td>
+                            <td><span class="badge-status ${statusClass}">${statusText}</span></td>
+                            <td style="font-size:12px;">${fmt.format(valorParcelaMedia)}</td>
+                            <td class="value-paid">${fmt.format(g.valorPago)}</td>
+                            <td class="value-left">${fmt.format(valorRestante)}</td>
+                            <td class="value-total">${fmt.format(g.valorTotal)}</td>
+                        </tr>
+                    `;
+                });
+
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Erro ao carregar dados.</td></tr>';
+            }
+        }
+
         async function carregarRelatorioRealizado() {
             if(!usuario) return;
             const mesInput = document.getElementById('mesRealizado').value;
@@ -169,7 +333,6 @@
             const b = document.getElementById('filtroBanco').value;
 
             try {
-                // Backend já traz o total correto (filtrado por bancoId NOT NULL)
                 const res = await fetch(`/relatorios/avancado?usuarioId=${usuario.id}&inicio=${i}&fim=${f}&bancoId=${b}`);
                 const dados = await res.json();
                 
@@ -185,24 +348,17 @@
                     document.getElementById('subTopForn').innerText = "R$ 0,00";
                 }
 
-                // Carregar detalhes para o modal (filtrando manualmente também)
                 const resDet = await fetch(`/transacoes?usuarioId=${usuario.id}&status=PAGO&tipo=DESPESA`);
                 const todosPagos = await resDet.json();
 
                 const realizadosNoMes = todosPagos.filter(t => {
-                    // --- FILTRO DE CEGUEIRA (Igual ao Movimento.html) ---
-                    // Se for cartão sem banco, é invisível
                     if (t.cartaoId && !t.banco) return false; 
-                    // ----------------------------------------------------
-
                     const dataPag = (t.dataPagamento || t.data).split('T')[0];
                     const mesmoBanco = b ? (t.banco && t.banco.id === b) : true;
                     return dataPag >= i && dataPag <= f && mesmoBanco;
                 });
 
                 detalhesRealizadoCache.total = realizadosNoMes;
-                
-                // Filtra para o botão "Gasto com Cartão"
                 detalhesRealizadoCache.cartao = realizadosNoMes.filter(t => {
                     const forma = (t.formaPagamento || "").toLowerCase();
                     return forma.includes('cart') || forma.includes('credit') || t.categoria === 'Pagamento de Fatura';
@@ -225,7 +381,6 @@
                 if(dados.saldoPrevisto < 0) { cardSaldo.classList.remove('proj-blue'); cardSaldo.classList.add('proj-red'); } 
                 else { cardSaldo.classList.remove('proj-red'); cardSaldo.classList.add('proj-blue'); }
 
-                // Detalhes da Projeção
                 const [ano, m] = mes.split('-');
                 const i = `${ano}-${m}-01`;
                 const f = new Date(ano, m, 0).toISOString().split('T')[0];

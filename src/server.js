@@ -280,5 +280,21 @@ app.post('/auth/login', async (req, res) => { const { email, senha } = req.body;
 app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });
 app.get('/limpar-tudo', async (req, res) => { await prisma.transacao.deleteMany({}); await prisma.banco.deleteMany({}); await prisma.evento.deleteMany({}); res.send("Sistema Zerado."); });
 
+// --- ROTA DE EMERGÊNCIA (REMOVER DEPOIS DE USAR) ---
+/*app.get('/emergencia-tornar-admin/:email', async (req, res) => {
+  try {
+    const email = req.params.email;
+
+    const usuario = await prisma.usuario.update({
+      where: { email: email },
+      data: { role: 'ADMIN' } // Força o cargo para ADMIN
+    });
+
+    res.send(`Sucesso! O usuário <b>${usuario.nome}</b> (${usuario.email}) agora é um <b>ADMINISTRADOR</b>.<br><br>Pode voltar para a tela de login.`);
+  } catch (error) {
+    res.status(500).send("Erro: Usuário não encontrado ou erro no servidor.<br>" + error.message);
+  }
+});*/
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Servidor completo rodando na porta ${PORT}`); });
