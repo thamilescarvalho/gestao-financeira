@@ -123,8 +123,7 @@ function gerarMenuLateral() {
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
-                <a href="usuarios.html" class="link-navegacao">Usuários</a>
-                <a href="perfil.html" class="link-navegacao">Meu Perfil</a> 
+                <a href="usuarios.html" class="link-navegacao">Usuários</a> 
             </div>
 
             <div class="menu-item" onclick="toggleSubmenu(this)">
@@ -132,12 +131,13 @@ function gerarMenuLateral() {
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
+                <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
                 <a href="receber.html" class="link-navegacao">Contas a Receber</a>
+                <a href="plano-contas.html" class="link-navegacao">Plano de Contas</a>
                 <a href="pagar.html" class="link-navegacao">Contas a Pagar</a>
                 <a href="cartoes.html" class="link-navegacao">Meus Cartões</a> 
                 <a href="movimento.html" class="link-navegacao">Extrato / Movimento</a>
                 <a href="conciliacao.html" class="link-navegacao">Conciliação</a>
-                <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
                 <a href="relatorios.html" class="link-navegacao">Relatórios</a> 
             </div>
             
@@ -208,31 +208,12 @@ function highlightActiveLink() {
         }
     }
 }
+
 function formatarMoeda(valor) { 
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor); 
 }
+
 function sair() { 
     localStorage.removeItem('usuario_logado'); 
     window.location.href = 'login.html'; 
-}
-function logout() {
-    Swal.fire({
-        title: 'Sair do Sistema?',
-        text: "Você terá que fazer login novamente.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#1e293b',
-        confirmButtonText: 'Sim, sair',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Limpa os dados do usuário
-            localStorage.removeItem('usuario_logado');
-            localStorage.removeItem('token'); // Se estiver usando token
-            
-            // Redireciona para a tela de login
-            window.location.href = 'index.html'; // Ou login.html, dependendo do seu arquivo principal
-        }
-    });
 }

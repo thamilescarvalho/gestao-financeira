@@ -66,14 +66,15 @@ app.post('/transacoes/transferencia', async (req, res) => {
     } catch (e) { res.status(500).json({ erro: "Erro ao processar transferência." }); }
 });
 
-// --- ROTA POST TRANSACOES ---
+// --- ROTA POST TRANSACOES (CORRIGIDA: SALVA PARCELA INFO) ---
 app.post('/transacoes', async (req, res) => {
     try {
-        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados, parcelaInfo, cartaoId } = req.body;
+        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados, parcelaInfo } = req.body;
         if (!usuarioId) return res.status(400).json({ erro: "ID obrigatório" });
 
         const criadas = [];
 
+        // SE TIVER ITENS PARCELADOS (ARRAY)
         if (itensParcelados && itensParcelados.length > 0) {
             for (const item of itensParcelados) {
                 const dt = new Date(`${item.data}T12:00:00`);
@@ -87,15 +88,18 @@ app.post('/transacoes', async (req, res) => {
                         status: 'PENDENTE',
                         formaPagamento: item.formaPagamento || "Outros",
                         data: dt, dataVencimento: dt,
+                        
+                        // CORREÇÃO: Salva "1/5", "2/5" no banco
                         parcelaInfo: item.parcelaInfo || "1/1",
                         parcelas: parseInt(parcelas) || 1,
-                        cartaoId: cartaoId || null,
+
                         banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
                         usuario: { connect: { id: usuarioId } }
                     }
                 }));
             }
         } else {
+            // SE FOR CONTA ÚNICA
             let dt = new Date();
             if (data) dt = new Date(data.includes('T') ? data : `${data}T12:00:00`);
             let dtPg = null;
@@ -111,9 +115,10 @@ app.post('/transacoes', async (req, res) => {
                     status: status || 'PENDENTE',
                     formaPagamento: formaPagamento || "Outros",
                     data: dt, dataVencimento: dt, dataPagamento: dtPg,
+                    
                     parcelas: 1,
-                    parcelaInfo: parcelaInfo || "1/1",
-                    cartaoId: cartaoId || null,
+                    parcelaInfo: parcelaInfo || "1/1", // Salva 1/1 se for única
+
                     banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
                     usuario: { connect: { id: usuarioId } }
                 }
@@ -133,30 +138,37 @@ app.get('/transacoes', async (req, res) => {
     res.json(lista);
 });
 
+// --- ROTA PUT (CORRIGIDA: FORÇA ATUALIZAÇÃO DE DATA E VALOR) ---
 app.put('/transacoes/:id', async (req, res) => {
     const { id } = req.params;
     const body = req.body;
     try {
         let dados = {};
+        // Estorno
         if (body.status === 'PENDENTE' && !body.bancoId && !body.descricao) {
             const tr = await prisma.transacao.findUnique({ where: { id } });
             dados = { status: 'PENDENTE', banco: { disconnect: true }, dataPagamento: null, valor: tr.valorOriginal || tr.valor, valorOriginal: null };
         } 
+        // Baixa
         else if (body.status === 'PAGO' || body.status === 'RECEBIDO') {
             const tr = await prisma.transacao.findUnique({ where: { id } });
             dados = { status: body.status, banco: { connect: { id: body.bancoId } }, dataPagamento: new Date(body.dataPagamento), valor: parseFloat(body.valorFinal || body.valor), valorOriginal: tr.valorOriginal || tr.valor };
         } 
+        // Edição
         else {
             const { itensParcelados, usuarioId, id: _id, ...resto } = body;
             dados = { ...resto };
+            
+            // Força atualização da data se vier no body
             if(body.dataVencimento) {
                 const dt = new Date(body.dataVencimento.includes('T') ? body.dataVencimento : `${body.dataVencimento}T12:00:00`);
                 dados.dataVencimento = dt;
                 dados.data = dt; 
             }
             if(body.valor) dados.valor = parseFloat(body.valor);
-            if(body.cartaoId) dados.cartaoId = body.cartaoId;
+            // Ignora parcelaInfo na edição simples para não quebrar
         }
+        
         const atualizado = await prisma.transacao.update({ where: { id }, data: dados });
         res.json(atualizado);
     } catch (e) { 
@@ -165,6 +177,7 @@ app.put('/transacoes/:id', async (req, res) => {
     }
 });
 
+// ... (Resto das rotas mantidas: DELETE, Importação, Bancos, etc.) ...
 app.delete('/transacoes/:id', async (req, res) => { try { await prisma.transacao.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(500).send(); } });
 app.put('/transacoes/:id/baixar', async (req, res) => { const { id } = req.params; const { bancoId, dataPagamento, valorPago } = req.body; try { const tr = await prisma.transacao.findUnique({ where: { id } }); const status = tr.tipo === 'DESPESA' ? 'PAGO' : 'RECEBIDO'; const dt = new Date(dataPagamento.includes('T') ? dataPagamento : `${dataPagamento}T12:00:00`); const up = await prisma.transacao.update({ where: { id }, data: { status, bancoId, dataPagamento: dt, valor: parseFloat(valorPago), valorOriginal: tr.valor } }); res.json(up); } catch(e) { res.status(500).json({ erro: "Erro na baixa" }); } });
 app.post('/importar/ler-csv', async (req, res) => { try { const { conteudo, usuarioId } = req.body; if (!conteudo) return res.status(400).json({ erro: "Vazio" }); const linhas = conteudo.split(/\r?\n/); const lista = []; for (let i = 1; i < linhas.length; i++) { const cols = linhas[i].split(';'); if (cols.length < 5) continue; const fornecedor = cols[0]; const dataRaw = cols[1]; const total = parseInt(cols[3]) || 1; const atual = parseInt(cols[4]) || 1; const valor = parseFloat(cols[5].replace('R$', '').replace(/\./g, '').replace(',', '.').trim()); if(!fornecedor || !dataRaw) continue; const [d, m, y] = dataRaw.split('/'); const dataBase = new Date(y, m-1, d, 12, 0, 0); const formaDetectada = detectarFormaPagamento(fornecedor); for (let p = atual; p <= total; p++) { const dt = new Date(dataBase); dt.setMonth(dataBase.getMonth() + (p - atual)); const dataIso = dt.toISOString().split('T')[0]; let desc = fornecedor; let info = "1/1"; if(total > 1) { desc = `${fornecedor} (${p}/${total})`; info = `${p}/${total}`; } lista.push({ data: dataIso, descricao: desc, fornecedor, valor, tipo: 'DESPESA', parcelas: total, parcelaInfo: info, formaPagamento: formaDetectada, id_transacao: `csv-${i}-${p}` }); } } const verificados = await checarDuplicidade(usuarioId, lista); res.json(verificados); } catch (e) { res.status(500).json({ erro: "Erro CSV" }); } });
@@ -178,188 +191,94 @@ app.get('/bancos', async (req, res) => { const { usuarioId } = req.query; if(!us
 app.post('/bancos', async (req, res) => { try { const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo, usuarioId } = req.body; const b = await prisma.banco.create({ data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo, usuario: { connect: { id: usuarioId } } } }); res.json(b); } catch(e) { res.status(500).json({ erro: "Erro criar banco" }); } });
 app.put('/bancos/:id', async (req, res) => { try { const { nome, agencia, conta, saldoInicial, dataSaldoInicial, inativo } = req.body; const b = await prisma.banco.update({ where: { id: req.params.id }, data: { nome, agencia, conta, saldoInicial: parseFloat(saldoInicial||0), dataSaldoInicial: new Date(dataSaldoInicial), inativo: !!inativo } }); res.json(b); } catch(e) { res.status(500).json({ erro: "Erro atualizar banco" }); } });
 app.delete('/bancos/:id', async (req, res) => { try { await prisma.banco.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(400).json({ erro: "Banco com movimento" }); } });
+// ROTAS DE EVENTOS / AGENDA
 app.get('/eventos/alertas', async (req, res) => {
     const { usuarioId } = req.query;
     if (!usuarioId) return res.json([]);
+
     const hoje = new Date();
     const dataLimite = new Date();
-    dataLimite.setDate(hoje.getDate() + 5); 
+    dataLimite.setDate(hoje.getDate() + 5); // Olha 5 dias pra frente
+
     try {
-        const eventos = await prisma.evento.findMany({ where: { usuarioId: usuarioId, lembrete: true, concluido: false } });
+        const eventos = await prisma.evento.findMany({
+            where: {
+                usuarioId: usuarioId,
+                lembrete: true, // Só os marcados para lembrar
+                concluido: false
+            }
+        });
+
+        // Filtragem manual para ignorar o ano do nascimento e focar no dia/mês atual
         const proximos = eventos.filter(ev => {
             const dataEvento = new Date(ev.data);
             const aniversarioEsseAno = new Date(hoje.getFullYear(), dataEvento.getMonth(), dataEvento.getDate());
+            
+            // Se já passou este ano, verifica se é logo no inicio do ano que vem (opcional, aqui foca no ano atual)
             return aniversarioEsseAno >= hoje && aniversarioEsseAno <= dataLimite;
         });
+
         res.json(proximos);
-    } catch (e) { res.status(500).json([]); }
-});
-app.get('/eventos', async (req, res) => { const { usuarioId } = req.query; if(!usuarioId) return res.json([]); const evs = await prisma.evento.findMany({ where: { usuarioId }, orderBy: { data: 'asc' } }); res.json(evs); });
-app.post('/eventos', async (req, res) => { const { titulo, descricao, local, data, tipo, lembrete, usuarioId } = req.body; try { const ev = await prisma.evento.create({ data: { titulo, descricao, local, data: new Date(data), tipo: tipo || 'TAREFA', lembrete: lembrete || false, usuario: { connect: { id: usuarioId } } } }); res.json(ev); } catch(e){ res.status(500).send(); } });
-app.put('/eventos/:id', async (req, res) => { const { titulo, descricao, local, data, tipo, lembrete } = req.body; try { const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { titulo, descricao, local, data: new Date(data), tipo, lembrete: lembrete } }); res.json(ev); } catch(e) { res.status(500).send(); } });
-app.delete('/eventos/:id', async (req, res) => { await prisma.evento.delete({ where: { id: req.params.id } }); res.status(204).send(); });
-app.patch('/eventos/:id/toggle', async (req, res) => { const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { concluido: req.body.concluido } }); res.json(ev); });
-
-// --- ROTA CORRIGIDA PARA O DASHBOARD (SÓ ITENS COM BANCO) ---
-app.get('/dashboard/resumo', async (req, res) => { 
-    const { usuarioId } = req.query; 
-    if (!usuarioId) return res.json({ saldoTotal: 0 }); 
-    const hoje = new Date(); 
-    const i = new Date(hoje.getFullYear(), hoje.getMonth(), 1); 
-    const f = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0); 
-    const bancos = await prisma.banco.findMany({ where: { usuarioId } }); 
-    const saldoIni = bancos.reduce((acc, b) => acc + parseFloat(b.saldoInicial), 0); 
-    
-    // Filtro bancoId: { not: null } para ignorar fatura interna de cartão
-    const recGeral = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'RECEBIDO', bancoId: { not: null } } }); 
-    const pagGeral = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PAGO', bancoId: { not: null } } }); 
-    const recMes = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'RECEBIDO', bancoId: { not: null }, data: { gte: i, lte: f } } }); 
-    const despMes = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PAGO', bancoId: { not: null }, data: { gte: i, lte: f } } }); 
-    
-    res.json({ saldoTotal: saldoIni + (recGeral._sum.valor||0) - (pagGeral._sum.valor||0), receitaReal: recMes._sum.valor || 0, despesaReal: despMes._sum.valor || 0 }); 
-});
-
-app.get('/relatorios/projecao-mensal', async (req, res) => { const { usuarioId, mes } = req.query; if(!usuarioId || !mes) return res.json({ receitas: 0, despesas: 0, saldo: 0 }); const start = new Date(`${mes}-01T00:00:00.000Z`); const end = new Date(new Date(start).setMonth(start.getMonth()+1)); const filtro = { gte: start, lt: end }; const rec = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'PENDENTE', OR: [{data: filtro}, {dataVencimento: filtro}] } }); const desp = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PENDENTE', OR: [{data: filtro}, {dataVencimento: filtro}] } }); res.json({ receitas: rec._sum.valor||0, despesas: desp._sum.valor||0, saldoPrevisto: (rec._sum.valor||0) - (desp._sum.valor||0) }); });
-
-// --- ROTA CORRIGIDA PARA RELATÓRIOS (SÓ ITENS COM BANCO) ---
-app.get('/relatorios/avancado', async (req, res) => { 
-    const { usuarioId, inicio, fim, bancoId } = req.query; 
-    if(!usuarioId) return res.json({}); 
-    const i = new Date(inicio + "T00:00:00"); 
-    const f = new Date(fim + "T23:59:59"); 
-    
-    // Adicionado bancoId: { not: null } para pegar só fluxo de caixa real
-    const where = { usuarioId, status: { in: ['PAGO', 'RECEBIDO'] }, tipo: 'DESPESA', dataPagamento: { gte: i, lte: f }, bancoId: { not: null } }; 
-    if(bancoId) where.bancoId = bancoId; 
-    
-    const formas = await prisma.transacao.groupBy({ by: ['formaPagamento'], _sum: { valor: true }, where }); 
-    const top5 = await prisma.transacao.groupBy({ by: ['fornecedor'], _sum: { valor: true }, where, orderBy: { _sum: { valor: 'desc' } }, take: 5 }); 
-    
-    // O total geral obedece ao filtro de bancoId
-    const total = await prisma.transacao.aggregate({ _sum: { valor: true }, where }); 
-    
-    const cartoes = await prisma.transacao.groupBy({ by: ['bancoId'], _sum: { valor: true }, where: { ...where, formaPagamento: { in: ['Cartão', 'Crédito'] } } }); 
-    const listaCartoes = []; 
-    for(const c of cartoes) { if(c.bancoId) { const b = await prisma.banco.findUnique({where:{id:c.bancoId}}); listaCartoes.push({nome: b.nome, total: c._sum.valor}); } } 
-    
-    res.json({ porForma: formas, porFornecedor: top5, totalGeral: total._sum.valor||0, cartao: { total: listaCartoes.reduce((a,b)=>a+b.total,0), lista: listaCartoes } }); 
-});
-
-app.post('/auth/login', async (req, res) => { const { email, senha } = req.body; try { const u = await prisma.usuario.findUnique({ where: { email } }); if(!u || !(await bcrypt.compare(senha, u.senha))) return res.status(401).json({ erro: "Login inválido" }); res.json({ id: u.id, nome: u.nome, email: u.email, role: u.role }); } catch(e) { res.status(500).json({ erro: "Erro login" }); } });
-// --- ROTA DE REGISTRO INTELIGENTE (CORRIGIDA) ---
-app.post('/auth/registrar', async (req, res) => { 
-    try { 
-        const { nome, email, senha } = req.body; 
-        
-        // 1. Verifica se o e-mail já existe para evitar erro 500
-        const usuarioExistente = await prisma.usuario.findUnique({
-            where: { email: email }
-        });
-
-        if (usuarioExistente) {
-            return res.status(400).json({ erro: "Este e-mail já está cadastrado. Tente fazer login." });
-        }
-
-        const hash = await bcrypt.hash(senha, 10); 
-        
-        // 2. Verifica quantos usuários existem no total
-        const totalUsuarios = await prisma.usuario.count();
-        
-        // 3. Se for o primeiro (total == 0), ganha ADMIN. Senão, USER.
-        const roleDefinida = totalUsuarios === 0 ? 'ADMIN' : 'USER';
-
-        const u = await prisma.usuario.create({ 
-            data: { 
-                nome, 
-                email, 
-                senha: hash, 
-                role: roleDefinida 
-            } 
-        }); 
-        
-        console.log(`Novo usuário criado: ${u.email} | Permissão: ${roleDefinida}`);
-        res.json(u); 
-    } catch(e) { 
-        console.error("ERRO NO REGISTRO:", e);
-        res.status(500).json({ erro: "Erro interno no servidor. Verifique o terminal." }); 
-    } 
-});
-app.get('/limpar-tudo', async (req, res) => { await prisma.transacao.deleteMany({}); await prisma.banco.deleteMany({}); await prisma.evento.deleteMany({}); res.send("Sistema Zerado."); });
-
-app.get('/cartoes/:id/fatura', async (req, res) => {
-    const { id } = req.params;
-    const diaFechamento = parseInt(req.query.diaFechamento) || 1;
-    const mesBase = parseInt(req.query.mes);
-    const anoBase = parseInt(req.query.ano);
-    try {
-        const dataFim = new Date(Date.UTC(anoBase, mesBase - 1, diaFechamento, 23, 59, 59));
-        const dataInicio = new Date(Date.UTC(anoBase, mesBase - 2, diaFechamento, 0, 0, 0));
-        const transacoes = await prisma.transacao.findMany({
-            where: {
-                cartaoId: id,
-                status: { in: ['PENDENTE', 'VENCIDA'] },
-                data: { gte: dataInicio, lt: dataFim }
-            },
-            orderBy: { data: 'desc' }
-        });
-        const total = transacoes.reduce((acc, t) => acc + t.valor, 0);
-        res.json({
-            periodo: `${dataInicio.getUTCDate()}/${dataInicio.getUTCMonth()+1} a ${dataFim.getUTCDate()}/${dataFim.getUTCMonth()+1}`,
-            itens: transacoes,
-            total: total
-        });
-    } catch (e) { res.status(500).json({ erro: "Erro fatura" }); }
-});
-
-app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
-    const { idsTransacoes, valorTotal, bancoPagamentoId, dataPagamento, nomeCartao, usuarioId } = req.body;
-    try {
-        await prisma.$transaction([
-            prisma.transacao.updateMany({ where: { id: { in: idsTransacoes } }, data: { status: 'PAGO', dataPagamento: new Date(dataPagamento) } }),
-            prisma.transacao.create({ data: { descricao: `Fatura ${nomeCartao}`, fornecedor: nomeCartao, valor: parseFloat(valorTotal), tipo: 'DESPESA', categoria: 'Pagamento de Fatura', status: 'PAGO', formaPagamento: 'Boleto', data: new Date(dataPagamento), dataVencimento: new Date(dataPagamento), dataPagamento: new Date(dataPagamento), banco: { connect: { id: bancoPagamentoId } }, usuario: { connect: { id: usuarioId } }, parcelas: 1, parcelaInfo: '1/1' } })
-        ]);
-        res.json({ ok: true, mensagem: "Fatura paga!" });
-    } catch (e) { res.status(500).json({ erro: "Erro ao pagar" }); }
-});
-// --- ROTA DE ATUALIZAR USUÁRIO (PERFIL) ---
-app.put('/usuarios/:id', async (req, res) => { 
-    const { id } = req.params; 
-    const { nome, email, role, novaSenha } = req.body; 
-    try { 
-        const d = {}; 
-        if(nome) d.nome = nome;
-        if(email) d.email = email; // Geralmente bloqueado no front, mas backend aceita
-        if(role) d.role = role;
-        
-        if (novaSenha) {
-            d.senha = await bcrypt.hash(novaSenha, 10);
-        }
-        
-        const u = await prisma.usuario.update({ 
-            where: { id: id }, 
-            data: d 
-        }); 
-        
-        // Retorna dados seguros (sem senha)
-        res.json({ id: u.id, nome: u.nome, email: u.email, role: u.role }); 
-    } catch (e) { 
+    } catch (e) {
         console.error(e);
-        res.status(500).json({ erro: "Erro atualizar" }); 
-    } 
+        res.status(500).json([]);
+    }
 });
 
-// app.get('/emergencia/virar-admin/:email', async (req, res) => {
-//     const { email } = req.params;
-//     try {
-//         await prisma.usuario.update({
-//             where: { email: email },
-//             data: { role: 'ADMIN' }
-//         });
-//         res.send(`Sucesso! O usuário ${email} agora é ADMIN.`);
-//     } catch (e) {
-//         res.send("Erro: Usuário não encontrado.");
-//     }
-// });
+app.get('/eventos', async (req, res) => {
+    const { usuarioId } = req.query;
+    if(!usuarioId) return res.json([]);
+    const evs = await prisma.evento.findMany({ where: { usuarioId }, orderBy: { data: 'asc' } });
+    res.json(evs);
+});
+
+app.post('/eventos', async (req, res) => {
+    const { titulo, descricao, local, data, tipo, lembrete, usuarioId } = req.body;
+    try {
+        const ev = await prisma.evento.create({
+            data: {
+                titulo, descricao, local,
+                data: new Date(data),
+                tipo: tipo || 'TAREFA',
+                lembrete: lembrete || false, // Salva o lembrete
+                usuario: { connect: { id: usuarioId } }
+            }
+        });
+        res.json(ev);
+    } catch(e){ res.status(500).send(); }
+});
+
+app.put('/eventos/:id', async (req, res) => {
+    const { titulo, descricao, local, data, tipo, lembrete } = req.body;
+    try {
+        const ev = await prisma.evento.update({
+            where: { id: req.params.id },
+            data: {
+                titulo, descricao, local,
+                data: new Date(data),
+                tipo,
+                lembrete: lembrete // Atualiza o lembrete
+            }
+        });
+        res.json(ev);
+    } catch(e) { res.status(500).send(); }
+});
+
+app.delete('/eventos/:id', async (req, res) => {
+    await prisma.evento.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+});
+
+app.patch('/eventos/:id/toggle', async (req, res) => {
+    const ev = await prisma.evento.update({ where: { id: req.params.id }, data: { concluido: req.body.concluido } });
+    res.json(ev);
+});
+app.get('/dashboard/resumo', async (req, res) => { const { usuarioId } = req.query; if (!usuarioId) return res.json({ saldoTotal: 0 }); const hoje = new Date(); const i = new Date(hoje.getFullYear(), hoje.getMonth(), 1); const f = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0); const bancos = await prisma.banco.findMany({ where: { usuarioId } }); const saldoIni = bancos.reduce((acc, b) => acc + parseFloat(b.saldoInicial), 0); const recGeral = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'RECEBIDO' } }); const pagGeral = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PAGO' } }); const recMes = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'RECEBIDO', data: { gte: i, lte: f } } }); const despMes = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PAGO', data: { gte: i, lte: f } } }); res.json({ saldoTotal: saldoIni + (recGeral._sum.valor||0) - (pagGeral._sum.valor||0), receitaReal: recMes._sum.valor || 0, despesaReal: despMes._sum.valor || 0 }); });
+app.get('/relatorios/projecao-mensal', async (req, res) => { const { usuarioId, mes } = req.query; if(!usuarioId || !mes) return res.json({ receitas: 0, despesas: 0, saldo: 0 }); const start = new Date(`${mes}-01T00:00:00.000Z`); const end = new Date(new Date(start).setMonth(start.getMonth()+1)); const filtro = { gte: start, lt: end }; const rec = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'RECEITA', status: 'PENDENTE', OR: [{data: filtro}, {dataVencimento: filtro}] } }); const desp = await prisma.transacao.aggregate({ _sum: { valor: true }, where: { usuarioId, tipo: 'DESPESA', status: 'PENDENTE', OR: [{data: filtro}, {dataVencimento: filtro}] } }); res.json({ receitas: rec._sum.valor||0, despesas: desp._sum.valor||0, saldoPrevisto: (rec._sum.valor||0) - (desp._sum.valor||0) }); });
+app.get('/relatorios/avancado', async (req, res) => { const { usuarioId, inicio, fim, bancoId } = req.query; if(!usuarioId) return res.json({}); const i = new Date(inicio + "T00:00:00"); const f = new Date(fim + "T23:59:59"); const where = { usuarioId, status: { in: ['PAGO', 'RECEBIDO'] }, tipo: 'DESPESA', dataPagamento: { gte: i, lte: f } }; if(bancoId) where.bancoId = bancoId; const formas = await prisma.transacao.groupBy({ by: ['formaPagamento'], _sum: { valor: true }, where }); const top5 = await prisma.transacao.groupBy({ by: ['fornecedor'], _sum: { valor: true }, where, orderBy: { _sum: { valor: 'desc' } }, take: 5 }); const total = await prisma.transacao.aggregate({ _sum: { valor: true }, where }); const cartoes = await prisma.transacao.groupBy({ by: ['bancoId'], _sum: { valor: true }, where: { ...where, formaPagamento: { in: ['Cartão', 'Crédito'] } } }); const listaCartoes = []; for(const c of cartoes) { if(c.bancoId) { const b = await prisma.banco.findUnique({where:{id:c.bancoId}}); listaCartoes.push({nome: b.nome, total: c._sum.valor}); } } res.json({ porForma: formas, porFornecedor: top5, totalGeral: total._sum.valor||0, cartao: { total: listaCartoes.reduce((a,b)=>a+b.total,0), lista: listaCartoes } }); });
+app.post('/auth/login', async (req, res) => { const { email, senha } = req.body; try { const u = await prisma.usuario.findUnique({ where: { email } }); if(!u || !(await bcrypt.compare(senha, u.senha))) return res.status(401).json({ erro: "Login inválido" }); res.json({ id: u.id, nome: u.nome, email: u.email, role: u.role }); } catch(e) { res.status(500).json({ erro: "Erro login" }); } });
+app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });
+app.get('/limpar-tudo', async (req, res) => { await prisma.transacao.deleteMany({}); await prisma.banco.deleteMany({}); await prisma.evento.deleteMany({}); res.send("Sistema Zerado."); });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => { console.log(`Servidor completo rodando na porta ${PORT}`); });

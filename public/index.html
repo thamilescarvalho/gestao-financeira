@@ -4,55 +4,77 @@
     <meta charset="UTF-8">
     <title>Painel T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="auth.js"></script>
     <script src="script.js"></script>
 
     <style>
-        /* TEMA GALAXY */
+        /* TEMA GALAXY LILÁS SUAVE */
         :root {
-            --panel-dark: #13131f;
-            --purple-primary: #8a2be2;
-            --purple-secondary: #6a0dad;
-            --neon-glow: 0 0 15px rgba(138, 43, 226, 0.4);
+            --panel-dark: rgba(45, 40, 70, 0.9);
+            --purple-primary: #a855f7;
+            --purple-secondary: #c084fc;
+            --neon-glow: 0 0 20px rgba(168, 85, 247, 0.3);
+            
+            /* CORES PARA O FUNDO ROXO */
             --text-white: #ffffff;
-            --text-light-purple: #d1b3ff;
-            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-light-purple: #e9d5ff;
+            
+            /* CORES INTERNAS DOS CARDS (AGORA BRANCOS) */
+            --card-bg-white: rgba(255, 255, 255, 0.95); /* Fundo branco sólido com leve transparência */
+            --text-card-main: #1e293b; /* Texto escuro dentro dos cards */
+            --text-card-sub: #64748b; /* Texto cinza dentro dos cards */
+            --border-card: #e2e8f0;
         }
 
         *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
-        /* FUNDO E ESTRELAS */
+        /* FUNDO MANTIDO (ROXO VIBRANTE) */
         body { 
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #60a5fa 100%);
             color: var(--text-white); font-size: 11px; min-height: 100vh; position: relative;
         }
+        
+        /* Poeira Estelar */
         body::before {
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px);
-            background-size: 550px 550px; opacity: 0.4; z-index: -1; pointer-events: none;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.4) 2px, transparent 6px),
+                radial-gradient(white, rgba(255,255,255,.3) 1px, transparent 4px);
+            background-size: 450px 450px, 250px 250px;
+            background-position: 0 0, 50px 50px;
+            opacity: 0.3; z-index: -1; pointer-events: none;
         }
 
-        /* NAVBAR GALAXY */
+        /* NAVBAR */
         .navbar-custom { 
-            background: rgba(19, 19, 31, 0.8); backdrop-filter: blur(10px);
+            background: var(--panel-dark); backdrop-filter: blur(12px);
             padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(138, 43, 226, 0.2); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
         }
         .navbar-custom .menu-btn { color: var(--text-white) !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: var(--purple-primary); text-shadow: 0 0 10px rgba(138, 43, 226, 0.8); }
-        .btn-logout { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; transition: 0.2s; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .btn-logout:hover { background-color: rgba(239, 68, 68, 0.2); transform: scale(1.1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: var(--text-white); text-shadow: 0 0 15px rgba(168, 85, 247, 0.8); letter-spacing: 1px; }
+        
+        /* BOTÃO SAIR */
+        .btn-logout { 
+            background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; 
+            font-size: 16px; cursor: pointer; transition: 0.2s; padding: 8px 12px; border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; z-index: 200;
+        }
+        .btn-logout:hover { background-color: #ef4444; color: white; transform: scale(1.05); }
 
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
 
         /* HEADER */
         .welcome-header { margin-bottom: 40px; display: flex; flex-direction: column; gap: 5px; }
-        .welcome-title { font-size: 28px; font-weight: 800; color: var(--text-white); margin: 0; letter-spacing: -0.5px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-        .welcome-date { color: var(--text-light-purple); font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+        .welcome-title { font-size: 32px; font-weight: 800; color: var(--text-white); margin: 0; letter-spacing: -0.5px; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        .welcome-date { color: var(--text-light-purple); font-size: 13px; font-weight: 700; letter-spacing: 1px; opacity: 0.9; }
 
         /* GRID */
         .feed-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; }
@@ -61,110 +83,123 @@
         /* SEÇÕES */
         .feed-section { display: flex; flex-direction: column; gap: 20px; }
         .section-title { 
-            font-size: 11px; font-weight: 800; color: var(--purple-primary); 
+            font-size: 12px; font-weight: 800; color: var(--text-white); 
             letter-spacing: 1px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; 
-            text-shadow: 0 0 5px rgba(138, 43, 226, 0.3);
+            text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
         }
 
-        /* --- CARDS FINANCEIROS GALAXY --- */
+        /* --- CARDS FINANCEIROS (BRANCOS E DEFINIDOS) --- */
         .fin-card {
-            background: var(--card-bg); backdrop-filter: blur(10px);
-            border: 1px solid rgba(138, 43, 226, 0.2);
-            border-radius: 12px;
-            padding: 15px 20px; 
+            background: var(--card-bg-white); /* BRANCO */
+            backdrop-filter: blur(10px);
+            border: 1px solid white; /* Borda branca para destacar */
+            border-radius: 16px;
+            padding: 20px; 
             margin-bottom: 0; 
             transition: 0.2s;
             position: relative; overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Sombra para dar profundidade */
         }
         .fin-card:hover {
-            background: rgba(255, 255, 255, 0.1); 
-            transform: scale(1.01);
-            box-shadow: var(--neon-glow);
-            border-color: var(--purple-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+            background: #ffffff;
         }
 
-        /* ALERTAS DO RADAR (Neon Borders) */
-        .alert-urgent { border-left: 4px solid #ef4444; box-shadow: -5px 0 10px -5px rgba(239, 68, 68, 0.5); }
-        .alert-warning { border-left: 4px solid #f59e0b; box-shadow: -5px 0 10px -5px rgba(245, 158, 11, 0.5); }
-        .alert-info { border-left: 4px solid #3b82f6; box-shadow: -5px 0 10px -5px rgba(59, 130, 246, 0.5); }
+        /* ALERTAS DO RADAR */
+        .alert-urgent { border-left: 5px solid #ef4444; }
+        .alert-warning { border-left: 5px solid #f59e0b; }
+        .alert-info { border-left: 5px solid #3b82f6; }
         
         .card-row { display: flex; justify-content: space-between; align-items: center; }
-        .card-main { display: flex; flex-direction: column; gap: 4px; } 
+        .card-main { display: flex; flex-direction: column; gap: 6px; } 
         
-        .card-title { font-weight: 800; font-size: 14px; color: var(--text-white); }
-        .card-sub { font-size: 11px; color: var(--text-light-purple); font-weight: 500; }
-        .card-value { font-weight: 800; font-size: 15px; color: var(--text-white); text-shadow: 0 0 5px rgba(255,255,255,0.3); }
+        /* TEXTO ESCURO DENTRO DOS CARDS */
+        .card-title { font-weight: 800; font-size: 15px; color: var(--text-card-main); }
+        .card-sub { font-size: 11px; color: var(--text-card-sub); font-weight: 600; }
+        .card-value { font-weight: 800; font-size: 16px; color: var(--text-card-main); }
         
-        .tag-date { font-size: 9px; padding: 3px 8px; border-radius: 6px; font-weight: 800; letter-spacing: 0.5px; width: fit-content; }
-        .tag-hoje { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid #ef4444; }
-        .tag-prox { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid #3b82f6; }
+        .tag-date { font-size: 10px; padding: 4px 10px; border-radius: 8px; font-weight: 800; letter-spacing: 0.5px; width: fit-content; }
+        .tag-hoje { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
+        .tag-prox { background: #dbeafe; color: #3b82f6; border: 1px solid #bfdbfe; }
 
-        /* AGENDA GALAXY */
+        /* AGENDA BRANCA */
         .task-item { 
             display: flex; align-items: center; gap: 15px; padding: 15px; 
-            background: var(--card-bg); backdrop-filter: blur(5px);
-            border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-bg-white); /* BRANCO */
+            backdrop-filter: blur(10px);
+            border-radius: 12px; border: 1px solid white;
             transition: 0.2s; cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .task-item:hover { border-color: var(--purple-primary); background: rgba(255,255,255,0.08); box-shadow: var(--neon-glow); }
+        .task-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: #ffffff; }
 
         .task-check { 
-            width: 22px; height: 22px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.3); 
+            width: 24px; height: 24px; border-radius: 8px; border: 2px solid #cbd5e1; 
             cursor: pointer; display: flex; align-items: center; justify-content: center; color: white;
             transition: 0.2s;
         }
         .task-check:hover { border-color: var(--purple-primary); }
-        .task-check.checked { background: var(--purple-primary); border-color: var(--purple-primary); box-shadow: 0 0 10px var(--purple-primary); }
+        .task-check.checked { background: var(--purple-primary); border-color: var(--purple-primary); box-shadow: 0 0 10px rgba(168, 85, 247, 0.4); }
         
         .task-content { flex: 1; }
-        .task-time { font-size: 10px; color: var(--text-light-purple); font-weight: 800; margin-bottom: 2px; }
-        .task-text { font-size: 13px; color: var(--text-white); font-weight: 600; }
-        .task-done .task-text { text-decoration: line-through; color: rgba(255,255,255,0.3); }
+        .task-time { font-size: 10px; color: var(--text-card-sub); font-weight: 800; margin-bottom: 2px; }
+        .task-text { font-size: 14px; color: var(--text-card-main); font-weight: 600; }
+        .task-done .task-text { text-decoration: line-through; color: #cbd5e1; }
 
-        /* ANIVERSÁRIOS GALAXY */
+        /* ANIVERSÁRIOS BRANCOS */
         .niver-card { 
-            background: var(--card-bg); padding: 0; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden;
-            backdrop-filter: blur(5px);
+            background: var(--card-bg-white); padding: 0; border-radius: 16px; 
+            border: 1px solid white; overflow: hidden;
+            backdrop-filter: blur(10px); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .niver-item { 
-            padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 15px; 
+            padding: 15px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; 
             transition: 0.2s;
         }
         .niver-item:last-child { border-bottom: none; }
-        .niver-item:hover { background: rgba(255, 20, 147, 0.1); } /* Rosa neon sutil */
+        .niver-item:hover { background: #fff1f2; }
         
         .niver-icon { 
-            width: 40px; height: 40px; background: rgba(255, 20, 147, 0.2); border-radius: 12px; color: #ff1493; 
+            width: 42px; height: 42px; background: #ffe4e6; border-radius: 12px; color: #be123c; 
             display: flex; align-items: center; justify-content: center; font-size: 18px;
-            border: 1px solid #ff1493; box-shadow: 0 0 10px rgba(255, 20, 147, 0.3);
+            border: 1px solid #fecdd3;
         }
         .niver-info { flex: 1; }
-        .niver-name { font-size: 13px; font-weight: 700; color: var(--text-white); }
-        .niver-date { font-size: 11px; color: #ff69b4; font-weight: 600; }
+        .niver-name { font-size: 14px; font-weight: 700; color: var(--text-card-main); }
+        .niver-date { font-size: 11px; color: #e11d48; font-weight: 600; }
 
         /* Empty State */
         .empty-state { 
-            text-align: center; padding: 40px; color: var(--text-light-purple); 
-            background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px dashed rgba(255,255,255,0.2); 
+            text-align: center; padding: 40px; color: var(--text-card-sub); 
+            background: rgba(255, 255, 255, 0.85); border-radius: 16px; border: 1px dashed #cbd5e1; 
         }
-        .empty-icon { font-size: 30px; margin-bottom: 10px; color: rgba(255,255,255,0.2); }
+        .empty-icon { font-size: 30px; margin-bottom: 10px; color: #cbd5e1; }
 
-        /* BOTÃO GLASS HARMONIZADO */
+        /* BOTÃO GLASS */
         .btn-glass-soft { 
             margin: 10px auto; width: fit-content;
             padding: 10px 25px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer;
             display: flex; align-items: center; gap: 8px; transition: 0.3s;
-            background: transparent;
+            background: white;
             border: 2px solid var(--purple-primary); 
-            color: var(--text-white);
-            box-shadow: 0 0 10px rgba(138, 43, 226, 0.2);
+            color: var(--purple-primary);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .btn-glass-soft:hover {
             background: var(--purple-primary); color: #ffffff;
-            box-shadow: var(--neon-glow);
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4);
             transform: translateY(-2px);
         }
+
+        /* CUSTOM SWEETALERT */
+        div:where(.swal2-popup) {
+            background: #ffffff !important;
+            color: #1e293b !important;
+            border-radius: 16px !important;
+        }
+        div:where(.swal2-title) { color: #1e293b !important; }
+        div:where(.swal2-html-container) { color: #64748b !important; }
 
     </style>
 </head>
@@ -176,7 +211,8 @@
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
         <div class="logo">T-SYSTEM</div> 
-        <button class="btn-logout" onclick="logout()" title="Sair do Sistema">
+        
+        <button class="btn-logout" onclick="logoutDireto()" title="Sair do Sistema">
             <i class="fas fa-sign-out-alt"></i>
         </button>
     </nav>
@@ -211,7 +247,7 @@
 
                 <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes do Mês</div>
                 <div id="niver-feed" class="niver-card">
-                    <div style="padding: 20px; text-align: center; color: var(--text-light-purple); font-size: 12px;">
+                    <div style="padding: 20px; text-align: center; color: var(--text-card-sub); font-size: 12px;">
                         CARREGANDO...
                     </div>
                 </div>
@@ -230,6 +266,26 @@
             carregarFeedAgenda();
             carregarAniversariantes();
         });
+
+        // --- FUNÇÃO DE LOGOUT DIRETA ---
+        function logoutDireto() {
+            Swal.fire({
+                title: 'Sair?',
+                text: "Deseja encerrar sua sessão?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#cbd5e1',
+                confirmButtonText: 'Sair',
+                cancelButtonText: 'Ficar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('usuario_logado');
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html'; 
+                }
+            });
+        }
 
         function configurarData() {
             if(usuario) document.getElementById('txtSaudacao').innerText = `OLÁ, ${usuario.nome.split(' ')[0]}!`;
@@ -344,7 +400,7 @@
                 container.innerHTML = '';
 
                 if (nivers.length === 0) {
-                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-light-purple); font-size: 13px;">Nenhum aniversário neste mês.</div>`;
+                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-card-sub); font-size: 13px;">Nenhum aniversário neste mês.</div>`;
                     return;
                 }
 
