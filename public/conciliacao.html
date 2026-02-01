@@ -12,178 +12,113 @@
     <script src="script.js"></script> 
 
     <style>
-        /* --- PADRONIZAÇÃO GLOBAL --- */
+        /* --- RESET E PADRONIZAÇÃO --- */
         * {
             font-family: 'Outfit', sans-serif !important;
-            text-transform: uppercase !important; /* Força tudo para maiúsculo */
+            text-transform: uppercase !important;
+            box-sizing: border-box;
+            margin: 0; padding: 0;
         }
-
-        /* PROTEÇÃO DOS ÍCONES */
-        .fas, .far, .fab, .fa {
+        /* PROTEÇÃO ABSOLUTA DOS ÍCONES (EMOJIS/FONT-AWESOME) */
+        /* seletor [class^="fa-"] para pegar qualquer ícone */
+        .fas, .far, .fab, .fa, [class^="fa-"], [class*=" fa-"] {
             font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important;
-            text-transform: none !important;
+            text-transform: none !important; /* IMPEDE o maiúsculo de quebrar o ícone */
+            display: inline-block !important;
+            font-variant: normal !important;
         }
-
-        /* TEMA: TITANIUM LIGHT */
         body { 
-            background-color: #e2e8f0; 
+            background-color: #f1f5f9; 
             color: #1e293b; 
-            font-size: 12px; /* Base reduzida */
             overflow-x: hidden; 
         }
-        
-        /* GARANTIR QUE INPUTS E BOTÕES HERDEM */
-        input, select, textarea, button {
-            font-family: 'Outfit', sans-serif;
-            text-transform: uppercase;
+        /* --- CORREÇÃO DA SIDEBAR (MENU) estado escondido inicial para não desconfigurar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px; /* Escondido à esquerda */
+            width: 280px;
+            height: 100vh;
+            background-color: #1a1a2e;
+            z-index: 2100;
+            transition: all 0.3s ease;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.3);
         }
 
-        .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
+        .sidebar.active {
+            left: 0; /* Mostra o menu */
+        }
 
-        /* NAVBAR DARK */
+        /* Overlay (Fundo escuro quando o menu abre) */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 2050;
+            backdrop-filter: blur(2px);
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* --- NAVBAR --- */
         .navbar-custom {
-            background-color: #1e293b; 
+            background-color: #1a1a2e; 
             padding: 15px 20px;
             display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 100;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: sticky; top: 0; z-index: 1000;
             color: white;
         }
-        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #c084fc; }
 
-        /* CARD PRINCIPAL */
+        /* --- CONTEÚDO --- */
+        .content { padding: 20px; max-width: 1200px; margin: 0 auto; }
+
         .conciliacao-card { 
-            background: white; border: 1px solid #cbd5e1; border-radius: 16px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow: hidden; 
+            background: white; border-radius: 16px; 
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden; 
         }
         
         .card-header { 
-            padding: 20px 30px; border-bottom: 1px solid #e2e8f0; 
-            display: flex; justify-content: space-between; align-items: center; background: white; 
+            padding: 20px; border-bottom: 1px solid #e2e8f0; 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
         }
-        .card-header h2 { margin: 0; font-size: 18px; color: #1e293b; font-weight: 800; letter-spacing: -0.5px; }
-        
+
         .btn-ofx { 
-            background: white; border: 1px solid #cbd5e1; color: #64748b; 
-            padding: 10px 20px; border-radius: 8px; font-size: 11px; font-weight: 700; 
-            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; 
-        }
-        .btn-ofx:hover { background: #f8fafc; border-color: #94a3b8; color: #1e293b; }
-
-        .search-area { padding: 20px 30px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
-        .search-input { 
-            width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; 
-            color: #334155; outline: none; transition: 0.2s; font-family: 'Outfit', sans-serif;
-            background: white; font-size: 12px; font-weight: 600;
-        }
-        .search-input:focus { border-color: #1e293b; box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1); }
-        ::placeholder { text-transform: uppercase; opacity: 0.6; font-size: 11px; }
-
-        /* TABELA DE BANCOS */
-        .table-bancos { width: 100%; border-collapse: collapse; }
-        
-        .table-bancos th { 
-            text-align: left; padding: 15px 30px; font-size: 10px; text-transform: uppercase; 
-            color: #64748b; font-weight: 800; border-bottom: 1px solid #e2e8f0; letter-spacing: 0.5px;
-        }
-        
-        .table-bancos td { 
-            padding: 20px 30px; font-size: 13px; color: #334155; font-weight: 600;
-            border-bottom: 1px solid #f1f5f9; vertical-align: middle;
-        }
-        
-        .row-clickable { cursor: pointer; transition: background 0.2s; }
-        .row-clickable:hover { background-color: #f8fafc; }
-        .row-clickable:hover td:first-child { color: #1e293b; font-weight: 800; }
-
-        .card-footer { 
-            padding: 20px 30px; background: #f8fafc; border-top: 1px solid #e2e8f0; 
-            display: flex; align-items: center; justify-content: space-between; 
+            background: #6d28d9; border: none; color: white; padding: 10px 18px; 
+            border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer;
         }
 
-        /* PAINEL LATERAL (SLIDE OVER) */
+        /* TABELA RESPONSIVA */
+        .table-container { width: 100%; overflow-x: auto; }
+        .table-bancos { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .table-bancos th { text-align: left; padding: 15px; font-size: 10px; color: #64748b; border-bottom: 2px solid #f1f5f9; }
+        .table-bancos td { padding: 15px; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+
+        /* PAINEL DE DETALHES */
         .painel-detalhe { 
-            position: fixed; top: 0; right: -100%; width: 500px; height: 100vh; 
-            background: white; box-shadow: -10px 0 30px rgba(0,0,0,0.2); z-index: 2000; 
-            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; 
+            position: fixed; top: 0; right: -100%; width: 100%; max-width: 450px; height: 100vh; 
+            background: white; z-index: 2200; transition: 0.4s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
         }
         .painel-detalhe.aberto { right: 0; }
-        
-        .detalhe-header { 
-            padding: 30px; background: #1e293b; color: white; /* Dark Header */
-            display: flex; justify-content: space-between; align-items: start; 
-        }
-        .detalhe-titulo h3 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
-        .detalhe-titulo p { margin: 5px 0 0; font-size: 11px; color: #94a3b8; font-family: monospace; font-weight: 600; }
-        
-        .btn-fechar { 
-            background: rgba(255,255,255,0.1); border: none; color: white; 
-            width: 32px; height: 32px; border-radius: 8px; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; transition: 0.2s;
-        }
-        .btn-fechar:hover { background: rgba(255,255,255,0.2); }
-
-        .detalhe-resumo { 
-            padding: 20px 30px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; 
-            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; 
-        }
-        .resumo-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .resumo-label { font-size: 10px; color: #64748b; font-weight: 800; text-transform: uppercase; }
-        .resumo-valor { font-size: 16px; font-weight: 800; color: #1e293b; margin-top: 5px; }
-
-        .detalhe-body { flex: 1; overflow-y: auto; padding: 0; }
-        
-        /* BACKDROP */
-        .backdrop { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(2px); z-index: 1999; display: none; 
-        }
-        .backdrop.ativo { display: block; }
-
-        /* MODAL OFX */
-        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; backdrop-filter: blur(2px); }
-        .modal-ofx { background: white; width: 95%; max-width: 1000px; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-        
-        .ofx-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
-        .os-card { background: white; padding: 15px; border: 1px solid #e2e8f0; border-radius: 10px; text-align: center; }
-        .os-label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 800; }
-        .os-value { font-size: 14px; font-weight: 800; margin-top: 5px; color: #1e293b; }
-
-        .ofx-table-container { max-height: 400px; overflow-y: auto; padding: 0; }
-        .ofx-table { width: 100%; border-collapse: collapse; }
-        .ofx-table th { position: sticky; top: 0; background: #fff; z-index: 1; text-align: left; padding: 12px 20px; font-size: 10px; text-transform: uppercase; color: #64748b; border-bottom: 2px solid #e2e8f0; font-weight: 800; }
-        .ofx-table td { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; font-size: 12px; color: #334155; font-weight: 600; }
-        
-        .badge-tipo { font-size: 9px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 800; }
-        .bg-rec { background: #ecfdf5; color: #059669; }
-        .bg-desp { background: #fef2f2; color: #ef4444; }
-        .text-truncate { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-        
-        .row-duplicada { background-color: #fff7ed !important; }
-        .aviso-duplicata { font-size: 12px; color: #c2410c; margin-left: 5px; cursor: help; }
-
-        /* BUTTONS */
-        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; }
-        .btn-outline:hover { background: #f8fafc; color: #1e293b; }
-        .btn-confirm { background: #1e293b; border: none; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 11px; }
-        .btn-confirm:hover { background: #334155; }
-
-        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
     </style>
 </head>
 <body>
     
-    <div class="sidebar" id="sidebar"></div>
-    <div class="overlay" onclick="toggleMenu()"></div>
-    <div class="backdrop" id="backdropDetalhe" onclick="fecharDetalhes()"></div>
+    <div class="sidebar" id="sidebar">
+        </div>
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
     
     <nav class="navbar-custom"> 
-        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        <button class="menu-btn" onclick="toggleMenu()" style="background:none; border:none; color:white; font-size:22px; cursor:pointer;">
+            <i class="fas fa-bars"></i>
+        </button> 
         <div class="logo">T-SYSTEM</div> 
-        <button class="btn-logout" onclick="logout()" title="Sair do Sistema">
-        <i class="fas fa-sign-out-alt"></i>
-    </button> 
+        <button onclick="logout()" style="background:none; border:none; color:white; cursor:pointer;"><i class="fas fa-sign-out-alt"></i></button> 
     </nav>
 
     <div class="content">
@@ -193,229 +128,110 @@
             <div class="card-header"> 
                 <h2>Conciliação Bancária</h2> 
                 <button class="btn-ofx" onclick="document.getElementById('inputOfx').click()"> 
-                    <i class="fas fa-file-upload"></i> Ler arquivo OFX 
+                    <i class="fas fa-file-upload"></i> OFX 
                 </button> 
             </div>
             
-            <div class="search-area"> 
-                <input type="text" class="search-input" placeholder="Pesquise por nome do banco, agência..." onkeyup="filtrarTabela(this.value)"> 
+            <div class="search-area" style="padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;"> 
+                <input type="text" class="search-input" placeholder="PESQUISE BANCO OU CONTA..." onkeyup="filtrarTabela(this.value)" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:10px;"> 
             </div>
             
-            <table class="table-bancos"> 
-                <thead> 
-                    <tr> 
-                        <th style="width: 30%;">Banco</th> 
-                        <th style="width: 25%;">Saldo Atual</th> 
-                        <th>Agência</th> 
-                        <th>Conta</th> 
-                        <th>Status</th> 
-                    </tr> 
-                </thead> 
-                <tbody id="lista-bancos"></tbody> 
-            </table>
+            <div class="table-container">
+                <table class="table-bancos"> 
+                    <thead> 
+                        <tr> 
+                            <th>BANCO</th> 
+                            <th>SALDO ATUAL</th> 
+                            <th>AGÊNCIA / CONTA</th> 
+                            <th>STATUS</th> 
+                        </tr> 
+                    </thead> 
+                    <tbody id="lista-bancos">
+                        </tbody> 
+                </table>
+            </div>
             
-            <div class="card-footer"> 
-                <button onclick="carregarBancos()" style="background:none; border:none; color: #1e293b; font-weight:700; cursor:pointer; font-size: 12px;"> 
-                    <i class="fas fa-sync-alt"></i> Atualizar Saldos 
+            <div class="card-footer" style="padding:20px; display:flex; justify-content:space-between; align-items:center; background:#f8fafc;"> 
+                <button onclick="carregarBancos()" style="background:none; border:none; color:#6d28d9; font-weight:800; cursor:pointer;"> 
+                    <i class="fas fa-sync-alt"></i> ATUALIZAR 
                 </button> 
-                <span id="displayTotal" style="font-weight: 800; color: #1e293b; font-size: 16px;"></span> 
+                <span id="displayTotal" style="font-weight: 800; font-size: 16px;"></span> 
             </div>
         </div>
     </div>
 
     <div class="painel-detalhe" id="painelDetalhe"> 
-        <div class="detalhe-header"> 
-            <div class="detalhe-titulo"> 
-                <h3 id="detalheNomeBanco">Banco X</h3> 
-                <p id="detalheConta">Ag: 0000 | CC: 00000</p> 
-            </div> 
-            <button class="btn-fechar" onclick="fecharDetalhes()"><i class="fas fa-times"></i></button> 
-        </div> 
-        <div class="detalhe-resumo"> 
-            <div class="resumo-card"> 
-                <div class="resumo-label">Saldo Atual</div> 
-                <div class="resumo-valor" id="detalheSaldo" style="color: #10b981;">R$ 0,00</div> 
-            </div> 
-            <div class="resumo-card"> 
-                <div class="resumo-label">Movimentado Hoje</div> 
-                <div class="resumo-valor" style="color: #64748b;">R$ 0,00</div> 
-            </div> 
-        </div> 
-        <div style="padding: 15px 30px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; gap: 10px; background: #fcfcfc;"> 
-            <span style="font-size: 11px; color: #64748b; font-weight: 800; text-transform: uppercase;">Filtrar Data:</span> 
-            <input type="date" style="border: 1px solid #cbd5e1; padding: 6px; border-radius: 6px; color: #334155; font-family: 'Outfit', sans-serif; font-weight: 600;" value="2026-01-22"> 
-        </div> 
-        <div class="detalhe-body" id="listaMovimentosBanco"></div> 
-    </div>
-
-    <div class="modal-overlay" id="modalOfx">
-        <div class="modal-ofx">
-            <div style="padding: 20px 30px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;"> 
-                <h3 style="margin: 0; color: #1e293b; font-weight: 800;">Importar Transações</h3> 
-                <button onclick="fecharModalOfx()" style="border: none; background: transparent; cursor: pointer; color: #94a3b8;"><i class="fas fa-times"></i></button> 
-            </div>
-            
-            <div class="ofx-summary"> 
-                <div class="os-card"> <div class="os-label">Entradas</div> <div class="os-value val-pos" id="ofxEntradas" style="color: #10b981;">R$ 0,00</div> </div> 
-                <div class="os-card"> <div class="os-label">Saídas</div> <div class="os-value val-neg" id="ofxSaidas" style="color: #ef4444;">R$ 0,00</div> </div> 
-                <div class="os-card"> <div class="os-label">Itens</div> <div class="os-value" id="ofxQtd">0</div> </div> 
-            </div>
-            
-            <div class="ofx-table-container">
-                <table class="ofx-table">
-                    <thead> 
-                        <tr> 
-                            <th width="40" style="text-align: center;"><input type="checkbox" onclick="toggleTodos(this)"></th> 
-                            <th>Data</th> 
-                            <th>Fornecedor</th> 
-                            <th>Descrição</th> 
-                            <th>Forma Pagto</th> 
-                            <th>Tipo</th> 
-                            <th style="text-align: right;">Valor</th> 
-                        </tr> 
-                    </thead>
-                    <tbody id="tabelaOfx"></tbody>
-                </table>
-            </div>
-            
-            <div style="padding: 20px 30px; border-top: 1px solid #e2e8f0; text-align: right; background: #fcfcfc;"> 
-                <input type="hidden" id="bancoDestinoId"> 
-                <button class="btn-outline" onclick="fecharModalOfx()">Cancelar</button> 
-                <button class="btn-confirm" onclick="confirmarImportacao()"> Confirmar Importação </button> 
-            </div>
+        <div style="padding: 25px; background: #1a1a2e; color: white; display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="detalheNomeBanco" style="font-size: 16px;">DETALHES</h3>
+            <button onclick="fecharDetalhes()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;"><i class="fas fa-times"></i></button>
         </div>
+        <div id="listaMovimentosBanco" style="flex:1; overflow-y:auto; padding:20px;"></div>
     </div>
 
     <script>
+        // FUNÇÃO PARA ABRIR/FECHAR MENU
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         let bancosCache = [];
-        let transacoesParaImportar = [];
         const formatarMoedaLocal = (v) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
         document.addEventListener('DOMContentLoaded', carregarBancos);
 
         async function carregarBancos() {
             if(!usuario) return;
-            try { const res = await fetch(`/bancos?usuarioId=${usuario.id}`); bancosCache = await res.json(); renderizarTabela(bancosCache); } catch (e) { console.error(e); }
+            try { 
+                const res = await fetch(`/bancos?usuarioId=${usuario.id}`); 
+                bancosCache = await res.json(); 
+                renderizarTabela(bancosCache); 
+            } catch (e) { console.error(e); }
         }
 
         function renderizarTabela(lista) {
-            const tbody = document.getElementById('lista-bancos'); tbody.innerHTML = '';
+            const tbody = document.getElementById('lista-bancos'); 
+            if(!tbody) return;
+            tbody.innerHTML = '';
             let totalGeral = 0;
 
-            if (lista.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum banco encontrado.</td></tr>'; return; }
-            
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; color:#94a3b8;">Nenhum banco encontrado.</td></tr>';
+                return;
+            }
+
             lista.forEach(banco => {
-                const saldo = parseFloat((banco.saldoAtual !== undefined) ? banco.saldoAtual : banco.saldoInicial || 0);
+                const saldo = parseFloat(banco.saldoAtual !== undefined ? banco.saldoAtual : banco.saldoInicial || 0);
                 totalGeral += saldo;
-                const corSaldo = saldo >= 0 ? '#10b981' : '#ef4444';
-                
                 tbody.innerHTML += `
-                    <tr class="row-clickable" onclick="abrirDetalhes('${banco.id}')">
-                        <td><div style="font-weight: 800; color: #1e293b;">${banco.nome}</div></td>
-                        <td style="font-weight: 800; color: ${corSaldo}; font-family: monospace; font-size: 14px;">${formatarMoedaLocal(saldo)}</td>
-                        <td style="color: #64748b;">${banco.agencia || '-'}</td>
-                        <td style="color: #64748b;">${banco.conta || '-'}</td>
-                        <td><span style="font-size: 9px; padding: 4px 10px; border-radius: 6px; background: #ecfdf5; color: #059669; font-weight: 800; text-transform: uppercase; border: 1px solid #a7f3d0;">Ativo</span></td>
+                    <tr onclick="abrirDetalhes('${banco.id}')" style="cursor:pointer; transition: 0.2s;">
+                        <td><div style="font-weight: 800;">${banco.nome}</div></td>
+                        <td style="font-weight: 800; color: ${saldo >= 0 ? '#10b981' : '#ef4444'}; font-family: monospace;">${formatarMoedaLocal(saldo)}</td>
+                        <td style="color: #64748b;">${banco.agencia || '-'} / ${banco.conta || '-'}</td>
+                        <td><span style="font-size: 9px; padding: 4px 8px; border-radius: 4px; background: #ecfdf5; color: #059669; font-weight: 800;">ATIVO</span></td>
                     </tr>`;
             });
-            document.getElementById('displayTotal').innerText = `Total: ${formatarMoedaLocal(totalGeral)}`;
+            document.getElementById('displayTotal').innerText = `TOTAL: ${formatarMoedaLocal(totalGeral)}`;
         }
 
-        async function processarOFX(input) {
-            const file = input.files[0]; if (!file) return;
-            const options = {}; bancosCache.forEach(b => options[b.id] = b.nome);
-            const { value: bancoId } = await Swal.fire({ title: 'Selecionar Banco', input: 'select', inputOptions: options, inputPlaceholder: 'Selecione...', showCancelButton: true, confirmButtonColor: '#1e293b' });
-            if (!bancoId) { input.value = ''; return; }
-            document.getElementById('bancoDestinoId').value = bancoId;
-            Swal.fire({ title: 'Lendo...', didOpen: () => Swal.showLoading() });
-            
-            const formData = new FormData(); formData.append('arquivo', file); formData.append('usuarioId', usuario.id);
-            try {
-                const res = await fetch('/conciliacao/ler-ofx', { method: 'POST', body: formData });
-                const dados = await res.json();
-                if(res.ok) { transacoesParaImportar = dados.transacoes; preencherModalOfx(dados); Swal.close(); document.getElementById('modalOfx').style.display = 'flex'; } 
-                else { Swal.fire('Erro', dados.erro, 'error'); }
-            } catch (e) { Swal.fire('Erro', 'Falha.', 'error'); }
-            input.value = '';
-        }
-
-        function preencherModalOfx(dados) {
-            document.getElementById('ofxEntradas').innerText = formatarMoedaLocal(dados.resumo.totalEntradas);
-            document.getElementById('ofxSaidas').innerText = formatarMoedaLocal(dados.resumo.totalSaidas);
-            document.getElementById('ofxQtd').innerText = dados.resumo.totalItens;
-            const tbody = document.getElementById('tabelaOfx'); tbody.innerHTML = '';
-            
-            transacoesParaImportar.forEach((t, index) => {
-                const partes = t.data.split('-'); const dataVisual = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                const isDup = t.duplicata === true;
-                const rowClass = isDup ? 'row-duplicada' : '';
-                const checked = isDup ? '' : 'checked';
-                const tooltip = isDup ? t.duplicataInfo : t.descricao;
-                const iconWarn = isDup ? `<i class="fas fa-exclamation-triangle aviso-duplicata" title="${t.duplicataInfo}"></i>` : '';
-
-                let forma = "Outros"; const d = (t.descricao||"").toLowerCase();
-                if(d.includes('cashback')) forma="Cashback"; else if(t.formaPagamento && t.formaPagamento!=="Outros") forma=t.formaPagamento; else if(d.includes('pix')) forma="Pix"; else if(d.includes('boleto')) forma="Boleto";
-                t.formaPagamento = forma; t.fornecedor = t.descricao;
-
-                const isDesp = t.tipo === 'DESPESA';
-                const classeVal = isDesp ? 'val-neg' : 'val-pos';
-                const badge = isDesp ? 'bg-desp' : 'bg-rec';
-                
-                tbody.innerHTML += `<tr class="${rowClass}" title="${tooltip}"><td style="text-align: center;"><input type="checkbox" class="chk-ofx" ${checked} data-index="${index}"></td><td>${dataVisual}</td><td><div class="text-truncate">${t.fornecedor}</div></td><td><div class="text-truncate">${t.descricao} ${iconWarn}</div></td><td>${t.formaPagamento}</td><td><span class="badge-tipo ${badge}">${t.tipo}</span></td><td class="${classeVal}" style="text-align: right;">${isDesp?'-':'+'} ${formatarMoedaLocal(t.valor)}</td></tr>`;
-            });
-        }
-
-        function fecharModalOfx() { document.getElementById('modalOfx').style.display = 'none'; }
-        function toggleTodos(source) { document.querySelectorAll('.chk-ofx').forEach(chk => chk.checked = source.checked); }
-
-        async function confirmarImportacao() {
-            const bancoId = document.getElementById('bancoDestinoId').value;
-            const checks = document.querySelectorAll('.chk-ofx:checked');
-            if(checks.length === 0) return Swal.fire('Atenção', 'Selecione itens.', 'warning');
-            
-            Swal.fire({ title: 'Importando...', didOpen: () => Swal.showLoading() });
-            let count = 0;
-            for(const chk of checks) {
-                const t = transacoesParaImportar[chk.getAttribute('data-index')];
-                const payload = { ...t, status: t.tipo==='DESPESA'?'PAGO':'RECEBIDO', dataPagamento: t.data, bancoId, usuarioId: usuario.id, categoria: 'Importação OFX' };
-                await fetch('/transacoes', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-                count++;
-            }
-            fecharModalOfx(); carregarBancos();
-            Swal.fire('Sucesso', `${count} itens importados.`, 'success');
-        }
-
-        function abrirDetalhes(id) { 
+        function abrirDetalhes(id) {
             const banco = bancosCache.find(b => b.id === id);
             if(!banco) return;
-            
             document.getElementById('detalheNomeBanco').innerText = banco.nome;
-            document.getElementById('detalheConta').innerText = `Ag: ${banco.agencia || '-'} | CC: ${banco.conta || '-'}`;
-            const saldo = parseFloat((banco.saldoAtual !== undefined) ? banco.saldoAtual : banco.saldoInicial || 0);
-            const elSaldo = document.getElementById('detalheSaldo');
-            elSaldo.innerText = formatarMoedaLocal(saldo);
-            elSaldo.style.color = saldo >= 0 ? '#10b981' : '#ef4444';
-
-            document.getElementById('painelDetalhe').classList.add('aberto'); 
-            document.getElementById('backdropDetalhe').classList.add('ativo'); 
-            
-            // Simulação de lista vazia
-            document.getElementById('listaMovimentosBanco').innerHTML = `
-                <div style="text-align:center; padding: 40px; color: #94a3b8;">
-                    <i class="fas fa-receipt" style="font-size: 30px; margin-bottom: 10px;"></i>
-                    <p style="font-size: 11px; font-weight: 600;">Selecione uma data para ver o extrato.</p>
-                </div>
-            `;
+            document.getElementById('painelDetalhe').classList.add('aberto');
         }
-        
-        function fecharDetalhes() { document.getElementById('painelDetalhe').classList.remove('aberto'); document.getElementById('backdropDetalhe').classList.remove('ativo'); }
+
+        function fecharDetalhes() {
+            document.getElementById('painelDetalhe').classList.remove('aberto');
+        }
+
         function filtrarTabela(t) { 
             const termo = t.toLowerCase();
-            const linhas = document.querySelectorAll('#lista-bancos tr');
-            linhas.forEach(linha => {
-                const texto = linha.innerText.toLowerCase();
-                linha.style.display = texto.includes(termo) ? '' : 'none';
+            document.querySelectorAll('#lista-bancos tr').forEach(linha => {
+                linha.style.display = linha.innerText.toLowerCase().includes(termo) ? '' : 'none';
             });
         }
     </script>
