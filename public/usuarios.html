@@ -53,7 +53,7 @@
         .btn-logout:hover { background-color: rgba(239, 68, 68, 0.2); transform: scale(1.1); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
 
         /* HEADER */
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 10px; }
         .page-title { font-size: 28px; font-weight: 800; color: var(--text-white); margin: 0; letter-spacing: 1px; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
         .page-subtitle { font-size: 12px; color: var(--text-light-purple); margin-top: 5px; font-weight: 600; }
 
@@ -137,6 +137,77 @@
         
         div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         div:where(.swal2-popup) { background: #181825 !important; color: white !important; border: 1px solid rgba(138, 43, 226, 0.3) !important; }
+
+        /* --- CORREÇÃO MOBILE: TRANSFORMA TABELA EM CARDS --- */
+        @media (max-width: 768px) {
+            .content { padding: 20px 10px; }
+            .page-title { font-size: 22px; }
+            
+            /* Esconde cabeçalho da tabela */
+            .clean-table thead { display: none; }
+            
+            /* Transforma linhas em blocos (Cards) */
+            .clean-table, .clean-table tbody, .clean-table tr, .clean-table td {
+                display: block;
+                width: 100%;
+            }
+            
+            .clean-table tr {
+                background: rgba(255, 255, 255, 0.05);
+                margin-bottom: 15px;
+                border-radius: 12px;
+                border: 1px solid rgba(138, 43, 226, 0.2);
+                padding: 15px;
+            }
+            
+            .clean-table td {
+                padding: 8px 0;
+                text-align: left;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+            }
+
+            /* Ajustes Específicos para cada Coluna no Mobile */
+            
+            /* 1. Nome/Avatar */
+            .clean-table td:nth-child(1) {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+            }
+
+            /* 2. Email */
+            .clean-table td:nth-child(2)::before {
+                content: 'Email: ';
+                font-weight: 800;
+                color: var(--text-light-purple);
+                font-size: 10px;
+            }
+
+            /* 3. Permissão */
+            .clean-table td:nth-child(3)::before {
+                content: 'Permissão: ';
+                font-weight: 800;
+                color: var(--text-light-purple);
+                font-size: 10px;
+            }
+
+            /* 4. Ações (Botões) */
+            .clean-table td:nth-child(4) {
+                justify-content: flex-end; /* Botões à direita */
+                border-top: 1px dashed rgba(255, 255, 255, 0.1);
+                padding-top: 15px;
+                margin-top: 5px;
+                text-align: right !important; /* Força alinhamento */
+            }
+            
+            /* Aumenta a área de clique dos botões no mobile */
+            .action-btn {
+                width: 40px; height: 40px; font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -265,7 +336,7 @@
                 let botoesHtml = '';
                 if (souAdmin) {
                     if (isMe) {
-                        botoesHtml = `<button onclick="abrirModal('${user.id}')" class="action-btn btn-edit" title="Editar Meus Dados"><i class="fas fa-pen"></i></button><span style="font-size:9px; color:var(--text-light-purple); margin-left: 5px; font-weight: 700;">(VOCÊ)</span>`;
+                        botoesHtml = `<button onclick="abrirModal('${user.id}')" class="action-btn btn-edit" title="Editar Meus Dados"><i class="fas fa-pen"></i></button>`;
                     } else {
                         botoesHtml = `<button onclick="abrirModal('${user.id}')" class="action-btn btn-edit" title="Editar Usuário"><i class="fas fa-pen"></i></button><button onclick="excluirUsuario('${user.id}')" class="action-btn btn-del" title="Excluir Usuário"><i class="fas fa-trash-alt"></i></button>`;
                     }
