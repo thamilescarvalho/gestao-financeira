@@ -12,92 +12,180 @@
     <script src="script.js"></script>
 
     <style>
-        /* MANTIDO CSS ORIGINAL (PADRÃO DO SISTEMA) */
+        /* --- TEMA GALAXY (Igual Conciliação/Index) --- */
+        :root {
+            --purple-primary: #a855f7;
+            --purple-secondary: #c084fc;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --text-dark: #1e293b;
+            --text-white: #ffffff;
+        }
+
         *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
-        body { background-color: #e2e8f0; color: #1e293b; font-size: 11px; }
-        input, select, textarea, button { font-family: 'Outfit', sans-serif; text-transform: uppercase; }
-        .content { padding: 40px; max-width: 1250px; margin: 0 auto; }
-        .navbar-custom { background-color: #1e293b; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: white; }
-        .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
-        .btn-logout { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; transition: 0.2s; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-        .btn-logout:hover { background-color: rgba(239, 68, 68, 0.1); transform: scale(1.1); }
+
+        /* FUNDO GALAXY VIBRANTE */
+        body { 
+            background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #1e3a8a 100%);
+            color: var(--text-white); 
+            font-size: 11px; 
+            min-height: 100vh; 
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Poeira Estelar */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.4) 2px, transparent 6px),
+                radial-gradient(white, rgba(255,255,255,.3) 1px, transparent 4px);
+            background-size: 450px 450px, 250px 250px;
+            background-position: 0 0, 50px 50px;
+            opacity: 0.3; z-index: -1; pointer-events: none;
+        }
+
+        .content { padding: 40px; max-width: 1250px; margin: 0 auto; position: relative; z-index: 1; }
+
+        /* NAVBAR */
+        .navbar-custom { 
+            background: rgba(30, 27, 46, 0.9); backdrop-filter: blur(12px);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); 
+        }
+        .navbar-custom .menu-btn { color: white !important; font-size: 24px; background: none; border: none; cursor: pointer; }
+        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: #ffffff !important; /* Cor Branca Pura */ text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 255, 255, 0.5) !important; /* Brilho Branco */ letter-spacing: 1px; }
+        .btn-logout { 
+            background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; 
+            font-size: 16px; cursor: pointer; transition: 0.2s; padding: 8px 12px; border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        .btn-logout:hover { background-color: #ef4444; color: white; transform: scale(1.05); }
+
+        /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
-        .page-title { font-size: 24px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.5px; }
+        .page-title { font-size: 28px; font-weight: 800; color: white; margin: 0; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
         .header-actions { display: flex; gap: 10px; }
-        .btn-new { background-color: #10b981; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2); font-size: 11px; transition: 0.2s; }
+
+        /* BOTÕES */
+        .btn-new { 
+            background-color: #10b981; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; 
+            cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); 
+            font-size: 11px; transition: 0.2s; 
+        }
         .btn-new:hover { background-color: #059669; transform: translateY(-2px); }
-        .modern-toolbar { background: white; padding: 10px 15px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #cbd5e1; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .total-badge { background: #ecfdf5; color: #059669; padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; border: 1px solid #a7f3d0; white-space: nowrap; }
-        .divider { width: 1px; height: 20px; background-color: #e2e8f0; }
-        .date-group, .search-box { display: flex; align-items: center; gap: 8px; background: #f8fafc; padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
+
+        .btn-mass-delete {
+            background-color: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 700; 
+            border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 11px; transition: 0.2s; 
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+        }
+        .btn-mass-delete:hover { background-color: #b91c1c; transform: translateY(-2px); }
+
+        /* TOOLBAR (Filtros) - VIDRO BRANCO */
+        .modern-toolbar { 
+            background: var(--glass-bg); padding: 10px 15px; border-radius: 12px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.5); 
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px; 
+            flex-wrap: wrap; backdrop-filter: blur(10px);
+        }
+        
+        .total-badge { 
+            background: #ecfdf5; color: #059669; 
+            padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; 
+            border: 1px solid #a7f3d0; white-space: nowrap; flex-shrink: 0;
+        }
+        
+        .divider { width: 1px; height: 20px; background-color: #cbd5e1; flex-shrink: 0; }
+        
+        .date-group, .search-box { 
+            display: flex; align-items: center; gap: 8px; background: #f1f5f9; 
+            padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; 
+        }
         .search-box { flex: 1; }
-        .date-input { border: none; background: transparent; outline: none; font-size: 11px; color: #475569; width: 90px; font-weight: 600; }
-        .clean-input { width: 100%; border: none; background: transparent; outline: none; font-size: 11px; color: #334155; font-weight: 600; }
-        .clean-select { width: 100%; min-width: 100px; border: none; background: transparent; outline: none; font-size: 11px; color: #334155; cursor: pointer; font-weight: 600; }
-        .btn-limpar { font-size: 10px; color: #64748b; cursor: pointer; border: none; background: none; font-weight: 700; white-space: nowrap; transition: 0.2s; }
+        
+        .date-input, .clean-input, .clean-select { 
+            border: none; background: transparent; outline: none; font-size: 11px; 
+            color: var(--text-dark); font-weight: 600; width: 100%;
+        }
+        .date-input { width: 90px; }
+        
+        .btn-limpar { 
+            font-size: 10px; color: #64748b; cursor: pointer; border: none; background: none; 
+            font-weight: 700; white-space: nowrap; transition: 0.2s;
+        }
         .btn-limpar:hover { color: #10b981; text-decoration: underline; }
-        .table-container { background: white; border-radius: 16px; border: 1px solid #cbd5e1; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+
+        /* TABELA - VIDRO BRANCO */
+        .table-container { 
+            background: var(--glass-bg); border-radius: 16px; border: 2px solid rgba(255,255,255,0.5); 
+            overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); backdrop-filter: blur(10px);
+        }
         .clean-table { width: 100%; border-collapse: collapse; min-width: 900px; }
         
-        .clean-table th { text-align: left; padding: 14px 20px; font-size: 10px; font-weight: 800; color: #1e293b; text-transform: uppercase; letter-spacing: 0.8px; background: #cbd5e1; border-bottom: 1px solid #94a3b8; }
-        .clean-table td { padding: 14px 20px; font-size: 12px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: middle; white-space: nowrap; font-weight: 600; }
+        .clean-table th { 
+            text-align: left; padding: 14px 20px; font-size: 10px; font-weight: 800; 
+            color: var(--text-dark); background: rgba(168, 85, 247, 0.1); border-bottom: 2px solid #fff; 
+        }
+        .clean-table td { 
+            padding: 14px 20px; font-size: 12px; color: #334155; 
+            border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; white-space: nowrap;
+        }
         .clean-table tbody tr:hover { background-color: #f8fafc; }
-        .clean-table tr:last-child td { border-bottom: none; }
-        
+
+        /* COLUNAS */
         .col-forn { width: 22%; font-weight: 700; color: #1e293b; }
-        .col-venc { width: 12%; color: #64748b; font-family: monospace; font-size: 11px; }
-        .col-valor { width: 15%; font-weight: 800; color: #10b981; } 
-        
-        /* CORREÇÃO DO ALINHAMENTO */
-        .col-forma { width: 12%; text-align: center; font-size: 11px; }
-        .clean-table th.col-forma { text-align: center; }
-
+        .col-venc { width: 12%; color: #64748b; font-family: monospace; }
+        .col-valor { width: 15%; font-weight: 800; color: #10b981; }
+        .col-forma { width: 12%; text-align: center; color: #64748b; font-size: 10px; }
         .col-parc { width: 8%; text-align: center; }
-        .clean-table th.col-parc { text-align: center; }
-
-        .badge-parc { background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; display: inline-block; }
-        .col-desc { width: 20%; color: #94a3b8; font-size: 11px; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
+        .col-desc { width: 20%; color: #94a3b8; font-size: 11px; max-width: 0; overflow: hidden; text-overflow: ellipsis; }
         
         .col-acao { width: 130px; }
         .clean-table thead th.col-acao { text-align: center; }
-        .clean-table tbody td.col-acao { display: flex !important; justify-content: flex-end; align-items: center; gap: 4px; padding-right: 15px; border-bottom: 1px solid #f1f5f9; }
+        .clean-table tbody td.col-acao { display: flex !important; justify-content: flex-end; align-items: center; gap: 4px; padding-right: 15px; }
 
-        .action-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: 0.2s; background: white; border-color: #e2e8f0; color: #64748b; font-size: 10px; }
+        .badge-parc { background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; }
+
+        /* AÇÕES */
+        .action-btn { 
+            width: 26px; height: 26px; border-radius: 6px; border: 1px solid #e2e8f0; 
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
+            background: white; color: #64748b; font-size: 10px; transition: 0.2s;
+        }
         .btn-pay:hover { background: #ecfdf5; color: #10b981; border-color: #a7f3d0; }
         .btn-edit:hover { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
         .btn-del:hover { background: #fff7ed; color: #c2410c; border-color: #ffedd5; }
 
+        .chk-row { width: 16px; height: 16px; cursor: pointer; accent-color: #10b981; margin-right: 8px; }
+        .header-actions-col { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+
         /* MODAIS */
-        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; backdrop-filter: blur(2px); }
-        .modal { background: white; width: 95%; max-width: 600px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; }
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; backdrop-filter: blur(5px); }
+        .modal { background: white; width: 95%; max-width: 600px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid #e2e8f0; animation: zoomIn 0.2s ease-out; }
         @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
         .modal h2 { font-weight: 800; color: #10b981; margin-top: 0; font-size: 18px; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
         
-        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 10px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; }
-        .btn-outline:hover { background: #f8fafc; color: #1e293b; }
-        
-        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 12px; box-sizing: border-box; outline: none; background: #f8fafc; font-weight: 600; }
+        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 12px; outline: none; background: #f8fafc; color: #334155; font-weight: 600; }
         .form-group input:focus, .form-group select:focus { background: white; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
-        
-        /* PARCELAMENTO */
+
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
+        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 10px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; }
+        .btn-outline:hover { background: #f8fafc; color: #1e293b; }
+
+        /* PARCELAMENTO NO MODAL */
         #containerParcelas { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0; margin-top: 15px; max-height: 200px; overflow-y: auto; display: none; }
         .parcela-header { display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; padding: 10px 15px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 10px; font-weight: 800; color: #64748b; position: sticky; top: 0; }
         .parcela-row { display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; padding: 10px 15px; align-items: center; border-bottom: 1px solid #f1f5f9; }
         .p-idx { font-size: 10px; font-weight: 800; color: #1e293b; text-align: center; background: #e2e8f0; border-radius: 4px; padding: 3px 0; }
         .parcela-row input { padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; background: white; }
         input:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
-        
-        /* EXCLUSÃO EM MASSA (BOTÃO E CHECKBOX) */
-        .btn-mass-delete { background-color: #dc2626; color: white; padding: 6px 12px; border-radius: 6px; font-weight: 700; border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 10px; transition: 0.2s; margin-right: 10px; }
-        .btn-mass-delete:hover { background-color: #b91c1c; }
-        .chk-row { width: 16px; height: 16px; cursor: pointer; accent-color: #10b981; margin-right: 8px; }
-        .header-actions-col { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+
+        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
     </style>
 </head>
 <body>
@@ -115,7 +203,7 @@
             <h1 class="page-title">Contas a Receber</h1>
             <div class="header-actions">
                 <button id="btnMassDelete" class="btn-mass-delete" onclick="excluirMassa()">
-                    <i class="fas fa-trash"></i> Excluir Selecionados (<span id="countSelected">0</span>)
+                    <i class="fas fa-trash"></i> Excluir (<span id="countSelected">0</span>)
                 </button>
                 <button class="btn-new" onclick="abrirModalNovo()"><i class="fas fa-plus"></i> Nova Receita</button>
             </div>
@@ -256,7 +344,6 @@
             } catch (e) { console.error(e); } 
         }
 
-        // --- FILTROS ---
         function atualizarFiltroPagamentos() { 
             const select = document.getElementById('filtroPagto'); 
             const valorAtual = select.value; 
@@ -320,7 +407,6 @@
                         <td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td>
                         <td class="col-acao">
                             <input type="checkbox" class="chk-item chk-row" value="${item.id}" onchange="atualizarBotaoMassa()">
-                            
                             <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Receber"><i class="fas fa-check"></i></button>
                             <button onclick="editarConta('${item.id}')" class="action-btn btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
                             <button onclick="deletar('${item.id}')" class="action-btn btn-del" title="Excluir"><i class="fas fa-trash"></i></button>
@@ -332,7 +418,6 @@
             atualizarBotaoMassa();
         }
 
-        // --- CRUD ---
         async function salvarConta() { 
             const idEdicao = document.getElementById('editId').value; 
             const qtd = parseInt(document.getElementById('parcelas').value); 
@@ -368,7 +453,7 @@
                 formaPagamento: formaPagamento,
                 descricao: descOriginal, 
                 parcelas: parseInt(document.getElementById('parcelas').value) || 1, 
-                tipo: 'RECEITA', // TIPO RECEITA
+                tipo: 'RECEITA', 
                 status: 'PENDENTE', 
                 usuarioId: usuario.id, 
                 itensParcelados: itensParcelados.length > 0 ? itensParcelados : null, 
@@ -391,7 +476,6 @@
             } catch (e) { console.error(e); } 
         }
 
-        // Funções auxiliares (Modais, Baixa, Delete) - Mesma lógica do Pagar
         function abrirModalNovo() { 
             document.getElementById('editId').value = ''; 
             document.getElementById('tituloModal').innerText = 'Nova Receita'; 
@@ -454,10 +538,32 @@
             }); 
         }
 
-        // Parcelas Visuais
-        function gerarParcelasVisuais() { const qtd = parseInt(document.getElementById('parcelas').value); const valorTotal = parseFloat(document.getElementById('valor').value); const dataBase = document.getElementById('dataVenc').value; const forma = document.getElementById('formaPagto').value; const desc = document.getElementById('inputDescricao').value || "Parcela"; const container = document.getElementById('containerParcelas'); const lista = document.getElementById('listaParcelas'); if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; } container.style.display = 'block'; lista.innerHTML = ''; const valorParcela = (valorTotal / qtd).toFixed(2); let soma = 0; const [ano, mes, dia] = dataBase.split('-'); const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0); for (let i = 0; i < qtd; i++) { let val = parseFloat(valorParcela); if (i === qtd - 1) val = valorTotal - soma; soma += val; const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i); const dataStr = novaData.toISOString().split('T')[0]; lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc}"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`; } }
+        function gerarParcelasVisuais() { 
+            const qtd = parseInt(document.getElementById('parcelas').value); 
+            const valorTotal = parseFloat(document.getElementById('valor').value); 
+            const dataBase = document.getElementById('dataVenc').value; 
+            const forma = document.getElementById('formaPagto').value; 
+            const desc = document.getElementById('inputDescricao').value || "Parcela"; 
+            const container = document.getElementById('containerParcelas'); 
+            const lista = document.getElementById('listaParcelas'); 
+            if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; } 
+            container.style.display = 'block'; 
+            lista.innerHTML = ''; 
+            const valorParcela = (valorTotal / qtd).toFixed(2); 
+            let soma = 0; 
+            const [ano, mes, dia] = dataBase.split('-'); 
+            const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0); 
+            for (let i = 0; i < qtd; i++) { 
+                let val = parseFloat(valorParcela); 
+                if (i === qtd - 1) val = valorTotal - soma; 
+                soma += val; 
+                const novaData = new Date(dataObj); 
+                novaData.setMonth(dataObj.getMonth() + i); 
+                const dataStr = novaData.toISOString().split('T')[0]; 
+                lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc}"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`; 
+            } 
+        }
 
-        // --- EXCLUSÃO EM MASSA ---
         function toggleTodos(source) { document.querySelectorAll('.chk-item').forEach(chk => chk.checked = source.checked); atualizarBotaoMassa(); }
         function atualizarBotaoMassa() { const count = document.querySelectorAll('.chk-item:checked').length; const btn = document.getElementById('btnMassDelete'); document.getElementById('countSelected').innerText = count; if (count > 0) btn.style.display = 'inline-flex'; else btn.style.display = 'none'; }
         async function excluirMassa() { const checkboxes = document.querySelectorAll('.chk-item:checked'); if (checkboxes.length === 0) return; const result = await Swal.fire({ title: `Excluir ${checkboxes.length} itens?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'Sim' }); if (result.isConfirmed) { for (const chk of checkboxes) { await fetch(`/transacoes/${chk.value}`, { method: 'DELETE' }); } carregar(); document.getElementById('chkTodos').checked = false; atualizarBotaoMassa(); } }
