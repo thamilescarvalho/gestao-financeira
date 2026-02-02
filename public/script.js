@@ -191,8 +191,8 @@ function gerarMenuLateral() {
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
-                <a href="usuarios.html" class="link-navegacao">Usuários</a> 
                 <a href="perfil.html" class="link-navegacao">Meu Perfil</a>
+                <a href="usuarios.html" class="link-navegacao">Usuário</a>
             </div>
 
             <div class="menu-item" onclick="toggleSubmenu(this)">
