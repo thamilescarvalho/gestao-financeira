@@ -20,54 +20,106 @@ function gerarMenuLateral() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
 
-    // Configura o sidebar como Flexbox para gerenciar o espaço vertical
+    // Configura o sidebar como Flexbox
     sidebar.style.display = 'flex';
     sidebar.style.flexDirection = 'column';
-    sidebar.style.height = '100vh'; /* Garante altura total */
-    sidebar.style.overflow = 'hidden'; /* Evita barra de rolagem dupla */
+    sidebar.style.height = '100vh'; 
+    sidebar.style.overflow = 'hidden'; 
 
-    const usuario = JSON.parse(localStorage.getItem('usuario_logado')) || { nome: 'Visitante', email: 'admin' };
+    const usuario = JSON.parse(localStorage.getItem('usuario_logado')) || { id: '0', nome: 'Visitante', email: 'admin' };
     const primeiroNome = usuario.nome.split(' ')[0]; 
     const iniciais = usuario.nome.substring(0, 2).toUpperCase();
 
-    // --- CSS INJETADO PARA OTIMIZAR ESPAÇO VERTICAL ---
+    // --- LÓGICA DA FOTO (PERFIL) ---
+    const extras = JSON.parse(localStorage.getItem(`perfil_extra_${usuario.id}`)) || {};
+    
+    // Atributos para tornar clicável
+    const clickAction = `onclick="window.location.href='perfil.html'" style="cursor: pointer;" title="Editar Perfil"`;
+
+    // Define o HTML do Avatar (Foto ou Iniciais)
+    let avatarHtml;
+    if (extras.avatar) {
+        avatarHtml = `<img src="${extras.avatar}" class="header-avatar-img" alt="Perfil" ${clickAction}>`;
+    } else {
+        avatarHtml = `<div class="header-avatar-img display-initials" ${clickAction}>${iniciais}</div>`;
+    }
+
+    // --- CSS INJETADO ---
     const styleMenu = `
         <style>
-            /* 1. Cabeçalho Compacto */
+            /* 1. Cabeçalho Ajustado (Foto + Nome) */
             .sidebar-header {
-                padding: 15px 20px 5px 20px !important; /* Reduzi o padding inferior */
+                padding: 20px 20px 10px 20px !important;
                 margin-bottom: 10px !important;
-                flex-shrink: 0; /* Não deixa o cabeçalho encolher */
+                flex-shrink: 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
             }
             
-            /* Remove a etiqueta "MENU" para ganhar espaço */
-            .header-badge { display: none !important; } 
+            .header-user-group {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
 
-            /* 2. Área do Menu com Rolagem Automática */
+            /* Estilo da Foto no Topo */
+            .header-avatar-img {
+                width: 42px; 
+                height: 42px; 
+                border-radius: 50%;
+                border: 2px solid #a855f7; /* Borda Roxa Galaxy */
+                object-fit: cover;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(255,255,255,0.1);
+                color: #fff;
+                font-weight: 800;
+                font-size: 14px;
+                box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+                transition: transform 0.2s, box-shadow 0.2s; /* Animação suave */
+            }
+            
+            /* Efeito ao passar o mouse na foto */
+            .header-avatar-img:hover {
+                transform: scale(1.1);
+                box-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
+                border-color: #fff;
+            }
+
+            .display-initials {
+                background: linear-gradient(135deg, #a855f7, #6366f1);
+            }
+
+            .header-user-name {
+                font-size: 16px !important; 
+                font-weight: 800 !important;
+                color: white;
+                letter-spacing: 0.5px;
+                text-shadow: 0 0 5px rgba(0,0,0,0.5);
+            }
+
+            /* 2. Área do Menu */
             .sidebar-menu {
-                flex: 1; /* Ocupa todo o espaço disponível */
-                overflow-y: auto !important; /* Cria rolagem se não couber */
+                flex: 1;
+                overflow-y: auto !important;
                 overflow-x: hidden;
                 padding-bottom: 20px;
-                
-                /* Estilo da barra de rolagem fina */
                 scrollbar-width: thin;
                 scrollbar-color: #334155 #1e293b;
             }
-            
-            /* Webkit Scrollbar (Chrome/Edge) */
             .sidebar-menu::-webkit-scrollbar { width: 4px; }
             .sidebar-menu::-webkit-scrollbar-track { background: #1e293b; }
             .sidebar-menu::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 4px; }
 
-            /* 3. Itens Mais Compactos */
+            /* 3. Itens do Menu */
             .sidebar-menu .menu-item { 
                 font-size: 11px !important; 
-                padding: 10px 20px !important; /* Menos altura */
+                padding: 10px 20px !important; 
                 font-weight: 700 !important;
                 letter-spacing: 0.5px;
             }
-            
             .sidebar-menu .menu-content i { 
                 font-size: 13px !important; 
                 width: 20px; 
@@ -75,10 +127,10 @@ function gerarMenuLateral() {
                 margin-right: 8px;
             }
 
-            /* Submenus Compactos */
+            /* Submenus */
             .sidebar-menu .submenu a { 
                 font-size: 10px !important; 
-                padding: 8px 20px 8px 50px !important; /* Mais apertadinho */
+                padding: 8px 20px 8px 50px !important; 
                 font-weight: 600 !important;
                 letter-spacing: 0.3px;
                 color: #94a3b8 !important;
@@ -86,34 +138,50 @@ function gerarMenuLateral() {
             .sidebar-menu .submenu a:hover, .sidebar-menu .submenu a.active-link {
                 color: #fff !important;
             }
-            
             .submenu { 
                 overflow: hidden !important; 
                 transition: max-height 0.3s ease-out; 
             }
 
-            /* 4. Rodapé do Usuário Fixo no Fundo */
+            /* 4. Rodapé Compacto */
             .user-profile {
-                flex-shrink: 0; /* Não encolhe */
-                border-top: 1px solid #334155;
+                flex-shrink: 0;
+                border-top: 1px solid rgba(255,255,255,0.1);
                 padding: 15px 20px !important;
                 margin-top: 0 !important;
+                display: flex; 
+                justify-content: space-between;
+                align-items: center; 
+                background: rgba(0,0,0,0.2);
             }
+            
+            .user-info-footer {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .btn-logout-icon {
+                color: #ef4444;
+                cursor: pointer;
+                font-size: 16px;
+                padding: 5px;
+                transition: 0.2s;
+            }
+            .btn-logout-icon:hover { transform: scale(1.2); text-shadow: 0 0 10px red; }
         </style>
     `;
 
     sidebar.innerHTML = styleMenu + `
         <div class="sidebar-header">
-            <div class="header-info">
-                <div class="header-user-name" style="font-size: 14px;">Olá, ${primeiroNome}</div>
+            <div class="header-user-group">
+                ${avatarHtml} <div class="header-user-name">${primeiroNome}!</div>
             </div>
-            <button class="btn-close-sidebar" onclick="toggleMenu()" title="Fechar Menu">
+            <button class="btn-close-sidebar" onclick="toggleMenu()" title="Fechar Menu" style="background:none; border:none; color:white; font-size:18px; cursor:pointer;">
                 <i class="fas fa-times"></i>
             </button>
         </div>
 
         <div class="sidebar-menu">
-            
             <a href="index.html" class="menu-item link-navegacao">
                 <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
             </a>
@@ -124,6 +192,7 @@ function gerarMenuLateral() {
             </div>
             <div class="submenu">
                 <a href="usuarios.html" class="link-navegacao">Usuários</a> 
+                <a href="perfil.html" class="link-navegacao">Meu Perfil</a>
             </div>
 
             <div class="menu-item" onclick="toggleSubmenu(this)">
@@ -146,18 +215,15 @@ function gerarMenuLateral() {
             </div>
             <div class="submenu">
                 <a href="agenda.html" class="link-navegacao">Calendário</a>
-                <a href="rotinas.html" class="link-navegacao">Tarefas</a>
             </div>
-
         </div>
 
         <div class="user-profile">
-            <div class="user-avatar">${iniciais}</div>
-            <div class="user-info">
-                <div class="user-name" style="font-size: 9px; color: #94a3b8; font-weight: 700;">LOGADO COMO</div>
-                <div class="user-role" style="color: white; font-size: 10px;">${usuario.email}</div>
+            <div class="user-info-footer">
+                <div style="font-size: 9px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Usuário:</div>
+                <div style="color: white; font-size: 11px; font-weight: 600;">${usuario.email}</div>
             </div>
-            <div class="btn-logout-icon" onclick="sair()" title="Sair"><i class="fas fa-sign-out-alt"></i></div>
+            <div class="btn-logout-icon" onclick="sair()" title="Sair do Sistema"><i class="fas fa-sign-out-alt"></i></div>
         </div>
     `;
 
@@ -179,7 +245,6 @@ function toggleSubmenu(element) {
     const submenu = element.nextElementSibling;
     element.classList.toggle('open'); 
     
-    // Cálculo exato da altura
     if (submenu.style.maxHeight) { 
         submenu.style.maxHeight = null; 
     } else { 
@@ -197,7 +262,6 @@ function highlightActiveLink() {
             const parentMenu = activeLink.parentElement.previousElementSibling;
             if(parentMenu) {
                 parentMenu.classList.add('active', 'open');
-                // Timeout para garantir que o DOM renderizou
                 setTimeout(() => {
                     activeLink.parentElement.style.maxHeight = activeLink.parentElement.scrollHeight + "px";
                 }, 50);

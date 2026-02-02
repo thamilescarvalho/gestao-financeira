@@ -323,23 +323,26 @@
                 </tr>`;
             });
         }
-
         function abrirModal(id) {
-            const user = usuariosCache.find(u => u.id === id);
-            if(!user) return;
-            document.getElementById('editId').value = user.id;
-            document.getElementById('editNome').value = user.nome;
-            document.getElementById('editEmail').value = user.email;
-            document.getElementById('editRole').value = user.role;
-            document.getElementById('editSenha').value = ''; 
-            
-            const euAtualizado = usuariosCache.find(u => u.id === usuarioLogado.id);
-            const souAdmin = (euAtualizado && euAtualizado.role === 'ADMIN') || (usuarioLogado.role === 'ADMIN');
-            document.getElementById('editRole').disabled = !souAdmin; 
-            
-            document.getElementById('modalEditar').style.display = 'flex';
-        }
+            // Se o ID clicado for igual ao ID do usuário logado, vai para o Perfil
+            if (id === usuarioLogado.id) {
+                window.location.href = 'perfil.html';
+                return; }
+                // Se for outro usuário, continua com a lógica normal de Admin
+                const user = usuariosCache.find(u => u.id === id);
+                if(!user) return;
 
+                document.getElementById('editId').value = user.id;
+                document.getElementById('editNome').value = user.nome;
+                document.getElementById('editEmail').value = user.email;
+                document.getElementById('editRole').value = user.role;
+                document.getElementById('editSenha').value = ''; 
+                
+                const euAtualizado = usuariosCache.find(u => u.id === usuarioLogado.id);
+                const souAdmin = (euAtualizado && euAtualizado.role === 'ADMIN') || (usuarioLogado.role === 'ADMIN');
+                document.getElementById('editRole').disabled = !souAdmin; 
+                document.getElementById('modalEditar').style.display = 'flex';}
+                
         function fecharModal() { document.getElementById('modalEditar').style.display = 'none'; }
 
         async function salvarEdicao() {
