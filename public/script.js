@@ -134,9 +134,9 @@ function gerarMenuLateral() {
                 <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
                 <a href="receber.html" class="link-navegacao">Contas a Receber</a>
                 <a href="pagar.html" class="link-navegacao">Contas a Pagar</a>
-                <a href="cartoes.html" class="link-navegacao">Meus Cartões</a> 
-                <a href="movimento.html" class="link-navegacao">Extrato / Movimento</a>
-                <a href="conciliacao.html" class="link-navegacao">Conciliação</a>
+                <a href="movimento.html" class="link-navegacao">Extrato / Movimentação</a> 
+                <a href="conciliacao.html" class="link-navegacao">Conciliação (OFX)</a>
+                <a href="cartoes.html" class="link-navegacao">Meus Cartões</a>
                 <a href="relatorios.html" class="link-navegacao">Relatórios</a> 
             </div>
             
