@@ -28,6 +28,17 @@
             display: flex; overflow: hidden; background-color: var(--bg-dark); 
         }
 
+        /* --- REMOVER BARRA DE ROLAGEM (MAS MANTER ROLAGEM) --- */
+        /* Para Chrome, Safari e Opera */
+        .right-panel::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none;
+        }
+        /* Para IE, Edge e Firefox */
+        .right-panel, body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
         /* --- LADO ESQUERDO (GALÁXIA DECORATIVA) --- */
         .left-panel {
             width: 50%;
@@ -69,7 +80,8 @@
         .right-panel {
             width: 50%; display: flex; justify-content: center; align-items: center;
             background: var(--panel-dark); position: relative;
-            padding: 20px; /* Padding extra para mobile */
+            padding: 20px;
+            overflow-y: auto; /* Permite rolar se a tela for pequena */
         }
 
         .auth-box { 
@@ -79,9 +91,8 @@
             border: 1px solid rgba(138, 43, 226, 0.2); 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3), var(--neon-glow); 
             backdrop-filter: blur(10px);
-            /* Garante que o card nunca ultrapasse a altura da tela no mobile */
-            max-height: 95vh; 
-            overflow-y: auto; 
+            /* Evita que o card estoure a tela em celulares pequenos */
+            margin: auto 0; 
         }
 
         .auth-header { margin-bottom: 30px; text-align: center; }
@@ -105,7 +116,7 @@
         /* INPUTS (CORRIGIDO PARA O OLHO NÃO SOBREPOR) */
         .input-group { position: relative; margin-bottom: 20px; }
         
-        /* Ícone Esquerdo (Email/User) */
+        /* Ícone Esquerdo (Email/Cadeado) - Pointer events none para não bloquear clique */
         .input-group > i:first-child { 
             position: absolute; left: 15px; top: 50%; transform: translateY(-50%); 
             color: var(--purple-primary); font-size: 16px; transition: 0.2s; 
@@ -114,7 +125,8 @@
         
         .input-field {
             width: 100%; 
-            padding: 16px 45px 16px 45px; /* Espaço na direita para o olho */
+            /* PADDING AJUSTADO: 50px na direita para o ícone do olho não ficar em cima do texto */
+            padding: 16px 50px 16px 50px; 
             border: 2px solid rgba(138, 43, 226, 0.3); border-radius: 12px; 
             font-size: 14px; outline: none; transition: 0.3s; 
             background: var(--input-bg); color: var(--text-white); font-weight: 600;
@@ -125,10 +137,13 @@
             box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
             background: rgba(30, 30, 46, 0.9);
         }
-        
+
+        /* REMOVE ÍCONE PADRÃO DE SENHA DO NAVEGADOR (EDGE/IE) */
+        input::-ms-reveal, input::-ms-clear { display: none; }
+
         /* Botão do Olho (Senha) */
         .toggle-pass { 
-            position: absolute; right: 0; top: 0; bottom: 0; width: 45px;
+            position: absolute; right: 0; top: 0; bottom: 0; width: 50px;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; color: var(--text-light-purple); z-index: 5;
         }
@@ -188,8 +203,7 @@
             .auth-box { 
                 background: var(--panel-dark); box-shadow: var(--neon-glow); 
                 border: 1px solid rgba(138, 43, 226, 0.2); 
-                padding: 30px 20px;
-                margin-top: -40px; /* Sobe um pouco o card visualmente */
+                padding: 30px 25px;
             }
             
             /* Selo no fundo do form no mobile */
@@ -220,7 +234,7 @@
         
         <div class="security-seal-desktop">
             <i class="fas fa-shield-alt"></i>
-            <span>AMBIENTE SEGURO</span>
+            <span>AMBIENTE 100% SEGURO</span>
         </div>
     </div>
 
@@ -298,7 +312,7 @@
             <p style="color:var(--text-light-purple); font-size:13px; margin-bottom:20px;">Digite seu e-mail para receber um link de redefinição.</p>
             
             <div class="input-group">
-                <i class="far fa-envelope"></i>
+                <i class="far fa-envelope input-icon-left" style="left: 15px; top: 50%; transform: translateY(-50%); position:absolute; color:var(--purple-primary);"></i>
                 <input type="email" id="emailRecuperar" class="input-field" placeholder="E-mail cadastrado">
             </div>
 
@@ -310,7 +324,6 @@
     </div>
 
     <script>
-        // --- UX / VISUAL ---
         function switchTab(tab) {
             document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
             document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
@@ -343,7 +356,6 @@
             el.style.display = 'block';
         }
 
-        // --- LÓGICA DE LOGIN ---
         async function fazerLogin() {
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
@@ -372,7 +384,6 @@
             }
         }
 
-        // --- LÓGICA DE CADASTRO ---
         async function fazerCadastro() {
             const nome = document.getElementById('cadNome').value;
             const email = document.getElementById('cadEmail').value;
@@ -401,7 +412,6 @@
             }
         }
 
-        // --- LÓGICA DE RECUPERAÇÃO DE SENHA ---
         function abrirModalRecuperar() {
             document.getElementById('modalRecuperar').style.display = 'flex';
         }
