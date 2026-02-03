@@ -26,28 +26,26 @@ function gerarMenuLateral() {
     sidebar.style.height = '100vh'; 
     sidebar.style.overflow = 'hidden'; 
 
+    // Lê o usuário do localStorage (agora com avatar do banco)
     const usuario = JSON.parse(localStorage.getItem('usuario_logado')) || { id: '0', nome: 'Visitante', email: 'admin' };
     const primeiroNome = usuario.nome.split(' ')[0]; 
     const iniciais = usuario.nome.substring(0, 2).toUpperCase();
 
-    // --- LÓGICA DA FOTO (PERFIL) ---
-    const extras = JSON.parse(localStorage.getItem(`perfil_extra_${usuario.id}`)) || {};
-    
-    // Atributos para tornar clicável
+    // --- NOVA LÓGICA SIMPLIFICADA ---
+    // Não precisa mais ler 'perfil_extra'. O avatar vem direto do usuario.
     const clickAction = `onclick="window.location.href='perfil.html'" style="cursor: pointer;" title="Editar Perfil"`;
 
-    // Define o HTML do Avatar (Foto ou Iniciais)
     let avatarHtml;
-    if (extras.avatar) {
-        avatarHtml = `<img src="${extras.avatar}" class="header-avatar-img" alt="Perfil" ${clickAction}>`;
+    if (usuario.avatar) {
+        avatarHtml = `<img src="${usuario.avatar}" class="header-avatar-img" alt="Perfil" ${clickAction}>`;
     } else {
         avatarHtml = `<div class="header-avatar-img display-initials" ${clickAction}>${iniciais}</div>`;
     }
 
-    // --- CSS INJETADO ---
+    // --- CSS INJETADO (MANTIDO IGUAL) ---
     const styleMenu = `
         <style>
-            /* 1. Cabeçalho Ajustado (Foto + Nome) */
+            /* 1. Cabeçalho Ajustado */
             .sidebar-header {
                 padding: 20px 20px 10px 20px !important;
                 margin-bottom: 10px !important;
@@ -68,7 +66,7 @@ function gerarMenuLateral() {
                 width: 42px; 
                 height: 42px; 
                 border-radius: 50%;
-                border: 2px solid #a855f7; /* Borda Roxa Galaxy */
+                border: 2px solid #a855f7;
                 object-fit: cover;
                 display: flex;
                 align-items: center;
@@ -78,10 +76,9 @@ function gerarMenuLateral() {
                 font-weight: 800;
                 font-size: 14px;
                 box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
-                transition: transform 0.2s, box-shadow 0.2s; /* Animação suave */
+                transition: transform 0.2s, box-shadow 0.2s;
             }
             
-            /* Efeito ao passar o mouse na foto */
             .header-avatar-img:hover {
                 transform: scale(1.1);
                 box-shadow: 0 0 15px rgba(168, 85, 247, 0.8);

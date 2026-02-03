@@ -280,7 +280,9 @@
     <script>
         const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado'));
         
-        // Imagens de Alta Definição (Unsplash) - Tema Galaxy & Futuristic
+        let avatarBase64 = null;
+        let capaBase64 = null;
+
         const galeriaImagens = [
             { url: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1000', nome: 'NEBULOSA ROXA' },
             { url: 'https://images.unsplash.com/photo-1538370965046-79c0d6907d00?q=80&w=1000', nome: 'GALÁXIA ESPIRAL' },
@@ -293,18 +295,23 @@
             { url: 'https://images.unsplash.com/photo-1519608487953-e999c9dc2968?q=80&w=1000', nome: 'TUNEL DE LUZ' },
             { url: 'https://images.unsplash.com/photo-1614728853913-1e22ba6e9a7e?q=80&w=1000', nome: 'FLUIDO NEON' },
             { url: 'https://images.unsplash.com/photo-1506318137071-a8bcbf6755dd?q=80&w=1000', nome: 'AURORA BOREAL' },
-            { url: 'https://images.unsplash.com/photo-1484589065579-248aad0d8b13?q=80&w=1000', nome: 'ESPAÇO PROFUNDO' }
+            { url: 'https://images.unsplash.com/photo-1484589065579-248aad0d8b13?q=80&w=1000', nome: 'ESPAÇO DEEP' }
         ];
 
         document.addEventListener('DOMContentLoaded', () => {
             if(!usuarioLogado) return window.location.href = 'login.html';
+            
+            // Inicializa as variaveis com o que veio do banco
+            avatarBase64 = usuarioLogado.avatar || null;
+            capaBase64 = usuarioLogado.capa || null;
+
             carregarDadosTela();
             renderizarGaleria();
 
             document.addEventListener('click', function(e) {
                 const menu = document.getElementById('coverMenu');
                 const trigger = document.querySelector('.btn-trigger-dropdown');
-                if (!trigger.contains(e.target) && !menu.contains(e.target)) {
+                if (menu && trigger && !trigger.contains(e.target) && !menu.contains(e.target)) {
                     menu.classList.remove('active');
                 }
             });
@@ -334,30 +341,25 @@
             document.getElementById('inputEmail').value = usuarioLogado.email;
             document.getElementById('displayRole').innerText = usuarioLogado.role === 'ADMIN' ? 'ADMINISTRADOR' : 'USUÁRIO';
 
-            const perfilExtra = JSON.parse(localStorage.getItem(`perfil_extra_${usuarioLogado.id}`)) || {};
-            
-            if (perfilExtra.bio) {
-                document.getElementById('inputBio').value = perfilExtra.bio;
+            if (usuarioLogado.bio) {
+                document.getElementById('inputBio').value = usuarioLogado.bio;
             }
 
-            if (perfilExtra.avatar) {
-                document.getElementById('avatarDisplay').src = perfilExtra.avatar;
+            // Carrega Avatar do Banco
+            if (avatarBase64) {
+                document.getElementById('avatarDisplay').src = avatarBase64;
             } else {
                 document.getElementById('avatarDisplay').src = `https://ui-avatars.com/api/?name=${usuarioLogado.nome}&background=8b5cf6&color=fff&size=256`;
             }
 
+            // Carrega Capa do Banco
             const coverEl = document.getElementById('coverDisplay');
-            coverEl.classList.remove('bg-1');
-            coverEl.style.backgroundImage = '';
-
-            if (perfilExtra.capa) {
-                if(perfilExtra.capa.startsWith('bg-')) {
-                    coverEl.classList.add('bg-1'); 
-                } else {
-                    coverEl.style.backgroundImage = `url(${perfilExtra.capa})`;
-                }
+            if (capaBase64) {
+                coverEl.style.backgroundImage = `url(${capaBase64})`;
+                coverEl.className = 'profile-cover'; // remove classes padrão se houver
             } else {
-                coverEl.classList.add('bg-1'); // Padrão
+                coverEl.className = 'profile-cover'; // vai usar o gradiente do CSS
+                coverEl.style.backgroundImage = '';
             }
         }
 
@@ -365,8 +367,8 @@
             const file = input.files[0];
             if(!file) return;
 
-            if (file.size > 4 * 1024 * 1024) {
-                Swal.fire('ARQUIVO MUITO GRANDE', 'ESCOLHA UMA IMAGEM MENOR QUE 4MB.', 'warning');
+            if (file.size > 2 * 1024 * 1024) { // Limite 2MB para não travar o banco
+                Swal.fire('ARQUIVO MUITO GRANDE', 'ESCOLHA UMA IMAGEM MENOR QUE 2MB.', 'warning');
                 return;
             }
 
@@ -375,10 +377,11 @@
                 const base64 = e.target.result;
                 if(tipo === 'img') {
                     document.getElementById('avatarDisplay').src = base64;
+                    avatarBase64 = base64; // Atualiza variavel para salvar
                 } else {
                     const coverEl = document.getElementById('coverDisplay');
-                    coverEl.classList.remove('bg-1');
                     coverEl.style.backgroundImage = `url(${base64})`;
+                    capaBase64 = base64; // Atualiza variavel para salvar
                     toggleCoverMenu();
                 }
             }
@@ -397,13 +400,14 @@
 
         function aplicarCapaGaleria(url) {
             document.getElementById('coverDisplay').style.backgroundImage = `url(${url})`;
+            capaBase64 = url;
             document.getElementById('modalGaleria').style.display = 'none';
         }
 
         function removerCapa() {
             const coverEl = document.getElementById('coverDisplay');
             coverEl.style.backgroundImage = '';
-            coverEl.classList.add('bg-1');
+            capaBase64 = null; // Remove do banco
             toggleCoverMenu();
         }
 
@@ -416,17 +420,24 @@
 
             if(!nome || !email) return Swal.fire('ATENÇÃO', 'NOME E EMAIL SÃO OBRIGATÓRIOS.', 'warning');
             
-            // Valida senha somente se digitou algo
             if(senha.length > 0) {
                 if (senha !== confirma) {
                     return Swal.fire('ERRO', 'AS SENHAS NÃO CONFEREM.', 'error');
                 }
             }
 
-            Swal.fire({ title: 'SALVANDO...', didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'SALVANDO NA NUVEM...', didOpen: () => Swal.showLoading() });
 
             try {
-                const payload = { nome, email };
+                // Monta o objeto para enviar ao Backend
+                const payload = { 
+                    nome, 
+                    email, 
+                    bio,
+                    avatar: avatarBase64, // Envia a imagem (pode ser null)
+                    capa: capaBase64      // Envia a capa (pode ser null)
+                };
+                
                 if(senha.length > 0) payload.novaSenha = senha;
 
                 const res = await fetch(`/usuarios/${usuarioLogado.id}`, {
@@ -436,32 +447,20 @@
                 });
 
                 if(res.ok) {
-                    const avatarSrc = document.getElementById('avatarDisplay').src;
-                    const coverEl = document.getElementById('coverDisplay');
-                    
-                    let capaFinal = null;
-                    if (coverEl.style.backgroundImage && coverEl.style.backgroundImage !== 'none') {
-                        capaFinal = coverEl.style.backgroundImage.slice(5, -2).replace(/"/g, "");
-                    } 
-                    // Se estiver com a classe bg-1 padrão, não salva nada pra usar o default
-                    
-                    const dadosExtras = {
-                        bio: bio,
-                        avatar: avatarSrc.startsWith('data:') ? avatarSrc : (avatarSrc.includes('ui-avatars') ? null : avatarSrc),
-                        capa: capaFinal
-                    };
+                    // O backend devolve o usuário atualizado com as imagens
+                    const usuarioAtualizado = await res.json();
 
-                    const antigo = JSON.parse(localStorage.getItem(`perfil_extra_${usuarioLogado.id}`)) || {};
-                    const novo = { ...antigo, ...dadosExtras };
-                    if (!novo.avatar && antigo.avatar) novo.avatar = antigo.avatar;
-                    localStorage.setItem(`perfil_extra_${usuarioLogado.id}`, JSON.stringify(novo));
-
-                    usuarioLogado.nome = nome;
-                    usuarioLogado.email = email;
-                    localStorage.setItem('usuario_logado', JSON.stringify(usuarioLogado));
+                    // Atualiza o LocalStorage com os dados OFICIAIS do banco
+                    localStorage.setItem('usuario_logado', JSON.stringify(usuarioAtualizado));
+                    
+                    // Limpa lixo antigo
+                    localStorage.removeItem(`perfil_extra_${usuarioLogado.id}`);
 
                     Swal.fire({
-                        title: 'SUCESSO!', text: 'PERFIL ATUALIZADO.', icon: 'success', confirmButtonColor: '#8b5cf6'
+                        title: 'SUCESSO!', 
+                        text: 'PERFIL SINCRONIZADO.', 
+                        icon: 'success', 
+                        confirmButtonColor: '#8b5cf6'
                     }).then(() => { location.reload(); });
 
                 } else {

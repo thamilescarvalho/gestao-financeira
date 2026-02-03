@@ -14,6 +14,10 @@ model Usuario {
   email      String      @unique
   senha      String
   role       String      @default("USER")
+
+  bio          String?     // Frase de efeito / Biografia
+  avatar       String?     // Foto de perfil em Base64
+  capa         String?     // Capa em Base64 ou nome da classe (ex: 'bg-1')
   
   bancos     Banco[]
   transacoes Transacao[]
