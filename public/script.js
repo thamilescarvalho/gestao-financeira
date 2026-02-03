@@ -183,10 +183,15 @@ function gerarMenuLateral() {
                 <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
             </a>
 
+            <a href="feed-pv.html" class="menu-item link-navegacao">
+            <div class="menu-content"><i class="fas fa-stream"></i> Meu Feed</div>
+            </a>
+
             <div class="menu-item" onclick="toggleSubmenu(this)">
                 <div class="menu-content"><i class="fas fa-database"></i> Cadastros</div>
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
+
             <div class="submenu">
                 <a href="perfil.html" class="link-navegacao">Meu Perfil</a>
                 <a href="usuarios.html" class="link-navegacao">Usuário</a>
