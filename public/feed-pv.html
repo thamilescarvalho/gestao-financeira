@@ -25,24 +25,33 @@
             --shadow-soft: 0 4px 20px rgba(0,0,0,0.1);
         }
 
-        /* --- CONFIGURAÇÃO DE TEXTO --- */
-        /* Padrão: Normal (Para inputs e textos do usuário) */
+        /* --- REGRA DE OURO: TUDO MAIÚSCULO --- */
+        /* Aplica maiúsculo em tudo que não for ícone */
         *:not(i) { 
             font-family: 'Outfit', sans-serif !important; 
             box-sizing: border-box; 
-            text-transform: none !important; /* Garante texto normal por padrão */
+            text-transform: uppercase !important; 
         }
-        
-        /* Exceções: Itens de Interface em MAIÚSCULO para estilo */
-        .navbar-custom .logo,
-        .sidebar-title,
-        .sticky-section-title,
-        .publish-header div, /* Texto NOVA PUBLICAÇÃO */
-        .btn-publish,
-        .swal2-confirm,
-        .swal2-cancel,
-        .swal2-title {
-            text-transform: uppercase !important;
+
+        /* --- EXCEÇÕES: CONTEÚDO EM FORMATO NORMAL --- */
+        /* Campos de digitação, Texto do Post, Corpo da Nota, Título da Nota */
+        input, textarea, 
+        .input-post, 
+        .post-content, 
+        .note-title, 
+        .note-body, 
+        .search-notes-input,
+        .swal2-input, 
+        .swal2-textarea,
+        .swal2-html-container { 
+            text-transform: none !important; 
+        }
+
+        /* Ícones mantêm seu estilo normal */
+        .fas, .far, .fab, .fa, i { 
+            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; 
+            text-transform: none !important; 
+            font-style: normal; 
         }
 
         body { 
@@ -66,22 +75,17 @@
         .navbar-custom .logo { font-size: 20px; font-weight: 800; color: var(--text-white); letter-spacing: 1px; }
         .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; }
 
-        /* --- LAYOUT EXPANDIDO (FULL WIDTH) --- */
+        /* --- LAYOUT EXPANDIDO --- */
         .content { 
-            padding: 30px 40px; 
-            max-width: 100%; 
-            margin: 0; 
-            display: grid; 
-            grid-template-columns: 280px 1fr 350px; 
-            gap: 40px; 
-            align-items: start; 
+            padding: 30px 40px; max-width: 100%; margin: 0; 
+            display: grid; grid-template-columns: 280px 1fr 350px; gap: 40px; align-items: start; 
         }
 
         /* SIDEBAR ESQUERDA */
         .feed-sidebar-left { background: var(--card-bg); border-radius: 16px; border: var(--card-border); padding: 25px; box-shadow: var(--shadow-soft); position: sticky; top: 90px; }
         .sidebar-title { font-size: 13px; font-weight: 800; margin-bottom: 20px; color: #64748b; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
         .filter-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-        .filter-item { padding: 12px 15px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; color: var(--text-dark); text-transform: uppercase !important; }
+        .filter-item { padding: 12px 15px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; color: var(--text-dark); }
         .filter-item:hover { background: #f1f5f9; color: var(--purple-primary); }
         .filter-item.active { background: #f3e8ff; color: var(--purple-primary); border: 1px solid #d8b4fe; }
 
@@ -96,6 +100,8 @@
         }
         .publish-header { display: flex; align-items: center; gap: 15px; }
         .user-avatar-mini { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        /* Input: Conteúdo NORMAL */
         .input-post { width: 100%; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 20px; border-radius: 16px; color: #1e293b; font-size: 15px; font-family: 'Outfit'; resize: none; outline: none; transition: 0.3s; min-height: 100px; font-weight: 500; }
         .input-post:focus { background: #ffffff; border-color: var(--purple-primary); box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15); }
         
@@ -114,9 +120,12 @@
         .timeline { display: flex; flex-direction: column; gap: 25px; margin-top: 10px; }
         .post-card { background: rgba(255,255,255,0.3); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); animation: fadeIn 0.5s ease; border-left: 5px solid var(--purple-primary); border-top: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; }
         .post-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .post-user { display: flex; align-items: center; gap: 12px; font-weight: 700; color: white; font-size: 14px; text-transform: uppercase !important; }
+        .post-user { display: flex; align-items: center; gap: 12px; font-weight: 700; color: white; font-size: 14px; }
         .post-time { font-size: 11px; color: var(--text-light-purple); font-weight: 600; opacity: 0.9; }
+        
+        /* Post Content: Conteúdo NORMAL */
         .post-content { font-size: 15px; color: white; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; font-weight: 500; }
+        
         .post-image-display { width: 100%; max-height: 400px; object-fit: cover; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); }
         .reactions-bar { display: flex; gap: 12px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); }
         .reaction-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 25px; font-size: 12px; cursor: pointer; color: white; font-weight: 700; display:flex; align-items:center; gap:6px; transition: 0.2s; }
@@ -124,49 +133,22 @@
         .reaction-btn.active { background: #fca5a5; color: #991b1b; border: 1px solid #ef4444; }
 
         /* --- MURAL RÁPIDO --- */
-        .feed-sidebar-right { 
-            display: flex; flex-direction: column; gap: 15px; 
-            position: sticky; top: 90px; 
-        }
+        .feed-sidebar-right { display: flex; flex-direction: column; gap: 15px; position: sticky; top: 90px; }
+        .sidebar-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .sticky-section-title { color: white; font-size: 13px; font-weight: 800; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 8px; letter-spacing: 1px; }
 
-        .sidebar-header-row {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .sticky-section-title { 
-            color: white; font-size: 13px; font-weight: 800; margin: 0; 
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3); 
-            display: flex; align-items: center; gap: 8px; letter-spacing: 1px; 
-        }
-
-        .btn-add-mini {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;
-            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 14px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        .btn-add-mini { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn-add-mini:hover { background: var(--purple-primary); border-color: var(--purple-primary); transform: scale(1.1) rotate(90deg); box-shadow: 0 0 15px rgba(168, 85, 247, 0.6); }
 
-        .search-notes-box { 
-            display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); 
-            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px; 
-            padding: 10px 15px; backdrop-filter: blur(5px); transition: 0.3s; 
-        }
+        .search-notes-box { display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px; padding: 10px 15px; backdrop-filter: blur(5px); transition: 0.3s; }
         .search-notes-box:focus-within { background: rgba(255, 255, 255, 0.25); border-color: white; }
         .search-notes-box i { color: white; margin-right: 10px; opacity: 0.7; font-size: 12px; }
+        /* Input: Conteúdo NORMAL */
         .search-notes-input { background: transparent; border: none; color: white; font-size: 12px; width: 100%; outline: none; font-weight: 500; }
         .search-notes-input::placeholder { color: rgba(255,255,255,0.6); }
 
         .sticky-grid { display: grid; gap: 15px; }
-        
-        .sticky-note {
-            height: 160px; padding: 18px; border-radius: 16px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            transition: transform 0.2s, box-shadow 0.2s; cursor: grab; position: relative; overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.15), inset 0 0 20px rgba(0,0,0,0.05);
-            border-bottom: 3px solid rgba(0,0,0,0.1);
-        }
+        .sticky-note { height: 160px; padding: 18px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; cursor: grab; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.15), inset 0 0 20px rgba(0,0,0,0.05); border-bottom: 3px solid rgba(0,0,0,0.1); }
         .sticky-note:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.25); z-index: 10; }
         .sticky-note:active { cursor: grabbing; transform: scale(0.98); }
         
@@ -176,11 +158,13 @@
         .note-pink { background: linear-gradient(135deg, #fbcfe8, #f472b6); color: #831843; }
 
         .note-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .note-title { font-weight: 800; font-size: 12px; margin: 0; line-height: 1.2; word-break: break-word; } /* Título da nota em normal case para o usuário */
+        /* Titulo da Nota: Conteúdo NORMAL */
+        .note-title { font-weight: 800; font-size: 12px; margin: 0; line-height: 1.2; word-break: break-word; }
         
         .btn-delete-note { background: rgba(0,0,0,0.1); border: none; color: inherit; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0.6; transition: 0.2s; font-size: 11px; }
         .btn-delete-note:hover { opacity: 1; background: rgba(255,0,0,0.2); color: #ef4444; transform: scale(1.1); }
 
+        /* Corpo da Nota: Conteúdo NORMAL */
         .note-body { font-size: 11px; font-weight: 600; line-height: 1.5; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: pre-wrap; }
         
         .mood-popover { position: absolute; bottom: 50px; left: 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 50px; padding: 10px 20px; display: flex; gap: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); border: 1px solid #e2e8f0; z-index: 100; opacity: 0; visibility: hidden; transform: translateY(10px) scale(0.9); transition: all 0.3s; }
@@ -189,18 +173,11 @@
         .mood-option:hover { transform: scale(1.3); background: #f3e8ff; }
 
         /* --- POPUP (LILÁS PASTEL) --- */
-        div:where(.swal2-popup) {
-            background: linear-gradient(135deg, #a78bfa 0%, #e879f9 100%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.4) !important; border-radius: 24px !important; padding: 30px !important;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.3) !important;
-        }
+        div:where(.swal2-popup) { background: linear-gradient(135deg, #a78bfa 0%, #e879f9 100%) !important; border: 1px solid rgba(255, 255, 255, 0.4) !important; border-radius: 24px !important; padding: 30px !important; box-shadow: 0 25px 60px rgba(0,0,0,0.3) !important; }
         div:where(.swal2-title) { color: #ffffff !important; font-size: 22px !important; font-weight: 800 !important; margin-bottom: 20px !important; text-shadow: 0 2px 10px rgba(0,0,0,0.2) !important; }
         
-        input.swal2-input, textarea.swal2-textarea {
-            background: rgba(255, 255, 255, 0.25) !important; border: 1px solid rgba(255, 255, 255, 0.5) !important;
-            color: #ffffff !important; border-radius: 12px !important; font-size: 15px !important; font-weight: 600 !important;
-            box-shadow: none !important; margin: 10px auto !important; width: 100% !important; transition: 0.3s;
-        }
+        /* Inputs do Popup: Conteúdo NORMAL */
+        input.swal2-input, textarea.swal2-textarea { background: rgba(255, 255, 255, 0.25) !important; border: 1px solid rgba(255, 255, 255, 0.5) !important; color: #ffffff !important; border-radius: 12px !important; font-size: 15px !important; font-weight: 600 !important; box-shadow: none !important; margin: 10px auto !important; width: 100% !important; transition: 0.3s; }
         input.swal2-input::placeholder, textarea.swal2-textarea::placeholder { color: rgba(255, 255, 255, 0.7) !important; }
         input.swal2-input:focus, textarea.swal2-textarea:focus { background: rgba(255, 255, 255, 0.4) !important; border-color: #ffffff !important; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2) !important; }
 
@@ -252,7 +229,7 @@
             <div class="publish-box">
                 <div class="publish-header">
                     <img src="" id="userAvatarPub" class="user-avatar-mini">
-                    <div style="color:#1e293b; font-weight:800; font-size:14px; margin-left:5px; text-transform: uppercase;">NOVA PUBLICAÇÃO</div>
+                    <div style="color:#1e293b; font-weight:800; font-size:14px; margin-left:5px;">NOVA PUBLICAÇÃO</div>
                 </div>
                 
                 <textarea id="textoPost" class="input-post" placeholder="Escreva para si mesmo... Uma ideia, uma conquista ou um lembrete."></textarea>
@@ -410,28 +387,59 @@
                     <div style="text-align:left; margin-top:15px; color:rgba(255,255,255,0.7); font-size:12px; font-weight:700; margin-left:5px;">COR DO POST-IT:</div>
                     
                     <div class="swal-color-picker">
-                        <label><input type="radio" name="sw-color" value="note-yellow" checked><div class="color-circle bg-yellow" title="Ideia (Amarelo)"></div></label>
-                        <label><input type="radio" name="sw-color" value="note-blue"><div class="color-circle bg-blue" title="Frio (Azul)"></div></label>
-                        <label><input type="radio" name="sw-color" value="note-green"><div class="color-circle bg-green" title="Meta (Verde)"></div></label>
-                        <label><input type="radio" name="sw-color" value="note-pink"><div class="color-circle bg-pink" title="Urgente (Rosa)"></div></label>
+                        <label>
+                            <input type="radio" name="sw-color" value="note-yellow" checked>
+                            <div class="color-circle bg-yellow" title="Ideia (Amarelo)"></div>
+                        </label>
+                        <label>
+                            <input type="radio" name="sw-color" value="note-blue">
+                            <div class="color-circle bg-blue" title="Frio (Azul)"></div>
+                        </label>
+                        <label>
+                            <input type="radio" name="sw-color" value="note-green">
+                            <div class="color-circle bg-green" title="Meta (Verde)"></div>
+                        </label>
+                        <label>
+                            <input type="radio" name="sw-color" value="note-pink">
+                            <div class="color-circle bg-pink" title="Urgente (Rosa)"></div>
+                        </label>
                     </div>
                 `,
-                focusConfirm: false, showCancelButton: true, confirmButtonText: 'CRIAR NOTA', cancelButtonText: 'CANCELAR',
+                focusConfirm: false,
+                showCancelButton: true,
+                confirmButtonText: 'CRIAR NOTA',
+                cancelButtonText: 'CANCELAR',
+                // Pega os valores ao clicar em Confirmar
                 preConfirm: () => {
                     const titulo = document.getElementById('sw-tit').value;
                     const texto = document.getElementById('sw-txt').value;
+                    // Pega a cor selecionada (radio button checked)
                     const cor = document.querySelector('input[name="sw-color"]:checked').value;
-                    if (!titulo && !texto) { Swal.showValidationMessage('Escreva pelo menos um título ou texto!'); return false; }
+                    
+                    if (!titulo && !texto) {
+                        Swal.showValidationMessage('Escreva pelo menos um título ou texto!');
+                        return false;
+                    }
                     return [titulo, texto, cor];
                 }
             });
 
             if (formValues) {
                 const notas = getNotas();
-                notas.push({ id: Date.now(), titulo: formValues[0] || 'Sem Título', texto: formValues[1], cor: formValues[2] });
+                notas.push({
+                    id: Date.now(),
+                    titulo: formValues[0] || 'Sem Título',
+                    texto: formValues[1],
+                    cor: formValues[2]
+                });
                 localStorage.setItem(`feed_notas_${usuario.id}`, JSON.stringify(notas));
                 renderizarNotas();
-                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, background: '#1e1b4b', color: 'white' });
+                
+                // Feedback visual rápido
+                const Toast = Swal.mixin({
+                    toast: true, position: 'top-end', showConfirmButton: false, timer: 2000,
+                    background: '#1e1b4b', color: 'white'
+                });
                 Toast.fire({ icon: 'success', title: 'Nota criada!' });
             }
         }
