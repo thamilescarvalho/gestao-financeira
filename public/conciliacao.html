@@ -20,7 +20,15 @@
             --text-white: #ffffff;
         }
 
-        * { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        /* Regras de Fonte - Mantendo estilo do sistema */
+        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; box-sizing: border-box; }
+        
+        /* EXCEÇÕES CRÍTICAS PARA DADOS E EMOJIS */
+        /* Inputs e células de tabela devem ser normais para não quebrar formatação de emojis ou texto misto */
+        input, .clean-table td, .os-value, .notion-title-input, .ofx-table td { 
+            text-transform: none !important; 
+        }
+        
         .fas, .far, .fab, .fa { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
         body { 
@@ -41,7 +49,7 @@
 
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
 
-        /* CARD PRINCIPAL (VIDRO) */
+        /* CARD PRINCIPAL */
         .glass-panel {
             background: var(--glass-bg); backdrop-filter: blur(15px);
             border-radius: 16px; border: 2px solid rgba(255,255,255,0.8);
@@ -49,7 +57,6 @@
             padding: 30px; margin-bottom: 30px; color: var(--text-dark); overflow: hidden;
         }
         
-        /* HEADER DO CARD */
         .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap; }
         .panel-title { font-size: 20px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 10px; }
 
@@ -76,7 +83,7 @@
         .total-label { font-size: 10px; color: #64748b; font-weight: 700; }
         .total-val { font-size: 20px; color: #1e293b; font-weight: 800; }
 
-        /* MODAL OFX (ESTILIZADO GALAXY) */
+        /* MODAL OFX */
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1050; backdrop-filter: blur(4px); }
         .modal-ofx { background: white; width: 95%; max-width: 1000px; border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; }
         @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -89,13 +96,12 @@
         .ofx-table-container { flex: 1; overflow-y: auto; padding: 0; }
         .ofx-table { width: 100%; border-collapse: collapse; }
         .ofx-table th { position: sticky; top: 0; background: #fff; z-index: 1; text-align: left; padding: 12px 20px; font-size: 10px; text-transform: uppercase; color: #64748b; border-bottom: 2px solid #e2e8f0; font-weight: 800; }
-        .ofx-table td { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; font-size: 12px; color: #334155; font-weight: 600; }
+        .ofx-table td { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; font-size: 12px; color: #334155; font-weight: 600; text-transform: none !important; /* IMPORTANTE PARA EMOJIS */ }
         
         .badge-tipo { font-size: 9px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; font-weight: 800; }
         .bg-rec { background: #ecfdf5; color: #059669; }
         .bg-desp { background: #fef2f2; color: #ef4444; }
         
-        /* ESTILO PARA DUPLICATAS */
         .row-duplicada { background-color: #fff7ed !important; }
         .aviso-duplicata { font-size: 12px; color: #c2410c; margin-left: 5px; cursor: help; }
 
@@ -110,7 +116,6 @@
         .detalhe-header { padding: 30px; background: #1e293b; color: white; display: flex; justify-content: space-between; align-items: start; }
         .btn-fechar { background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* --- AJUSTES MOBILE (CRÍTICO) --- */
         @media (max-width: 768px) {
             .content { padding: 20px 10px; }
             .glass-panel { padding: 20px; }
@@ -137,7 +142,7 @@
     </nav>
 
     <div class="content">
-        <input type="file" id="inputOfx" accept=".ofx" onchange="processarOFX(this)" style="display: none;">
+        <input type="file" id="inputOfx" accept=".ofx,.txt,.xml" onchange="lerArquivoLocal(this)" style="display: none;">
         
         <div class="glass-panel">
             <div class="panel-header"> 
@@ -211,7 +216,7 @@
                 <table class="ofx-table">
                     <thead> 
                         <tr> 
-                            <th width="40" style="text-align: center;"><input type="checkbox" onclick="toggleTodos(this)"></th> 
+                            <th width="40" style="text-align: center;"><input type="checkbox" onclick="toggleTodos(this)" checked></th> 
                             <th>Data</th> 
                             <th>Descrição</th> 
                             <th>Tipo</th>
@@ -240,11 +245,8 @@
 
         document.addEventListener('DOMContentLoaded', carregarDados);
 
-        function logout() {
-            localStorage.removeItem('usuario_logado');
-            localStorage.removeItem('token');
-            window.location.href = 'login.html';
-        }
+        function logout() { localStorage.removeItem('usuario_logado'); localStorage.removeItem('token'); window.location.href = 'login.html'; }
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').classList.toggle('active'); }
 
         async function carregarDados() {
             if(!usuario) return;
@@ -261,15 +263,10 @@
                     const receitas = transacoesCache
                         .filter(t => t.bancoId === banco.id && t.tipo === 'RECEITA' && (t.status === 'RECEBIDO' || t.status === 'PAGO'))
                         .reduce((acc, t) => acc + parseFloat(t.valor), 0);
-                    
                     const despesas = transacoesCache
                         .filter(t => t.bancoId === banco.id && t.tipo === 'DESPESA' && t.status === 'PAGO')
                         .reduce((acc, t) => acc + parseFloat(t.valor), 0);
-
-                    const saldoInicial = parseFloat(banco.saldoInicial || 0);
-                    const saldoReal = saldoInicial + receitas - despesas;
-
-                    return { ...banco, saldoAtual: saldoReal };
+                    return { ...banco, saldoAtual: parseFloat(banco.saldoInicial || 0) + receitas - despesas };
                 });
 
                 renderizarTabela(bancosCache);
@@ -289,7 +286,6 @@
             lista.forEach(banco => {
                 totalGeral += banco.saldoAtual;
                 const corSaldo = banco.saldoAtual >= 0 ? 'val-pos' : 'val-neg';
-                
                 tbody.innerHTML += `
                     <tr class="row-clickable" onclick="abrirDetalhes('${banco.id}')">
                         <td><div style="font-weight: 800; color: #1e293b;">${banco.nome}</div></td>
@@ -307,11 +303,11 @@
             renderizarTabela(filtrados);
         }
 
-        // --- LÓGICA OFX (Sua Lógica Original Preservada) ---
-        async function processarOFX(input) {
-            const file = input.files[0]; 
+        // --- LEITOR OFX LOCAL CORRIGIDO ---
+        async function lerArquivoLocal(input) {
+            const file = input.files[0];
             if (!file) return;
-            
+
             const options = {}; 
             bancosCache.forEach(b => options[b.id] = b.nome);
             
@@ -326,29 +322,78 @@
             
             if (!bancoId) { input.value = ''; return; }
             document.getElementById('bancoDestinoId').value = bancoId;
-            
-            Swal.fire({ title: 'Lendo Arquivo...', didOpen: () => Swal.showLoading() });
-            
-            const formData = new FormData(); 
-            formData.append('arquivo', file); 
-            formData.append('usuarioId', usuario.id);
 
-            try {
-                // Aqui mantemos a lógica de ler e retornar SEM salvar ainda
-                const res = await fetch('/conciliacao/ler-ofx', { method: 'POST', body: formData });
-                const dados = await res.json();
-                
-                if(res.ok) {
-                    transacoesParaImportar = dados.transacoes;
-                    preencherModalOfx(dados); // Mostra popup de verificação
-                    Swal.close();
-                    document.getElementById('modalOfx').style.display = 'flex';
-                } else {
-                    Swal.fire('Erro', dados.erro || 'Falha ao ler arquivo.', 'error');
-                }
-            } catch (e) { Swal.fire('Erro', 'Falha na conexão.', 'error'); }
+            // LER ARQUIVO LOCALMENTE
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const resultado = parseOFX(text);
+                transacoesParaImportar = resultado.transacoes;
+                preencherModalOfx(resultado);
+                document.getElementById('modalOfx').style.display = 'flex';
+            };
+            reader.readAsText(file); // Padrão UTF-8 (Inter suporta emojis)
+            input.value = '';
+        }
+
+        // --- PARSER MANUAL COM CORREÇÃO PARA EMOJIS/QUEBRA DE LINHA ---
+        function parseOFX(ofxData) {
+            const transacoes = [];
+            let totalEntradas = 0;
+            let totalSaidas = 0;
+
+            // Regex robusto para pegar blocos STMTTRN mesmo com quebras de linha
+            const matches = ofxData.match(/<STMTTRN>[\s\S]*?<\/STMTTRN>/g);
             
-            input.value = ''; 
+            if (matches) {
+                matches.forEach(block => {
+                    // Função auxiliar para extrair tags, suportando multilinhas ([\s\S]*?)
+                    const getTag = (tag) => {
+                        const regex = new RegExp(`<${tag}>([\\s\\S]*?)<`);
+                        const m = regex.exec(block);
+                        return m ? m[1].trim() : '';
+                    };
+
+                    const tipoOfx = getTag('TRNTYPE');
+                    const dataRaw = getTag('DTPOSTED'); 
+                    const valorRaw = parseFloat(getTag('TRNAMT'));
+                    const idTrans = getTag('FITID');
+                    
+                    // Pega MEMO (Descrição rica) ou NAME como fallback
+                    const memo = getTag('MEMO') || getTag('NAME');
+
+                    const dataFmt = `${dataRaw.substring(0,4)}-${dataRaw.substring(4,6)}-${dataRaw.substring(6,8)}`;
+
+                    let tipoFinal = 'DESPESA';
+                    if (tipoOfx === 'CREDIT' || valorRaw > 0) {
+                        tipoFinal = 'RECEITA';
+                        totalEntradas += valorRaw;
+                    } else {
+                        totalSaidas += Math.abs(valorRaw);
+                    }
+
+                    const duplicada = transacoesCache.some(t => t.fitid === idTrans || (t.valor == Math.abs(valorRaw) && t.data === dataFmt));
+
+                    transacoes.push({
+                        data: dataFmt,
+                        descricao: memo, // Aqui vai o emoji se houver
+                        valor: Math.abs(valorRaw),
+                        tipo: tipoFinal,
+                        fitid: idTrans,
+                        duplicata: duplicada,
+                        duplicataInfo: duplicada ? 'Já existe no sistema' : ''
+                    });
+                });
+            }
+
+            return {
+                transacoes: transacoes,
+                resumo: {
+                    totalEntradas: totalEntradas,
+                    totalSaidas: totalSaidas,
+                    totalItens: transacoes.length
+                }
+            };
         }
 
         function preencherModalOfx(dados) {
@@ -363,24 +408,18 @@
                 const partes = t.data.split('-'); 
                 const dataFmt = `${partes[2]}/${partes[1]}/${partes[0]}`;
                 
-                // LÓGICA DE DUPLICATA (PRESERVADA)
-                const isDup = t.duplicata === true;
+                const isDup = t.duplicata;
                 const rowClass = isDup ? 'row-duplicada' : '';
                 const checked = isDup ? '' : 'checked'; 
-                const tooltip = isDup ? (t.duplicataInfo || 'Duplicata') : t.descricao;
-                const iconWarn = isDup ? `<i class="fas fa-exclamation-triangle aviso-duplicata" title="${tooltip}"></i>` : '';
+                const iconWarn = isDup ? '<i class="fas fa-exclamation-triangle aviso-duplicata" title="Possível duplicata"></i>' : '';
+                const badge = t.tipo === 'DESPESA' ? 'bg-desp' : 'bg-rec';
+                const cor = t.tipo === 'DESPESA' ? 'val-neg' : 'val-pos';
 
-                const isDesp = t.tipo === 'DESPESA';
-                const cor = isDesp ? 'val-neg' : 'val-pos';
-                const badge = isDesp ? 'bg-desp' : 'bg-rec';
-                
                 tbody.innerHTML += `
-                    <tr class="${rowClass}" title="${tooltip}">
+                    <tr class="${rowClass}">
                         <td style="text-align: center;"><input type="checkbox" class="chk-ofx" ${checked} data-index="${index}"></td>
                         <td>${dataFmt}</td>
-                        <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                            ${t.descricao} ${iconWarn}
-                        </td>
+                        <td style="max-width:250px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-transform:none;">${t.descricao} ${iconWarn}</td>
                         <td><span class="badge-tipo ${badge}">${t.tipo}</span></td>
                         <td class="${cor}" style="text-align: right;">${fmt.format(t.valor)}</td>
                     </tr>`;
@@ -402,8 +441,10 @@
                 
                 const payload = { 
                     ...t, 
+                    fornecedor: t.descricao, // Usa descrição como fornecedor padrão
                     status: t.tipo === 'DESPESA' ? 'PAGO' : 'RECEBIDO', 
                     dataPagamento: t.data, 
+                    dataVencimento: t.data,
                     bancoId: bancoId, 
                     usuarioId: usuario.id, 
                     categoria: 'Importação OFX' 
@@ -433,7 +474,27 @@
             document.getElementById('detalheNomeBanco').innerText = banco.nome;
             document.getElementById('detalheConta').innerText = `Ag: ${banco.agencia||'-'} | CC: ${banco.conta||'-'}`;
             document.getElementById('detalheSaldo').innerText = fmt.format(banco.saldoAtual);
-            document.getElementById('listaMovimentosBanco').innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">Selecione uma data acima.</div>';
+            
+            const moves = transacoesCache.filter(t => t.bancoId === id).sort((a,b) => new Date(b.data) - new Date(a.data));
+            const lista = document.getElementById('listaMovimentosBanco');
+            lista.innerHTML = '';
+            
+            if(moves.length === 0) lista.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.5; color:#64748b;">Sem movimentos.</div>';
+            
+            moves.forEach(m => {
+                const cor = m.tipo === 'RECEITA' ? '#10b981' : '#ef4444';
+                const sinal = m.tipo === 'RECEITA' ? '+' : '-';
+                lista.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #e2e8f0;">
+                        <div>
+                            <div style="font-size:12px; font-weight:700; color:#1e293b;">${m.descricao}</div>
+                            <div style="font-size:10px; opacity:0.6; color:#64748b;">${new Date(m.data).toLocaleDateString('pt-BR')}</div>
+                        </div>
+                        <div style="font-weight:800; color:${cor};">${sinal} ${fmt.format(m.valor)}</div>
+                    </div>
+                `;
+            });
+
             document.getElementById('painelDetalhe').classList.add('aberto'); 
             document.getElementById('backdropDetalhe').classList.add('ativo'); 
         }
