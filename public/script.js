@@ -20,19 +20,12 @@ function gerarMenuLateral() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
 
-    // Configura o sidebar como Flexbox
-    sidebar.style.display = 'flex';
-    sidebar.style.flexDirection = 'column';
-    sidebar.style.height = '100vh'; 
-    sidebar.style.overflow = 'hidden'; 
-
-    // Lê o usuário do localStorage (agora com avatar do banco)
+    // Lê o usuário do localStorage
     const usuario = JSON.parse(localStorage.getItem('usuario_logado')) || { id: '0', nome: 'Visitante', email: 'admin' };
     const primeiroNome = usuario.nome.split(' ')[0]; 
     const iniciais = usuario.nome.substring(0, 2).toUpperCase();
 
-    // --- NOVA LÓGICA SIMPLIFICADA ---
-    // Não precisa mais ler 'perfil_extra'. O avatar vem direto do usuario.
+    // Ação ao clicar no avatar
     const clickAction = `onclick="window.location.href='perfil.html'" style="cursor: pointer;" title="Editar Perfil"`;
 
     let avatarHtml;
@@ -42,128 +35,94 @@ function gerarMenuLateral() {
         avatarHtml = `<div class="header-avatar-img display-initials" ${clickAction}>${iniciais}</div>`;
     }
 
-    // --- CSS INJETADO (MANTIDO IGUAL) ---
+    // --- CSS INJETADO (ATUALIZADO PARA GARANTIR VISUAL EM TODAS AS PÁGINAS) ---
     const styleMenu = `
         <style>
-            /* 1. Cabeçalho Ajustado */
+            /* GARANTE QUE A SIDEBAR TENHA FUNDO E POSIÇÃO, MESMO SE O HTML ESQUECER */
+            .sidebar {
+                position: fixed; left: -280px; top: 0; width: 280px; height: 100%;
+                background: rgba(30, 27, 46, 0.98); backdrop-filter: blur(25px);
+                z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 5px 0 30px rgba(0,0,0,0.7); 
+                display: flex; flex-direction: column; overflow: hidden;
+                border-right: 1px solid rgba(168, 85, 247, 0.3);
+            }
+            .sidebar.active { left: 0; }
+
+            /* CABEÇALHO DO MENU */
             .sidebar-header {
-                padding: 20px 20px 10px 20px !important;
+                padding: 25px 20px 15px 20px !important;
                 margin-bottom: 10px !important;
                 flex-shrink: 0;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                background: rgba(255,255,255,0.02); /* Sutil destaque */
             }
             
-            .header-user-group {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
+            .header-user-group { display: flex; align-items: center; gap: 12px; }
 
-            /* Estilo da Foto no Topo */
+            /* AVATAR */
             .header-avatar-img {
-                width: 42px; 
-                height: 42px; 
-                border-radius: 50%;
-                border: 2px solid #a855f7;
-                object-fit: cover;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: rgba(255,255,255,0.1);
-                color: #fff;
-                font-weight: 800;
-                font-size: 14px;
+                width: 42px; height: 42px; border-radius: 50%;
+                border: 2px solid #a855f7; object-fit: cover;
+                display: flex; align-items: center; justify-content: center;
+                background: rgba(255,255,255,0.1); color: #fff;
+                font-weight: 800; font-size: 14px;
                 box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
-                transition: transform 0.2s, box-shadow 0.2s;
+                transition: transform 0.2s;
             }
-            
-            .header-avatar-img:hover {
-                transform: scale(1.1);
-                box-shadow: 0 0 15px rgba(168, 85, 247, 0.8);
-                border-color: #fff;
-            }
-
-            .display-initials {
-                background: linear-gradient(135deg, #a855f7, #6366f1);
-            }
+            .header-avatar-img:hover { transform: scale(1.1); box-shadow: 0 0 15px rgba(168, 85, 247, 0.8); border-color: #fff; }
+            .display-initials { background: linear-gradient(135deg, #a855f7, #6366f1); }
 
             .header-user-name {
-                font-size: 16px !important; 
-                font-weight: 800 !important;
-                color: white;
-                letter-spacing: 0.5px;
-                text-shadow: 0 0 5px rgba(0,0,0,0.5);
+                font-size: 15px !important; font-weight: 800 !important;
+                color: white; letter-spacing: 0.5px; text-transform: uppercase;
             }
 
-            /* 2. Área do Menu */
+            /* ÁREA DE SCROLL DO MENU */
             .sidebar-menu {
-                flex: 1;
-                overflow-y: auto !important;
-                overflow-x: hidden;
+                flex: 1; overflow-y: auto !important; overflow-x: hidden;
                 padding-bottom: 20px;
-                scrollbar-width: thin;
-                scrollbar-color: #334155 #1e293b;
+                scrollbar-width: thin; scrollbar-color: #334155 transparent;
             }
             .sidebar-menu::-webkit-scrollbar { width: 4px; }
-            .sidebar-menu::-webkit-scrollbar-track { background: #1e293b; }
             .sidebar-menu::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 4px; }
 
-            /* 3. Itens do Menu */
+            /* ITENS DO MENU */
             .sidebar-menu .menu-item { 
-                font-size: 11px !important; 
-                padding: 10px 20px !important; 
-                font-weight: 700 !important;
-                letter-spacing: 0.5px;
+                font-size: 12px !important; padding: 12px 20px !important; 
+                font-weight: 700 !important; letter-spacing: 0.5px;
+                color: rgba(255,255,255,0.7); cursor: pointer; transition: 0.2s;
+                text-decoration: none; display: flex; align-items: center; justify-content: space-between;
             }
-            .sidebar-menu .menu-content i { 
-                font-size: 13px !important; 
-                width: 20px; 
-                text-align: center; 
-                margin-right: 8px;
-            }
+            .sidebar-menu .menu-item:hover { color: white; background: rgba(255,255,255,0.05); }
+            
+            .sidebar-menu .menu-content { display: flex; align-items: center; }
+            .sidebar-menu .menu-content i { font-size: 14px !important; width: 25px; text-align: center; margin-right: 10px; color: #a855f7; }
 
-            /* Submenus */
+            /* SETA DO SUBMENU */
+            .arrow { transition: transform 0.3s; font-size: 10px; }
+            .menu-item.open .arrow { transform: rotate(180deg); color: #d8b4fe; }
+
+            /* SUBMENUS */
             .sidebar-menu .submenu a { 
-                font-size: 10px !important; 
-                padding: 8px 20px 8px 50px !important; 
-                font-weight: 600 !important;
-                letter-spacing: 0.3px;
-                color: #94a3b8 !important;
+                font-size: 11px !important; padding: 10px 20px 10px 55px !important; 
+                font-weight: 600 !important; letter-spacing: 0.3px; color: #94a3b8 !important;
+                text-decoration: none; display: block; transition: 0.2s;
             }
-            .sidebar-menu .submenu a:hover, .sidebar-menu .submenu a.active-link {
-                color: #fff !important;
-            }
-            .submenu { 
-                overflow: hidden !important; 
-                transition: max-height 0.3s ease-out; 
-            }
+            .sidebar-menu .submenu a:hover, .sidebar-menu .submenu a.active-link { color: #fff !important; background: rgba(168, 85, 247, 0.1); border-right: 3px solid #a855f7; }
+            .submenu { overflow: hidden !important; max-height: 0; transition: max-height 0.3s ease-out; }
+            .submenu.open { max-height: 500px; } /* Garante que abre */
 
-            /* 4. Rodapé Compacto */
+            /* RODAPÉ */
             .user-profile {
-                flex-shrink: 0;
-                border-top: 1px solid rgba(255,255,255,0.1);
-                padding: 15px 20px !important;
-                margin-top: 0 !important;
-                display: flex; 
-                justify-content: space-between;
-                align-items: center; 
-                background: rgba(0,0,0,0.2);
+                flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.1);
+                padding: 15px 20px !important; display: flex; justify-content: space-between; 
+                align-items: center; background: rgba(0,0,0,0.3);
             }
-            
-            .user-info-footer {
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .btn-logout-icon {
-                color: #ef4444;
-                cursor: pointer;
-                font-size: 16px;
-                padding: 5px;
-                transition: 0.2s;
-            }
+            .user-info-footer { display: flex; flex-direction: column; }
+            .btn-logout-icon { color: #ef4444; cursor: pointer; font-size: 16px; padding: 5px; transition: 0.2s; }
             .btn-logout-icon:hover { transform: scale(1.2); text-shadow: 0 0 10px red; }
         </style>
     `;
@@ -180,25 +139,20 @@ function gerarMenuLateral() {
 
         <div class="sidebar-menu">
             <a href="index.html" class="menu-item link-navegacao">
-                <div class="menu-content"><i class="fas fa-chart-pie"></i> Painel</div>
-            </a>
-
-            <a href="feed-pv.html" class="menu-item link-navegacao">
-            <div class="menu-content"><i class="fas fa-stream"></i> Meu Feed (Em teste)</div>
+                <div class="menu-content"><i class="fas fa-chart-pie"></i> PAINEL</div>
             </a>
 
             <div class="menu-item" onclick="toggleSubmenu(this)">
-                <div class="menu-content"><i class="fas fa-database"></i> Cadastros</div>
+                <div class="menu-content"><i class="fas fa-database"></i> CADASTROS</div>
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
-
             <div class="submenu">
                 <a href="perfil.html" class="link-navegacao">Meu Perfil</a>
-                <a href="usuarios.html" class="link-navegacao">Usuário</a>
+                <a href="usuarios.html" class="link-navegacao">Usuários</a>
             </div>
 
             <div class="menu-item" onclick="toggleSubmenu(this)">
-                <div class="menu-content"><i class="fas fa-wallet"></i> Financeiro</div>
+                <div class="menu-content"><i class="fas fa-wallet"></i> FINANCEIRO</div>
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
@@ -212,12 +166,13 @@ function gerarMenuLateral() {
             </div>
             
             <div class="menu-item" onclick="toggleSubmenu(this)">
-                <div class="menu-content"><i class="fas fa-calendar-alt"></i> Agenda</div>
+                <div class="menu-content"><i class="fas fa-calendar-alt"></i> AGENDA</div>
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
             <div class="submenu">
                 <a href="agenda.html" class="link-navegacao">Calendário</a>
-                 <a href="projetos.html" class="link-navegacao">Projetos (Em teste)</a>
+                <a href="projetos.html" class="link-navegacao">Projetos (Em teste)</a>
+                <a href="feed-pv.html" class="link-navegacao" style="color: #d8b4fe !important;">Meu Feed (Em teste)</a>
             </div>
         </div>
 
@@ -230,6 +185,7 @@ function gerarMenuLateral() {
         </div>
     `;
 
+    // Garante que links fechem o menu no mobile
     document.querySelectorAll('.link-navegacao').forEach(link => {
         link.addEventListener('click', () => { 
             if (window.innerWidth <= 768) toggleMenu(); 
@@ -238,16 +194,20 @@ function gerarMenuLateral() {
 }
 
 function toggleMenu() {
-    const sidebar = document.querySelector('.sidebar');
+    const sidebar = document.getElementById('sidebar');
     const overlay = document.querySelector('.overlay');
-    if (sidebar) sidebar.classList.toggle('aberto');
-    if (overlay) overlay.classList.toggle('ativo'); 
+    
+    // Padronizei para usar 'active' que é o mais comum no CSS moderno
+    if (sidebar) sidebar.classList.toggle('active');
+    if (overlay) overlay.classList.toggle('active'); 
 }
 
 function toggleSubmenu(element) {
     const submenu = element.nextElementSibling;
     element.classList.toggle('open'); 
+    submenu.classList.toggle('open');
     
+    // Lógica para animar altura (slide down/up)
     if (submenu.style.maxHeight) { 
         submenu.style.maxHeight = null; 
     } else { 
@@ -257,20 +217,22 @@ function toggleSubmenu(element) {
 
 function highlightActiveLink() {
     const path = window.location.pathname.split("/").pop() || 'index.html';
+    // Seletor mais robusto para achar o link certo
     const activeLink = document.querySelector(`.sidebar a[href="${path}"]`);
     
     if (activeLink) {
         if (activeLink.parentElement.classList.contains('submenu')) {
             activeLink.classList.add('active-link');
+            // Abre o menu pai automaticamente
             const parentMenu = activeLink.parentElement.previousElementSibling;
+            const parentSubmenu = activeLink.parentElement;
             if(parentMenu) {
-                parentMenu.classList.add('active', 'open');
-                setTimeout(() => {
-                    activeLink.parentElement.style.maxHeight = activeLink.parentElement.scrollHeight + "px";
-                }, 50);
+                parentMenu.classList.add('open');
+                parentSubmenu.classList.add('open');
+                parentSubmenu.style.maxHeight = parentSubmenu.scrollHeight + "px";
             }
         } else { 
-            activeLink.classList.add('active'); 
+            activeLink.classList.add('active'); // Para itens de menu raiz se houver
         }
     }
 }
