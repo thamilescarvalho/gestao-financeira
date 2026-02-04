@@ -25,8 +25,26 @@
             --shadow-soft: 0 4px 20px rgba(0,0,0,0.1);
         }
 
-        *:not(i) { font-family: 'Outfit', sans-serif !important; box-sizing: border-box; }
+        /* --- CONFIGURAÇÃO DE TEXTO --- */
+        /* Padrão: Normal (Para inputs e textos do usuário) */
+        *:not(i) { 
+            font-family: 'Outfit', sans-serif !important; 
+            box-sizing: border-box; 
+            text-transform: none !important; /* Garante texto normal por padrão */
+        }
         
+        /* Exceções: Itens de Interface em MAIÚSCULO para estilo */
+        .navbar-custom .logo,
+        .sidebar-title,
+        .sticky-section-title,
+        .publish-header div, /* Texto NOVA PUBLICAÇÃO */
+        .btn-publish,
+        .swal2-confirm,
+        .swal2-cancel,
+        .swal2-title {
+            text-transform: uppercase !important;
+        }
+
         body { 
             background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #60a5fa 100%);
             color: var(--text-dark); min-height: 100vh; margin: 0; overflow-x: hidden;
@@ -45,26 +63,25 @@
             position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2); 
         }
         .navbar-custom .menu-btn { color: var(--text-white) !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: var(--text-white); text-transform: uppercase; letter-spacing: 1px; }
+        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: var(--text-white); letter-spacing: 1px; }
         .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; }
 
         /* --- LAYOUT EXPANDIDO (FULL WIDTH) --- */
         .content { 
-            padding: 30px 40px; /* Mais margem lateral */
-            max-width: 100%; /* Ocupa a tela toda */
+            padding: 30px 40px; 
+            max-width: 100%; 
             margin: 0; 
             display: grid; 
-            /* Colunas mais largas nas laterais e o meio flexível */
             grid-template-columns: 280px 1fr 350px; 
-            gap: 40px; /* Mais espaço entre as colunas */
+            gap: 40px; 
             align-items: start; 
         }
 
         /* SIDEBAR ESQUERDA */
         .feed-sidebar-left { background: var(--card-bg); border-radius: 16px; border: var(--card-border); padding: 25px; box-shadow: var(--shadow-soft); position: sticky; top: 90px; }
-        .sidebar-title { font-size: 13px; font-weight: 800; margin-bottom: 20px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .sidebar-title { font-size: 13px; font-weight: 800; margin-bottom: 20px; color: #64748b; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
         .filter-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
-        .filter-item { padding: 12px 15px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; color: var(--text-dark); }
+        .filter-item { padding: 12px 15px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; color: var(--text-dark); text-transform: uppercase !important; }
         .filter-item:hover { background: #f1f5f9; color: var(--purple-primary); }
         .filter-item.active { background: #f3e8ff; color: var(--purple-primary); border: 1px solid #d8b4fe; }
 
@@ -86,7 +103,7 @@
         .tool-icons { display: flex; gap: 8px; position: relative; }
         .tool-btn { background: transparent; border: none; width: 40px; height: 40px; border-radius: 50%; color: #64748b; font-size: 20px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .tool-btn:hover { background: #e2e8f0; color: var(--purple-primary); transform: scale(1.1); }
-        .btn-publish { background: linear-gradient(135deg, #f43f5e, #ec4899); color: white; border: none; padding: 12px 35px; border-radius: 25px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); transition: 0.3s; }
+        .btn-publish { background: linear-gradient(135deg, #f43f5e, #ec4899); color: white; border: none; padding: 12px 35px; border-radius: 25px; font-weight: 800; cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); transition: 0.3s; }
         
         .attachment-area { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
         .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; background: #f1f5f9; color: var(--purple-primary); border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -97,7 +114,7 @@
         .timeline { display: flex; flex-direction: column; gap: 25px; margin-top: 10px; }
         .post-card { background: rgba(255,255,255,0.3); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); animation: fadeIn 0.5s ease; border-left: 5px solid var(--purple-primary); border-top: 1px solid rgba(255,255,255,0.4); display: flex; flex-direction: column; }
         .post-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .post-user { display: flex; align-items: center; gap: 12px; font-weight: 700; color: white; font-size: 14px; }
+        .post-user { display: flex; align-items: center; gap: 12px; font-weight: 700; color: white; font-size: 14px; text-transform: uppercase !important; }
         .post-time { font-size: 11px; color: var(--text-light-purple); font-weight: 600; opacity: 0.9; }
         .post-content { font-size: 15px; color: white; line-height: 1.6; margin-bottom: 15px; white-space: pre-wrap; font-weight: 500; }
         .post-image-display { width: 100%; max-height: 400px; object-fit: cover; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.2); }
@@ -106,18 +123,15 @@
         .reaction-btn:hover { background: rgba(255,255,255,0.35); transform: scale(1.05); }
         .reaction-btn.active { background: #fca5a5; color: #991b1b; border: 1px solid #ef4444; }
 
-        /* --- MURAL RÁPIDO (Header Minimalista) --- */
+        /* --- MURAL RÁPIDO --- */
         .feed-sidebar-right { 
             display: flex; flex-direction: column; gap: 15px; 
             position: sticky; top: 90px; 
         }
 
-        /* Container do Título + Botão */
         .sidebar-header-row {
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            margin-bottom: 5px; /* Espaço para a busca */
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 5px;
         }
 
         .sticky-section-title { 
@@ -126,28 +140,14 @@
             display: flex; align-items: center; gap: 8px; letter-spacing: 1px; 
         }
 
-        /* Novo Botão "+" Discreto e Moderno */
         .btn-add-mini {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            width: 32px; height: 32px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Efeito elástico */
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white;
+            width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
+        .btn-add-mini:hover { background: var(--purple-primary); border-color: var(--purple-primary); transform: scale(1.1) rotate(90deg); box-shadow: 0 0 15px rgba(168, 85, 247, 0.6); }
 
-        .btn-add-mini:hover {
-            background: var(--purple-primary);
-            border-color: var(--purple-primary);
-            transform: scale(1.1) rotate(90deg); /* Gira ao passar o mouse */
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
-        }
-
-        /* Barra de Pesquisa */
         .search-notes-box { 
             display: flex; align-items: center; background: rgba(255, 255, 255, 0.15); 
             border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 12px; 
@@ -155,13 +155,9 @@
         }
         .search-notes-box:focus-within { background: rgba(255, 255, 255, 0.25); border-color: white; }
         .search-notes-box i { color: white; margin-right: 10px; opacity: 0.7; font-size: 12px; }
-        .search-notes-input { 
-            background: transparent; border: none; color: white; font-size: 12px; 
-            width: 100%; outline: none; font-weight: 500; 
-        }
+        .search-notes-input { background: transparent; border: none; color: white; font-size: 12px; width: 100%; outline: none; font-weight: 500; }
         .search-notes-input::placeholder { color: rgba(255,255,255,0.6); }
 
-        /* Grid das Notas (Mantido) */
         .sticky-grid { display: grid; gap: 15px; }
         
         .sticky-note {
@@ -174,14 +170,13 @@
         .sticky-note:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.25); z-index: 10; }
         .sticky-note:active { cursor: grabbing; transform: scale(0.98); }
         
-        /* Cores das Notas (Mantidas) */
         .note-yellow { background: linear-gradient(135deg, #fef08a, #facc15); color: #854d0e; }
         .note-blue { background: linear-gradient(135deg, #bfdbfe, #60a5fa); color: #1e3a8a; }
         .note-green { background: linear-gradient(135deg, #bbf7d0, #4ade80); color: #14532d; }
         .note-pink { background: linear-gradient(135deg, #fbcfe8, #f472b6); color: #831843; }
 
         .note-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .note-title { font-weight: 800; font-size: 12px; text-transform: uppercase; margin: 0; line-height: 1.2; word-break: break-word; }
+        .note-title { font-weight: 800; font-size: 12px; margin: 0; line-height: 1.2; word-break: break-word; } /* Título da nota em normal case para o usuário */
         
         .btn-delete-note { background: rgba(0,0,0,0.1); border: none; color: inherit; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0.6; transition: 0.2s; font-size: 11px; }
         .btn-delete-note:hover { opacity: 1; background: rgba(255,0,0,0.2); color: #ef4444; transform: scale(1.1); }
@@ -193,130 +188,35 @@
         .mood-option { font-size: 24px; cursor: pointer; transition: 0.2s; padding: 5px; border-radius: 50%; }
         .mood-option:hover { transform: scale(1.3); background: #f3e8ff; }
 
-        /* --- ESTILIZAÇÃO DO POPUP "NOVA NOTA" --- */
-        
-        /* --- ESTILIZAÇÃO DO POPUP "NOVA NOTA" (VERSÃO PASTEL/LIGHT) --- */
-        
-        /* Fundo do modal - Roxo Pastel/Lilás Vibrante */
+        /* --- POPUP (LILÁS PASTEL) --- */
         div:where(.swal2-popup) {
-            /* Gradiente mais claro e alegre */
             background: linear-gradient(135deg, #a78bfa 0%, #e879f9 100%) !important;
-            border: 1px solid rgba(255, 255, 255, 0.4) !important;
-            border-radius: 24px !important;
-            padding: 30px !important;
+            border: 1px solid rgba(255, 255, 255, 0.4) !important; border-radius: 24px !important; padding: 30px !important;
             box-shadow: 0 25px 60px rgba(0,0,0,0.3) !important;
         }
-
-        /* Título - Branco com sombra para destacar no fundo claro */
-        div:where(.swal2-title) {
-            color: #ffffff !important;
-            font-family: 'Outfit', sans-serif !important;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 22px !important;
-            font-weight: 800 !important;
-            margin-bottom: 20px !important;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2) !important; /* Sombra para leitura */
-        }
-
-        /* Inputs (Título e Texto) - Vidro Branco */
+        div:where(.swal2-title) { color: #ffffff !important; font-size: 22px !important; font-weight: 800 !important; margin-bottom: 20px !important; text-shadow: 0 2px 10px rgba(0,0,0,0.2) !important; }
+        
         input.swal2-input, textarea.swal2-textarea {
-            background: rgba(255, 255, 255, 0.25) !important; /* Mais claro */
-            border: 1px solid rgba(255, 255, 255, 0.5) !important;
-            color: #ffffff !important;
-            border-radius: 12px !important;
-            font-size: 15px !important;
-            font-weight: 600 !important;
-            box-shadow: none !important;
-            margin: 10px auto !important;
-            width: 100% !important;
-            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.25) !important; border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            color: #ffffff !important; border-radius: 12px !important; font-size: 15px !important; font-weight: 600 !important;
+            box-shadow: none !important; margin: 10px auto !important; width: 100% !important; transition: 0.3s;
         }
-        
-        /* Placeholder do input (Cor do texto de dica) */
-        input.swal2-input::placeholder, textarea.swal2-textarea::placeholder {
-            color: rgba(255, 255, 255, 0.7) !important;
-        }
+        input.swal2-input::placeholder, textarea.swal2-textarea::placeholder { color: rgba(255, 255, 255, 0.7) !important; }
+        input.swal2-input:focus, textarea.swal2-textarea:focus { background: rgba(255, 255, 255, 0.4) !important; border-color: #ffffff !important; box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2) !important; }
 
-        input.swal2-input:focus, textarea.swal2-textarea:focus {
-            background: rgba(255, 255, 255, 0.4) !important;
-            border-color: #ffffff !important;
-            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2) !important;
-        }
-
-        /* --- SELETOR DE CORES (BOLINHAS) --- */
-        .swal-color-picker {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            background: rgba(0,0,0,0.1); /* Fundo sutil para agrupar as cores */
-            padding: 10px;
-            border-radius: 50px;
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
+        .swal-color-picker { display: flex; justify-content: center; gap: 15px; margin-top: 20px; margin-bottom: 10px; background: rgba(0,0,0,0.1); padding: 10px; border-radius: 50px; width: fit-content; margin-left: auto; margin-right: auto; }
         .swal-color-picker input[type="radio"] { display: none; }
-
-        .color-circle {
-            width: 35px; height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 3px solid rgba(255,255,255,0.5); /* Borda mais grossa */
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Cores Vibrantes */
-        .bg-yellow { background: #facc15; }
-        .bg-blue   { background: #60a5fa; }
-        .bg-green  { background: #4ade80; }
-        .bg-pink   { background: #f472b6; }
-
+        .color-circle { width: 35px; height: 35px; border-radius: 50%; cursor: pointer; border: 3px solid rgba(255,255,255,0.5); transition: transform 0.2s, box-shadow 0.2s; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .bg-yellow { background: #facc15; } .bg-blue { background: #60a5fa; } .bg-green { background: #4ade80; } .bg-pink { background: #f472b6; }
         .color-circle:hover { transform: scale(1.15); }
+        .swal-color-picker input[type="radio"]:checked + .color-circle { transform: scale(1.2); border-color: white; box-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
+        .swal-color-picker input[type="radio"]:checked + .color-circle::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; color: rgba(0,0,0,0.6); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 14px; }
 
-        .swal-color-picker input[type="radio"]:checked + .color-circle {
-            transform: scale(1.2);
-            border-color: white;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
-        }
-        /* Ícone de Check escuro para contraste nas cores claras */
-        .swal-color-picker input[type="radio"]:checked + .color-circle::after {
-            content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900;
-            color: rgba(0,0,0,0.6); position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); font-size: 14px;
-        }
-
-        /* Botões */
-        div:where(.swal2-actions) { margin-top: 25px !important; }
-        
-        div:where(.swal2-confirm) {
-            background: #ffffff !important; /* Botão Branco */
-            color: #a855f7 !important; /* Texto Roxo */
-            border-radius: 30px !important;
-            padding: 12px 40px !important;
-            font-weight: 800 !important;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
-            border: none !important;
-        }
-        div:where(.swal2-confirm):hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
-        }
-        
-        div:where(.swal2-cancel) {
-            background: transparent !important;
-            color: white !important;
-            font-weight: 700 !important;
-            opacity: 0.8;
-        }
+        div:where(.swal2-confirm) { background: #ffffff !important; color: #a855f7 !important; border-radius: 30px !important; padding: 12px 40px !important; font-weight: 800 !important; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important; border: none !important; }
+        div:where(.swal2-confirm):hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important; }
+        div:where(.swal2-cancel) { background: transparent !important; color: white !important; font-weight: 700 !important; opacity: 0.8; }
         div:where(.swal2-cancel):hover { opacity: 1; text-decoration: underline; }
 
-        /* RESPONSIVIDADE (Ajustada para o novo tamanho) */
         @media (max-width: 1400px) { .content { grid-template-columns: 240px 1fr 300px; padding: 20px; } }
         @media (max-width: 1100px) { .content { grid-template-columns: 1fr 300px; } .feed-sidebar-left { display: none; } }
         @media (max-width: 850px) { .content { grid-template-columns: 1fr; gap: 40px; padding: 15px; } .feed-sidebar-right { display: flex; order: 2; } .sticky-grid { grid-template-columns: 1fr 1fr; } .feed-sidebar-left { display: none; } }
@@ -510,59 +410,28 @@
                     <div style="text-align:left; margin-top:15px; color:rgba(255,255,255,0.7); font-size:12px; font-weight:700; margin-left:5px;">COR DO POST-IT:</div>
                     
                     <div class="swal-color-picker">
-                        <label>
-                            <input type="radio" name="sw-color" value="note-yellow" checked>
-                            <div class="color-circle bg-yellow" title="Ideia (Amarelo)"></div>
-                        </label>
-                        <label>
-                            <input type="radio" name="sw-color" value="note-blue">
-                            <div class="color-circle bg-blue" title="Frio (Azul)"></div>
-                        </label>
-                        <label>
-                            <input type="radio" name="sw-color" value="note-green">
-                            <div class="color-circle bg-green" title="Meta (Verde)"></div>
-                        </label>
-                        <label>
-                            <input type="radio" name="sw-color" value="note-pink">
-                            <div class="color-circle bg-pink" title="Urgente (Rosa)"></div>
-                        </label>
+                        <label><input type="radio" name="sw-color" value="note-yellow" checked><div class="color-circle bg-yellow" title="Ideia (Amarelo)"></div></label>
+                        <label><input type="radio" name="sw-color" value="note-blue"><div class="color-circle bg-blue" title="Frio (Azul)"></div></label>
+                        <label><input type="radio" name="sw-color" value="note-green"><div class="color-circle bg-green" title="Meta (Verde)"></div></label>
+                        <label><input type="radio" name="sw-color" value="note-pink"><div class="color-circle bg-pink" title="Urgente (Rosa)"></div></label>
                     </div>
                 `,
-                focusConfirm: false,
-                showCancelButton: true,
-                confirmButtonText: 'CRIAR NOTA',
-                cancelButtonText: 'CANCELAR',
-                // Pega os valores ao clicar em Confirmar
+                focusConfirm: false, showCancelButton: true, confirmButtonText: 'CRIAR NOTA', cancelButtonText: 'CANCELAR',
                 preConfirm: () => {
                     const titulo = document.getElementById('sw-tit').value;
                     const texto = document.getElementById('sw-txt').value;
-                    // Pega a cor selecionada (radio button checked)
                     const cor = document.querySelector('input[name="sw-color"]:checked').value;
-                    
-                    if (!titulo && !texto) {
-                        Swal.showValidationMessage('Escreva pelo menos um título ou texto!');
-                        return false;
-                    }
+                    if (!titulo && !texto) { Swal.showValidationMessage('Escreva pelo menos um título ou texto!'); return false; }
                     return [titulo, texto, cor];
                 }
             });
 
             if (formValues) {
                 const notas = getNotas();
-                notas.push({
-                    id: Date.now(),
-                    titulo: formValues[0] || 'Sem Título',
-                    texto: formValues[1],
-                    cor: formValues[2]
-                });
+                notas.push({ id: Date.now(), titulo: formValues[0] || 'Sem Título', texto: formValues[1], cor: formValues[2] });
                 localStorage.setItem(`feed_notas_${usuario.id}`, JSON.stringify(notas));
                 renderizarNotas();
-                
-                // Feedback visual rápido
-                const Toast = Swal.mixin({
-                    toast: true, position: 'top-end', showConfirmButton: false, timer: 2000,
-                    background: '#1e1b4b', color: 'white'
-                });
+                const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, background: '#1e1b4b', color: 'white' });
                 Toast.fire({ icon: 'success', title: 'Nota criada!' });
             }
         }

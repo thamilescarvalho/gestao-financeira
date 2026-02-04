@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>PROJETOS - T-SYSTEM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="auth.js"></script> 
+    <script src="script.js"></script>
+
+    <style>
+        /* --- TEMA GALAXY DARK LED (AJUSTADO) --- */
+        :root {
+            --panel-dark: rgba(30, 27, 46, 0.95);
+            --purple-primary: #a855f7;
+            --purple-glow: rgba(168, 85, 247, 0.5);
+            --text-white: #ffffff;
+            
+            /* AJUSTE 2: VIDRO MAIS CLARO PARA DESTAQUE */
+            --glass-card-bg: rgba(255, 255, 255, 0.18); 
+            --glass-border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        /* RESET E FONTES */
+        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; box-sizing: border-box; }
+        input, textarea, .notion-title-input { text-transform: none !important; } 
+        .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
+
+        /* FUNDO GALAXY DARK INTENSO */
+        body { 
+            background: linear-gradient(135deg, #1a0b2e 0%, #311b92 50%, #0f172a 100%);
+            color: var(--text-white); 
+            min-height: 100vh; margin: 0; overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* AJUSTE 1: POEIRA ESPACIAL MAIS DENSA */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 25px 5px, white, transparent),
+                radial-gradient(1px 1px at 50px 25px, white, transparent),
+                radial-gradient(1px 1px at 125px 20px, white, transparent),
+                radial-gradient(1.5px 1.5px at 50px 75px, white, transparent),
+                radial-gradient(2px 2px at 15px 125px, rgba(255,255,255,0.5), transparent),
+                radial-gradient(2.5px 2.5px at 110px 80px, rgba(255,255,255,0.5), transparent);
+            background-size: 250px 250px;
+            opacity: 0.6; z-index: -1; pointer-events: none;
+        }
+        body::after {
+             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+             background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.15), transparent 60%);
+             z-index: -2; pointer-events: none;
+        }
+
+        /* NAVBAR */
+        .navbar-custom { 
+            background: var(--panel-dark); backdrop-filter: blur(12px);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 1000; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); border-bottom: 1px solid rgba(168, 85, 247, 0.4); 
+        }
+        .navbar-custom .menu-btn { color: white !important; font-size: 24px; background: none; border: none; cursor: pointer; transition: 0.2s; }
+        .navbar-custom .menu-btn:hover { text-shadow: 0 0 10px white; }
+        .navbar-custom .logo { font-size: 22px; font-weight: 800; color: white; text-shadow: 0 0 15px var(--purple-primary); letter-spacing: 2px; }
+        .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; font-size: 16px; cursor: pointer; transition: 0.2s; padding: 8px 12px; border-radius: 12px; }
+        .btn-logout:hover { background: #ef4444; color: white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+
+        /* MENU LATERAL (SIDEBAR) - CORRIGIDO */
+        .sidebar {
+            position: fixed; left: -280px; top: 0; width: 280px; height: 100%;
+            background: rgba(20, 15, 40, 0.98); backdrop-filter: blur(20px); z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 5px 0 30px rgba(0,0,0,0.7); padding-top: 80px; border-right: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        .sidebar.active { left: 0; }
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1500; display: none; backdrop-filter: blur(5px);
+        }
+        .overlay.active { display: block; }
+
+        /* LAYOUT PRINCIPAL */
+        .content { 
+            padding: 40px; max-width: 1400px; margin: 0 auto; 
+            display: flex; flex-direction: column; gap: 30px; 
+        }
+
+        /* HEADER DA PÁGINA */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 15px; }
+        .header-left { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .page-title { 
+            color: white; font-size: 28px; font-weight: 800; display: flex; align-items: center; gap: 12px; 
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.7); margin-right: 15px; white-space: nowrap; letter-spacing: 1px;
+        }
+
+        /* BOTÕES DE TOPO (VIDRO) */
+        .top-btn-container { position: relative; }
+        .btn-top-glass {
+            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white; padding: 10px 18px; border-radius: 10px; font-weight: 700; 
+            cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 12px; transition: 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .btn-top-glass:hover, .btn-top-glass.active { background: rgba(168, 85, 247, 0.3); border-color: var(--purple-primary); box-shadow: 0 0 20px var(--purple-glow); }
+
+        /* MENUS SUSPENSOS */
+        .dropdown-menu {
+            position: absolute; top: 55px; left: 0; 
+            background: rgba(30, 27, 46, 0.98); backdrop-filter: blur(25px);
+            border-radius: 14px; width: 230px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6); padding: 12px; z-index: 100; 
+            display: none; animation: fadeIn 0.2s ease; border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        .dropdown-menu.active { display: block; }
+        .dropdown-header { font-size: 10px; font-weight: 800; color: #a78bfa; margin: 8px 12px; letter-spacing: 1px; }
+        .menu-option { 
+            padding: 12px; border-radius: 10px; display: flex; align-items: center; gap: 12px; 
+            cursor: pointer; transition: 0.2s; color: rgba(255,255,255,0.9); font-size: 13px; font-weight: 700;
+        }
+        .menu-option:hover { background: rgba(168, 85, 247, 0.2); color: white; box-shadow: 0 0 10px var(--purple-glow); }
+        .menu-option.selected { background: var(--purple-primary); color: white; box-shadow: 0 0 15px var(--purple-glow); }
+
+        /* BOTÃO NOVO PROJETO (NEON) */
+        .btn-new-project { 
+            background: linear-gradient(135deg, var(--purple-primary), #d946ef); color: white; border: none; padding: 12px 28px; border-radius: 10px; 
+            font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 12px; 
+            box-shadow: 0 0 25px var(--purple-glow); transition: 0.3s; letter-spacing: 1px;
+        }
+        .btn-new-project:hover { transform: translateY(-3px); box-shadow: 0 0 35px var(--purple-glow); filter: brightness(1.1); }
+
+        /* --- VIEWS --- */
+        .project-board { background: transparent; min-height: 400px; }
+        .view-table-container, .view-board-container { display: none; }
+        .view-table-container.active, .view-board-container.active { display: block; }
+        .view-board-container.active { display: flex; gap: 25px; overflow-x: auto; padding-bottom: 25px; }
+
+        /* TABELA - CABEÇALHO (TRANSPARENTE) */
+        .table-header { 
+            display: grid; grid-template-columns: 140px 1fr 150px 50px; 
+            padding: 18px 25px; background: rgba(0, 0, 0, 0.3); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px; margin-bottom: 25px; 
+            font-weight: 900; color: rgba(255, 255, 255, 0.7); font-size: 11px; letter-spacing: 2px;
+        }
+
+        /* TABELA - CARD DE PROJETO (VIDRO MAIS CLARO) */
+        .project-row { 
+            display: grid; grid-template-columns: 140px 1fr 150px 50px; 
+            padding: 20px 25px; 
+            /* AJUSTE 2: VIDRO MAIS CLARO E DEFINIDO */
+            background: var(--glass-card-bg); 
+            backdrop-filter: blur(12px);
+            border-radius: 14px; 
+            margin-bottom: 15px; align-items: center; transition: 0.3s; 
+            border: var(--glass-border); position: relative; z-index: 2; 
+            color: white; box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        .project-row:hover { 
+            transform: translateY(-3px); 
+            background: rgba(255, 255, 255, 0.25); /* Mais claro ao passar o mouse */
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px var(--purple-glow) inset;
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .toggle-btn { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.6); margin-right: 10px; width: 24px; transition: 0.3s; }
+        .toggle-btn:hover { color: white; transform: scale(1.2); text-shadow: 0 0 10px white; }
+        .toggle-btn.open { transform: rotate(90deg); color: var(--purple-primary); text-shadow: 0 0 15px var(--purple-primary); }
+
+        .star-fav { cursor: pointer; color: rgba(255,255,255,0.3); margin-right: 12px; font-size: 16px; transition: 0.3s; }
+        .star-fav:hover { color: #fbbf24; transform: scale(1.3) rotate(15deg); }
+        .star-fav.active { color: #fbbf24; text-shadow: 0 0 20px rgba(251, 191, 36, 0.8); animation: pulseStar 1.5s infinite alternate; }
+        @keyframes pulseStar { from { text-shadow: 0 0 10px rgba(251, 191, 36, 0.5); } to { text-shadow: 0 0 25px rgba(251, 191, 36, 1); transform: scale(1.1); } }
+
+        /* SUBTAREFAS */
+        .subtasks-container { 
+            display: none; background: rgba(0, 0, 0, 0.3); 
+            margin-top: -20px; margin-bottom: 20px; margin-left: 25px; margin-right: 25px; 
+            border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; padding-top: 15px; 
+            position: relative; z-index: 1; border: 1px solid rgba(255,255,255,0.1); border-top: none;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .subtasks-container.active { display: block; animation: slideDown 0.3s ease; }
+        
+        .subtask-row { display: flex; align-items: center; gap: 18px; padding: 12px 25px; font-size: 13px; color: rgba(255,255,255,0.9); border-bottom: 1px solid rgba(255,255,255,0.08); }
+        
+        .check-circle { 
+            width: 22px; height: 22px; border: 2px solid rgba(255,255,255,0.4); border-radius: 7px; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            color: #1e293b; font-size: 12px; background: transparent; transition: 0.2s;
+        }
+        .check-circle:hover { border-color: var(--purple-primary); box-shadow: 0 0 10px var(--purple-primary); }
+        .check-circle.checked { background: var(--purple-primary); border-color: var(--purple-primary); color: white; box-shadow: 0 0 15px var(--purple-primary); }
+        
+        .editable-text { flex: 1; padding: 8px 10px; border-radius: 6px; border: 1px solid transparent; cursor: text; min-height: 24px; color: white; font-weight: 600; transition: 0.2s; }
+        .editable-text:focus { background: rgba(255,255,255,0.15); border-color: var(--purple-primary); outline: none; box-shadow: 0 0 10px var(--purple-glow); }
+        .task-done { text-decoration: line-through; color: rgba(255,255,255,0.4); font-style: italic; }
+        
+        .new-subtask-input { width: 100%; background: transparent; border: none; padding: 15px 25px; font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 700; outline: none; }
+        .new-subtask-input:focus { color: white; background: rgba(255,255,255,0.05); }
+        
+        /* DATA GHOST DARK */
+        .date-input-ghost { 
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
+            font-family: 'Outfit'; font-size: 12px; padding: 8px 12px; border-radius: 8px;
+            color: rgba(255,255,255,0.9); font-weight: 700; cursor: pointer; width: 100%; 
+            color-scheme: dark; transition: 0.2s;
+        }
+        .date-input-ghost:hover, .date-input-ghost:focus { background: rgba(255,255,255,0.2); border-color: var(--purple-primary); box-shadow: 0 0 10px var(--purple-glow); }
+
+        /* KANBAN DARK */
+        .kanban-column { 
+            flex: 1; min-width: 300px; 
+            background: rgba(30, 27, 46, 0.6); backdrop-filter: blur(20px); 
+            border-radius: 18px; padding: 20px; 
+            border: 1px solid rgba(168, 85, 247, 0.2); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .kanban-header { font-weight: 900; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: white; text-shadow: 0 0 10px var(--purple-glow); letter-spacing: 1px; }
+        
+        .kanban-card { 
+            background: var(--glass-card-bg); padding: 22px; border-radius: 14px; 
+            margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+            border: var(--glass-border); cursor: pointer; transition: 0.3s; 
+            color: white;
+        }
+        .kanban-card:hover { 
+            transform: translateY(-5px) scale(1.02); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4), 0 0 20px var(--purple-glow); 
+            border-color: var(--purple-primary); 
+            background: rgba(255,255,255,0.2); 
+        }
+        .kb-title { font-weight: 800; font-size: 15px; margin-bottom: 12px; color: white; display: flex; align-items: center; gap: 10px; }
+        .kb-meta { font-size: 11px; color: rgba(255,255,255,0.7); display: flex; justify-content: space-between; font-weight: 700; }
+
+        /* BADGES NEON */
+        .status-badge { padding: 6px 14px; border-radius: 8px; font-size: 10px; font-weight: 900; display: inline-flex; align-items: center; cursor: pointer; letter-spacing: 1px; box-shadow: 0 0 10px transparent; transition: 0.3s; }
+        .status-gray { background: rgba(255,255,255,0.1); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.3); }
+        .status-blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.5); box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); }
+        .status-green { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.5); box-shadow: 0 0 10px rgba(34, 197, 94, 0.3); }
+        .status-badge:hover { box-shadow: 0 0 20px currentColor; filter: brightness(1.2); }
+
+        /* POPUP NOTION DARK */
+        div:where(.swal2-popup).notion-modal { 
+            background: rgba(30, 27, 46, 0.95) !important; backdrop-filter: blur(30px); 
+            border-radius: 20px !important; padding: 40px !important; text-align: left !important; 
+            color: white !important; box-shadow: 0 30px 70px rgba(0,0,0,0.8), 0 0 30px var(--purple-glow) !important; 
+            border: 1px solid var(--purple-primary);
+        }
+        .notion-header { margin-bottom: 35px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .notion-title-input { width: 100%; border: none; background: transparent; font-size: 36px; font-weight: 900; color: white; outline: none; padding: 0; font-family: 'Outfit', sans-serif; text-shadow: 0 0 10px var(--purple-glow); }
+        .notion-title-input::placeholder { color: rgba(255,255,255,0.3); }
+        
+        .notion-props { display: flex; flex-direction: column; gap: 15px; }
+        .prop-row { display: grid; grid-template-columns: 150px 1fr; align-items: center; font-size: 14px; min-height: 40px; }
+        .prop-label { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.7); font-weight: 700; letter-spacing: 1px; }
+        
+        .prop-input, .prop-select { 
+            width: 100%; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); font-size: 14px; 
+            color: white; outline: none; padding: 10px 15px; border-radius: 8px; 
+            transition: 0.3s; font-family: 'Outfit', sans-serif; cursor: pointer; font-weight: 600; 
+        }
+        .prop-input:hover, .prop-select:hover { background: rgba(255,255,255,0.1); border-color: var(--purple-primary); box-shadow: 0 0 15px var(--purple-glow); }
+        .prop-input:focus { background: rgba(168, 85, 247, 0.1); border-color: var(--purple-primary); box-shadow: 0 0 20px var(--purple-glow); }
+        .prop-select option { background: #1e1b4b; color: white; }
+
+        div:where(.swal2-confirm) { background: linear-gradient(135deg, var(--purple-primary), #d946ef) !important; border-radius: 10px !important; font-size: 14px !important; padding: 12px 30px !important; box-shadow: 0 0 20px var(--purple-glow) !important; text-transform: uppercase; font-weight: 900; border: none; letter-spacing: 1px; transition: 0.3s !important; }
+        div:where(.swal2-confirm):hover { transform: scale(1.05); box-shadow: 0 0 30px var(--purple-glow) !important; }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .content { padding: 20px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+            .header-left { width: 100%; justify-content: space-between; }
+            .page-title { margin: 0; font-size: 24px; }
+            .btn-new-project { width: 100%; justify-content: center; margin-top: 10px; padding: 15px; font-size: 14px; }
+            .table-header { display: none; }
+            
+            /* Ajuste Card Mobile */
+            .project-row { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; padding: 20px; background: var(--glass-card-bg); }
+            .project-row > div:nth-child(1) { width: 100%; display: flex; justify-content: space-between; order: 1; align-items: center; }
+            .project-row > div:nth-child(2) { width: 100%; order: 2; margin-bottom: 5px; }
+            .editable-text { font-size: 18px; color: white; }
+            .project-row > div:nth-child(3) { width: 100%; order: 3; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; }
+            .project-row > div:nth-child(4) { position: absolute; top: 22px; right: 20px; }
+            .view-board-container.active { flex-direction: column; overflow-x: hidden; gap: 20px; }
+            .kanban-column { min-width: 100%; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        </div>
+    <div class="overlay" onclick="toggleMenu()"></div>
+    
+    <nav class="navbar-custom"> 
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        <div class="logo">T-SYSTEM</div> 
+        <button class="btn-logout" onclick="logout()" title="Sair"><i class="fas fa-sign-out-alt"></i></button> 
+    </nav>
+
+    <div class="content">
+        
+        <div class="page-header">
+            <div class="header-left">
+                <div class="page-title"><i class="fas fa-layer-group"></i> Planejamento de projetos </div>
+                
+                <div class="top-btn-container">
+                    <button class="btn-top-glass" onclick="toggleMenuDrop('viewMenu')">
+                        <i class="fas fa-sliders-h"></i> Layout <i class="fas fa-chevron-down" style="font-size:10px;"></i>
+                    </button>
+                    <div class="dropdown-menu" id="viewMenu">
+                        <div class="dropdown-header">VISUALIZAÇÃO</div>
+                        <div class="menu-option selected" onclick="mudarLayout('tabela', this)"><i class="fas fa-table"></i> Tabela</div>
+                        <div class="menu-option" onclick="mudarLayout('quadro', this)"><i class="fas fa-columns"></i> Quadro</div>
+                    </div>
+                </div>
+
+                <div class="top-btn-container">
+                    <button class="btn-top-glass" id="btnFilterLabel" onclick="toggleMenuDrop('filterMenu')">
+                        <i class="fas fa-filter"></i> Todos <i class="fas fa-chevron-down" style="font-size:10px;"></i>
+                    </button>
+                    <div class="dropdown-menu" id="filterMenu">
+                        <div class="dropdown-header">FILTRAR POR</div>
+                        <div class="menu-option selected" onclick="filtrar('todos', this)"><i class="fas fa-stream"></i> Todos</div>
+                        <div class="menu-option" onclick="filtrar('favoritos', this)"><i class="fas fa-star" style="color:#fbbf24;"></i> Favoritos</div>
+                        <div class="menu-option" onclick="filtrar('recentes', this)"><i class="far fa-clock"></i> Recentes</div>
+                        <div style="height:1px; background:rgba(255,255,255,0.1); margin:5px 0;"></div>
+                        <div class="dropdown-header">STATUS</div>
+                        <div class="menu-option" onclick="filtrar('green', this)"><i class="fas fa-check-circle" style="color:#22c55e;"></i> Concluídos</div>
+                        <div class="menu-option" onclick="filtrar('blue', this)"><i class="fas fa-spinner" style="color:#3b82f6;"></i> Em andamento</div>
+                        <div class="menu-option" onclick="filtrar('gray', this)"><i class="far fa-circle" style="color:#94a3b8;"></i> Não iniciados</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-new-project" onclick="novoProjeto()"><i class="fas fa-plus"></i> Novo Projeto</button>
+        </div>
+
+        <div class="project-board">
+            
+            <div id="viewTabela" class="view-table-container active">
+                <div class="table-header">
+                    <div>Status</div>
+                    <div>Projeto</div>
+                    <div>Prazo</div>
+                    <div></div>
+                </div>
+                <div id="listaProjetosTabela"></div>
+            </div>
+
+            <div id="viewQuadro" class="view-board-container">
+                <div class="kanban-column">
+                    <div class="kanban-header"><i class="fas fa-circle" style="color:rgba(255,255,255,0.5); font-size:8px;"></i> Não Iniciado</div>
+                    <div id="colGray"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-header"><i class="fas fa-circle" style="color:#3b82f6; font-size:8px;"></i> Em Andamento</div>
+                    <div id="colBlue"></div>
+                </div>
+                <div class="kanban-column">
+                    <div class="kanban-header"><i class="fas fa-circle" style="color:#22c55e; font-size:8px;"></i> Concluído</div>
+                    <div id="colGreen"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
+        let projetos = JSON.parse(localStorage.getItem(`projetos_${usuario.id}`)) || [
+            { id: 1, nome: "Gestão Financeira", status: "blue", prazo: "2026-02-27", icone: "✍️", prioridade: "Alta", criadoEm: "01/02/2026", isFavorite: true, subtarefas: [{id:11, nome:"Criar banco de dados", concluido:false}, {id:12, nome:"Desenhar telas", concluido:true}] },
+            { id: 2, nome: "Site Pessoal", status: "gray", prazo: "2026-03-15", icone: "💻", prioridade: "Media", criadoEm: "02/02/2026", isFavorite: false, subtarefas: [] }
+        ];
+        let filtroAtual = 'todos';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if(!usuario) return window.location.href = 'login.html';
+            renderizarTudo();
+            document.addEventListener('click', (e) => { 
+                if(!e.target.closest('.top-btn-container')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('active'));
+                }
+            });
+        });
+
+        function logout() { localStorage.removeItem('usuario_logado'); localStorage.removeItem('token'); window.location.href = 'login.html'; }
+        function salvarDados() { localStorage.setItem(`projetos_${usuario.id}`, JSON.stringify(projetos)); renderizarTudo(); }
+        
+        // --- AJUSTE 3: FUNÇÃO DO MENU LATERAL ---
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            if(sidebar && overlay) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function toggleMenuDrop(id) { 
+            document.querySelectorAll('.dropdown-menu').forEach(el => { if(el.id !== id) el.classList.remove('active'); }); 
+            document.getElementById(id).classList.toggle('active'); 
+        }
+
+        function filtrar(tipo, el) {
+            filtroAtual = tipo;
+            el.closest('.dropdown-menu').querySelectorAll('.menu-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('filterMenu').classList.remove('active');
+            let label = 'Todos';
+            if(tipo === 'favoritos') label = 'Favoritos';
+            else if(tipo === 'recentes') label = 'Recentes';
+            else if(tipo === 'green') label = 'Concluídos';
+            else if(tipo === 'blue') label = 'Andamento';
+            else if(tipo === 'gray') label = 'Não Ini.';
+            document.getElementById('btnFilterLabel').innerHTML = `<i class="fas fa-filter"></i> ${label} <i class="fas fa-chevron-down" style="font-size:10px;"></i>`;
+            renderizarTudo();
+        }
+
+        function getProjetosFiltrados() {
+            let lista = [...projetos];
+            if (filtroAtual === 'favoritos') return lista.filter(p => p.isFavorite);
+            if (filtroAtual === 'green' || filtroAtual === 'blue' || filtroAtual === 'gray') return lista.filter(p => p.status === filtroAtual);
+            if (filtroAtual === 'recentes') return lista.sort((a,b) => b.id - a.id);
+            return lista;
+        }
+
+        function mudarLayout(viewId, elemento) {
+            elemento.closest('.dropdown-menu').querySelectorAll('.menu-option').forEach(el => el.classList.remove('selected'));
+            elemento.classList.add('selected');
+            document.getElementById('viewTabela').classList.remove('active');
+            document.getElementById('viewQuadro').classList.remove('active');
+            if(viewId === 'tabela') document.getElementById('viewTabela').classList.add('active');
+            if(viewId === 'quadro') document.getElementById('viewQuadro').classList.add('active');
+            document.getElementById('viewMenu').classList.remove('active');
+        }
+
+        function renderizarTudo() { renderizarTabela(); renderizarQuadro(); }
+
+        function renderizarTabela() {
+            const container = document.getElementById('listaProjetosTabela');
+            container.innerHTML = '';
+            const dados = getProjetosFiltrados();
+
+            if (dados.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:rgba(255,255,255,0.5);">Nenhum projeto encontrado.</div>`;
+                return;
+            }
+            
+            dados.forEach(p => {
+                let subsHtml = '';
+                p.subtarefas.forEach(sub => {
+                    const checkClass = sub.concluido ? 'checked' : '';
+                    const textClass = sub.concluido ? 'task-done' : '';
+                    subsHtml += `<div class="subtask-row"><div class="check-circle ${checkClass}" onclick="toggleCheckSub(${p.id}, ${sub.id})"><i class="fas fa-check"></i></div><div class="editable-text ${textClass}" contenteditable="true" onblur="editarTextoSub(${p.id}, ${sub.id}, this.innerText)">${sub.nome}</div><div style="color:#ef4444; cursor:pointer; margin-left:auto;" onclick="delSub(${p.id},${sub.id})"><i class="fas fa-times"></i></div></div>`;
+                });
+
+                const starClass = p.isFavorite ? 'fas active' : 'far';
+
+                container.innerHTML += `
+                    <div class="project-row">
+                        <div onclick="mudarStatusProj(${p.id})" style="cursor:pointer">${getStatusHtml(p.status)}</div>
+                        <div style="font-weight:700; font-size:14px; display:flex; align-items:center;">
+                            <button class="toggle-btn" onclick="toggleSubtasks('subs-${p.id}', this)"><i class="fas fa-chevron-right" style="font-size:14px;"></i></button> 
+                            <i class="${starClass} fa-star star-fav" onclick="toggleFavorito(${p.id})"></i>
+                            <span style="margin-right:12px; font-size:18px;">${p.icone}</span> 
+                            <div class="editable-text" contenteditable="true" onblur="editarNomeProj(${p.id}, this.innerText)">${p.nome}</div>
+                        </div>
+                        <div><input type="date" class="date-input-ghost" value="${p.prazo}" onchange="editarDataProj(${p.id}, this.value)"></div>
+                        <div style="text-align:center; cursor:pointer;" onclick="delProj(${p.id})"><i class="fas fa-trash" style="color:#ef4444; opacity:0.8; transition:0.2s;"></i></div>
+                    </div>
+                    <div id="subs-${p.id}" class="subtasks-container">${subsHtml}<div style="padding:5px 25px; border-top:1px solid rgba(255,255,255,0.08);"><input type="text" class="new-subtask-input" placeholder="+ Nova subtarefa (Enter)" onkeydown="criarSubNoEnter(event, ${p.id}, this)"></div></div>
+                `;
+            });
+        }
+
+        function renderizarQuadro() {
+            document.getElementById('colGray').innerHTML = ''; document.getElementById('colBlue').innerHTML = ''; document.getElementById('colGreen').innerHTML = '';
+            const dados = getProjetosFiltrados();
+
+            dados.forEach(p => {
+                const dataFmt = p.prazo ? new Date(p.prazo).toLocaleDateString('pt-BR').slice(0,5) : '-';
+                const starIcon = p.isFavorite ? '<i class="fas fa-star" style="color:#fbbf24; margin-left:auto; text-shadow:0 0 10px rgba(251,191,36,0.5);"></i>' : '';
+                
+                const card = `
+                    <div class="kanban-card" onclick="editarProjetoPopup(${p.id})">
+                        <div class="kb-title">
+                            ${p.icone} ${p.nome}
+                            ${starIcon}
+                        </div>
+                        <div class="kb-meta"><span>${p.subtarefas.length} Subtarefas</span><span><i class="far fa-clock"></i> ${dataFmt}</span></div>
+                    </div>`;
+                if(p.status==='gray') document.getElementById('colGray').innerHTML+=card;
+                if(p.status==='blue') document.getElementById('colBlue').innerHTML+=card;
+                if(p.status==='green') document.getElementById('colGreen').innerHTML+=card;
+            });
+        }
+
+        function toggleFavorito(id) { const p = projetos.find(x => x.id === id); p.isFavorite = !p.isFavorite; salvarDados(); }
+        function criarSubNoEnter(e, idProj, input) { if (e.key === 'Enter' && input.value.trim() !== '') { projetos.find(p => p.id === idProj).subtarefas.push({ id: Date.now(), nome: input.value, concluido: false }); salvarDados(); setTimeout(() => { const btn = document.querySelector(`button[onclick*="subs-${idProj}"]`); if (btn && !btn.classList.contains('open')) btn.click(); }, 50); } }
+        function toggleCheckSub(idProj, idSub) { const p = projetos.find(x => x.id === idProj); const s = p.subtarefas.find(y => y.id === idSub); s.concluido = !s.concluido; salvarDados(); setTimeout(() => { const btn = document.querySelector(`button[onclick*="subs-${idProj}"]`); if (btn && !btn.classList.contains('open')) btn.click(); }, 50); }
+        function editarTextoSub(idProj, idSub, novoTexto) { const p = projetos.find(x => x.id === idProj); p.subtarefas.find(y => y.id === idSub).nome = novoTexto; salvarDados(); }
+        function editarNomeProj(id, novoNome) { projetos.find(x => x.id === id).nome = novoNome; salvarDados(); }
+        function editarDataProj(id, novaData) { projetos.find(x => x.id === id).prazo = novaData; salvarDados(); }
+        function getStatusHtml(s) { const l={'gray':'NÃO INICIADO','blue':'EM ANDAMENTO','green':'CONCLUÍDO'}; const c={'gray':'status-gray','blue':'status-blue','green':'status-green'}; return `<span class="status-badge ${c[s]}">${l[s]}</span>`; }
+        function getNextStatus(s) { return s==='gray'?'blue':(s==='blue'?'green':'gray'); }
+        function mudarStatusProj(id) { const p=projetos.find(x=>x.id===id); p.status=getNextStatus(p.status); salvarDados(); }
+        function toggleSubtasks(id, btn) { document.getElementById(id).classList.toggle('active'); btn.classList.toggle('open'); }
+        function delProj(id) { Swal.fire({title:'EXCLUIR?', icon:'warning', showCancelButton:true, confirmButtonColor:'#ef4444', confirmButtonText:'SIM', background:'#1e1b4b', color:'white'}).then(r=>{if(r.isConfirmed){projetos=projetos.filter(p=>p.id!==id); salvarDados();}})}
+        function delSub(pid, sid) { const p=projetos.find(x=>x.id===pid); p.subtarefas=p.subtarefas.filter(s=>s.id!==sid); salvarDados(); setTimeout(()=>{document.querySelector(`button[onclick*="subs-${pid}"]`).click()},100); }
+
+        async function novoProjeto() { abrirModalProjeto(); }
+        function editarProjetoPopup(id) { const p = projetos.find(x => x.id === id); if(p) { window.projetoAtualId = id; abrirModalProjeto(p); } }
+
+        async function abrirModalProjeto(projeto = null) {
+            const isEdit = !!projeto;
+            const agora = new Date();
+            const dataCriacao = isEdit ? (projeto.criadoEm || '-') : agora.toLocaleDateString('pt-BR');
+            const { value: form } = await Swal.fire({
+                title: '', customClass: { popup: 'notion-modal' },
+                html: `<div class="notion-header"><input id="sw-nome" class="notion-title-input" placeholder="Nome do projeto..." value="${isEdit ? projeto.nome : ''}"></div><div class="notion-props"><div class="prop-row"><div class="prop-label"><i class="far fa-smile"></i> Ícone</div><div class="prop-value"><select id="sw-icone" class="prop-select"><option value="🚀" ${projeto?.icone=='🚀'?'selected':''}>🚀 Foguete</option><option value="🏠" ${projeto?.icone=='🏠'?'selected':''}>🏠 Casa</option><option value="💻" ${projeto?.icone=='💻'?'selected':''}>💻 Trabalho</option><option value="✍️" ${projeto?.icone=='✍️'?'selected':''}>✍️ Estudo</option><option value="💰" ${projeto?.icone=='💰'?'selected':''}>💰 Financeiro</option></select></div></div><div class="prop-row"><div class="prop-label"><i class="far fa-calendar-alt"></i> Prazo</div><div class="prop-value"><input id="sw-data" type="date" class="prop-input" value="${isEdit ? projeto.prazo : ''}"></div></div><div class="prop-row"><div class="prop-label"><i class="fas fa-spinner"></i> Status</div><div class="prop-value"><select id="sw-status" class="prop-select"><option value="gray" ${projeto?.status=='gray'?'selected':''}>⚪ Não iniciada</option><option value="blue" ${projeto?.status=='blue'?'selected':''}>🔵 Em andamento</option><option value="green" ${projeto?.status=='green'?'selected':''}>🟢 Concluída</option></select></div></div></div>`,
+                showCancelButton: true, confirmButtonText: isEdit ? 'Salvar' : 'Criar',
+                preConfirm: () => { return { nome: document.getElementById('sw-nome').value, data: document.getElementById('sw-data').value, icone: document.getElementById('sw-icone').value, status: document.getElementById('sw-status').value, dataCriacao: dataCriacao }; }
+            });
+            if (form) { if (isEdit) { projeto.nome = form.nome; projeto.prazo = form.data; projeto.icone = form.icone; projeto.status = form.status; } else { projetos.push({ id: Date.now(), nome: form.nome, prazo: form.data, status: form.status, icone: form.icone, criadoEm: dataCriacao, isFavorite: false, subtarefas: [] }); } salvarDados(); }
+        }
+    </script>
+</body>
+</html>
