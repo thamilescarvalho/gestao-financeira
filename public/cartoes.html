@@ -89,7 +89,7 @@
         .btn-fatura { background: var(--purple-primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 800; cursor: pointer; font-size: 11px; text-transform: uppercase; transition: 0.2s; }
         .btn-fatura:hover { background: #9333ea; }
 
-        /* MODAIS (IDÊNTICO AO CONCILIAÇÃO) */
+        /* MODAIS */
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; backdrop-filter: blur(4px); }
         .modal { background: white; width: 95%; max-width: 450px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: zoomIn 0.2s ease-out; color: #1e293b; }
         .modal-lg { max-width: 600px; }
@@ -239,11 +239,14 @@
             carregarDados();
         });
 
+        // --- CARREGAMENTO DE DADOS AGORA VIA API ---
         async function carregarDados() {
             try {
-                const storedCartoes = localStorage.getItem('meus_cartoes');
-                cartoesCache = storedCartoes ? JSON.parse(storedCartoes) : [];
+                // Busca cartões do banco de dados em vez do LocalStorage
+                const resCartoes = await fetch(`/cartoes?usuarioId=${usuario.id}`);
+                cartoesCache = await resCartoes.json();
 
+                // Busca transações
                 const resTrans = await fetch(`/transacoes?usuarioId=${usuario.id}&tipo=DESPESA`);
                 transacoesCache = await resTrans.json();
 
@@ -310,7 +313,6 @@
             });
         }
 
-        // --- MANTER LÓGICA DE FATURA (Inalterada) ---
         async function abrirFatura(cartaoId) {
             const cartao = cartoesCache.find(c => String(c.id) === String(cartaoId));
             if (!cartao) return;
@@ -419,27 +421,46 @@
             document.getElementById('inputVencimento').value = item.vencimento;
             document.getElementById('modalCartao').style.display = 'flex';
         }
-        function salvarCartao() {
+
+        // --- SALVAR CARTÃO VIA API ---
+        async function salvarCartao() {
             const id = document.getElementById('editId').value;
             const nome = document.getElementById('inputNome').value;
             const limite = parseFloat(document.getElementById('inputLimite').value) || 0;
             const fechamento = parseInt(document.getElementById('inputFechamento').value);
             const vencimento = parseInt(document.getElementById('inputVencimento').value);
+
             if(!nome || !fechamento || !vencimento) return Swal.fire('Erro', 'Preencha campos obrigatórios.', 'warning');
-            if(id) {
-                const idx = cartoesCache.findIndex(x => String(x.id) === String(id));
-                cartoesCache[idx] = { ...cartoesCache[idx], nome, limite, fechamento, vencimento };
-            } else { cartoesCache.push({ id: Date.now(), nome, limite, fechamento, vencimento }); }
-            localStorage.setItem('meus_cartoes', JSON.stringify(cartoesCache));
-            document.getElementById('modalCartao').style.display = 'none';
-            renderizarCartoes();
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/cartoes/${id}` : '/cartoes';
+            
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ nome, limite, fechamento, vencimento, usuarioId: usuario.id })
+                });
+
+                if(res.ok) {
+                    document.getElementById('modalCartao').style.display = 'none';
+                    Swal.fire({ title: 'Sucesso', icon: 'success', timer: 1500, showConfirmButton: false });
+                    carregarDados();
+                } else {
+                    Swal.fire('Erro', 'Falha ao salvar.', 'error');
+                }
+            } catch(e) { console.error(e); }
         }
+
+        // --- EXCLUIR CARTÃO VIA API ---
         function excluir(id) {
-            Swal.fire({ title: 'Excluir?', icon:'warning', showCancelButton:true, confirmButtonColor:'#dc2626' }).then(r => {
+            Swal.fire({ title: 'Excluir?', icon:'warning', showCancelButton:true, confirmButtonColor:'#dc2626' }).then(async r => {
                 if(r.isConfirmed) {
-                    cartoesCache = cartoesCache.filter(x => String(x.id) !== String(id));
-                    localStorage.setItem('meus_cartoes', JSON.stringify(cartoesCache));
-                    renderizarCartoes();
+                    try {
+                        await fetch(`/cartoes/${id}`, { method: 'DELETE' });
+                        carregarDados();
+                        Swal.fire({ title: 'Excluído', icon: 'success', timer: 1500, showConfirmButton: false });
+                    } catch(e) { console.error(e); }
                 }
             });
         }

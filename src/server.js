@@ -308,6 +308,8 @@ app.post('/auth/login', async (req, res) => {
     } catch(e) { res.status(500).json({ erro: "Erro login" }); } 
 });
 
+
+
 app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });
 app.get('/limpar-tudo', async (req, res) => { await prisma.transacao.deleteMany({}); await prisma.banco.deleteMany({}); await prisma.evento.deleteMany({}); res.send("Sistema Zerado."); });
 

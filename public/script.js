@@ -35,31 +35,32 @@ function gerarMenuLateral() {
         avatarHtml = `<div class="header-avatar-img display-initials" ${clickAction}>${iniciais}</div>`;
     }
 
-    // --- CSS INJETADO (ATUALIZADO PARA GARANTIR VISUAL EM TODAS AS PÁGINAS) ---
+    // --- CSS INJETADO (CORREÇÃO DEFINITIVA DE ROLAGEM) ---
     const styleMenu = `
         <style>
-            /* GARANTE QUE A SIDEBAR TENHA FUNDO E POSIÇÃO, MESMO SE O HTML ESQUECER */
+            /* CONTAINER PRINCIPAL */
             .sidebar {
-                position: fixed; left: -280px; top: 0; width: 280px; height: 100%;
+                position: fixed; left: -280px; top: 0; width: 280px; 
+                /* ALTURA DO MOBILE: 100% como fallback e 100dvh para navegadores modernos */
+                height: 100%; 
+                height: 100dvh; 
                 background: rgba(30, 27, 46, 0.98); backdrop-filter: blur(25px);
                 z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 box-shadow: 5px 0 30px rgba(0,0,0,0.7); 
-                display: flex; flex-direction: column; overflow: hidden;
+                display: flex; flex-direction: column; /* Garante estrutura vertical */
                 border-right: 1px solid rgba(168, 85, 247, 0.3);
             }
             .sidebar.active { left: 0; }
 
-            /* CABEÇALHO DO MENU */
+            /* CABEÇALHO (FIXO NO TOPO) */
             .sidebar-header {
                 padding: 25px 20px 15px 20px !important;
-                margin-bottom: 10px !important;
-                flex-shrink: 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                background: rgba(255,255,255,0.02); /* Sutil destaque */
+                margin-bottom: 0 !important;
+                flex-shrink: 0; /* Impede que o cabeçalho encolha */
+                display: flex; justify-content: space-between; align-items: center;
+                background: rgba(255,255,255,0.02);
+                border-bottom: 1px solid rgba(255,255,255,0.05);
             }
-            
             .header-user-group { display: flex; align-items: center; gap: 12px; }
 
             /* AVATAR */
@@ -74,20 +75,24 @@ function gerarMenuLateral() {
             }
             .header-avatar-img:hover { transform: scale(1.1); box-shadow: 0 0 15px rgba(168, 85, 247, 0.8); border-color: #fff; }
             .display-initials { background: linear-gradient(135deg, #a855f7, #6366f1); }
+            .header-user-name { font-size: 15px !important; font-weight: 800 !important; color: white; letter-spacing: 0.5px; text-transform: uppercase; }
 
-            .header-user-name {
-                font-size: 15px !important; font-weight: 800 !important;
-                color: white; letter-spacing: 0.5px; text-transform: uppercase;
-            }
-
-            /* ÁREA DE SCROLL DO MENU */
+            /* ÁREA DE SCROLL DO MENU (CORREÇÃO AQUI) */
             .sidebar-menu {
-                flex: 1; overflow-y: auto !important; overflow-x: hidden;
-                padding-bottom: 20px;
-                scrollbar-width: thin; scrollbar-color: #334155 transparent;
+                flex: 1; /* Ocupa o espaço restante */
+                min-height: 0; /* CRUCIAL: Permite que o flex item encolha e ative o scroll */
+                overflow-y: auto !important; 
+                overflow-x: hidden;
+                
+                /* Espaço extra no final para o último item 'pular' o rodapé visualmente */
+                padding-bottom: 100px !important; 
+                padding-top: 10px;
+
+                /* Scrollbar invisível mas funcional */
+                scrollbar-width: none; 
+                -ms-overflow-style: none; 
             }
-            .sidebar-menu::-webkit-scrollbar { width: 4px; }
-            .sidebar-menu::-webkit-scrollbar-thumb { background-color: #334155; border-radius: 4px; }
+            .sidebar-menu::-webkit-scrollbar { display: none; }
 
             /* ITENS DO MENU */
             .sidebar-menu .menu-item { 
@@ -97,7 +102,6 @@ function gerarMenuLateral() {
                 text-decoration: none; display: flex; align-items: center; justify-content: space-between;
             }
             .sidebar-menu .menu-item:hover { color: white; background: rgba(255,255,255,0.05); }
-            
             .sidebar-menu .menu-content { display: flex; align-items: center; }
             .sidebar-menu .menu-content i { font-size: 14px !important; width: 25px; text-align: center; margin-right: 10px; color: #a855f7; }
 
@@ -106,20 +110,28 @@ function gerarMenuLateral() {
             .menu-item.open .arrow { transform: rotate(180deg); color: #d8b4fe; }
 
             /* SUBMENUS */
+            .submenu { overflow: hidden !important; max-height: 0; transition: max-height 0.4s ease-out; background: rgba(0,0,0,0.2); }
+            .submenu.open { max-height: 2000px; /* Garante altura suficiente */ }
+            
             .sidebar-menu .submenu a { 
-                font-size: 11px !important; padding: 10px 20px 10px 55px !important; 
+                font-size: 11px !important; padding: 12px 20px 12px 55px !important; 
                 font-weight: 600 !important; letter-spacing: 0.3px; color: #94a3b8 !important;
-                text-decoration: none; display: block; transition: 0.2s;
+                text-decoration: none; display: block; transition: 0.2s; border-left: 2px solid transparent;
             }
-            .sidebar-menu .submenu a:hover, .sidebar-menu .submenu a.active-link { color: #fff !important; background: rgba(168, 85, 247, 0.1); border-right: 3px solid #a855f7; }
-            .submenu { overflow: hidden !important; max-height: 0; transition: max-height 0.3s ease-out; }
-            .submenu.open { max-height: 500px; } /* Garante que abre */
+            .sidebar-menu .submenu a:hover, .sidebar-menu .submenu a.active-link { 
+                color: #fff !important; 
+                background: rgba(168, 85, 247, 0.15); 
+                border-left: 2px solid #a855f7;
+            }
 
-            /* RODAPÉ */
+            /* RODAPÉ (FIXO EMBAIXO) */
             .user-profile {
-                flex-shrink: 0; border-top: 1px solid rgba(255,255,255,0.1);
+                flex-shrink: 0; /* Não encolhe */
+                border-top: 1px solid rgba(255,255,255,0.1);
                 padding: 15px 20px !important; display: flex; justify-content: space-between; 
-                align-items: center; background: rgba(0,0,0,0.3);
+                align-items: center; background: rgba(30, 27, 46, 1); /* Fundo sólido */
+                z-index: 10; position: relative;
+                box-shadow: 0 -5px 20px rgba(0,0,0,0.2); /* Sombra para separar do menu */
             }
             .user-info-footer { display: flex; flex-direction: column; }
             .btn-logout-icon { color: #ef4444; cursor: pointer; font-size: 16px; padding: 5px; transition: 0.2s; }
