@@ -93,77 +93,27 @@
         .btn-confirm { padding: 10px 20px; border: none; background: var(--danger-color); color: white; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 11px; }
         .card-footer { padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
 
-        /* --- PARCELAMENTO MODERNO (CORRIGIDO) --- */
+        /* PARCELAMENTO NO MODAL */
         #containerParcelas { 
-            background: #fff; 
-            border: 1px solid #e2e8f0; 
-            border-radius: 12px; 
-            margin-top: 15px; 
-            max-height: 250px; 
-            overflow-y: auto; 
-            display: none; 
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; 
+            margin-top: 15px; max-height: 250px; overflow-y: auto; display: none; 
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
         }
-        
         .parcela-header { 
-            display: grid; 
-            grid-template-columns: 50px 1fr 130px 120px; /* Grid alinhado */
-            gap: 10px; 
-            padding: 12px 15px; 
-            background: #f1f5f9; 
-            border-bottom: 1px solid #e2e8f0; 
-            font-size: 10px; 
-            font-weight: 800; 
-            color: #64748b; 
-            position: sticky; 
-            top: 0; 
-            z-index: 10;
-            text-transform: uppercase;
+            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
+            padding: 12px 15px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; 
+            font-size: 10px; font-weight: 800; color: #64748b; position: sticky; top: 0; z-index: 10; text-transform: uppercase;
         }
-        
         .parcela-row { 
-            display: grid; 
-            grid-template-columns: 50px 1fr 130px 120px; /* Grid alinhado */
-            gap: 10px; 
-            padding: 8px 15px; 
-            align-items: center; 
-            border-bottom: 1px solid #f1f5f9; 
-            transition: background 0.2s;
+            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
+            padding: 8px 15px; align-items: center; border-bottom: 1px solid #f1f5f9; 
         }
-        .parcela-row:last-child { border-bottom: none; }
-        .parcela-row:hover { background: #f8fafc; }
-
-        /* Badge do número da parcela */
-        .p-idx { 
-            font-size: 10px; 
-            font-weight: 800; 
-            color: #475569; 
-            text-align: center; 
-            background: #e2e8f0; 
-            border-radius: 6px; 
-            padding: 5px 0; 
-        }
-
-        /* Inputs invisíveis que aparecem ao focar */
-        .parcela-row input { 
-            padding: 8px; 
-            border: 1px solid transparent; 
-            border-radius: 6px; 
-            font-size: 11px; 
-            background: transparent; 
-            color: #334155; 
-            width: 100%;
-            outline: none;
-            transition: 0.2s;
-        }
-        .parcela-row input:focus, .parcela-row input:hover { 
-            background: #fff; 
-            border-color: #cbd5e1; 
-            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.1); 
-        }
+        .p-idx { font-size: 10px; font-weight: 800; color: #475569; text-align: center; background: #e2e8f0; border-radius: 6px; padding: 5px 0; }
+        .parcela-row input { padding: 8px; border: 1px solid transparent; border-radius: 6px; font-size: 11px; background: transparent; color: #334155; width: 100%; outline: none; }
+        .parcela-row input:focus { background: #fff; border-color: #cbd5e1; }
         .p-valor { font-weight: 800; color: var(--danger-color) !important; }
 
-        /* --- MOBILE --- */
+        /* MOBILE */
         @media (max-width: 768px) {
             .content { padding: 20px 15px; }
             .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
@@ -179,17 +129,8 @@
             .total-box { text-align: center; }
             .form-row { grid-template-columns: 1fr; gap: 10px; }
             .modal { padding: 20px; }
-            
-            /* Ajuste Parcelas Mobile */
-            .parcela-header, .parcela-row { 
-                grid-template-columns: 40px 1fr 90px; /* Remove coluna Vencimento ou reduz */
-                gap: 5px;
-            }
-            .parcela-header div:nth-child(3) { display: none; } /* Esconde Label Venc */
-            .parcela-row input.p-data { display: none; } /* Esconde Input Venc no mobile se ficar apertado */
-            /* Ou melhor, habilita scroll horizontal nas parcelas também */
             #containerParcelas { overflow-x: auto; }
-            .parcela-header, .parcela-row { min-width: 400px; grid-template-columns: 50px 1fr 110px 100px; }
+            .parcela-header, .parcela-row { min-width: 450px; grid-template-columns: 50px 1fr 110px 100px; }
         }
     </style>
 </head>
@@ -415,6 +356,7 @@
             if (lista.length === 0) { 
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta encontrada.</td></tr>'; 
                 document.getElementById('displayTotal').innerText = 'R$ 0,00'; 
+                document.getElementById('total-esteira').innerText = 'R$ 0,00';
                 return; 
             }
             lista.forEach(item => { 
@@ -440,11 +382,16 @@
                         </td>
                     </tr>`; 
             });
-            document.getElementById('displayTotal').innerText = fmt.format(total);
+            // CORREÇÃO: Atualiza AMBOS os totais
+            const valorFormatado = fmt.format(total);
+            document.getElementById('displayTotal').innerText = valorFormatado; // Rodapé
+            document.getElementById('total-esteira').innerText = valorFormatado; // Topo (Filtro)
+            
             document.getElementById('chkTodos').checked = false;
             atualizarBotaoMassa();
         }
 
+        // ... RESTO DAS FUNÇÕES MANTIDAS ...
         function atualizarFiltroPagamentos() { 
             const s = document.getElementById('filtroPagto'); 
             const v = s.value; 
@@ -478,14 +425,10 @@
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
         
         function abrirModalNovo() { 
-            document.getElementById('editId').value = ''; 
-            document.getElementById('tituloModal').innerText = 'Nova Conta'; 
-            document.getElementById('parcelas').disabled = false; 
-            document.getElementById('avisoParcelaEdit').style.display = 'none'; 
-            document.getElementById('inputFornecedor').value = ''; 
-            document.getElementById('valor').value = ''; 
-            document.getElementById('parcelas').value = '1'; 
-            document.getElementById('formaPagto').value = 'Boleto'; 
+            document.getElementById('editId').value = ''; document.getElementById('tituloModal').innerText = 'Nova Conta'; 
+            document.getElementById('parcelas').disabled = false; document.getElementById('avisoParcelaEdit').style.display = 'none'; 
+            document.getElementById('inputFornecedor').value = ''; document.getElementById('valor').value = ''; 
+            document.getElementById('parcelas').value = '1'; document.getElementById('formaPagto').value = 'Boleto'; 
             document.getElementById('dataVenc').valueAsDate = new Date();
             verificarFormaPagamento(); 
             document.getElementById('containerParcelas').style.display = 'none'; 
@@ -493,17 +436,12 @@
         }
 
         function editarConta(id) { 
-            const t = transacoesCache.find(x => x.id === id); 
-            if (!t) return; 
-            document.getElementById('editId').value = id; 
-            document.getElementById('tituloModal').innerText = 'Editar Conta'; 
-            document.getElementById('inputFornecedor').value = t.fornecedor; 
-            document.getElementById('valor').value = t.valor; 
+            const t = transacoesCache.find(x => x.id === id); if(!t) return; 
+            document.getElementById('editId').value = id; document.getElementById('tituloModal').innerText = 'Editar Conta'; 
+            document.getElementById('inputFornecedor').value = t.fornecedor; document.getElementById('valor').value = t.valor; 
             document.getElementById('dataVenc').value = (t.dataVencimento || t.data).split('T')[0]; 
-            document.getElementById('formaPagto').value = t.formaPagamento; 
-            document.getElementById('inputDescricao').value = t.descricao; 
-            document.getElementById('parcelas').value = t.parcelas || 1; 
-            document.getElementById('parcelas').disabled = true; 
+            document.getElementById('formaPagto').value = t.formaPagamento; document.getElementById('inputDescricao').value = t.descricao; 
+            document.getElementById('parcelas').value = t.parcelas || 1; document.getElementById('parcelas').disabled = true; 
             document.getElementById('avisoParcelaEdit').style.display = 'block'; 
             verificarFormaPagamento(); 
             if (t.formaPagamento === 'Cartão') document.getElementById('selectCartaoId').value = t.cartaoId || ''; 
@@ -520,10 +458,7 @@
             const container = document.getElementById('containerParcelas'); 
             const lista = document.getElementById('listaParcelas'); 
             
-            if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { 
-                container.style.display = 'none'; 
-                return; 
-            } 
+            if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; } 
             
             container.style.display = 'block'; 
             lista.innerHTML = ''; 
@@ -536,151 +471,38 @@
                 let val = parseFloat(valorParcela); 
                 if (i === qtd - 1) val = valorTotal - soma; 
                 soma += val; 
-                const novaData = new Date(dataObj); 
-                novaData.setMonth(dataObj.getMonth() + i); 
+                const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i); 
                 const dataStr = novaData.toISOString().split('T')[0]; 
-                
-                lista.innerHTML += `
-                    <div class="parcela-row">
-                        <span class="p-idx">${i+1}/${qtd}</span>
-                        <input type="text" class="p-desc" value="${desc}">
-                        <input type="date" class="p-data" value="${dataStr}">
-                        <input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01">
-                        <input type="hidden" class="p-forma" value="${forma}">
-                    </div>`; 
+                lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc}"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`; 
             } 
         }
 
         async function salvarConta() {
-            const id = document.getElementById('editId').value; 
-            const qtd = parseInt(document.getElementById('parcelas').value); 
-            const val = parseFloat(document.getElementById('valor').value); 
-            const dt = document.getElementById('dataVenc').value; 
-            const pag = document.getElementById('formaPagto').value; 
-            const car = pag === 'Cartão' ? document.getElementById('selectCartaoId').value : null; 
-            
+            const id = document.getElementById('editId').value; const qtd = parseInt(document.getElementById('parcelas').value); 
+            const val = parseFloat(document.getElementById('valor').value); const dt = document.getElementById('dataVenc').value; 
+            const pag = document.getElementById('formaPagto').value; const car = pag === 'Cartão' ? document.getElementById('selectCartaoId').value : null; 
             if (pag === 'Cartão' && !car) return Swal.fire('Erro', 'Selecione o Cartão', 'warning');
-            
             let itens = []; 
             if (!id && qtd > 1) { 
-                const vParc = (val / qtd).toFixed(2); 
-                let soma = 0; 
-                const [y, m, d] = dt.split('-'); 
-                const dataObj = new Date(y, m - 1, d, 12); 
+                const vParc = (val / qtd).toFixed(2); let soma = 0; const [y, m, d] = dt.split('-'); const dataObj = new Date(y, m - 1, d, 12); 
                 for (let i = 0; i < qtd; i++) { 
-                    let v = parseFloat(vParc); 
-                    if (i === qtd - 1) v = val - soma; 
-                    soma += v; 
-                    const nDt = new Date(dataObj); 
-                    nDt.setMonth(dataObj.getMonth() + i); 
-                    itens.push({ 
-                        descricao: `Parcela ${i+1}/${qtd}`, 
-                        data: nDt.toISOString().split('T')[0], 
-                        valor: v, 
-                        formaPagamento: pag, 
-                        parcelaInfo: `${i+1}/${qtd}`, 
-                        cartaoId: car 
-                    }); 
+                    let v = parseFloat(vParc); if (i === qtd - 1) v = val - soma; soma += v; 
+                    const nDt = new Date(dataObj); nDt.setMonth(dataObj.getMonth() + i); 
+                    itens.push({ descricao: `Parcela ${i+1}/${qtd}`, data: nDt.toISOString().split('T')[0], valor: v, formaPagamento: pag, parcelaInfo: `${i+1}/${qtd}`, cartaoId: car }); 
                 } 
             }
-            
-            const payload = { 
-                fornecedor: document.getElementById('inputFornecedor').value, 
-                valor: val, 
-                dataVencimento: dt, 
-                data: dt, 
-                formaPagamento: pag, 
-                descricao: document.getElementById('inputDescricao').value, 
-                parcelas: qtd || 1, 
-                tipo: 'DESPESA', 
-                status: 'PENDENTE', 
-                usuarioId: usuario.id, 
-                itensParcelados: itens.length ? itens : null, 
-                parcelaInfo: id ? null : '1/1', 
-                cartaoId: car 
-            };
-            
+            const payload = { fornecedor: document.getElementById('inputFornecedor').value, valor: val, dataVencimento: dt, data: dt, formaPagamento: pag, descricao: document.getElementById('inputDescricao').value, parcelas: qtd || 1, tipo: 'DESPESA', status: 'PENDENTE', usuarioId: usuario.id, itensParcelados: itens.length ? itens : null, parcelaInfo: id ? null : '1/1', cartaoId: car };
             if (!payload.fornecedor || !payload.valor) return Swal.fire('Erro', 'Preencha campos obrigatórios', 'warning');
-            
-            await fetch(id ? `/transacoes/${id}` : '/transacoes', { 
-                method: id ? 'PUT' : 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(payload) 
-            });
-            
-            fecharModal(); 
-            Toast.fire({ icon: 'success', title: 'Salvo!' }); 
-            if (itens.length) limparFiltros(); else carregar();
+            await fetch(id ? `/transacoes/${id}` : '/transacoes', { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            fecharModal(); Toast.fire({ icon: 'success', title: 'Salvo!' }); if (itens.length) limparFiltros(); else carregar();
         }
         
-        async function prepararBaixa(id) { 
-            const t = transacoesCache.find(x => x.id === id); 
-            if (!t) return; 
-            document.getElementById('baixaId').value = id; 
-            document.getElementById('baixaValorOriginal').value = t.valor; 
-            document.getElementById('displayValorOriginal').innerText = fmt.format(t.valor); 
-            document.getElementById('baixaData').valueAsDate = new Date(); 
-            document.getElementById('baixaTotalFinal').innerText = fmt.format(t.valor); 
-            
-            const s = document.getElementById('baixaBanco'); 
-            s.innerHTML = '<option value="">Selecione...</option>'; 
-            const r = await fetch(`/bancos?usuarioId=${usuario.id}`); 
-            (await r.json()).forEach(b => s.innerHTML += `<option value="${b.id}">${b.nome}</option>`); 
-            
-            document.getElementById('modalBaixa').style.display = 'flex'; 
-        }
-        
-        async function confirmarBaixa() { 
-            const id = document.getElementById('baixaId').value; 
-            const bid = document.getElementById('baixaBanco').value; 
-            if (!bid) return Swal.fire({ icon: 'warning', text: 'Selecione o Banco!' }); 
-            
-            await fetch(`/transacoes/${id}/baixar`, { 
-                method: 'PUT', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ 
-                    bancoId: bid, 
-                    dataPagamento: document.getElementById('baixaData').value, 
-                    valorPago: parseFloat(document.getElementById('baixaValorOriginal').value) 
-                }) 
-            }); 
-            
-            document.getElementById('modalBaixa').style.display = 'none'; 
-            Toast.fire({ icon: 'success', title: 'Pago!' }); 
-            carregar(); 
-        }
-        
-        function deletar(id) { 
-            Swal.fire({ title: 'Excluir?', showCancelButton: true }).then(async r => { 
-                if (r.isConfirmed) { 
-                    await fetch(`/transacoes/${id}`, { method: 'DELETE' }); 
-                    carregar(); 
-                } 
-            }); 
-        }
-        
-        function toggleTodos(src) { 
-            document.querySelectorAll('.chk-item').forEach(c => c.checked = src.checked); 
-            atualizarBotaoMassa(); 
-        }
-        
-        function atualizarBotaoMassa() { 
-            const n = document.querySelectorAll('.chk-item:checked').length; 
-            const b = document.getElementById('btnMassDelete'); 
-            document.getElementById('countSelected').innerText = n; 
-            b.style.display = n > 0 ? 'inline-flex' : 'none'; 
-        }
-        
-        async function excluirMassa() { 
-            const c = document.querySelectorAll('.chk-item:checked'); 
-            if (!c.length) return; 
-            if ((await Swal.fire({ title: `Excluir ${c.length} itens?`, showCancelButton: true })).isConfirmed) { 
-                for (const k of c) await fetch(`/transacoes/${k.value}`, { method: 'DELETE' }); 
-                carregar(); 
-                document.getElementById('chkTodos').checked = false; 
-                atualizarBotaoMassa(); 
-            } 
-        }
+        async function prepararBaixa(id) { const t = transacoesCache.find(x => x.id === id); if(!t) return; document.getElementById('baixaId').value = id; document.getElementById('baixaValorOriginal').value = t.valor; document.getElementById('displayValorOriginal').innerText = fmt.format(t.valor); document.getElementById('baixaData').valueAsDate = new Date(); document.getElementById('baixaTotalFinal').innerText = fmt.format(t.valor); const s = document.getElementById('baixaBanco'); s.innerHTML = '<option value="">Selecione...</option>'; const r = await fetch(`/bancos?usuarioId=${usuario.id}`); (await r.json()).forEach(b => s.innerHTML += `<option value="${b.id}">${b.nome}</option>`); document.getElementById('modalBaixa').style.display = 'flex'; }
+        async function confirmarBaixa() { const id = document.getElementById('baixaId').value; const bid = document.getElementById('baixaBanco').value; if (!bid) return Swal.fire({ icon: 'warning', text: 'Selecione o Banco!' }); await fetch(`/transacoes/${id}/baixar`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bancoId: bid, dataPagamento: document.getElementById('baixaData').value, valorPago: parseFloat(document.getElementById('baixaValorOriginal').value) }) }); document.getElementById('modalBaixa').style.display = 'none'; Toast.fire({ icon: 'success', title: 'Pago!' }); carregar(); }
+        function deletar(id) { Swal.fire({ title: 'Excluir?', showCancelButton: true }).then(async r => { if (r.isConfirmed) { await fetch(`/transacoes/${id}`, { method: 'DELETE' }); carregar(); } }); }
+        function toggleTodos(src) { document.querySelectorAll('.chk-item').forEach(c => c.checked = src.checked); atualizarBotaoMassa(); }
+        function atualizarBotaoMassa() { const n = document.querySelectorAll('.chk-item:checked').length; const b = document.getElementById('btnMassDelete'); document.getElementById('countSelected').innerText = n; b.style.display = n > 0 ? 'inline-flex' : 'none'; }
+        async function excluirMassa() { const c = document.querySelectorAll('.chk-item:checked'); if (!c.length) return; if ((await Swal.fire({ title: `Excluir ${c.length} itens?`, showCancelButton: true })).isConfirmed) { for (const k of c) await fetch(`/transacoes/${k.value}`, { method: 'DELETE' }); carregar(); document.getElementById('chkTodos').checked = false; atualizarBotaoMassa(); } }
     </script>
 </body>
 </html>
