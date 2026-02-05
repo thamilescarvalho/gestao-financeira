@@ -12,186 +12,147 @@
     <script src="script.js"></script>
 
     <style>
-        /* --- TEMA GALAXY (Igual Conciliação/Index) --- */
+        /* --- TEMA GALAXY (PADRÃO) --- */
         :root {
             --purple-primary: #a855f7;
-            --purple-secondary: #c084fc;
             --glass-bg: rgba(255, 255, 255, 0.95);
             --text-dark: #1e293b;
             --text-white: #ffffff;
+            /* Cores Específicas para RECEITA (Verde) */
+            --success-color: #10b981; 
+            --success-light: #ecfdf5;
         }
 
-        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; box-sizing: border-box; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
-        /* FUNDO GALAXY VIBRANTE */
         body { 
             background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #1e3a8a 100%);
-            color: var(--text-white); 
-            font-size: 11px; 
-            min-height: 100vh; 
-            position: relative;
-            overflow-x: hidden;
+            color: var(--text-white); font-size: 11px; min-height: 100vh; position: relative; overflow-x: hidden;
         }
-        
-        /* Poeira Estelar */
         body::before {
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.4) 2px, transparent 6px),
-                radial-gradient(white, rgba(255,255,255,.3) 1px, transparent 4px);
-            background-size: 450px 450px, 250px 250px;
-            background-position: 0 0, 50px 50px;
-            opacity: 0.3; z-index: -1; pointer-events: none;
+            background-image: radial-gradient(white, rgba(255,255,255,.3) 2px, transparent 6px);
+            background-size: 550px 550px; opacity: 0.4; z-index: -1; pointer-events: none;
         }
 
         .content { padding: 40px; max-width: 1250px; margin: 0 auto; position: relative; z-index: 1; }
 
         /* NAVBAR */
-        .navbar-custom { 
-            background: rgba(30, 27, 46, 0.9); backdrop-filter: blur(12px);
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); 
-        }
+        .navbar-custom { background: rgba(30, 27, 46, 0.9); backdrop-filter: blur(12px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); }
         .navbar-custom .menu-btn { color: white !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: #ffffff !important; /* Cor Branca Pura */ text-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 255, 255, 0.5) !important; /* Brilho Branco */ letter-spacing: 1px; }
-        .btn-logout { 
-            background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; 
-            font-size: 16px; cursor: pointer; transition: 0.2s; padding: 8px 12px; border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; 
-        }
-        .btn-logout:hover { background-color: #ef4444; color: white; transform: scale(1.05); }
+        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.8); letter-spacing: 1px; }
+        .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 
         /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
         .page-title { font-size: 28px; font-weight: 800; color: white; margin: 0; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-        .header-actions { display: flex; gap: 10px; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-        /* BOTÕES */
-        .btn-new { 
-            background-color: #10b981; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; 
-            cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); 
-            font-size: 11px; transition: 0.2s; 
-        }
-        .btn-new:hover { background-color: #059669; transform: translateY(-2px); }
+        .btn-new { background-color: var(--success-color); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); font-size: 11px; transition: 0.2s; }
+        .btn-mass-delete { background-color: #b91c1c; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 11px; transition: 0.2s; box-shadow: 0 4px 10px rgba(185, 28, 28, 0.3); }
 
-        .btn-mass-delete {
-            background-color: #dc2626; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 700; 
-            border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 11px; transition: 0.2s; 
-            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
-        }
-        .btn-mass-delete:hover { background-color: #b91c1c; transform: translateY(-2px); }
-
-        /* TOOLBAR (Filtros) - VIDRO BRANCO */
+        /* TOOLBAR RESPONSIVA */
         .modern-toolbar { 
             background: var(--glass-bg); padding: 10px 15px; border-radius: 12px; 
             box-shadow: 0 8px 30px rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.5); 
             display: flex; align-items: center; gap: 10px; margin-bottom: 20px; 
-            flex-wrap: wrap; backdrop-filter: blur(10px);
+            flex-wrap: wrap; 
         }
-        
-        .total-badge { 
-            background: #ecfdf5; color: #059669; 
-            padding: 5px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; 
-            border: 1px solid #a7f3d0; white-space: nowrap; flex-shrink: 0;
-        }
-        
-        .divider { width: 1px; height: 20px; background-color: #cbd5e1; flex-shrink: 0; }
+        .total-badge { background: var(--success-light); color: var(--success-color); padding: 8px 12px; border-radius: 6px; font-weight: 800; font-size: 11px; border: 1px solid #a7f3d0; white-space: nowrap; flex-shrink: 0; text-align: center; }
+        .divider { width: 1px; height: 20px; background-color: #cbd5e1; flex-shrink: 0; display: block; }
         
         .date-group, .search-box { 
             display: flex; align-items: center; gap: 8px; background: #f1f5f9; 
             padding: 6px 12px; border-radius: 8px; border: 1px solid #e2e8f0; 
+            flex: 1; min-width: 150px; 
         }
-        .search-box { flex: 1; }
-        
-        .date-input, .clean-input, .clean-select { 
-            border: none; background: transparent; outline: none; font-size: 11px; 
-            color: var(--text-dark); font-weight: 600; width: 100%;
-        }
-        .date-input { width: 90px; }
-        
-        .btn-limpar { 
-            font-size: 10px; color: #64748b; cursor: pointer; border: none; background: none; 
-            font-weight: 700; white-space: nowrap; transition: 0.2s;
-        }
-        .btn-limpar:hover { color: #10b981; text-decoration: underline; }
+        .date-input, .clean-input, .clean-select { border: none; background: transparent; outline: none; font-size: 11px; color: var(--text-dark); font-weight: 600; width: 100%; }
+        .date-input { width: 100%; min-width: 80px; }
+        .btn-limpar { font-size: 10px; color: #64748b; cursor: pointer; border: none; background: none; font-weight: 700; white-space: nowrap; transition: 0.2s; padding: 5px 10px; }
+        .btn-limpar:hover { color: var(--success-color); text-decoration: underline; }
 
-        /* TABELA - VIDRO BRANCO */
-        .table-container { 
-            background: var(--glass-bg); border-radius: 16px; border: 2px solid rgba(255,255,255,0.5); 
-            overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); backdrop-filter: blur(10px);
-        }
+        /* TABELA RESPONSIVA E CORRIGIDA */
+        .table-container { background: var(--glass-bg); border-radius: 16px; border: 2px solid rgba(255,255,255,0.5); overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .clean-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        .clean-table th { text-align: left; padding: 14px 20px; font-size: 10px; font-weight: 800; color: var(--text-dark); background: rgba(168, 85, 247, 0.1); border-bottom: 2px solid #fff; white-space: nowrap; }
+        .clean-table td { padding: 14px 20px; font-size: 12px; color: #334155; border-bottom: 1px solid #f1f5f9; font-weight: 600; white-space: nowrap; }
         
-        .clean-table th { 
-            text-align: left; padding: 14px 20px; font-size: 10px; font-weight: 800; 
-            color: var(--text-dark); background: rgba(168, 85, 247, 0.1); border-bottom: 2px solid #fff; 
-        }
-        .clean-table td { 
-            padding: 14px 20px; font-size: 12px; color: #334155; 
-            border-bottom: 1px solid #f1f5f9; vertical-align: middle; font-weight: 600; white-space: nowrap;
-        }
-        .clean-table tbody tr:hover { background-color: #f8fafc; }
-
-        /* COLUNAS */
-        .col-forn { width: 22%; font-weight: 700; color: #1e293b; }
-        .col-venc { width: 12%; color: #64748b; font-family: monospace; }
-        .col-valor { width: 15%; font-weight: 800; color: #10b981; }
-        .col-forma { width: 12%; text-align: center; color: #64748b; font-size: 10px; }
-        .col-parc { width: 8%; text-align: center; }
-        .col-desc { width: 20%; color: #94a3b8; font-size: 11px; max-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        .col-valor { font-weight: 800; color: var(--success-color); }
+        .col-acao { width: 140px; min-width: 140px; text-align: center; }
+        .clean-table tbody td.col-acao { padding-right: 20px; }
         
-        .col-acao { width: 130px; }
-        .clean-table thead th.col-acao { text-align: center; }
-        .clean-table tbody td.col-acao { display: flex !important; justify-content: flex-end; align-items: center; gap: 4px; padding-right: 15px; }
+        /* Container dos botões de ação */
+        .actions-wrapper { display: flex; align-items: center; justify-content: flex-end; gap: 5px; width: 100%; }
 
-        .badge-parc { background: #e2e8f0; color: #475569; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; }
-
-        /* AÇÕES */
-        .action-btn { 
-            width: 26px; height: 26px; border-radius: 6px; border: 1px solid #e2e8f0; 
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
-            background: white; color: #64748b; font-size: 10px; transition: 0.2s;
-        }
+        .action-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid #e2e8f0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; background: white; color: #64748b; font-size: 11px; flex-shrink: 0; }
         .btn-pay:hover { background: #ecfdf5; color: #10b981; border-color: #a7f3d0; }
         .btn-edit:hover { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
         .btn-del:hover { background: #fff7ed; color: #c2410c; border-color: #ffedd5; }
-
-        .chk-row { width: 16px; height: 16px; cursor: pointer; accent-color: #10b981; margin-right: 8px; }
-        .header-actions-col { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+        .chk-row { width: 16px; height: 16px; cursor: pointer; accent-color: var(--success-color); margin-right: 8px; flex-shrink: 0; }
 
         /* MODAIS */
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; backdrop-filter: blur(5px); }
-        .modal { background: white; width: 95%; max-width: 600px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid #e2e8f0; animation: zoomIn 0.2s ease-out; }
-        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
-        .modal h2 { font-weight: 800; color: #10b981; margin-top: 0; font-size: 18px; }
-        
+        .modal { background: white; width: 95%; max-width: 600px; border-radius: 16px; padding: 30px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); border: 1px solid #e2e8f0; max-height: 90vh; overflow-y: auto; }
         .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 12px; outline: none; background: #f8fafc; color: #334155; font-weight: 600; }
-        .form-group input:focus, .form-group select:focus { background: white; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .form-group { margin-bottom: 15px; }
-
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
-        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 10px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; }
-        .btn-outline:hover { background: #f8fafc; color: #1e293b; }
+        .btn-confirm { padding: 10px 20px; border: none; background: var(--success-color); color: white; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 11px; }
+        .card-footer { padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; margin-top: 20px; }
 
-        /* PARCELAMENTO NO MODAL */
-        #containerParcelas { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0; margin-top: 15px; max-height: 200px; overflow-y: auto; display: none; }
-        .parcela-header { display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; padding: 10px 15px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 10px; font-weight: 800; color: #64748b; position: sticky; top: 0; }
-        .parcela-row { display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; padding: 10px 15px; align-items: center; border-bottom: 1px solid #f1f5f9; }
-        .p-idx { font-size: 10px; font-weight: 800; color: #1e293b; text-align: center; background: #e2e8f0; border-radius: 4px; padding: 3px 0; }
-        .parcela-row input { padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 11px; background: white; }
-        input:disabled { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+        /* --- PARCELAMENTO MODERNO --- */
+        #containerParcelas { 
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; 
+            margin-top: 15px; max-height: 250px; overflow-y: auto; display: none; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+        }
+        .parcela-header { 
+            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
+            padding: 12px 15px; background: #f1f5f9; border-bottom: 1px solid #e2e8f0; 
+            font-size: 10px; font-weight: 800; color: #64748b; position: sticky; top: 0; z-index: 10;
+            text-transform: uppercase;
+        }
+        .parcela-row { 
+            display: grid; grid-template-columns: 50px 1fr 130px 120px; gap: 10px; 
+            padding: 8px 15px; align-items: center; border-bottom: 1px solid #f1f5f9; 
+            transition: background 0.2s;
+        }
+        .parcela-row:last-child { border-bottom: none; }
+        .parcela-row:hover { background: #f8fafc; }
+        .p-idx { font-size: 10px; font-weight: 800; color: #475569; text-align: center; background: #e2e8f0; border-radius: 6px; padding: 5px 0; }
+        .parcela-row input { padding: 8px; border: 1px solid transparent; border-radius: 6px; font-size: 11px; background: transparent; color: #334155; width: 100%; outline: none; transition: 0.2s; }
+        .parcela-row input:focus, .parcela-row input:hover { background: #fff; border-color: #cbd5e1; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.1); }
+        .p-valor { font-weight: 800; color: var(--success-color) !important; }
 
-        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        /* --- MOBILE --- */
+        @media (max-width: 768px) {
+            .content { padding: 20px 15px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .header-actions { width: 100%; justify-content: space-between; }
+            .btn-new { flex: 1; justify-content: center; }
+            .modern-toolbar { flex-direction: column; align-items: stretch; gap: 12px; padding: 15px; }
+            .divider { display: none; }
+            .total-badge { width: 100%; font-size: 14px; padding: 10px; }
+            .date-group { flex-direction: row; justify-content: space-between; }
+            .date-input { width: 45%; }
+            .btn-limpar { width: 100%; text-align: center; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-top: 5px; }
+            .card-footer { flex-direction: column-reverse; align-items: stretch; gap: 15px; }
+            .total-box { text-align: center; }
+            .form-row { grid-template-columns: 1fr; gap: 10px; }
+            .modal { padding: 20px; }
+            
+            /* Ajuste Parcelas Mobile */
+            #containerParcelas { overflow-x: auto; }
+            .parcela-header, .parcela-row { min-width: 400px; grid-template-columns: 50px 1fr 110px 100px; }
+        }
     </style>
 </head>
 <body>
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
+    
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
         <div class="logo">T-SYSTEM</div> 
@@ -205,34 +166,41 @@
                 <button id="btnMassDelete" class="btn-mass-delete" onclick="excluirMassa()">
                     <i class="fas fa-trash"></i> Excluir (<span id="countSelected">0</span>)
                 </button>
-                <button class="btn-new" onclick="abrirModalNovo()"><i class="fas fa-plus"></i> Nova Receita</button>
+                <button class="btn-new" onclick="abrirModalNovo()">
+                    <i class="fas fa-plus"></i> Nova Receita
+                </button>
             </div>
         </div>
 
         <div class="modern-toolbar">
             <div class="total-badge">Total: <span id="total-esteira">R$ 0,00</span></div>
             <div class="divider"></div>
+            
             <div class="date-group">
                 <i class="far fa-calendar" style="color:#94a3b8"></i>
                 <input type="date" id="filtroInicio" class="date-input" onchange="aplicarFiltros()">
                 <span style="color:#cbd5e0; font-size:10px; font-weight:700;">ATÉ</span>
                 <input type="date" id="filtroFim" class="date-input" onchange="aplicarFiltros()">
             </div>
+            
             <div class="search-box">
                 <i class="fas fa-user" style="color:#cbd5e0"></i>
                 <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Cliente..." onkeyup="aplicarFiltros()">
             </div>
-            <div class="search-box" style="flex: 0 0 160px;">
+            
+            <div class="search-box">
                 <i class="far fa-credit-card" style="color:#cbd5e0"></i>
                 <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()">
                     <option value="">Forma...</option>
                 </select>
             </div>
+            
             <div class="search-box">
                 <i class="fas fa-search" style="color:#cbd5e0"></i>
                 <input type="text" id="filtroDesc" class="clean-input" placeholder="Descrição..." onkeyup="aplicarFiltros()">
             </div>
-            <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
+            
+            <button class="btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
         </div>
 
         <div class="table-container">
@@ -246,7 +214,7 @@
                         <th class="col-parc">Parc.</th>
                         <th class="col-desc">Descrição</th>
                         <th class="col-acao">
-                            <div class="header-actions-col">
+                            <div class="actions-wrapper">
                                 <input type="checkbox" id="chkTodos" class="chk-row" onchange="toggleTodos(this)" style="margin:0">
                                 <i class="fas fa-cog"></i>
                             </div>
@@ -256,6 +224,17 @@
                 <tbody id="lista"></tbody>
             </table>
         </div>
+        
+        <div class="card-footer" style="background: rgba(255,255,255,0.9); padding: 15px 20px; border-radius: 12px; margin-top: 10px;"> 
+            <button onclick="carregar()" style="background:none; border:none; color: #1e293b; font-weight:700; cursor:pointer; font-size: 11px;"> 
+                <i class="fas fa-sync-alt"></i> ATUALIZAR
+            </button> 
+            <div class="total-box" style="text-align: right;">
+                <div class="total-label">SALDO TOTAL CONSOLIDADO</div>
+                <div class="total-val" id="displayTotal">R$ 0,00</div> 
+            </div>
+        </div>
+
     </div>
 
     <div class="modal-overlay" id="modalConta" style="display: none;">
@@ -284,30 +263,30 @@
                     <label>Parcelas</label>
                     <input type="number" id="parcelas" value="1" min="1" onchange="gerarParcelasVisuais()">
                     <div id="avisoParcelaEdit" style="display:none; font-size:9px; color:#f59e0b; margin-top:2px; font-weight:700;">
-                        <i class="fas fa-lock"></i> Bloqueado na edição para manter integridade.
+                        <i class="fas fa-lock"></i> Bloqueado na edição.
                     </div>
                 </div>
             </div>
-
+            
             <div class="form-group"><label>Descrição / Categoria</label><input type="text" id="inputDescricao" placeholder="Ex: Venda de Serviço"></div>
             
             <div id="containerParcelas">
                 <div class="parcela-header">
-                    <div>Parc.</div> <div>Descrição</div> <div>Vencimento</div> <div>Valor</div>
+                    <div>#</div> <div>Descrição</div> <div>Vencimento</div> <div>Valor</div>
                 </div>
                 <div id="listaParcelas"></div>
             </div>
 
             <div class="modal-footer">
                 <button class="btn-outline" onclick="fecharModal()">Cancelar</button>
-                <button class="btn-new" onclick="salvarConta()" style="background:#10b981;">SALVAR</button>
+                <button class="btn-new" onclick="salvarConta()">SALVAR</button>
             </div>
         </div>
     </div>
-
+    
     <div class="modal-overlay" id="modalBaixa" style="display: none;">
         <div class="modal" style="max-width: 400px;">
-            <h2 style="color:#10b981;">Confirmar Recebimento</h2>
+            <h2 style="color:var(--success-color);">Confirmar Recebimento</h2>
             <input type="hidden" id="baixaId"><input type="hidden" id="baixaValorOriginal">
             <div class="form-group"><label>Conta de Entrada</label><select id="baixaBanco"></select></div>
             <div class="form-group"><label>Data Recebimento</label><input type="date" id="baixaData"></div>
@@ -317,7 +296,7 @@
             </div>
             <div class="modal-footer">
                 <button class="btn-outline" onclick="document.getElementById('modalBaixa').style.display='none'">Cancelar</button>
-                <button class="btn-new" onclick="confirmarBaixa()" style="background:#10b981;">CONFIRMAR</button>
+                <button class="btn-new" onclick="confirmarBaixa()">CONFIRMAR</button>
             </div>
         </div>
     </div>
@@ -333,83 +312,47 @@
             carregar(); 
         });
 
+        function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'login.html'; }
+
         async function carregar() { 
             if(!usuario) return; 
             try { 
                 const res = await fetch(`/transacoes?tipo=RECEITA&status=PENDENTE&usuarioId=${usuario.id}&_=${new Date().getTime()}`); 
                 transacoesCache = await res.json(); 
                 transacoesCache.sort((a,b) => new Date(a.dataVencimento) - new Date(b.dataVencimento)); 
-                atualizarFiltroPagamentos(); 
-                aplicarFiltros(); 
+                renderizarLista(transacoesCache);
+                atualizarFiltroPagamentos();
             } catch (e) { console.error(e); } 
-        }
-
-        function atualizarFiltroPagamentos() { 
-            const select = document.getElementById('filtroPagto'); 
-            const valorAtual = select.value; 
-            const padrao = ['Pix', 'Boleto', 'Dinheiro', 'Transferência', 'Outros']; 
-            const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f); 
-            const unicas = [...new Set([...padrao, ...doBanco])].sort(); 
-            select.innerHTML = '<option value="">Forma...</option>'; 
-            unicas.forEach(f => { select.innerHTML += `<option value="${f}">${f}</option>`; }); 
-            select.value = valorAtual; 
-        }
-
-        function aplicarFiltros() { 
-            const inicio = document.getElementById('filtroInicio').value; 
-            const fim = document.getElementById('filtroFim').value; 
-            const termo = document.getElementById('filtroFornecedor').value.toLowerCase(); 
-            const desc = document.getElementById('filtroDesc').value.toLowerCase(); 
-            const pagto = document.getElementById('filtroPagto').value; 
-            
-            const filtrados = transacoesCache.filter(item => { 
-                const dataItem = (item.dataVencimento || item.data).split('T')[0]; 
-                if (inicio && dataItem < inicio) return false; 
-                if (fim && dataItem > fim) return false; 
-                if (termo && !item.fornecedor?.toLowerCase().includes(termo)) return false; 
-                if (desc && !item.descricao?.toLowerCase().includes(desc)) return false; 
-                if (pagto && item.formaPagamento !== pagto) return false; 
-                return true; 
-            }); 
-            renderizarLista(filtrados); 
-        }
-
-        function limparFiltros() { 
-            document.querySelectorAll('.clean-input, .date-input, .clean-select').forEach(i => i.value = ''); 
-            carregar(); 
         }
 
         function renderizarLista(lista) { 
             const tbody = document.getElementById('lista'); 
             tbody.innerHTML = ''; 
             let total = 0;
-
             if (lista.length === 0) { 
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta a receber.</td></tr>'; 
-                document.getElementById('total-esteira').innerText = 'R$ 0,00'; 
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">Nenhuma conta encontrada.</td></tr>'; 
+                document.getElementById('displayTotal').innerText = 'R$ 0,00'; 
                 return; 
             }
-
             lista.forEach(item => { 
                 total += parseFloat(item.valor); 
-                const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR'); 
-                const hoje = new Date().toISOString().split('T')[0];
-                const corVenc = (item.dataVencimento.split('T')[0] < hoje) ? '#ef4444' : '#64748b'; 
-                const parcelaTexto = item.parcelaInfo || '1/1';
-
+                const dataVenc = new Date((item.dataVencimento || item.data).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
+                
                 tbody.innerHTML += `
                     <tr>
-                        <td class="col-forn" title="${item.fornecedor}">${item.fornecedor || 'Cliente'}</td>
-                        <td class="col-venc" style="color: ${corVenc}; font-weight: 700;">${dataVenc}</td>
+                        <td class="col-forn" title="${item.fornecedor}">${item.fornecedor}</td>
+                        <td class="col-venc">${dataVenc}</td>
                         <td class="col-valor">${fmt.format(item.valor)}</td>
-                        <td class="col-forma">${item.formaPagamento || '-'}</td>
-                        <td class="col-parc"><span class="badge-parc">${parcelaTexto}</span></td>
-                        <td class="col-desc" title="${item.descricao}">${item.descricao || ''}</td>
+                        <td class="col-forma">${item.formaPagamento||'-'}</td>
+                        <td class="col-parc"><span class="badge-parc">${item.parcelaInfo||'1/1'}</span></td>
+                        <td class="col-desc" title="${item.descricao}">${item.descricao||''}</td>
                         <td class="col-acao">
-                            <input type="checkbox" class="chk-item chk-row" value="${item.id}" onchange="atualizarBotaoMassa()">
-                            <button onclick="prepararBaixa('${item.id}')" class="action-btn btn-pay" title="Receber"><i class="fas fa-check"></i></button>
-                            <button onclick="editarConta('${item.id}')" class="action-btn btn-edit" title="Editar"><i class="fas fa-pen"></i></button>
-                            <button onclick="deletar('${item.id}')" class="action-btn btn-del" title="Excluir"><i class="fas fa-trash"></i></button>
+                            <div class="actions-wrapper">
+                                <input type="checkbox" class="chk-item chk-row" value="${item.id}" onchange="atualizarBotaoMassa()">
+                                <button class="action-btn btn-pay" onclick="prepararBaixa('${item.id}')" title="Receber"><i class="fas fa-check"></i></button>
+                                <button class="action-btn btn-edit" onclick="editarConta('${item.id}')" title="Editar"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn btn-del" onclick="deletar('${item.id}')" title="Excluir"><i class="fas fa-trash"></i></button>
+                            </div>
                         </td>
                     </tr>`; 
             });
@@ -418,124 +361,61 @@
             atualizarBotaoMassa();
         }
 
-        async function salvarConta() { 
-            const idEdicao = document.getElementById('editId').value; 
-            const qtd = parseInt(document.getElementById('parcelas').value); 
-            const formaPagamento = document.getElementById('formaPagto').value;
-            let descOriginal = document.getElementById('inputDescricao').value;
-
-            let itensParcelados = []; 
-            if (!idEdicao && qtd > 1) { 
-                document.querySelectorAll('.parcela-row').forEach(row => { 
-                    itensParcelados.push({ 
-                        descricao: row.querySelector('.p-desc').value, 
-                        data: row.querySelector('.p-data').value, 
-                        valor: row.querySelector('.p-valor').value, 
-                        formaPagamento: row.querySelector('.p-forma').value, 
-                        parcelaInfo: row.querySelector('.p-idx').innerText
-                    }); 
-                }); 
-            } 
-            
-            let infoParcelaEnvio = '1/1'; 
-            if (idEdicao) {
-                const original = transacoesCache.find(t => t.id === idEdicao);
-                if (original && original.parcelaInfo) infoParcelaEnvio = original.parcelaInfo;
-            } else if (itensParcelados.length > 0) {
-                infoParcelaEnvio = null; 
-            }
-
-            const dados = { 
-                fornecedor: document.getElementById('inputFornecedor').value, 
-                valor: parseFloat(document.getElementById('valor').value), 
-                dataVencimento: document.getElementById('dataVenc').value, 
-                data: document.getElementById('dataVenc').value, 
-                formaPagamento: formaPagamento,
-                descricao: descOriginal, 
-                parcelas: parseInt(document.getElementById('parcelas').value) || 1, 
-                tipo: 'RECEITA', 
-                status: 'PENDENTE', 
-                usuarioId: usuario.id, 
-                itensParcelados: itensParcelados.length > 0 ? itensParcelados : null, 
-                parcelaInfo: infoParcelaEnvio
-            }; 
-            
-            if(!dados.fornecedor || !dados.valor) return Swal.fire('Erro', 'Preencha Cliente e Valor', 'warning'); 
-            
-            try { 
-                const method = idEdicao ? 'PUT' : 'POST'; 
-                const url = idEdicao ? `/transacoes/${idEdicao}` : '/transacoes'; 
-                const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) }); 
-                if(res.ok) { 
-                    fecharModal(); 
-                    Toast.fire({ icon: 'success', title: 'Salvo com sucesso!' }); 
-                    if(itensParcelados.length > 0) limparFiltros(); else await carregar(); 
-                } else { 
-                    Swal.fire('Erro', 'Falha ao salvar', 'error'); 
-                } 
-            } catch (e) { console.error(e); } 
+        function atualizarFiltroPagamentos() { 
+            const select = document.getElementById('filtroPagto'); const valorAtual = select.value;
+            const padrao = ['Pix', 'Boleto', 'Dinheiro', 'Transferência', 'Outros'];
+            const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f);
+            const unicas = [...new Set([...padrao, ...doBanco])].sort();
+            select.innerHTML = '<option value="">Forma...</option>';
+            unicas.forEach(f => { select.innerHTML += `<option value="${f}">${f}</option>`; });
+            select.value = valorAtual; 
         }
 
-        function abrirModalNovo() { 
-            document.getElementById('editId').value = ''; 
-            document.getElementById('tituloModal').innerText = 'Nova Receita'; 
-            document.getElementById('parcelas').disabled = false;
-            document.getElementById('avisoParcelaEdit').style.display = 'none';
-            document.getElementById('inputFornecedor').value = ''; 
-            document.getElementById('valor').value = ''; 
-            document.getElementById('parcelas').value = '1'; 
-            document.getElementById('containerParcelas').style.display = 'none'; 
-            document.getElementById('modalConta').style.display = 'flex'; 
+        function aplicarFiltros() { 
+            const i = document.getElementById('filtroInicio').value; 
+            const f = document.getElementById('filtroFim').value; 
+            const t = document.getElementById('filtroFornecedor').value.toLowerCase(); 
+            const d = document.getElementById('filtroDesc').value.toLowerCase(); 
+            const p = document.getElementById('filtroPagto').value; 
+            const res = transacoesCache.filter(item => { 
+                const dt = (item.dataVencimento || item.data).split('T')[0]; 
+                if (i && dt < i) return false; 
+                if (f && dt > f) return false; 
+                if (t && !item.fornecedor?.toLowerCase().includes(t)) return false; 
+                if (d && !item.descricao?.toLowerCase().includes(d)) return false; 
+                if (p && item.formaPagamento !== p) return false; 
+                return true; 
+            }); 
+            renderizarLista(res); 
         }
+
+        function limparFiltros() { document.querySelectorAll('.clean-input, .date-input, .clean-select').forEach(i => i.value = ''); carregar(); }
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
         
-        function editarConta(id) { 
-            const item = transacoesCache.find(t => t.id === id); 
-            if(!item) return; 
-            document.getElementById('editId').value = id; 
-            document.getElementById('tituloModal').innerText = 'Editar Receita'; 
-            document.getElementById('inputFornecedor').value = item.fornecedor; 
-            document.getElementById('valor').value = item.valor; 
-            document.getElementById('dataVenc').value = (item.dataVencimento || item.data).split('T')[0]; 
-            document.getElementById('formaPagto').value = item.formaPagamento; 
-            document.getElementById('inputDescricao').value = item.descricao; 
-            document.getElementById('parcelas').value = item.parcelas || 1; 
-            document.getElementById('parcelas').disabled = true; 
-            document.getElementById('avisoParcelaEdit').style.display = 'block';
-            document.getElementById('containerParcelas').style.display = 'none'; 
+        function abrirModalNovo() { 
+            document.getElementById('editId').value = ''; document.getElementById('tituloModal').innerText = 'Nova Receita'; 
+            document.getElementById('parcelas').disabled = false; document.getElementById('avisoParcelaEdit').style.display = 'none';
+            document.getElementById('inputFornecedor').value = ''; document.getElementById('valor').value = ''; 
+            document.getElementById('parcelas').value = '1'; 
+            
+            // Segurança de Data
+            document.getElementById('dataVenc').valueAsDate = new Date();
+            
+            document.getElementById('containerParcelas').style.display = 'none';
             document.getElementById('modalConta').style.display = 'flex'; 
         }
 
-        async function prepararBaixa(id) { 
-            const item = transacoesCache.find(t => t.id === id); 
-            if(!item) return; 
-            document.getElementById('baixaId').value = id; 
-            document.getElementById('baixaValorOriginal').value = item.valor; 
-            document.getElementById('displayValorOriginal').innerText = fmt.format(item.valor); 
-            document.getElementById('baixaData').valueAsDate = new Date(); 
-            document.getElementById('baixaTotalFinal').innerText = fmt.format(item.valor); 
-            const sel = document.getElementById('baixaBanco'); 
-            sel.innerHTML = '<option value="">Selecione...</option>'; 
-            const res = await fetch(`/bancos?usuarioId=${usuario.id}`); 
-            (await res.json()).forEach(b => sel.innerHTML += `<option value="${b.id}">${b.nome}</option>`); 
-            document.getElementById('modalBaixa').style.display = 'flex'; 
-        }
-
-        async function confirmarBaixa() { 
-            const id = document.getElementById('baixaId').value; 
-            const bancoId = document.getElementById('baixaBanco').value; 
-            if(!bancoId) return Swal.fire({icon: 'warning', text: 'Selecione o Banco de entrada!'}); 
-            const vOrig = parseFloat(document.getElementById('baixaValorOriginal').value); 
-            await fetch(`/transacoes/${id}/baixar`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoId, dataPagamento: document.getElementById('baixaData').value, valorPago: vOrig }) }); 
-            document.getElementById('modalBaixa').style.display = 'none'; 
-            Toast.fire({icon: 'success', title: 'Recebido!'}); 
-            carregar(); 
-        }
-
-        function deletar(id) { 
-            Swal.fire({ title: 'Excluir?', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sim' }).then(async (r) => { 
-                if (r.isConfirmed) { await fetch(`/transacoes/${id}`, {method:'DELETE'}); carregar(); } 
-            }); 
+        function editarConta(id) { 
+            const t = transacoesCache.find(x => x.id === id); if(!t) return; 
+            document.getElementById('editId').value = id; document.getElementById('tituloModal').innerText = 'Editar Receita'; 
+            document.getElementById('inputFornecedor').value = t.fornecedor; document.getElementById('valor').value = t.valor; 
+            document.getElementById('dataVenc').value = (t.dataVencimento || t.data).split('T')[0]; 
+            document.getElementById('formaPagto').value = t.formaPagamento; document.getElementById('inputDescricao').value = t.descricao; 
+            document.getElementById('parcelas').value = t.parcelas || 1; document.getElementById('parcelas').disabled = true; 
+            document.getElementById('avisoParcelaEdit').style.display = 'block'; 
+            gerarParcelasVisuais(); /* Gera mas apenas visual, já que está disabled */
+            document.getElementById('containerParcelas').style.display = 'none'; 
+            document.getElementById('modalConta').style.display = 'flex'; 
         }
 
         function gerarParcelasVisuais() { 
@@ -546,13 +426,19 @@
             const desc = document.getElementById('inputDescricao').value || "Parcela"; 
             const container = document.getElementById('containerParcelas'); 
             const lista = document.getElementById('listaParcelas'); 
-            if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { container.style.display = 'none'; return; } 
+            
+            if (!qtd || qtd <= 1 || !valorTotal || !dataBase) { 
+                container.style.display = 'none'; 
+                return; 
+            } 
+            
             container.style.display = 'block'; 
             lista.innerHTML = ''; 
             const valorParcela = (valorTotal / qtd).toFixed(2); 
             let soma = 0; 
             const [ano, mes, dia] = dataBase.split('-'); 
             const dataObj = new Date(ano, mes - 1, dia, 12, 0, 0); 
+            
             for (let i = 0; i < qtd; i++) { 
                 let val = parseFloat(valorParcela); 
                 if (i === qtd - 1) val = valorTotal - soma; 
@@ -560,13 +446,93 @@
                 const novaData = new Date(dataObj); 
                 novaData.setMonth(dataObj.getMonth() + i); 
                 const dataStr = novaData.toISOString().split('T')[0]; 
-                lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="${desc}"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`; 
+                
+                lista.innerHTML += `
+                    <div class="parcela-row">
+                        <span class="p-idx">${i+1}/${qtd}</span>
+                        <input type="text" class="p-desc" value="${desc}">
+                        <input type="date" class="p-data" value="${dataStr}">
+                        <input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01">
+                        <input type="hidden" class="p-forma" value="${forma}">
+                    </div>`; 
             } 
         }
 
-        function toggleTodos(source) { document.querySelectorAll('.chk-item').forEach(chk => chk.checked = source.checked); atualizarBotaoMassa(); }
-        function atualizarBotaoMassa() { const count = document.querySelectorAll('.chk-item:checked').length; const btn = document.getElementById('btnMassDelete'); document.getElementById('countSelected').innerText = count; if (count > 0) btn.style.display = 'inline-flex'; else btn.style.display = 'none'; }
-        async function excluirMassa() { const checkboxes = document.querySelectorAll('.chk-item:checked'); if (checkboxes.length === 0) return; const result = await Swal.fire({ title: `Excluir ${checkboxes.length} itens?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'Sim' }); if (result.isConfirmed) { for (const chk of checkboxes) { await fetch(`/transacoes/${chk.value}`, { method: 'DELETE' }); } carregar(); document.getElementById('chkTodos').checked = false; atualizarBotaoMassa(); } }
+        async function salvarConta() {
+            const id = document.getElementById('editId').value; 
+            const qtd = parseInt(document.getElementById('parcelas').value);
+            const val = parseFloat(document.getElementById('valor').value); 
+            const dt = document.getElementById('dataVenc').value;
+            const pag = document.getElementById('formaPagto').value;
+            
+            let itens = [];
+            if (!id && qtd > 1) { 
+                const vParc = (val / qtd).toFixed(2); let soma = 0;
+                const [y, m, d] = dt.split('-'); const dataObj = new Date(y, m - 1, d, 12);
+                for (let i = 0; i < qtd; i++) { 
+                    let v = parseFloat(vParc); if (i === qtd - 1) v = val - soma; soma += v; 
+                    const nDt = new Date(dataObj); nDt.setMonth(dataObj.getMonth() + i);
+                    itens.push({ 
+                        descricao: `Parcela ${i+1}/${qtd}`, 
+                        data: nDt.toISOString().split('T')[0], 
+                        valor: v, 
+                        formaPagamento: pag, 
+                        parcelaInfo: `${i+1}/${qtd}` 
+                    });
+                }
+            }
+            
+            const payload = { 
+                fornecedor: document.getElementById('inputFornecedor').value, 
+                valor: val, 
+                dataVencimento: dt, 
+                data: dt, 
+                formaPagamento: pag, 
+                descricao: document.getElementById('inputDescricao').value, 
+                parcelas: qtd || 1, 
+                tipo: 'RECEITA', 
+                status: 'PENDENTE', 
+                usuarioId: usuario.id, 
+                itensParcelados: itens.length ? itens : null, 
+                parcelaInfo: id ? null : '1/1' 
+            };
+            
+            if(!payload.fornecedor || !payload.valor) return Swal.fire('Erro', 'Preencha campos', 'warning');
+            
+            await fetch(id ? `/transacoes/${id}` : '/transacoes', { 
+                method: id ? 'PUT' : 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(payload) 
+            });
+            
+            fecharModal(); Toast.fire({ icon: 'success', title: 'Salvo!' }); 
+            if(itens.length) limparFiltros(); else carregar();
+        }
+        
+        async function prepararBaixa(id) { 
+            const t = transacoesCache.find(x => x.id === id); if(!t) return; 
+            document.getElementById('baixaId').value = id; document.getElementById('baixaValorOriginal').value = t.valor; 
+            document.getElementById('displayValorOriginal').innerText = fmt.format(t.valor); document.getElementById('baixaData').valueAsDate = new Date(); 
+            document.getElementById('baixaTotalFinal').innerText = fmt.format(t.valor); 
+            const sel = document.getElementById('baixaBanco'); sel.innerHTML = '<option value="">Selecione...</option>'; 
+            const res = await fetch(`/bancos?usuarioId=${usuario.id}`); (await res.json()).forEach(b => sel.innerHTML += `<option value="${b.id}">${b.nome}</option>`); 
+            document.getElementById('modalBaixa').style.display = 'flex'; 
+        }
+        
+        async function confirmarBaixa() { 
+            const id = document.getElementById('baixaId').value; const bid = document.getElementById('baixaBanco').value; 
+            if(!bid) return Swal.fire({icon: 'warning', text: 'Selecione o Banco!'}); 
+            await fetch(`/transacoes/${id}/baixar`, { 
+                method: 'PUT', headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ bancoId: bid, dataPagamento: document.getElementById('baixaData').value, valorPago: parseFloat(document.getElementById('baixaValorOriginal').value) }) 
+            }); 
+            document.getElementById('modalBaixa').style.display = 'none'; Toast.fire({icon: 'success', title: 'Recebido!'}); carregar(); 
+        }
+        
+        function deletar(id) { Swal.fire({title:'Excluir?', showCancelButton:true}).then(async r=>{ if(r.isConfirmed){ await fetch(`/transacoes/${id}`, {method:'DELETE'}); carregar(); }}); }
+        function toggleTodos(src) { document.querySelectorAll('.chk-item').forEach(c => c.checked = src.checked); atualizarBotaoMassa(); }
+        function atualizarBotaoMassa() { const n = document.querySelectorAll('.chk-item:checked').length; const b = document.getElementById('btnMassDelete'); document.getElementById('countSelected').innerText = n; b.style.display = n > 0 ? 'inline-flex' : 'none'; }
+        async function excluirMassa() { const c = document.querySelectorAll('.chk-item:checked'); if (!c.length) return; if ((await Swal.fire({ title: `Excluir ${c.length} itens?`, showCancelButton: true })).isConfirmed) { for (const k of c) await fetch(`/transacoes/${k.value}`, { method: 'DELETE' }); carregar(); document.getElementById('chkTodos').checked = false; atualizarBotaoMassa(); } }
     </script>
 </body>
 </html>
