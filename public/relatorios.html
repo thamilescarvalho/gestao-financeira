@@ -39,7 +39,15 @@
             opacity: 0.3; z-index: -1; pointer-events: none;
         }
 
-        .content { padding: 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+        /* --- AJUSTE DE LARGURA/PREENCHIMENTO (EXPANDIDO) --- */
+        .content { 
+            padding: 20px; 
+            width: 96%; /* Ocupa 96% da tela */
+            max-width: 1800px; /* Limite maior */
+            margin: 0 auto; 
+            position: relative; 
+            z-index: 1; 
+        }
 
         /* NAVBAR */
         .navbar-custom { 
@@ -144,7 +152,10 @@
         .val-green { color: #10b981; } .val-red { color: #ef4444; }
         .btn-close-modal { border: none; background: transparent; cursor: pointer; color: #94a3b8; font-size: 18px; }
 
-        @media (max-width: 900px) { .projecao-grid, .kpi-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 900px) { 
+            .projecao-grid, .kpi-grid { grid-template-columns: 1fr; }
+            .content { padding: 10px; width: 100%; } /* Mobile full width */
+        }
     </style>
 </head>
 <body>
@@ -157,8 +168,8 @@
     <div class="content">
         <div class="page-header">
             <div>
-                <h1 class="page-title">Relatórios e Inteligência</h1>
-                <div class="page-sub">Visão completa da saúde financeira.</div>
+                <h1 class="page-title">RELATÓRIOS E INTELIGÊNCIA</h1>
+                <div class="page-sub">VISÃO COMPLETA DA SAÚDE FINANCEIRA.</div>
             </div>
             <button class="btn-galaxy-main" onclick="mostrarParcelamentos()">
                 <i class="fas fa-layer-group"></i> VER CONTAS PARCELADAS
@@ -168,7 +179,7 @@
         <div id="painelParcelas" class="glass-panel">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2 style="margin:0; color:#1e293b; font-size:18px; display:flex; align-items:center; gap:10px;">
-                    <i class="fas fa-credit-card" style="color:#a855f7;"></i> Contas Parceladas
+                    <i class="fas fa-credit-card" style="color:#a855f7;"></i> CONTAS PARCELADAS
                 </h2>
                 <button onclick="document.getElementById('painelParcelas').style.display='none'" style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i class="fas fa-times"></i></button>
             </div>
@@ -177,13 +188,13 @@
                 <table class="parcel-table">
                     <thead>
                         <tr>
-                            <th>Descrição / Fornecedor</th>
-                            <th style="text-align:center;">Progresso</th>
-                            <th>Status</th>
-                            <th>Valor Parcela</th>
-                            <th>Total Pago</th>
-                            <th>Falta Pagar</th>
-                            <th>Total Dívida</th>
+                            <th>FORNECEDOR</th>
+                            <th style="text-align:center;">PROGRESSO</th>
+                            <th>STATUS</th>
+                            <th>VALOR PARCELA</th>
+                            <th>TOTAL PAGO</th>
+                            <th>FALTA PAGAR</th>
+                            <th>TOTAL DÍVIDA</th>
                         </tr>
                     </thead>
                     <tbody id="listaParcelamentos"></tbody>
@@ -193,7 +204,7 @@
 
         <div class="box-container">
             <div class="box-header">
-                <div class="box-title"><i class="fas fa-calendar-alt" style="color:#64748b"></i> Previsão (Planejamento)</div>
+                <div class="box-title"><i class="fas fa-calendar-alt" style="color:#64748b"></i> PREVISÃO (PLANEJAMENTO)</div>
                 <div class="filter-group">
                     <span style="font-size: 11px; color: #64748b; font-weight: 700;">MÊS:</span>
                     <input type="month" id="mesProjecao" class="light-input" onchange="carregarProjecaoMensal()">
@@ -201,21 +212,21 @@
             </div>
             <div class="projecao-grid">
                 <div class="proj-card proj-green" onclick="abrirDetalhes('RECEITA')">
-                    <div class="proj-label">A Receber</div>
+                    <div class="proj-label">A RECEBER</div>
                     <div class="proj-value" id="projReceita">R$ 0,00</div>
-                    <div class="proj-sub">Receitas pendentes</div>
+                    <div class="proj-sub">RECEITAS PENDENTES</div>
                     <i class="fas fa-arrow-up"></i>
                 </div>
                 <div class="proj-card proj-red" onclick="abrirDetalhes('DESPESA')">
-                    <div class="proj-label">A Pagar</div>
+                    <div class="proj-label">A PAGAR</div>
                     <div class="proj-value" id="projDespesa">R$ 0,00</div>
-                    <div class="proj-sub">Contas pendentes</div>
+                    <div class="proj-sub">CONTAS PENDENTES</div>
                     <i class="fas fa-arrow-down"></i>
                 </div>
                 <div class="proj-card proj-blue">
-                    <div class="proj-label">Saldo Previsto</div>
+                    <div class="proj-label">SALDO PREVISTO</div>
                     <div class="proj-value" id="projSaldo">R$ 0,00</div>
-                    <div class="proj-sub">Receitas - Despesas</div>
+                    <div class="proj-sub">RECEITAS - DESPESAS</div>
                     <i class="fas fa-balance-scale"></i>
                 </div>
             </div>
@@ -223,10 +234,10 @@
 
         <div class="box-container">
             <div class="box-header">
-                <div class="box-title"><i class="fas fa-chart-pie" style="color:#64748b"></i> Histórico de Pagamentos</div>
+                <div class="box-title"><i class="fas fa-chart-pie" style="color:#64748b"></i> HISTÓRICO DE PAGAMENTOS</div>
                 <div class="filter-group">
                     <select id="filtroBanco" class="light-input" style="min-width: 150px;" onchange="carregarRelatorioRealizado()">
-                        <option value="">Todos os Bancos</option>
+                        <option value="">TODOS OS BANCOS</option>
                     </select>
                     <span style="font-size: 11px; color: #64748b; font-weight: 700;">MÊS:</span>
                     <input type="month" id="mesRealizado" class="light-input" onchange="carregarRelatorioRealizado()">
@@ -234,17 +245,17 @@
             </div>
             <div class="kpi-grid">
                 <div class="kpi-card card-clickable" onclick="abrirDetalhesRealizado('TOTAL')">
-                    <div class="kpi-header"><div class="kpi-label">Total Pago (Mês)</div><i class="fas fa-wallet kpi-icon-small"></i></div>
+                    <div class="kpi-header"><div class="kpi-label">TOTAL PAGO (MÊS)</div><i class="fas fa-wallet kpi-icon-small"></i></div>
                     <div class="kpi-value" id="valTotal">R$ 0,00</div>
-                    <div class="kpi-sub">Clique para detalhar</div>
+                    <div class="kpi-sub">CLIQUE PARA DETALHAR</div>
                 </div>
                 <div class="kpi-card card-clickable" onclick="abrirDetalhesRealizado('CARTAO')">
-                    <div class="kpi-header"><div class="kpi-label">Gasto com Cartão</div><i class="far fa-credit-card kpi-icon-small"></i></div>
+                    <div class="kpi-header"><div class="kpi-label">GASTO COM CARTÃO</div><i class="far fa-credit-card kpi-icon-small"></i></div>
                     <div class="kpi-value" id="valCartao">R$ 0,00</div>
-                    <div class="kpi-sub">Clique para detalhar</div>
+                    <div class="kpi-sub">CLIQUE PARA DETALHAR</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-header"><div class="kpi-label">Maior Despesa</div><i class="fas fa-fire kpi-icon-small"></i></div>
+                    <div class="kpi-header"><div class="kpi-label">MAIOR DESPESA</div><i class="fas fa-fire kpi-icon-small"></i></div>
                     <div class="kpi-value" id="valTopForn" style="font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">-</div>
                     <div class="kpi-sub" id="subTopForn" style="color: #ef4444; font-weight: 800;">R$ 0,00</div>
                 </div>
@@ -255,7 +266,7 @@
     <div class="modal-overlay" id="modalDetalhes" onclick="if(event.target === this) fecharDetalhes()">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title" id="tituloDetalhes">Detalhes</h3>
+                <h3 class="modal-title" id="tituloDetalhes">DETALHES</h3>
                 <button class="btn-close-modal" onclick="fecharDetalhes()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body" id="listaDetalhes"></div>
@@ -279,30 +290,36 @@
             carregarProjecaoMensal(); 
         });
 
-        // --- GESTÃO DE PARCELAMENTOS ---
+        // --- GESTÃO DE PARCELAMENTOS (LÓGICA CORRIGIDA: >1 E FORNECEDOR) ---
         async function mostrarParcelamentos() {
             const painel = document.getElementById('painelParcelas');
             const tbody = document.getElementById('listaParcelamentos');
             
             painel.style.display = 'block';
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">Calculando dívidas...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">CALCULANDO DÍVIDAS...</td></tr>';
 
             try {
                 const res = await fetch(`/transacoes?usuarioId=${usuario.id}`);
                 const todasTransacoes = await res.json();
-                const despesas = todasTransacoes.filter(t => t.tipo === 'DESPESA' && t.parcelas > 1);
+                
+                // Filtra todas as despesas que são parceladas
+                const despesas = todasTransacoes.filter(t => t.tipo === 'DESPESA' && t.parcelaInfo && t.parcelaInfo.includes('/'));
                 const grupos = {};
 
                 despesas.forEach(t => {
-                    let nomeRaiz = t.descricao
-                        .replace(/\s\d{1,2}\/\d{1,2}/g, '') 
-                        .replace(/\{.*?\}/g, '')            
-                        .trim();
+                    const partesParcela = t.parcelaInfo.split('/');
+                    const totalParcelasDoItem = partesParcela.length === 2 ? parseInt(partesParcela[1]) : 1;
+                    
+                    // FILTRO CRUCIAL: Só processa se tiver MAIS de 1 parcela (exclui 1/1)
+                    if (totalParcelasDoItem <= 1) return;
 
-                    if (!grupos[nomeRaiz]) {
-                        grupos[nomeRaiz] = {
-                            nome: nomeRaiz,
-                            totalParcelasEsperadas: t.parcelas,
+                    // Chave única: Nome do Fornecedor + Total de Parcelas (Ex: "Casas Bahia-10")
+                    const chaveGrupo = `${t.fornecedor.toLowerCase()}-${totalParcelasDoItem}`;
+
+                    if (!grupos[chaveGrupo]) {
+                        grupos[chaveGrupo] = {
+                            nome: t.fornecedor, // Usa o nome do fornecedor para exibição
+                            totalParcelasEsperadas: totalParcelasDoItem,
                             itens: [],
                             valorTotal: 0,
                             valorPago: 0,
@@ -310,7 +327,7 @@
                         };
                     }
                     
-                    const g = grupos[nomeRaiz];
+                    const g = grupos[chaveGrupo];
                     g.itens.push(t);
                     g.valorTotal += parseFloat(t.valor);
                     
@@ -326,7 +343,7 @@
                 tbody.innerHTML = '';
 
                 if (listaFinal.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-check-circle empty-icon"></i><p>Nenhuma conta parcelada encontrada.</p></div></td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-check-circle empty-icon"></i><p>NENHUMA CONTA PARCELADA ENCONTRADA.</p></div></td></tr>`;
                     return;
                 }
 
@@ -342,7 +359,6 @@
                         <tr>
                             <td>
                                 <div style="font-weight:800; color:#1e293b; font-size:13px;">${g.nome}</div>
-                                <div style="font-size:10px; color:#64748b;">${g.itens[0].fornecedor || ''}</div>
                             </td>
                             <td style="text-align:center; width: 120px;">
                                 <div style="font-size:10px; font-weight:700; margin-bottom:3px; display:flex; justify-content:space-between;">
@@ -364,7 +380,7 @@
 
             } catch (e) {
                 console.error(e);
-                tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">Erro ao carregar dados.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">ERRO AO CARREGAR DADOS.</td></tr>';
             }
         }
 
@@ -442,14 +458,14 @@
         }
 
         function abrirDetalhes(tipo) {
-            const titulo = tipo === 'RECEITA' ? 'Receitas Previstas' : 'Despesas Previstas';
+            const titulo = tipo === 'RECEITA' ? 'RECEITAS PREVISTAS' : 'DESPESAS PREVISTAS';
             document.getElementById('tituloDetalhes').innerText = titulo;
             const itens = tipo === 'RECEITA' ? detalhesCache.receita : detalhesCache.despesa;
             renderizarModal(itens, tipo);
         }
 
         function abrirDetalhesRealizado(tipo) {
-            const titulo = tipo === 'CARTAO' ? 'Gastos com Cartão (Realizado)' : 'Pagamentos Totais (Realizado)';
+            const titulo = tipo === 'CARTAO' ? 'GASTOS COM CARTÃO (REALIZADO)' : 'PAGAMENTOS TOTAIS (REALIZADO)';
             document.getElementById('tituloDetalhes').innerText = titulo;
             const itens = tipo === 'CARTAO' ? detalhesRealizadoCache.cartao : detalhesRealizadoCache.total;
             renderizarModal(itens, 'DESPESA'); 
@@ -459,7 +475,7 @@
             const lista = document.getElementById('listaDetalhes');
             lista.innerHTML = '';
             if (itens.length === 0) {
-                lista.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">Nenhum lançamento.</div>';
+                lista.innerHTML = '<div style="text-align:center; padding:30px; color:#94a3b8;">NENHUM LANÇAMENTO.</div>';
             } else {
                 itens.sort((a,b) => {
                     const dA = a.dataPagamento || a.dataVencimento || a.data;
@@ -470,7 +486,7 @@
                     const dataRaw = t.dataPagamento || t.dataVencimento || t.data;
                     const dataFmt = new Date(dataRaw).toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'});
                     const corVal = tipo === 'RECEITA' ? 'val-green' : 'val-red';
-                    lista.innerHTML += `<div class="detail-item"><div class="dt-info"><h4>${t.fornecedor || t.descricao}</h4><span>Data: ${dataFmt}</span></div><div class="dt-val ${corVal}">${fmt.format(t.valor)}</div></div>`;
+                    lista.innerHTML += `<div class="detail-item"><div class="dt-info"><h4>${t.fornecedor || t.descricao}</h4><span>DATA: ${dataFmt}</span></div><div class="dt-val ${corVal}">${fmt.format(t.valor)}</div></div>`;
                 });
             }
             document.getElementById('modalDetalhes').style.display = 'flex';
