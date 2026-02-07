@@ -43,11 +43,11 @@
             background-size: 450px 450px; opacity: 0.3; z-index: -1; pointer-events: none;
         }
 
-        /* --- AJUSTE DE LARGURA/PREENCHIMENTO (AQUI ESTÁ A MUDANÇA) --- */
+        /* --- AJUSTE DE LARGURA/PREENCHIMENTO (EXPANDIDO) --- */
         .content { 
-            padding: 20px; /* Reduzido de 40px */
-            width: 96%; /* Ocupa 96% da tela */
-            max-width: 1800px; /* Limite maior para telas gigantes */
+            padding: 20px; 
+            width: 96%; 
+            max-width: 1800px; 
             margin: 0 auto; 
             position: relative; 
             z-index: 1; 
@@ -64,7 +64,7 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            margin-bottom: 20px; /* Reduzido um pouco */
+            margin-bottom: 25px; 
             flex-wrap: wrap; 
             gap: 15px; 
             width: 100%;
@@ -93,8 +93,7 @@
         }
         
         .btn-transf { 
-            background: #0f172a; /* Preto */
-            color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; 
+            background: #0f172a; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; 
             cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); font-size: 11px; transition: 0.2s; 
             height: 38px;
@@ -170,14 +169,11 @@
         
         .empty-row td { text-align: center; padding: 40px; color: #94a3b8; font-weight: 500; }
 
-        .col-nome { 
-            width: 25%; font-weight: 700; color: #1e293b; 
-            max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-        }
-        .col-desc { 
-            width: 25%; color: #94a3b8; font-size: 11px;
-            max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
-        }
+        .col-nome { width: 25%; font-weight: 700; color: #1e293b; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .col-desc { width: 25%; color: #94a3b8; font-size: 11px; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* NOVA COLUNA DE PARCELA */
+        .col-parc { width: 5%; text-align: center; color: #475569; font-size: 10px; font-weight: 800; }
 
         .col-valor { font-weight: 800; }
         .col-acao { text-align: center; }
@@ -188,39 +184,22 @@
         .bg-despesa { background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
         .chk-row { width: 16px; height: 16px; cursor: pointer; accent-color: var(--purple-primary); margin-right: 8px; }
 
-        .card-footer { padding-top: 25px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
-        .total-label { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
-        .total-val { font-size: 24px; color: var(--purple-dark); font-weight: 900; letter-spacing: -1px; }
-
         /* --- MOBILE --- */
         @media (max-width: 768px) {
-            .content { 
-                padding: 10px; /* Padding reduzido */
-                width: 100%; /* Largura total */
-            }
-            
+            .content { padding: 10px; width: 100%; }
             .page-title { font-size: 24px; text-align: center; width: 100%; margin-bottom: 5px; }
-            
             .page-header { flex-direction: column; align-items: center; gap: 15px; }
             .header-left { flex-direction: column; align-items: center; width: 100%; gap: 15px; }
-            
             .header-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; width: 100%; gap: 5px; margin-bottom: 0; }
             .tab-link { width: auto; flex: none; }
-            
             .header-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
             .btn-transf, .btn-import { width: 100%; justify-content: center; font-size: 10px; padding: 0; }
             .btn-mass-delete { grid-column: span 2; justify-content: center; height: 38px; } 
-
             .desktop-toolbar { display: none; }
             .mobile-filter-chips { display: flex; }
-
-            .card-footer { flex-direction: column-reverse; align-items: stretch; gap: 20px; text-align: center; }
-            .total-box { text-align: center; }
-            
             .clean-table tr.empty-tr { display: flex; height: 150px; align-items: center; justify-content: center; background: white; }
             .clean-table tr.empty-tr td { border: none; width: 100%; text-align: center; white-space: normal; }
             .clean-table { min-width: 800px; } 
-            
             .col-nome { max-width: 120px; }
             .col-desc { max-width: 100px; }
         }
@@ -309,6 +288,7 @@
                             <th class="col-banco">BANCO</th> 
                             <th class="col-valor">VALOR</th> 
                             <th class="col-forma"><i class="fas fa-wallet" title="Forma Pagto"></i></th>
+                            <th class="col-parc">PARC.</th> 
                             <th class="col-data">DATA</th> 
                             <th class="col-desc">DESCRIÇÃO</th> 
                             <th class="col-acao">
@@ -320,16 +300,7 @@
                 </table>
             </div>
             
-            <div class="card-footer"> 
-                <button onclick="carregarDados()" style="background:none; border:none; color: var(--text-muted); font-weight:700; cursor:pointer; font-size: 11px; display:flex; align-items:center; gap:5px;"> 
-                    <i class="fas fa-sync-alt"></i> ATUALIZAR LISTA
-                </button> 
-                <div class="total-box">
-                    <div class="total-label">SALDO TOTAL CONSOLIDADO</div>
-                    <div class="total-val" id="total-mobile">R$ 0,00</div> 
-                </div>
             </div>
-        </div>
     </div>
 
     <div class="bottom-sheet" id="bsFiltro">
@@ -347,6 +318,9 @@
             <input type="hidden" id="editId">
             <div class="form-group"><label>CLIENTE / FORNECEDOR</label><input type="text" id="editFornecedor" class="form-input"></div>
             <div class="form-group"><label>DESCRIÇÃO</label><input type="text" id="editDescricao" class="form-input"></div>
+            
+            <div class="form-group"><label>VALOR (R$)</label><input type="number" id="editValor" class="form-input" step="0.01"></div>
+            
             <div class="form-group"><label>FORMA</label><select id="editForma" class="form-input"><option value="Pix">PIX</option><option value="Boleto">BOLETO</option><option value="Cartão">CARTÃO</option><option value="Outros">OUTROS</option></select></div>
             <div class="modal-footer"><button class="btn-cancel" onclick="document.getElementById('modalEdicao').style.display='none'">CANCELAR</button><button class="btn-confirm" onclick="salvarEdicaoRapida()">SALVAR</button></div>
         </div>
@@ -489,9 +463,8 @@
             let total = 0;
 
             if (lista.length === 0) { 
-                tbody.innerHTML = '<tr class="empty-tr"><td colspan="7">NENHUM REGISTRO ENCONTRADO.</td></tr>'; 
+                tbody.innerHTML = '<tr class="empty-tr"><td colspan="8">NENHUM REGISTRO ENCONTRADO.</td></tr>'; 
                 document.getElementById('total-display').innerText = 'R$ 0,00'; 
-                document.getElementById('total-mobile').innerText = 'R$ 0,00';
                 return; 
             }
 
@@ -504,6 +477,9 @@
                 const dataFmt = new Date((item.dataPagamento || item.dataVencimento).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
                 const badge = item.tipo === 'RECEITA' ? 'bg-receita' : 'bg-despesa';
                 const valorExibido = formatarMoeda(valorNum); 
+                
+                // Trata parcela
+                const parcela = item.parcelaInfo || '1/1';
 
                 tbody.innerHTML += `
                     <tr>
@@ -511,6 +487,7 @@
                         <td class="col-banco">${item.banco ? item.banco.nome : '-'}</td>
                         <td class="col-valor"><span class="badge-valor ${badge}">${valorExibido}</span></td>
                         <td class="col-forma">${item.formaPagamento || '-'}</td>
+                        <td class="col-parc" style="text-align:center;">${parcela}</td>
                         <td class="col-data">${dataFmt}</td>
                         <td class="col-desc" title="${item.descricao || ''}">${item.descricao || ''}</td>
                         <td class="col-acao">
@@ -522,7 +499,7 @@
             });
             const totalFmt = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
             document.getElementById('total-display').innerText = totalFmt;
-            document.getElementById('total-mobile').innerText = totalFmt;
+            
             document.getElementById('chkTodos').checked = false;
             atualizarBotaoMassa();
         }
@@ -532,13 +509,30 @@
             document.getElementById('editId').value = id;
             document.getElementById('editFornecedor').value = item.fornecedor || '';
             document.getElementById('editDescricao').value = item.descricao || '';
+            document.getElementById('editValor').value = item.valor || '';
             document.getElementById('editForma').value = item.formaPagamento || 'Outros';
             document.getElementById('modalEdicao').style.display = 'flex';
         }
+        
         async function salvarEdicaoRapida() {
             const id = document.getElementById('editId').value;
-            try { await fetch(`/transacoes/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ fornecedor: document.getElementById('editFornecedor').value, descricao: document.getElementById('editDescricao').value, formaPagamento: document.getElementById('editForma').value }) }); document.getElementById('modalEdicao').style.display = 'none'; Toast.fire({ icon: 'success', title: 'ATUALIZADO!' }); carregar(); } catch(e) { console.error(e); }
+            const val = parseFloat(document.getElementById('editValor').value);
+            
+            const payload = {
+                fornecedor: document.getElementById('editFornecedor').value,
+                descricao: document.getElementById('editDescricao').value,
+                formaPagamento: document.getElementById('editForma').value,
+                valor: val
+            };
+            
+            try { 
+                await fetch(`/transacoes/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }); 
+                document.getElementById('modalEdicao').style.display = 'none'; 
+                Toast.fire({ icon: 'success', title: 'ATUALIZADO!' }); 
+                carregar(); 
+            } catch(e) { console.error(e); }
         }
+        
         function estornarConta(id, tipo) {
             Swal.fire({ title: 'ESTORNAR?', text: `VOLTARÁ PARA PENDENTE.`, icon: 'warning', showCancelButton: true, confirmButtonText: 'SIM' }).then(async (result) => { if (result.isConfirmed) { await fetch(`/transacoes/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'PENDENTE', bancoId: null }) }); carregar(); Toast.fire({ icon: 'success', title: 'ESTORNADO!' }); } })
         }

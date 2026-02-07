@@ -39,11 +39,11 @@
             opacity: 0.3; z-index: -1; pointer-events: none;
         }
 
-        /* --- AJUSTE DE LARGURA/PREENCHIMENTO (EXPANDIDO) --- */
+        /* --- LAYOUT EXPANDIDO --- */
         .content { 
             padding: 20px; 
-            width: 96%; /* Ocupa 96% da tela */
-            max-width: 1800px; /* Limite maior */
+            width: 96%; 
+            max-width: 1800px; 
             margin: 0 auto; 
             position: relative; 
             z-index: 1; 
@@ -124,6 +124,10 @@
         .parcel-table th { text-align: left; padding: 15px; color: #1e293b; background: rgba(168, 85, 247, 0.1); font-weight: 800; font-size: 10px; border-bottom: 2px solid #e2e8f0; }
         .parcel-table td { padding: 15px; color: #334155; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 12px; }
         
+        /* LINHA CLICÁVEL COM EFEITO HOVER */
+        .clickable-row { cursor: pointer; transition: background 0.2s; }
+        .clickable-row:hover { background-color: #f3e8ff !important; }
+
         .progress-container { width: 100px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
         .progress-bar { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 4px; }
         
@@ -152,9 +156,15 @@
         .val-green { color: #10b981; } .val-red { color: #ef4444; }
         .btn-close-modal { border: none; background: transparent; cursor: pointer; color: #94a3b8; font-size: 18px; }
 
+        /* ESTILO TABELA EXTRATO NO MODAL */
+        .extrato-table { width: 100%; border-collapse: collapse; }
+        .extrato-table th { background: #f1f5f9; color: #64748b; font-size: 10px; padding: 12px 15px; text-align: left; }
+        .extrato-table td { padding: 12px 15px; font-size: 12px; color: #334155; border-bottom: 1px solid #f1f5f9; }
+        .extrato-table tr:last-child td { border-bottom: none; }
+
         @media (max-width: 900px) { 
             .projecao-grid, .kpi-grid { grid-template-columns: 1fr; }
-            .content { padding: 10px; width: 100%; } /* Mobile full width */
+            .content { padding: 10px; width: 100%; } 
         }
     </style>
 </head>
@@ -168,7 +178,7 @@
     <div class="content">
         <div class="page-header">
             <div>
-                <h1 class="page-title">RELATÓRIOS E INTELIGÊNCIA</h1>
+                <h1 class="page-title">RELATÓRIOS FINANCEIROS</h1>
                 <div class="page-sub">VISÃO COMPLETA DA SAÚDE FINANCEIRA.</div>
             </div>
             <button class="btn-galaxy-main" onclick="mostrarParcelamentos()">
@@ -273,12 +283,35 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalExtratoParcelas" onclick="if(event.target === this) document.getElementById('modalExtratoParcelas').style.display='none'">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="tituloExtrato">EXTRATO DE PAGAMENTOS</h3>
+                <button class="btn-close-modal" onclick="document.getElementById('modalExtratoParcelas').style.display='none'"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <table class="extrato-table">
+                    <thead>
+                        <tr>
+                            <th>PARCELA</th>
+                            <th>VENCIMENTO</th>
+                            <th>PAGAMENTO</th>
+                            <th>VALOR PAGO</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaExtratoParcelas"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
         
         let detalhesCache = { receita: [], despesa: [] };
         let detalhesRealizadoCache = { total: [], cartao: [] };
+        let cacheParcelamentos = {}; // Cache global para os grupos de parcelas
 
         document.addEventListener('DOMContentLoaded', () => {
             const hoje = new Date();
@@ -290,7 +323,7 @@
             carregarProjecaoMensal(); 
         });
 
-        // --- GESTÃO DE PARCELAMENTOS (LÓGICA CORRIGIDA: >1 E FORNECEDOR) ---
+        // --- GESTÃO DE PARCELAMENTOS ---
         async function mostrarParcelamentos() {
             const painel = document.getElementById('painelParcelas');
             const tbody = document.getElementById('listaParcelamentos');
@@ -302,7 +335,6 @@
                 const res = await fetch(`/transacoes?usuarioId=${usuario.id}`);
                 const todasTransacoes = await res.json();
                 
-                // Filtra todas as despesas que são parceladas
                 const despesas = todasTransacoes.filter(t => t.tipo === 'DESPESA' && t.parcelaInfo && t.parcelaInfo.includes('/'));
                 const grupos = {};
 
@@ -310,15 +342,13 @@
                     const partesParcela = t.parcelaInfo.split('/');
                     const totalParcelasDoItem = partesParcela.length === 2 ? parseInt(partesParcela[1]) : 1;
                     
-                    // FILTRO CRUCIAL: Só processa se tiver MAIS de 1 parcela (exclui 1/1)
                     if (totalParcelasDoItem <= 1) return;
 
-                    // Chave única: Nome do Fornecedor + Total de Parcelas (Ex: "Casas Bahia-10")
                     const chaveGrupo = `${t.fornecedor.toLowerCase()}-${totalParcelasDoItem}`;
 
                     if (!grupos[chaveGrupo]) {
                         grupos[chaveGrupo] = {
-                            nome: t.fornecedor, // Usa o nome do fornecedor para exibição
+                            nome: t.fornecedor,
                             totalParcelasEsperadas: totalParcelasDoItem,
                             itens: [],
                             valorTotal: 0,
@@ -337,6 +367,9 @@
                     }
                 });
 
+                // SALVA NO CACHE GLOBAL
+                cacheParcelamentos = grupos;
+
                 const listaFinal = Object.values(grupos);
                 listaFinal.sort((a,b) => b.valorTotal - a.valorTotal); 
 
@@ -347,7 +380,14 @@
                     return;
                 }
 
-                listaFinal.forEach(g => {
+                listaFinal.forEach((g, index) => {
+                    // Recria a chave para passar no onclick (usando a mesma lógica de criação)
+                    // Mas como já temos o objeto, podemos usar Object.keys se precisarmos, 
+                    // ou simplesmente iterar sobre as chaves do cacheParcelamentos
+                    
+                    // Maneira mais segura: iterar sobre as chaves originais
+                    const chaveOriginal = Object.keys(cacheParcelamentos).find(key => cacheParcelamentos[key] === g);
+
                     const totalQtd = g.totalParcelasEsperadas;
                     const progresso = (g.pagasQtd / totalQtd) * 100;
                     const statusClass = (g.pagasQtd >= totalQtd) ? 'status-done' : 'status-active';
@@ -356,7 +396,7 @@
                     const valorRestante = g.valorTotal - g.valorPago;
 
                     tbody.innerHTML += `
-                        <tr>
+                        <tr onclick="abrirExtratoParcelas('${chaveOriginal}')" class="clickable-row" title="Clique para ver extrato">
                             <td>
                                 <div style="font-weight:800; color:#1e293b; font-size:13px;">${g.nome}</div>
                             </td>
@@ -382,6 +422,47 @@
                 console.error(e);
                 tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">ERRO AO CARREGAR DADOS.</td></tr>';
             }
+        }
+
+        // --- NOVA FUNÇÃO: EXTRATO DE PARCELAS ---
+        function abrirExtratoParcelas(chave) {
+            const grupo = cacheParcelamentos[chave];
+            if (!grupo) return;
+
+            const modal = document.getElementById('modalExtratoParcelas');
+            const tbody = document.getElementById('listaExtratoParcelas');
+            const titulo = document.getElementById('tituloExtrato');
+
+            titulo.innerHTML = `EXTRATO: <span style="color:#a855f7">${grupo.nome}</span>`;
+            tbody.innerHTML = '';
+
+            // Filtra apenas as pagas
+            const parcelasPagas = grupo.itens.filter(t => t.status === 'PAGO');
+
+            if (parcelasPagas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#94a3b8;">NENHUMA PARCELA PAGA AINDA.</td></tr>';
+            } else {
+                // Ordena por data de pagamento
+                parcelasPagas.sort((a,b) => new Date(a.dataPagamento) - new Date(b.dataPagamento));
+
+                parcelasPagas.forEach(p => {
+                    const dtVenc = new Date(p.dataVencimento || p.data).toLocaleDateString('pt-BR');
+                    const dtPag = p.dataPagamento ? new Date(p.dataPagamento).toLocaleDateString('pt-BR') : '-';
+                    const numParc = p.parcelaInfo ? p.parcelaInfo.split('/')[0] : '?';
+                    const totalParc = p.parcelaInfo ? p.parcelaInfo.split('/')[1] : '?';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>${numParc}</strong> / ${totalParc}</td>
+                            <td style="color:#64748b;">${dtVenc}</td>
+                            <td style="color:#1e293b; font-weight:700;">${dtPag}</td>
+                            <td style="color:#10b981; font-weight:800;">${fmt.format(p.valor)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            modal.style.display = 'flex';
         }
 
         async function carregarRelatorioRealizado() {
