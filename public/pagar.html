@@ -123,7 +123,7 @@
 
         /* MOBILE */
         @media (max-width: 768px) {
-            .content { padding: 20px 10px; width: 100%; }
+            .content { padding: 20px 15px; }
             .page-header { flex-direction: column; align-items: flex-start; gap: 15px; }
             .header-actions { width: 100%; justify-content: space-between; }
             .btn-new, .btn-import { flex: 1; justify-content: center; }
@@ -160,6 +160,9 @@
                 <input type="file" id="fileImport" accept=".ofx, .csv" style="display: none;" onchange="processarArquivo()">
                 <button id="btnMassDelete" class="btn-mass-delete" onclick="excluirMassa()">
                     <i class="fas fa-trash"></i> EXCLUIR (<span id="countSelected">0</span>)
+                </button>
+                <button class="btn-import" onclick="document.getElementById('fileImport').click()">
+                    <i class="fas fa-file-import"></i> Importar
                 </button>
                 <button class="btn-new" onclick="abrirModalNovo()">
                     <i class="fas fa-plus"></i> Nova Despesa
@@ -282,11 +285,18 @@
         <div class="modal" style="max-width: 400px;">
             <h2>Confirmar Pagamento</h2>
             <input type="hidden" id="baixaId"><input type="hidden" id="baixaValorOriginal">
+            
             <div class="form-group"><label>Conta de Saída</label><select id="baixaBanco"></select></div>
             <div class="form-group"><label>Data Pagamento</label><input type="date" id="baixaData"></div>
+            
+            <div class="form-group">
+                <label>Juros / Multa (R$)</label>
+                <input type="number" id="baixaJuros" step="0.01" value="0.00" oninput="atualizarTotalBaixa()">
+            </div>
+
             <div style="background:#fef2f2; padding:15px; border-radius:10px; margin-top:10px; border:1px solid #fecaca;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:11px; color:#475569; font-weight: 700;"><span>Valor:</span> <strong id="displayValorOriginal">R$ 0,00</strong></div>
-                <div style="font-size:20px; font-weight:800; color:#ef4444; text-align:right;">Total: <span id="baixaTotalFinal">R$ 0,00</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:11px; color:#475569; font-weight: 700;"><span>Valor Original:</span> <strong id="displayValorOriginal">R$ 0,00</strong></div>
+                <div style="font-size:20px; font-weight:800; color:#ef4444; text-align:right;">TOTAL A PAGAR: <span id="baixaTotalFinal">R$ 0,00</span></div>
             </div>
             <div class="modal-footer">
                 <button class="btn-outline" onclick="document.getElementById('modalBaixa').style.display='none'">Cancelar</button>
@@ -515,8 +525,61 @@
         function aplicarFiltros() { const i = document.getElementById('filtroInicio').value; const f = document.getElementById('filtroFim').value; const t = document.getElementById('filtroFornecedor').value.toLowerCase(); const d = document.getElementById('filtroDesc').value.toLowerCase(); const p = document.getElementById('filtroPagto').value; const res = transacoesCache.filter(item => { const dt = (item.dataVencimento || item.data).split('T')[0]; if (i && dt < i) return false; if (f && dt > f) return false; if (t && !item.fornecedor?.toLowerCase().includes(t)) return false; if (d && !item.descricao?.toLowerCase().includes(d)) return false; if (p && item.formaPagamento !== p) return false; return true; }); renderizarLista(res); }
         function limparFiltros() { document.querySelectorAll('.clean-input, .date-input, .clean-select').forEach(i => i.value = ''); carregar(); }
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
-        async function prepararBaixa(id) { const t = transacoesCache.find(x => x.id === id); if(!t) return; document.getElementById('baixaId').value = id; document.getElementById('baixaValorOriginal').value = t.valor; document.getElementById('displayValorOriginal').innerText = fmt.format(t.valor); document.getElementById('baixaData').valueAsDate = new Date(); document.getElementById('baixaTotalFinal').innerText = fmt.format(t.valor); const s = document.getElementById('baixaBanco'); s.innerHTML = '<option value="">Selecione...</option>'; const r = await fetch(`/bancos?usuarioId=${usuario.id}`); (await r.json()).forEach(b => s.innerHTML += `<option value="${b.id}">${b.nome}</option>`); document.getElementById('modalBaixa').style.display = 'flex'; }
-        async function confirmarBaixa() { const id = document.getElementById('baixaId').value; const bid = document.getElementById('baixaBanco').value; if (!bid) return Swal.fire({ icon: 'warning', text: 'Selecione o Banco!' }); await fetch(`/transacoes/${id}/baixar`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ bancoId: bid, dataPagamento: document.getElementById('baixaData').value, valorPago: parseFloat(document.getElementById('baixaValorOriginal').value) }) }); document.getElementById('modalBaixa').style.display = 'none'; Toast.fire({ icon: 'success', title: 'Pago!' }); carregar(); }
+        
+        // --- FUNÇÕES DE BAIXA COM JUROS ---
+        async function prepararBaixa(id) { 
+            const t = transacoesCache.find(x => x.id === id); if(!t) return; 
+            document.getElementById('baixaId').value = id; 
+            document.getElementById('baixaValorOriginal').value = t.valor; 
+            
+            // Zera o campo de Juros ao abrir
+            document.getElementById('baixaJuros').value = "0.00";
+            
+            document.getElementById('displayValorOriginal').innerText = fmt.format(t.valor); 
+            document.getElementById('baixaData').valueAsDate = new Date(); 
+            
+            // Calcula o total inicial
+            atualizarTotalBaixa();
+
+            const s = document.getElementById('baixaBanco'); s.innerHTML = '<option value="">Selecione...</option>'; 
+            const r = await fetch(`/bancos?usuarioId=${usuario.id}`); (await r.json()).forEach(b => s.innerHTML += `<option value="${b.id}">${b.nome}</option>`); 
+            document.getElementById('modalBaixa').style.display = 'flex'; 
+        }
+
+        function atualizarTotalBaixa() {
+            const valOriginal = parseFloat(document.getElementById('baixaValorOriginal').value) || 0;
+            const valJuros = parseFloat(document.getElementById('baixaJuros').value) || 0;
+            const total = valOriginal + valJuros;
+            document.getElementById('baixaTotalFinal').innerText = fmt.format(total);
+        }
+
+        async function confirmarBaixa() { 
+            const id = document.getElementById('baixaId').value; 
+            const bid = document.getElementById('baixaBanco').value; 
+            
+            if (!bid) return Swal.fire({ icon: 'warning', text: 'Selecione o Banco!' }); 
+
+            const valOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
+            const valJuros = parseFloat(document.getElementById('baixaJuros').value) || 0;
+            const totalPago = valOriginal + valJuros;
+
+            // Envia o valor total pago E o valor dos juros separado para o banco
+            await fetch(`/transacoes/${id}/baixar`, { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ 
+                    bancoId: bid, 
+                    dataPagamento: document.getElementById('baixaData').value, 
+                    valorPago: totalPago,
+                    juros: valJuros // Campo novo enviado ao backend
+                }) 
+            }); 
+            
+            document.getElementById('modalBaixa').style.display = 'none'; 
+            Toast.fire({ icon: 'success', title: 'Pago!' }); 
+            carregar(); 
+        }
+        
         function deletar(id) { Swal.fire({ title: 'Excluir?', showCancelButton: true }).then(async r => { if (r.isConfirmed) { await fetch(`/transacoes/${id}`, { method: 'DELETE' }); carregar(); } }); }
         function toggleTodos(src) { document.querySelectorAll('.chk-item').forEach(c => c.checked = src.checked); atualizarBotaoMassa(); }
         function atualizarBotaoMassa() { const n = document.querySelectorAll('.chk-item:checked').length; const b = document.getElementById('btnMassDelete'); document.getElementById('countSelected').innerText = n; b.style.display = n > 0 ? 'inline-flex' : 'none'; }

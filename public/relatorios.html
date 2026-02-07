@@ -179,7 +179,6 @@
         <div class="page-header">
             <div>
                 <h1 class="page-title">RELATÓRIOS FINANCEIROS</h1>
-                <div class="page-sub">VISÃO COMPLETA DA SAÚDE FINANCEIRA.</div>
             </div>
             <button class="btn-galaxy-main" onclick="mostrarParcelamentos()">
                 <i class="fas fa-layer-group"></i> VER CONTAS PARCELADAS
@@ -203,6 +202,7 @@
                             <th>STATUS</th>
                             <th>VALOR PARCELA</th>
                             <th>TOTAL PAGO</th>
+                            <th>JUROS PAGO</th>
                             <th>FALTA PAGAR</th>
                             <th>TOTAL DÍVIDA</th>
                         </tr>
@@ -311,7 +311,7 @@
         
         let detalhesCache = { receita: [], despesa: [] };
         let detalhesRealizadoCache = { total: [], cartao: [] };
-        let cacheParcelamentos = {}; // Cache global para os grupos de parcelas
+        let cacheParcelamentos = {}; 
 
         document.addEventListener('DOMContentLoaded', () => {
             const hoje = new Date();
@@ -323,13 +323,13 @@
             carregarProjecaoMensal(); 
         });
 
-        // --- GESTÃO DE PARCELAMENTOS ---
+        // --- GESTÃO DE PARCELAMENTOS (LÓGICA DO VALOR ORIGINAL CORRIGIDA) ---
         async function mostrarParcelamentos() {
             const painel = document.getElementById('painelParcelas');
             const tbody = document.getElementById('listaParcelamentos');
             
             painel.style.display = 'block';
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px;">CALCULANDO DÍVIDAS...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px;">CALCULANDO DÍVIDAS...</td></tr>';
 
             try {
                 const res = await fetch(`/transacoes?usuarioId=${usuario.id}`);
@@ -353,39 +353,53 @@
                             itens: [],
                             valorTotal: 0,
                             valorPago: 0,
+                            totalJuros: 0,
                             pagasQtd: 0
                         };
                     }
                     
                     const g = grupos[chaveGrupo];
                     g.itens.push(t);
-                    g.valorTotal += parseFloat(t.valor);
+                    
+                    // --- MUDANÇA CRUCIAL AQUI ---
+                    // Somamos o VALOR ORIGINAL (se disponível) para manter a coluna "Valor Parcela"
+                    // sem os juros.
+                    const valItemOriginal = t.valorOriginal ? parseFloat(t.valorOriginal) : parseFloat(t.valor);
+                    g.valorTotal += valItemOriginal;
                     
                     if(t.status === 'PAGO') {
-                        g.valorPago += parseFloat(t.valor);
+                        // Valor Original da parcela específica
+                        let valOriginal = valItemOriginal;
+                        
+                        // Valor Realmente Pago (com juros)
+                        let valPagoReal = t.valorPago ? parseFloat(t.valorPago) : parseFloat(t.valor);
+
+                        // Cálculo de Juros
+                        let valJuros = 0;
+                        if(t.juros) {
+                            valJuros = parseFloat(t.juros);
+                        } else if (valPagoReal > valOriginal) {
+                            valJuros = valPagoReal - valOriginal;
+                        }
+
+                        g.valorPago += valPagoReal; 
+                        g.totalJuros += valJuros;   
                         g.pagasQtd++;
                     }
                 });
 
-                // SALVA NO CACHE GLOBAL
                 cacheParcelamentos = grupos;
-
                 const listaFinal = Object.values(grupos);
                 listaFinal.sort((a,b) => b.valorTotal - a.valorTotal); 
 
                 tbody.innerHTML = '';
 
                 if (listaFinal.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-check-circle empty-icon"></i><p>NENHUMA CONTA PARCELADA ENCONTRADA.</p></div></td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-check-circle empty-icon"></i><p>NENHUMA CONTA PARCELADA ENCONTRADA.</p></div></td></tr>`;
                     return;
                 }
 
-                listaFinal.forEach((g, index) => {
-                    // Recria a chave para passar no onclick (usando a mesma lógica de criação)
-                    // Mas como já temos o objeto, podemos usar Object.keys se precisarmos, 
-                    // ou simplesmente iterar sobre as chaves do cacheParcelamentos
-                    
-                    // Maneira mais segura: iterar sobre as chaves originais
+                listaFinal.forEach((g) => {
                     const chaveOriginal = Object.keys(cacheParcelamentos).find(key => cacheParcelamentos[key] === g);
 
                     const totalQtd = g.totalParcelasEsperadas;
@@ -393,7 +407,10 @@
                     const statusClass = (g.pagasQtd >= totalQtd) ? 'status-done' : 'status-active';
                     const statusText = (g.pagasQtd >= totalQtd) ? 'CONCLUÍDO' : 'EM ANDAMENTO';
                     const valorParcelaMedia = g.valorTotal / totalQtd;
-                    const valorRestante = g.valorTotal - g.valorPago;
+                    
+                    // Dívida Total Real (Sem Juros) - (O que paguei - Juros que paguei) = Restante do Principal
+                    const principalPago = g.valorPago - g.totalJuros;
+                    const valorRestante = Math.max(0, g.valorTotal - principalPago);
 
                     tbody.innerHTML += `
                         <tr onclick="abrirExtratoParcelas('${chaveOriginal}')" class="clickable-row" title="Clique para ver extrato">
@@ -412,6 +429,9 @@
                             <td><span class="badge-status ${statusClass}">${statusText}</span></td>
                             <td style="font-size:12px;">${fmt.format(valorParcelaMedia)}</td>
                             <td class="value-paid">${fmt.format(g.valorPago)}</td>
+                            
+                            <td style="color:#f59e0b; font-weight:800;">${fmt.format(g.totalJuros)}</td>
+                            
                             <td class="value-left">${fmt.format(valorRestante)}</td>
                             <td class="value-total">${fmt.format(g.valorTotal)}</td>
                         </tr>
@@ -420,11 +440,10 @@
 
             } catch (e) {
                 console.error(e);
-                tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center;">ERRO AO CARREGAR DADOS.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="color:red; text-align:center;">ERRO AO CARREGAR DADOS.</td></tr>';
             }
         }
 
-        // --- NOVA FUNÇÃO: EXTRATO DE PARCELAS ---
         function abrirExtratoParcelas(chave) {
             const grupo = cacheParcelamentos[chave];
             if (!grupo) return;
@@ -436,13 +455,11 @@
             titulo.innerHTML = `EXTRATO: <span style="color:#a855f7">${grupo.nome}</span>`;
             tbody.innerHTML = '';
 
-            // Filtra apenas as pagas
             const parcelasPagas = grupo.itens.filter(t => t.status === 'PAGO');
 
             if (parcelasPagas.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:#94a3b8;">NENHUMA PARCELA PAGA AINDA.</td></tr>';
             } else {
-                // Ordena por data de pagamento
                 parcelasPagas.sort((a,b) => new Date(a.dataPagamento) - new Date(b.dataPagamento));
 
                 parcelasPagas.forEach(p => {
@@ -450,13 +467,16 @@
                     const dtPag = p.dataPagamento ? new Date(p.dataPagamento).toLocaleDateString('pt-BR') : '-';
                     const numParc = p.parcelaInfo ? p.parcelaInfo.split('/')[0] : '?';
                     const totalParc = p.parcelaInfo ? p.parcelaInfo.split('/')[1] : '?';
+                    
+                    const valOriginal = parseFloat(p.valor);
+                    const valPagoReal = p.valorPago ? parseFloat(p.valorPago) : valOriginal;
 
                     tbody.innerHTML += `
                         <tr>
                             <td><strong>${numParc}</strong> / ${totalParc}</td>
                             <td style="color:#64748b;">${dtVenc}</td>
                             <td style="color:#1e293b; font-weight:700;">${dtPag}</td>
-                            <td style="color:#10b981; font-weight:800;">${fmt.format(p.valor)}</td>
+                            <td style="color:#10b981; font-weight:800;">${fmt.format(valPagoReal)}</td>
                         </tr>
                     `;
                 });
