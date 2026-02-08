@@ -14,6 +14,7 @@ model Usuario {
   email String @unique
   senha String
   role  String @default("USER")
+  ultimoAcesso DateTime?
 
   bio    String? // Frase de efeito / Biografia
   avatar String? // Foto de perfil em Base64

@@ -418,11 +418,27 @@
         }
 
         function atualizarFiltroPagamentos() {
-            const select = document.getElementById('filtroPagto'); const valorAtual = select.value;
-            const formas = [...new Set(transacoesCache.map(t => t.formaPagamento).filter(f => f))];
-            const opcoes = [...new Set(['PIX', 'BOLETO', 'CARTÃO', 'DINHEIRO', 'TRANSFERÊNCIA', ...formas])].sort();
+            const select = document.getElementById('filtroPagto'); 
+            const valorAtual = select.value;
+            
+            // 1. Obtém todas as formas de pagamento usadas nas transações
+            const formasUsadas = transacoesCache
+                .map(t => t.formaPagamento)
+                .filter(f => f) // Remove nulos
+                .map(f => f.trim().toUpperCase()); // Normaliza: remove espaços e coloca em maiúsculo
+
+            // 2. Define as opções padrão
+            const opcoesPadrao = ['PIX', 'BOLETO', 'CARTÃO', 'DINHEIRO', 'TRANSFERÊNCIA'];
+
+            // 3. Combina, remove duplicatas com Set e ordena
+            const opcoesUnicas = [...new Set([...opcoesPadrao, ...formasUsadas])].sort();
+
+            // 4. Reconstrói o select
             select.innerHTML = '<option value="">FORMA...</option>';
-            opcoes.forEach(f => { select.innerHTML += `<option value="${f}">${f}</option>`; });
+            opcoesUnicas.forEach(f => { 
+                select.innerHTML += `<option value="${f}">${f}</option>`; 
+            });
+            
             select.value = valorAtual;
         }
 
@@ -440,7 +456,13 @@
                 if (inicio && dataItem < inicio) return false;
                 if (fim && dataItem > fim) return false;
                 if (forn && !(item.fornecedor || '').toLowerCase().includes(forn)) return false;
-                if (pagto && item.formaPagamento !== pagto) return false;
+                
+                // Comparação flexível para forma de pagamento
+                if (pagto) {
+                    const itemForma = (item.formaPagamento || '').trim().toUpperCase();
+                    if (itemForma !== pagto) return false;
+                }
+
                 if (bancoId && (!item.banco || item.banco.id !== bancoId)) return false;
                 return true;
             });
