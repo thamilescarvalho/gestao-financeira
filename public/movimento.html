@@ -450,14 +450,20 @@
             const bancoId = document.getElementById('filtroBanco').value;
 
             const filtrados = transacoesCache.filter(item => {
-                if(item.status !== 'PAGO' && item.status !== 'RECEBIDO') return false; 
+                // AQUI ESTÁ A CORREÇÃO: Incluído 'FATURADO' na lista de status permitidos
+                const statusValidos = ['PAGO', 'RECEBIDO', 'FATURADO'];
+                if(!statusValidos.includes(item.status)) return false; 
+
                 if (abaAtual !== 'TODOS' && item.tipo !== abaAtual) return false;
-                const dataItem = (item.dataPagamento || item.dataVencimento || item.data).split('T')[0];
+                
+                // Pega a data de pagamento (se não houver, usa a data padrão)
+                const dataRef = item.dataPagamento || item.dataVencimento || item.data;
+                const dataItem = dataRef.split('T')[0];
+
                 if (inicio && dataItem < inicio) return false;
                 if (fim && dataItem > fim) return false;
                 if (forn && !(item.fornecedor || '').toLowerCase().includes(forn)) return false;
                 
-                // Comparação flexível para forma de pagamento
                 if (pagto) {
                     const itemForma = (item.formaPagamento || '').trim().toUpperCase();
                     if (itemForma !== pagto) return false;
@@ -493,20 +499,28 @@
             lista.sort((a,b) => new Date(b.data) - new Date(a.data));
 
             lista.forEach(item => {
-                if (item.cartaoId && !item.banco) return; 
+                // Se for cartão mas não tiver banco (item individual da fatura), 
+                // ele deve aparecer no movimento como uma saída de limite
+                
                 const valorNum = parseFloat(item.valorFinal || item.valor); 
+                
+                // Calcula o total considerando que itens 'FATURADO' são despesas
                 if(item.tipo === 'RECEITA') total += valorNum; else total -= valorNum;
-                const dataFmt = new Date((item.dataPagamento || item.dataVencimento).split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
+                
+                const dataRef = item.dataPagamento || item.dataVencimento || item.data;
+                const dataFmt = new Date(dataRef.split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR');
                 const badge = item.tipo === 'RECEITA' ? 'bg-receita' : 'bg-despesa';
                 const valorExibido = formatarMoeda(valorNum); 
                 
-                // Trata parcela
                 const parcela = item.parcelaInfo || '1/1';
+                
+                // Identifica visualmente se o item já foi liquidado na fatura
+                const iconStatus = item.status === 'FATURADO' ? '<i class="fas fa-file-invoice-dollar" title="Faturado" style="color:var(--purple-primary); margin-left:5px;"></i>' : '';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="col-nome" title="${item.fornecedor || ''}">${item.fornecedor || 'GERAL'}</td>
-                        <td class="col-banco">${item.banco ? item.banco.nome : '-'}</td>
+                        <td class="col-nome" title="${item.fornecedor || ''}">${item.fornecedor || 'GERAL'}${iconStatus}</td>
+                        <td class="col-banco">${item.banco ? item.banco.nome : 'CARTÃO'}</td>
                         <td class="col-valor"><span class="badge-valor ${badge}">${valorExibido}</span></td>
                         <td class="col-forma">${item.formaPagamento || '-'}</td>
                         <td class="col-parc" style="text-align:center;">${parcela}</td>
@@ -519,7 +533,7 @@
                         </td>
                     </tr>`;
             });
-            const totalFmt = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            const totalFmt = (total < 0 ? '-' : '') + 'R$ ' + Math.abs(total).toLocaleString('pt-BR', {minimumFractionDigits: 2});
             document.getElementById('total-display').innerText = totalFmt;
             
             document.getElementById('chkTodos').checked = false;

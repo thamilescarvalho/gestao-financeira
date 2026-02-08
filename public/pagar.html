@@ -265,11 +265,11 @@
                 <select id="selectCartaoId"><option value="">-- Escolha --</option></select>
             </div>
 
-            <div class="form-group"><label>Descrição</label><input type="text" id="inputDescricao" placeholder="Ex: Compra Material"></div>
+            <div class="form-group"><label>Descrição</label><input type="text" id="inputDescricao" placeholder="Ex: ENTRADA"></div>
             
             <div id="containerParcelas">
                 <div class="parcela-header">
-                    <div>#</div> <div>Descrição</div> <div>Vencimento</div> <div>Valor</div>
+                    <div>Parcelas</div> <div>Descrição</div> <div>Vencimento</div> <div>Valor</div>
                 </div>
                 <div id="listaParcelas"></div>
             </div>
@@ -320,14 +320,19 @@
 
         function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'login.html'; }
         
-        function carregarCartoes() { 
-            const stored = localStorage.getItem('meus_cartoes'); 
-            if(stored) { 
-                cartoesDisponiveis = JSON.parse(stored); 
+        async function carregarCartoes() { 
+            if(!usuario) return;
+            try {
+                // AQUI FOI ALTERADO: Busca do banco via API
+                const res = await fetch(`/cartoes?usuarioId=${usuario.id}`);
+                cartoesDisponiveis = await res.json();
+                
                 const s = document.getElementById('selectCartaoId'); 
                 s.innerHTML = '<option value="">-- Escolha --</option>'; 
                 cartoesDisponiveis.forEach(c => { s.innerHTML += `<option value="${c.id}">${c.nome}</option>`; }); 
-            } 
+            } catch (e) {
+                console.error("Erro ao carregar cartões:", e);
+            }
         }
 
         function verificarFormaPagamento() { 
@@ -458,14 +463,11 @@
                 const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i); 
                 const dataStr = novaData.toISOString().split('T')[0]; 
                 
-                // AQUI FOI ALTERADO: Adicionado onchange para recalcular
                 lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="" placeholder="Opcional"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01" onchange="recalcularParcelasRestantes(this, ${i})"><input type="hidden" class="p-forma" value="${forma}"></div>`; 
             } 
         }
 
-        // --- NOVA FUNÇÃO PARA RECALCULAR PARCELAS ---
         function recalcularParcelasRestantes(el, index) {
-            // Só recalcula se for a primeira parcela (index 0) e houver mais de uma
             if (index !== 0) return;
 
             const total = parseFloat(document.getElementById('valor').value) || 0;
@@ -476,12 +478,9 @@
             const inputs = document.querySelectorAll('.p-valor');
             const val1 = parseFloat(el.value) || 0;
 
-            // Validação simples para não exceder o total
             if (val1 >= total) {
                 Swal.fire('Atenção', 'O valor da primeira parcela não pode ser maior ou igual ao total.', 'warning');
-                // Reseta para o valor médio padrão
                 el.value = (total / qtd).toFixed(2);
-                // Recalcula tudo como padrão
                 let somaReset = 0;
                 const mediaReset = total / qtd;
                 for(let k=0; k<qtd; k++) {
@@ -499,15 +498,11 @@
             
             let soma = val1;
 
-            // Distribui o restante nas outras parcelas
             for (let i = 1; i < qtd; i++) {
                 let valNovo = parseFloat(media.toFixed(2));
-                
-                // Ajuste de centavos na última
                 if (i === qtd - 1) {
                     valNovo = total - soma;
                 }
-                
                 inputs[i].value = valNovo.toFixed(2);
                 soma += valNovo;
             }
@@ -577,23 +572,25 @@
         function limparFiltros() { document.querySelectorAll('.clean-input, .date-input, .clean-select').forEach(i => i.value = ''); carregar(); }
         function fecharModal() { document.getElementById('modalConta').style.display = 'none'; }
         
-        // --- FUNÇÕES DE BAIXA COM JUROS ---
         async function prepararBaixa(id) { 
             const t = transacoesCache.find(x => x.id === id); if(!t) return; 
             document.getElementById('baixaId').value = id; 
             document.getElementById('baixaValorOriginal').value = t.valor; 
-            
-            // Zera o campo de Juros ao abrir
             document.getElementById('baixaJuros').value = "0.00";
-            
             document.getElementById('displayValorOriginal').innerText = fmt.format(t.valor); 
             document.getElementById('baixaData').valueAsDate = new Date(); 
-            
-            // Calcula o total inicial
             atualizarTotalBaixa();
 
-            const s = document.getElementById('baixaBanco'); s.innerHTML = '<option value="">Selecione...</option>'; 
-            const r = await fetch(`/bancos?usuarioId=${usuario.id}`); (await r.json()).forEach(b => s.innerHTML += `<option value="${b.id}">${b.nome}</option>`); 
+            const divBanco = document.getElementById('baixaBanco').parentElement; // Pega o div pai do select
+            
+            if (t.formaPagamento === 'Cartão' || t.cartaoId) {
+                divBanco.style.display = 'none'; // Esconde seleção de banco
+            } else {
+                divBanco.style.display = 'block'; // Mostra seleção de banco
+                const s = document.getElementById('baixaBanco'); s.innerHTML = '<option value="">Selecione...</option>'; 
+                const r = await fetch(`/bancos?usuarioId=${usuario.id}`); (await r.json()).forEach(b => s.innerHTML += `<option value="${b.id}">${b.nome}</option>`); 
+            }
+            
             document.getElementById('modalBaixa').style.display = 'flex'; 
         }
 
@@ -608,26 +605,29 @@
             const id = document.getElementById('baixaId').value; 
             const bid = document.getElementById('baixaBanco').value; 
             
-            if (!bid) return Swal.fire({ icon: 'warning', text: 'Selecione o Banco!' }); 
+            // Verifica se a transação original era Cartão para não exigir banco
+            const t = transacoesCache.find(x => x.id === id);
+            const isCartao = t && (t.formaPagamento === 'Cartão' || t.cartaoId);
+
+            if (!isCartao && !bid) return Swal.fire({ icon: 'warning', text: 'Selecione o Banco!' }); 
 
             const valOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
             const valJuros = parseFloat(document.getElementById('baixaJuros').value) || 0;
             const totalPago = valOriginal + valJuros;
 
-            // Envia o valor total pago E o valor dos juros separado para o banco
             await fetch(`/transacoes/${id}/baixar`, { 
                 method: 'PUT', 
                 headers: { 'Content-Type': 'application/json' }, 
                 body: JSON.stringify({ 
-                    bancoId: bid, 
+                    bancoId: isCartao ? null : bid, // Se for cartão, envia null
                     dataPagamento: document.getElementById('baixaData').value, 
                     valorPago: totalPago,
-                    juros: valJuros // Campo novo enviado ao backend
+                    juros: valJuros
                 }) 
             }); 
             
             document.getElementById('modalBaixa').style.display = 'none'; 
-            Toast.fire({ icon: 'success', title: 'Pago!' }); 
+            Toast.fire({ icon: 'success', title: isCartao ? 'Lançado na Fatura!' : 'Pago!' }); 
             carregar(); 
         }
         

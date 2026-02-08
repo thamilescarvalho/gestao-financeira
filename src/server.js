@@ -66,10 +66,12 @@ app.post('/transacoes/transferencia', async (req, res) => {
     } catch (e) { res.status(500).json({ erro: "Erro ao processar transferência." }); }
 });
 
-// --- ROTA POST TRANSACOES ---
+// --- ROTA POST TRANSACOES (CORRIGIDA PARA SALVAR CARTÃO) ---
 app.post('/transacoes', async (req, res) => {
     try {
-        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados, parcelaInfo } = req.body;
+        // ADICIONADO: cartaoId na extração do body
+        const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados, parcelaInfo, cartaoId } = req.body;
+        
         if (!usuarioId) return res.status(400).json({ erro: "ID obrigatório" });
 
         const criadas = [];
@@ -90,7 +92,9 @@ app.post('/transacoes', async (req, res) => {
                         parcelaInfo: item.parcelaInfo || "1/1",
                         parcelas: parseInt(parcelas) || 1,
                         banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
-                        usuario: { connect: { id: usuarioId } }
+                        usuario: { connect: { id: usuarioId } },
+                        // ADICIONADO: Conexão com Cartão
+                        cartao: (cartaoId) ? { connect: { id: cartaoId } } : undefined 
                     }
                 }));
             }
@@ -113,7 +117,9 @@ app.post('/transacoes', async (req, res) => {
                     parcelas: 1,
                     parcelaInfo: parcelaInfo || "1/1", 
                     banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
-                    usuario: { connect: { id: usuarioId } }
+                    usuario: { connect: { id: usuarioId } },
+                    // ADICIONADO: Conexão com Cartão
+                    cartao: (cartaoId) ? { connect: { id: cartaoId } } : undefined
                 }
             }));
         }
@@ -137,24 +143,39 @@ app.put('/transacoes/:id', async (req, res) => {
     const body = req.body;
     try {
         let dados = {};
+        
+        // Lógica de Atualização Inteligente
         if (body.status === 'PENDENTE' && !body.bancoId && !body.descricao) {
+            // Estorno / Voltar para Pendente
             const tr = await prisma.transacao.findUnique({ where: { id } });
             dados = { status: 'PENDENTE', banco: { disconnect: true }, dataPagamento: null, valor: tr.valorOriginal || tr.valor, valorOriginal: null };
         } 
         else if (body.status === 'PAGO' || body.status === 'RECEBIDO') {
+            // Baixa Simples
             const tr = await prisma.transacao.findUnique({ where: { id } });
-            dados = { status: body.status, banco: { connect: { id: body.bancoId } }, dataPagamento: new Date(body.dataPagamento), valor: parseFloat(body.valorFinal || body.valor), valorOriginal: tr.valorOriginal || tr.valor };
+            dados = { status: body.status, dataPagamento: new Date(body.dataPagamento), valor: parseFloat(body.valorFinal || body.valor), valorOriginal: tr.valorOriginal || tr.valor };
+            if(body.bancoId) dados.banco = { connect: { id: body.bancoId } };
         } 
         else {
-            const { itensParcelados, usuarioId, id: _id, ...resto } = body;
+            // Edição Completa
+            const { itensParcelados, usuarioId, id: _id, cartaoId, ...resto } = body; // Extrai cartaoId
             dados = { ...resto };
+            
             if(body.dataVencimento) {
                 const dt = new Date(body.dataVencimento.includes('T') ? body.dataVencimento : `${body.dataVencimento}T12:00:00`);
                 dados.dataVencimento = dt;
                 dados.data = dt; 
             }
             if(body.valor) dados.valor = parseFloat(body.valor);
+            
+            // Lógica do Cartão na Edição
+            if (cartaoId) {
+                dados.cartao = { connect: { id: cartaoId } };
+            } else if (cartaoId === null) { // Se passar null explicitamente, desconecta
+                dados.cartao = { disconnect: true };
+            }
         }
+        
         const atualizado = await prisma.transacao.update({ where: { id }, data: dados });
         res.json(atualizado);
     } catch (e) { 
@@ -165,7 +186,7 @@ app.put('/transacoes/:id', async (req, res) => {
 
 app.delete('/transacoes/:id', async (req, res) => { try { await prisma.transacao.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch(e) { res.status(500).send(); } });
 
-// --- ROTA DE BAIXA DE TRANSAÇÃO (ATUALIZADA COM JUROS) ---
+// --- ROTA DE BAIXA DE TRANSAÇÃO (CARTÃO) ---
 app.put('/transacoes/:id/baixar', async (req, res) => {
     const { id } = req.params;
     const { bancoId, dataPagamento, valorPago, juros } = req.body;
@@ -182,16 +203,28 @@ app.put('/transacoes/:id/baixar', async (req, res) => {
              valorJuros = parseFloat(valorPago) - tr.valor;
         }
 
+        // LÓGICA DE CARTÃO DE CRÉDITO
+        // Se for Cartão, não precisa de bancoId (o dinheiro não sai da conta agora)
+        // Se NÃO for cartão, precisa de bancoId (dinheiro sai da conta)
+        let dadosAtualizacao = {
+            status,
+            dataPagamento: dt,
+            valor: parseFloat(valorPago),
+            valorOriginal: tr.valorOriginal || tr.valor,
+            juros: valorJuros
+        };
+
+        if (tr.formaPagamento === 'Cartão' || tr.cartaoId) {
+            // É compra no cartão: Mantém o vínculo com o cartão e NÃO vincula a banco
+            // O item fica como 'PAGO' na visão da loja, mas pendente na fatura
+        } else {
+            // É pagamento normal (Pix, Dinheiro, etc): Sai do banco
+            dadosAtualizacao.bancoId = bancoId;
+        }
+
         const up = await prisma.transacao.update({
             where: { id },
-            data: {
-                status,
-                bancoId,
-                dataPagamento: dt,
-                valor: parseFloat(valorPago),
-                valorOriginal: tr.valorOriginal || tr.valor,
-                juros: valorJuros
-            }
+            data: dadosAtualizacao
         });
 
         res.json(up);
@@ -424,7 +457,7 @@ app.get('/cartoes/:id/fatura', async (req, res) => {
     }
 });
 
-// --- PAGAR FATURA ---
+// --- PAGAR FATURA (LIBERA LIMITE) ---
 app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
     const { idsTransacoes, valorTotal, bancoPagamentoId, dataPagamento, nomeCartao, usuarioId } = req.body;
 
@@ -432,13 +465,13 @@ app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
         const dt = new Date(dataPagamento + "T12:00:00");
 
         await prisma.$transaction([
-            // 1. Atualiza todos os itens da fatura para PAGO
+            // 1. Muda o status dos itens para 'FATURADO' (Isso libera o limite no cálculo do front)
             prisma.transacao.updateMany({
                 where: { id: { in: idsTransacoes } },
-                data: { status: 'PAGO' } // Não definimos bancoId aqui pois o item individual não saiu do banco, foi a fatura global
+                data: { status: 'FATURADO' } 
             }),
 
-            // 2. Cria uma transação única de saída no banco referente ao pagamento da fatura
+            // 2. Cria a saída do dinheiro do banco
             prisma.transacao.create({
                 data: {
                     descricao: `Pagamento Fatura - ${nomeCartao}`,
@@ -447,14 +480,11 @@ app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
                     tipo: 'DESPESA',
                     categoria: 'Pagamento de Fatura',
                     status: 'PAGO',
-                    formaPagamento: 'Boleto', // Ou débito em conta
-                    data: dt,
-                    dataPagamento: dt,
-                    dataVencimento: dt,
+                    formaPagamento: 'Boleto',
+                    data: dt, dataPagamento: dt, dataVencimento: dt,
                     banco: { connect: { id: bancoPagamentoId } },
                     usuario: { connect: { id: usuarioId } },
-                    parcelas: 1,
-                    parcelaInfo: '1/1'
+                    parcelas: 1, parcelaInfo: '1/1'
                 }
             })
         ]);
