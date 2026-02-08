@@ -348,6 +348,100 @@ app.post('/auth/login', async (req, res) => {
     } catch(e) { res.status(500).json({ erro: "Erro login" }); } 
 });
 
+// --- ROTAS DE PROJETOS ---
+app.get('/projetos', async (req, res) => {
+    const { usuarioId } = req.query;
+    if(!usuarioId) return res.json([]);
+    try {
+        const projetos = await prisma.projeto.findMany({
+            where: { usuarioId },
+            include: { subtarefas: { orderBy: { id: 'asc' } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(projetos);
+    } catch(e) { res.status(500).json({erro: "Erro ao buscar projetos"}); }
+});
+
+app.post('/projetos', async (req, res) => {
+    const { nome, icone, status, prazo, prioridade, usuarioId } = req.body;
+    try {
+        let dataPrazo = prazo ? new Date(prazo) : null;
+        const novoProjeto = await prisma.projeto.create({
+            data: {
+                nome, icone, status, prazo: dataPrazo, prioridade,
+                usuario: { connect: { id: usuarioId } }
+            },
+            include: { subtarefas: true }
+        });
+        res.json(novoProjeto);
+    } catch(e) { console.error(e); res.status(500).json({erro: "Erro ao criar projeto"}); }
+});
+
+app.put('/projetos/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nome, icone, status, prazo, isFavorite } = req.body;
+    try {
+        const dados = {};
+        if(nome !== undefined) dados.nome = nome;
+        if(icone !== undefined) dados.icone = icone;
+        if(status !== undefined) dados.status = status;
+        if(isFavorite !== undefined) dados.isFavorite = isFavorite;
+        if(prazo !== undefined) dados.prazo = prazo ? new Date(prazo) : null;
+
+        const atualizado = await prisma.projeto.update({
+            where: { id },
+            data: dados,
+            include: { subtarefas: true }
+        });
+        res.json(atualizado);
+    } catch(e) { res.status(500).json({erro: "Erro ao atualizar projeto"}); }
+});
+
+app.delete('/projetos/:id', async (req, res) => {
+    try {
+        await prisma.projeto.delete({ where: { id: req.params.id } });
+        res.status(204).send();
+    } catch(e) { res.status(500).json({erro: "Erro ao deletar projeto"}); }
+});
+
+// --- ROTAS DE SUBTAREFAS ---
+app.post('/subtarefas', async (req, res) => {
+    const { nome, projetoId, prazo } = req.body; // Recebe prazo
+    try {
+        const sub = await prisma.subtarefa.create({
+            data: { 
+                nome, 
+                prazo: prazo ? new Date(prazo) : null, // Salva data
+                projeto: { connect: { id: projetoId } } 
+            }
+        });
+        res.json(sub);
+    } catch(e) { res.status(500).json({erro: "Erro ao criar subtarefa"}); }
+});
+
+app.put('/subtarefas/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nome, concluido, prazo } = req.body; // Recebe prazo
+    try {
+        const dados = {};
+        if (nome !== undefined) dados.nome = nome;
+        if (concluido !== undefined) dados.concluido = concluido;
+        if (prazo !== undefined) dados.prazo = prazo ? new Date(prazo) : null; // Atualiza data
+
+        const sub = await prisma.subtarefa.update({
+            where: { id },
+            data: dados
+        });
+        res.json(sub);
+    } catch(e) { res.status(500).json({erro: "Erro ao atualizar subtarefa"}); }
+});
+
+app.delete('/subtarefas/:id', async (req, res) => {
+    try {
+        await prisma.subtarefa.delete({ where: { id: req.params.id } });
+        res.status(204).send();
+    } catch(e) { res.status(500).json({erro: "Erro ao deletar subtarefa"}); }
+});
 
 
 app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });

@@ -20,17 +20,14 @@
             --purple-primary: #a855f7;
             --purple-glow: rgba(168, 85, 247, 0.6);
             --text-white: #ffffff;
-            
-            /* AJUSTE 3: VIDRO LEITOSO (MAIS OPACO/BRANCO) */
-            --glass-card-bg: rgba(255, 255, 255, 0.30); /* Aumentado para destacar */
-            --glass-border: 1px solid rgba(255, 255, 255, 0.5); /* Borda mais visível */
+            --glass-card-bg: rgba(255, 255, 255, 0.30);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.5);
             --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
         }
 
         /* TEXTOS */
         *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; box-sizing: border-box; }
         
-        /* Exceções (Normal Case) */
         input, textarea, .notion-title-input, .new-subtask-input,
         .editable-text, .kb-title, .prop-input, .prop-select,
         .swal2-input, .swal2-textarea, .swal2-html-container, .note-body { 
@@ -38,24 +35,18 @@
         } 
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
-        /* --- AJUSTE 1: FUNDO NEBULA VIBRANTE (NÃO ESCURO) --- */
         body { 
-            /* Base Roxo Médio (não preto) */
             background-color: #4c1d95; 
-            
-            /* Gradientes de Luz para iluminar */
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(192, 132, 252, 0.7) 0%, transparent 50%), /* Roxo Claro */
-                radial-gradient(circle at 90% 10%, rgba(96, 165, 250, 0.6) 0%, transparent 50%),  /* Azul Céu */
-                radial-gradient(circle at 50% 90%, rgba(244, 114, 182, 0.5) 0%, transparent 50%); /* Rosa Neon */
-            
+                radial-gradient(circle at 10% 20%, rgba(192, 132, 252, 0.7) 0%, transparent 50%),
+                radial-gradient(circle at 90% 10%, rgba(96, 165, 250, 0.6) 0%, transparent 50%),
+                radial-gradient(circle at 50% 90%, rgba(244, 114, 182, 0.5) 0%, transparent 50%);
             background-attachment: fixed;
             color: var(--text-white); 
             min-height: 100vh; margin: 0; overflow-x: hidden;
             position: relative;
         }
         
-        /* AJUSTE 2: CAMADA 1 (ESTRELAS FINAS) - MANTIDA */
         body::before {
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: 
@@ -66,9 +57,6 @@
             opacity: 0.4; z-index: -2; pointer-events: none;
         }
 
-        /* CAMADA 2 REMOVIDA (COMO SOLICITADO) */
-
-        /* NAVBAR */
         .navbar-custom { 
             background: rgba(30, 27, 46, 0.85); backdrop-filter: blur(20px);
             padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
@@ -81,7 +69,6 @@
         .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; font-size: 16px; cursor: pointer; transition: 0.2s; padding: 8px 12px; border-radius: 12px; }
         .btn-logout:hover { background: #ef4444; color: white; }
 
-        /* SIDEBAR */
         .sidebar {
             position: fixed; left: -280px; top: 0; width: 280px; height: 100%;
             background: rgba(30, 27, 46, 0.98); backdrop-filter: blur(25px); z-index: 2000; 
@@ -93,10 +80,8 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1500; display: none; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
 
-        /* LAYOUT */
         .content { padding: 40px; max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
 
-        /* HEADER */
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 15px; }
         .header-left { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .page-title { 
@@ -104,10 +89,9 @@
             text-shadow: 0 0 25px rgba(255, 255, 255, 0.4); margin-right: 15px; white-space: nowrap; 
         }
 
-        /* BOTÕES DE TOPO (VIDRO MAIS VISÍVEL) */
         .top-btn-container { position: relative; }
         .btn-top-glass {
-            background: rgba(255, 255, 255, 0.25); /* Mais leitoso */
+            background: rgba(255, 255, 255, 0.25);
             border: 1px solid rgba(255, 255, 255, 0.4);
             color: white; padding: 10px 20px; border-radius: 12px; font-weight: 800; 
             cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 12px; transition: 0.3s;
@@ -115,10 +99,9 @@
         }
         .btn-top-glass:hover, .btn-top-glass.active { background: rgba(255, 255, 255, 0.4); border-color: white; transform: translateY(-2px); }
 
-        /* DROPDOWNS */
         .dropdown-menu {
             position: absolute; top: 55px; left: 0; 
-            background: rgba(255, 255, 255, 0.95); /* Fundo claro para o menu */
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(25px);
             border-radius: 16px; width: 230px; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.3); padding: 10px; z-index: 100; 
@@ -130,7 +113,6 @@
         .menu-option:hover { background: #f3e8ff; color: var(--purple-primary); }
         .menu-option.selected { background: var(--purple-primary); color: white; box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4); }
 
-        /* BOTÃO NOVO PROJETO (VIBRANTE) */
         .btn-new-project { 
             background: #ffffff; color: var(--purple-primary); border: none; padding: 12px 30px; border-radius: 12px; 
             font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 12px; 
@@ -138,13 +120,11 @@
         }
         .btn-new-project:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(255, 255, 255, 0.6); }
 
-        /* VIEWS */
         .project-board { background: transparent; min-height: 400px; }
         .view-table-container, .view-board-container { display: none; }
         .view-table-container.active, .view-board-container.active { display: block; }
         .view-board-container.active { display: flex; gap: 25px; overflow-x: auto; padding-bottom: 25px; }
 
-        /* TABELA - CABEÇALHO (GLASS) */
         .table-header { 
             display: grid; grid-template-columns: 140px 1fr 150px 50px; 
             padding: 18px 25px; background: rgba(0, 0, 0, 0.2); 
@@ -153,11 +133,9 @@
             font-weight: 900; color: rgba(255, 255, 255, 0.9); font-size: 11px; letter-spacing: 1.5px;
         }
 
-        /* TABELA - CARD DE PROJETO (VIDRO LEITOSO DESTAQUE) */
         .project-row { 
             display: grid; grid-template-columns: 140px 1fr 150px 50px; 
             padding: 20px 25px; 
-            /* AJUSTE: Vidro leitoso mais forte para não sumir */
             background: var(--glass-card-bg); 
             backdrop-filter: blur(20px);
             border-radius: 16px; 
@@ -167,7 +145,7 @@
         }
         .project-row:hover { 
             transform: translateY(-4px); 
-            background: rgba(255, 255, 255, 0.4); /* Fica quase branco ao passar o mouse */
+            background: rgba(255, 255, 255, 0.4); 
             box-shadow: 0 15px 40px rgba(0,0,0,0.3);
             border-color: white;
         }
@@ -180,7 +158,6 @@
         .star-fav:hover { color: #facc15; transform: scale(1.2); }
         .star-fav.active { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.8); }
 
-        /* SUBTAREFAS (VIDRO MAIS ESCURO PARA CONSTRASTE COM O CARD) */
         .subtasks-container { 
             display: none; background: rgba(0, 0, 0, 0.2); 
             margin-top: -20px; margin-bottom: 20px; margin-left: 25px; margin-right: 25px; 
@@ -215,7 +192,6 @@
         }
         .date-input-ghost:hover { background: rgba(255,255,255,0.3); border-color: white; }
 
-        /* KANBAN DARK */
         .kanban-column { 
             flex: 1; min-width: 300px; 
             background: rgba(30, 27, 46, 0.4); backdrop-filter: blur(20px); 
@@ -239,16 +215,14 @@
         .kb-title { font-weight: 800; font-size: 15px; margin-bottom: 12px; color: white; display: flex; align-items: center; gap: 10px; }
         .kb-meta { font-size: 11px; color: rgba(255,255,255,0.8); display: flex; justify-content: space-between; font-weight: 700; }
 
-        /* BADGES */
         .status-badge { padding: 6px 14px; border-radius: 8px; font-size: 10px; font-weight: 900; display: inline-flex; align-items: center; cursor: pointer; letter-spacing: 1px; box-shadow: 0 0 15px rgba(0,0,0,0.2); transition: 0.3s; }
         .status-gray { background: rgba(255,255,255,0.2); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.4); }
         .status-blue { background: rgba(59, 130, 246, 0.3); color: #bfdbfe; border: 1px solid rgba(59, 130, 246, 0.5); }
         .status-green { background: rgba(34, 197, 94, 0.3); color: #bbf7d0; border: 1px solid rgba(34, 197, 94, 0.5); }
         .status-badge:hover { filter: brightness(1.2); transform: scale(1.05); }
 
-        /* POPUP NOTION STYLE */
         div:where(.swal2-popup).notion-modal { 
-            background: #ffffff !important; /* Popup branco limpo */
+            background: #ffffff !important; 
             border-radius: 24px !important; padding: 40px !important; text-align: left !important; 
             color: #1e293b !important; box-shadow: 0 40px 80px rgba(0,0,0,0.5) !important; 
         }
@@ -376,15 +350,12 @@
 
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
-        let projetos = JSON.parse(localStorage.getItem(`projetos_${usuario.id}`)) || [
-            { id: 1, nome: "Gestão Financeira", status: "blue", prazo: "2026-02-27", icone: "✍️", prioridade: "Alta", criadoEm: "01/02/2026", isFavorite: true, subtarefas: [{id:11, nome:"Criar banco de dados", concluido:false}, {id:12, nome:"Desenhar telas", concluido:true}] },
-            { id: 2, nome: "Site Pessoal", status: "gray", prazo: "2026-03-15", icone: "💻", prioridade: "Media", criadoEm: "02/02/2026", isFavorite: false, subtarefas: [] }
-        ];
+        let projetos = [];
         let filtroAtual = 'todos';
 
         document.addEventListener('DOMContentLoaded', () => {
             if(!usuario) return window.location.href = 'login.html';
-            renderizarTudo();
+            carregarProjetos();
             document.addEventListener('click', (e) => { 
                 if(!e.target.closest('.top-btn-container')) {
                     document.querySelectorAll('.dropdown-menu').forEach(el => el.classList.remove('active'));
@@ -393,7 +364,20 @@
         });
 
         function logout() { localStorage.removeItem('usuario_logado'); localStorage.removeItem('token'); window.location.href = 'login.html'; }
-        function salvarDados() { localStorage.setItem(`projetos_${usuario.id}`, JSON.stringify(projetos)); renderizarTudo(); }
+        
+        async function carregarProjetos() {
+            try {
+                const res = await fetch(`/projetos?usuarioId=${usuario.id}`);
+                projetos = await res.json();
+                renderizarTudo();
+            } catch (e) { console.error(e); }
+        }
+
+        async function salvarDados() { 
+            // Função auxiliar (agora a lógica de salvar é individual em cada ação)
+            // Mantida para compatibilidade se algo chamar, mas o ideal é chamar carregarProjetos()
+            carregarProjetos();
+        }
         
         function toggleMenu() {
             const sidebar = document.getElementById('sidebar');
@@ -428,7 +412,7 @@
             let lista = [...projetos];
             if (filtroAtual === 'favoritos') return lista.filter(p => p.isFavorite);
             if (filtroAtual === 'green' || filtroAtual === 'blue' || filtroAtual === 'gray') return lista.filter(p => p.status === filtroAtual);
-            if (filtroAtual === 'recentes') return lista.sort((a,b) => b.id - a.id);
+            if (filtroAtual === 'recentes') return lista.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
             return lista;
         }
 
@@ -456,27 +440,30 @@
             
             dados.forEach(p => {
                 let subsHtml = '';
-                p.subtarefas.forEach(sub => {
-                    const checkClass = sub.concluido ? 'checked' : '';
-                    const textClass = sub.concluido ? 'task-done' : '';
-                    subsHtml += `<div class="subtask-row"><div class="check-circle ${checkClass}" onclick="toggleCheckSub(${p.id}, ${sub.id})"><i class="fas fa-check"></i></div><div class="editable-text ${textClass}" contenteditable="true" onblur="editarTextoSub(${p.id}, ${sub.id}, this.innerText)">${sub.nome}</div><div style="color:#ef4444; cursor:pointer; margin-left:auto;" onclick="delSub(${p.id},${sub.id})"><i class="fas fa-times"></i></div></div>`;
-                });
+                if(p.subtarefas) {
+                    p.subtarefas.forEach(sub => {
+                        const checkClass = sub.concluido ? 'checked' : '';
+                        const textClass = sub.concluido ? 'task-done' : '';
+                        subsHtml += `<div class="subtask-row"><div class="check-circle ${checkClass}" onclick="toggleCheckSub('${p.id}', '${sub.id}', ${!sub.concluido})"><i class="fas fa-check"></i></div><div class="editable-text ${textClass}" contenteditable="true" onblur="editarTextoSub('${sub.id}', this.innerText)">${sub.nome}</div><div style="color:#ef4444; cursor:pointer; margin-left:auto;" onclick="delSub('${sub.id}')"><i class="fas fa-times"></i></div></div>`;
+                    });
+                }
 
                 const starClass = p.isFavorite ? 'fas active' : 'far';
+                const prazoVal = p.prazo ? p.prazo.split('T')[0] : '';
 
                 container.innerHTML += `
                     <div class="project-row">
-                        <div onclick="mudarStatusProj(${p.id})" style="cursor:pointer">${getStatusHtml(p.status)}</div>
+                        <div onclick="mudarStatusProj('${p.id}', '${p.status}')" style="cursor:pointer">${getStatusHtml(p.status)}</div>
                         <div style="font-weight:700; font-size:14px; display:flex; align-items:center;">
                             <button class="toggle-btn" onclick="toggleSubtasks('subs-${p.id}', this)"><i class="fas fa-chevron-right" style="font-size:14px;"></i></button> 
-                            <i class="${starClass} fa-star star-fav" onclick="toggleFavorito(${p.id})"></i>
+                            <i class="${starClass} fa-star star-fav" onclick="toggleFavorito('${p.id}', ${!p.isFavorite})"></i>
                             <span style="margin-right:12px; font-size:18px;">${p.icone}</span> 
-                            <div class="editable-text" contenteditable="true" onblur="editarNomeProj(${p.id}, this.innerText)">${p.nome}</div>
+                            <div class="editable-text" contenteditable="true" onblur="editarNomeProj('${p.id}', this.innerText)">${p.nome}</div>
                         </div>
-                        <div><input type="date" class="date-input-ghost" value="${p.prazo}" onchange="editarDataProj(${p.id}, this.value)"></div>
-                        <div style="text-align:center; cursor:pointer;" onclick="delProj(${p.id})"><i class="fas fa-trash" style="color:#ef4444; opacity:0.8; transition:0.2s;"></i></div>
+                        <div><input type="date" class="date-input-ghost" value="${prazoVal}" onchange="editarDataProj('${p.id}', this.value)"></div>
+                        <div style="text-align:center; cursor:pointer;" onclick="delProj('${p.id}')"><i class="fas fa-trash" style="color:#ef4444; opacity:0.8; transition:0.2s;"></i></div>
                     </div>
-                    <div id="subs-${p.id}" class="subtasks-container">${subsHtml}<div style="padding:5px 25px; border-top:1px solid rgba(255,255,255,0.08);"><input type="text" class="new-subtask-input" placeholder="+ Nova subtarefa (Enter)" onkeydown="criarSubNoEnter(event, ${p.id}, this)"></div></div>
+                    <div id="subs-${p.id}" class="subtasks-container">${subsHtml}<div style="padding:5px 25px; border-top:1px solid rgba(255,255,255,0.08);"><input type="text" class="new-subtask-input" placeholder="+ Nova subtarefa (Enter)" onkeydown="criarSubNoEnter(event, '${p.id}', this)"></div></div>
                 `;
             });
         }
@@ -486,16 +473,17 @@
             const dados = getProjetosFiltrados();
 
             dados.forEach(p => {
-                const dataFmt = p.prazo ? new Date(p.prazo).toLocaleDateString('pt-BR').slice(0,5) : '-';
+                const dataFmt = p.prazo ? new Date(p.prazo).toLocaleDateString('pt-BR') : '-';
                 const starIcon = p.isFavorite ? '<i class="fas fa-star" style="color:#fbbf24; margin-left:auto; text-shadow:0 0 10px rgba(251,191,36,0.5);"></i>' : '';
+                const subCount = p.subtarefas ? p.subtarefas.length : 0;
                 
                 const card = `
-                    <div class="kanban-card" onclick="editarProjetoPopup(${p.id})">
+                    <div class="kanban-card" onclick="editarProjetoPopup('${p.id}')">
                         <div class="kb-title">
                             ${p.icone} ${p.nome}
                             ${starIcon}
                         </div>
-                        <div class="kb-meta"><span>${p.subtarefas.length} Subtarefas</span><span><i class="far fa-clock"></i> ${dataFmt}</span></div>
+                        <div class="kb-meta"><span>${subCount} Subtarefas</span><span><i class="far fa-clock"></i> ${dataFmt}</span></div>
                     </div>`;
                 if(p.status==='gray') document.getElementById('colGray').innerHTML+=card;
                 if(p.status==='blue') document.getElementById('colBlue').innerHTML+=card;
@@ -503,33 +491,84 @@
             });
         }
 
-        function toggleFavorito(id) { const p = projetos.find(x => x.id === id); p.isFavorite = !p.isFavorite; salvarDados(); }
-        function criarSubNoEnter(e, idProj, input) { if (e.key === 'Enter' && input.value.trim() !== '') { projetos.find(p => p.id === idProj).subtarefas.push({ id: Date.now(), nome: input.value, concluido: false }); salvarDados(); setTimeout(() => { const btn = document.querySelector(`button[onclick*="subs-${idProj}"]`); if (btn && !btn.classList.contains('open')) btn.click(); }, 50); } }
-        function toggleCheckSub(idProj, idSub) { const p = projetos.find(x => x.id === idProj); const s = p.subtarefas.find(y => y.id === idSub); s.concluido = !s.concluido; salvarDados(); setTimeout(() => { const btn = document.querySelector(`button[onclick*="subs-${idProj}"]`); if (btn && !btn.classList.contains('open')) btn.click(); }, 50); }
-        function editarTextoSub(idProj, idSub, novoTexto) { const p = projetos.find(x => x.id === idProj); p.subtarefas.find(y => y.id === idSub).nome = novoTexto; salvarDados(); }
-        function editarNomeProj(id, novoNome) { projetos.find(x => x.id === id).nome = novoNome; salvarDados(); }
-        function editarDataProj(id, novaData) { projetos.find(x => x.id === id).prazo = novaData; salvarDados(); }
+        async function toggleFavorito(id, novoValor) { 
+            await fetch(`/projetos/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ isFavorite: novoValor }) });
+            carregarProjetos();
+        }
+        
+        async function criarSubNoEnter(e, idProj, input) { 
+            if (e.key === 'Enter' && input.value.trim() !== '') { 
+                await fetch('/subtarefas', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nome: input.value, projetoId: idProj }) });
+                carregarProjetos();
+            } 
+        }
+        
+        async function toggleCheckSub(idProj, idSub, novoStatus) { 
+            await fetch(`/subtarefas/${idSub}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ concluido: novoStatus }) });
+            carregarProjetos();
+        }
+        
+        async function editarTextoSub(idSub, novoTexto) { 
+            await fetch(`/subtarefas/${idSub}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nome: novoTexto }) });
+        }
+        
+        async function editarNomeProj(id, novoNome) { 
+            await fetch(`/projetos/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ nome: novoNome }) });
+        }
+        
+        async function editarDataProj(id, novaData) { 
+            await fetch(`/projetos/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ prazo: novaData }) });
+        }
+        
         function getStatusHtml(s) { const l={'gray':'NÃO INICIADO','blue':'EM ANDAMENTO','green':'CONCLUÍDO'}; const c={'gray':'status-gray','blue':'status-blue','green':'status-green'}; return `<span class="status-badge ${c[s]}">${l[s]}</span>`; }
+        
         function getNextStatus(s) { return s==='gray'?'blue':(s==='blue'?'green':'gray'); }
-        function mudarStatusProj(id) { const p=projetos.find(x=>x.id===id); p.status=getNextStatus(p.status); salvarDados(); }
+        
+        async function mudarStatusProj(id, statusAtual) { 
+            const novo = getNextStatus(statusAtual); 
+            await fetch(`/projetos/${id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ status: novo }) });
+            carregarProjetos();
+        }
+        
         function toggleSubtasks(id, btn) { document.getElementById(id).classList.toggle('active'); btn.classList.toggle('open'); }
-        function delProj(id) { Swal.fire({title:'EXCLUIR?', icon:'warning', showCancelButton:true, confirmButtonColor:'#ef4444', confirmButtonText:'SIM', background:'#1e1b4b', color:'white'}).then(r=>{if(r.isConfirmed){projetos=projetos.filter(p=>p.id!==id); salvarDados();}})}
-        function delSub(pid, sid) { const p=projetos.find(x=>x.id===pid); p.subtarefas=p.subtarefas.filter(s=>s.id!==sid); salvarDados(); setTimeout(()=>{document.querySelector(`button[onclick*="subs-${pid}"]`).click()},100); }
+        
+        function delProj(id) { 
+            Swal.fire({title:'EXCLUIR?', icon:'warning', showCancelButton:true, confirmButtonColor:'#ef4444', confirmButtonText:'SIM', background:'#1e1b4b', color:'white'}).then(async r=>{
+                if(r.isConfirmed){
+                    await fetch(`/projetos/${id}`, { method: 'DELETE' });
+                    carregarProjetos();
+                }
+            })
+        }
+        
+        function delSub(id) { 
+            fetch(`/subtarefas/${id}`, { method: 'DELETE' }).then(() => carregarProjetos());
+        }
 
         async function novoProjeto() { abrirModalProjeto(); }
-        function editarProjetoPopup(id) { const p = projetos.find(x => x.id === id); if(p) { window.projetoAtualId = id; abrirModalProjeto(p); } }
+        function editarProjetoPopup(id) { const p = projetos.find(x => x.id === id); if(p) { abrirModalProjeto(p); } }
 
         async function abrirModalProjeto(projeto = null) {
             const isEdit = !!projeto;
-            const agora = new Date();
-            const dataCriacao = isEdit ? (projeto.criadoEm || '-') : agora.toLocaleDateString('pt-BR');
+            const prazoVal = (projeto && projeto.prazo) ? projeto.prazo.split('T')[0] : '';
+            
             const { value: form } = await Swal.fire({
                 title: '', customClass: { popup: 'notion-modal' },
-                html: `<div class="notion-header"><input id="sw-nome" class="notion-title-input" placeholder="Nome do projeto..." value="${isEdit ? projeto.nome : ''}"></div><div class="notion-props"><div class="prop-row"><div class="prop-label"><i class="far fa-smile"></i> Ícone</div><div class="prop-value"><select id="sw-icone" class="prop-select"><option value="🚀" ${projeto?.icone=='🚀'?'selected':''}>🚀 Foguete</option><option value="🏠" ${projeto?.icone=='🏠'?'selected':''}>🏠 Casa</option><option value="💻" ${projeto?.icone=='💻'?'selected':''}>💻 Trabalho</option><option value="✍️" ${projeto?.icone=='✍️'?'selected':''}>✍️ Estudo</option><option value="💰" ${projeto?.icone=='💰'?'selected':''}>💰 Financeiro</option></select></div></div><div class="prop-row"><div class="prop-label"><i class="far fa-calendar-alt"></i> Prazo</div><div class="prop-value"><input id="sw-data" type="date" class="prop-input" value="${isEdit ? projeto.prazo : ''}"></div></div><div class="prop-row"><div class="prop-label"><i class="fas fa-spinner"></i> Status</div><div class="prop-value"><select id="sw-status" class="prop-select"><option value="gray" ${projeto?.status=='gray'?'selected':''}>⚪ Não iniciada</option><option value="blue" ${projeto?.status=='blue'?'selected':''}>🔵 Em andamento</option><option value="green" ${projeto?.status=='green'?'selected':''}>🟢 Concluída</option></select></div></div></div>`,
+                html: `<div class="notion-header"><input id="sw-nome" class="notion-title-input" placeholder="Nome do projeto..." value="${isEdit ? projeto.nome : ''}"></div><div class="notion-props"><div class="prop-row"><div class="prop-label"><i class="far fa-smile"></i> Ícone</div><div class="prop-value"><select id="sw-icone" class="prop-select"><option value="🚀" ${projeto?.icone=='🚀'?'selected':''}>🚀 Foguete</option><option value="🏠" ${projeto?.icone=='🏠'?'selected':''}>🏠 Casa</option><option value="💻" ${projeto?.icone=='💻'?'selected':''}>💻 Trabalho</option><option value="✍️" ${projeto?.icone=='✍️'?'selected':''}>✍️ Estudo</option><option value="💰" ${projeto?.icone=='💰'?'selected':''}>💰 Financeiro</option></select></div></div><div class="prop-row"><div class="prop-label"><i class="far fa-calendar-alt"></i> Prazo</div><div class="prop-value"><input id="sw-data" type="date" class="prop-input" value="${prazoVal}"></div></div><div class="prop-row"><div class="prop-label"><i class="fas fa-spinner"></i> Status</div><div class="prop-value"><select id="sw-status" class="prop-select"><option value="gray" ${projeto?.status=='gray'?'selected':''}>⚪ Não iniciada</option><option value="blue" ${projeto?.status=='blue'?'selected':''}>🔵 Em andamento</option><option value="green" ${projeto?.status=='green'?'selected':''}>🟢 Concluída</option></select></div></div></div>`,
                 showCancelButton: true, confirmButtonText: isEdit ? 'Salvar' : 'Criar',
-                preConfirm: () => { return { nome: document.getElementById('sw-nome').value, data: document.getElementById('sw-data').value, icone: document.getElementById('sw-icone').value, status: document.getElementById('sw-status').value, dataCriacao: dataCriacao }; }
+                preConfirm: () => { return { nome: document.getElementById('sw-nome').value, data: document.getElementById('sw-data').value, icone: document.getElementById('sw-icone').value, status: document.getElementById('sw-status').value }; }
             });
-            if (form) { if (isEdit) { projeto.nome = form.nome; projeto.prazo = form.data; projeto.icone = form.icone; projeto.status = form.status; } else { projetos.push({ id: Date.now(), nome: form.nome, prazo: form.data, status: form.status, icone: form.icone, criadoEm: dataCriacao, isFavorite: false, subtarefas: [] }); } salvarDados(); }
+            
+            if (form) { 
+                const payload = { ...form, usuarioId: usuario.id, prazo: form.data || null };
+                
+                if (isEdit) {
+                    await fetch(`/projetos/${projeto.id}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                } else {
+                    await fetch('/projetos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                }
+                carregarProjetos();
+            }
         }
     </script>
 </body>

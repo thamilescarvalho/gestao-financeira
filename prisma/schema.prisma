@@ -9,82 +9,83 @@ datasource db {
 
 // Tabela de Usuários
 model Usuario {
-  id         String      @id @default(uuid())
-  nome       String
-  email      String      @unique
-  senha      String
-  role       String      @default("USER")
+  id    String @id @default(uuid())
+  nome  String
+  email String @unique
+  senha String
+  role  String @default("USER")
 
-  bio          String?     // Frase de efeito / Biografia
-  avatar       String?     // Foto de perfil em Base64
-  capa         String?     // Capa em Base64 ou nome da classe (ex: 'bg-1')
-  
+  bio    String? // Frase de efeito / Biografia
+  avatar String? // Foto de perfil em Base64
+  capa   String? // Capa em Base64 ou nome da classe (ex: 'bg-1')
+
   bancos     Banco[]
   transacoes Transacao[]
   eventos    Evento[]
-  cartoes    Cartao[]    // <--- RELAÇÃO ADICIONADA AQUI
+  cartoes    Cartao[]
+  projetos   Projeto[]
 
   @@map("usuarios")
 }
 
 // Tabela de Bancos
 model Banco {
-  id             String      @id @default(uuid())
-  nome           String
-  cor            String?     @default("#2f855a")
-  
-  // Campos Detalhados
-  agencia        String?
-  conta          String?
-  saldoInicial   Float       @default(0)
-  dataSaldoInicial DateTime? 
-  inativo        Boolean     @default(false)
+  id   String  @id @default(uuid())
+  nome String
+  cor  String? @default("#2f855a")
 
-  usuarioId      String
-  usuario        Usuario     @relation(fields: [usuarioId], references: [id])
-  transacoes     Transacao[]
+  // Campos Detalhados
+  agencia          String?
+  conta            String?
+  saldoInicial     Float     @default(0)
+  dataSaldoInicial DateTime?
+  inativo          Boolean   @default(false)
+
+  usuarioId  String
+  usuario    Usuario     @relation(fields: [usuarioId], references: [id])
+  transacoes Transacao[]
 
   @@map("bancos")
 }
 
-// NOVA TABELA: Cartões de Crédito
+// Cartões de Crédito
 model Cartao {
-  id            String      @id @default(uuid())
+  id            String @id @default(uuid())
   nome          String
-  limite        Float?      @default(0.0)
-  diaFechamento Int?        // Dia que a fatura fecha
-  diaVencimento Int?        // Dia que a fatura vence
-  
-  usuarioId     String
-  usuario       Usuario     @relation(fields: [usuarioId], references: [id])
-  
-  transacoes    Transacao[] // Relacionamento com as transações
-  
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  limite        Float? @default(0.0)
+  diaFechamento Int? // Dia que a fatura fecha
+  diaVencimento Int? // Dia que a fatura vence
+
+  usuarioId String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  transacoes Transacao[] // Relacionamento com as transações
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("cartoes")
 }
 
 // Tabela de Transações (Entradas e Saídas)
 model Transacao {
-  id             String    @id @default(uuid())
-  fornecedor     String?
-  descricao      String
-  valor          Float
-  valorOriginal  Float?
-  juros          Float?    @default(0)
-  desconto       Float?    @default(0)
-  tipo           String    // RECEITA ou DESPESA
-  categoria      String?
-  status         String    @default("PENDENTE")
-  parcelas       Int?      @default(1)
-  parcelaInfo    String?
-  
+  id            String  @id @default(uuid())
+  fornecedor    String?
+  descricao     String
+  valor         Float
+  valorOriginal Float?
+  juros         Float?  @default(0)
+  desconto      Float?  @default(0)
+  tipo          String // RECEITA ou DESPESA
+  categoria     String?
+  status        String  @default("PENDENTE")
+  parcelas      Int?    @default(1)
+  parcelaInfo   String?
+
   // Relação com Cartão (CORRIGIDO)
-  cartaoId       String?
-  cartao         Cartao?   @relation(fields: [cartaoId], references: [id])
-  
+  cartaoId String?
+  cartao   Cartao? @relation(fields: [cartaoId], references: [id])
+
   // Datas
   data           DateTime  @default(now())
   dataPagamento  DateTime?
@@ -92,13 +93,13 @@ model Transacao {
   formaPagamento String?
 
   // Relacionamentos
-  bancoId        String?
-  banco          Banco?    @relation(fields: [bancoId], references: [id])
-  usuarioId      String?
-  usuario        Usuario?  @relation(fields: [usuarioId], references: [id])
+  bancoId   String?
+  banco     Banco?   @relation(fields: [bancoId], references: [id])
+  usuarioId String?
+  usuario   Usuario? @relation(fields: [usuarioId], references: [id])
 
-  createdAt      DateTime  @default(now()) // É bom ter data de criação
-  updatedAt      DateTime  @updatedAt      // É bom ter data de atualização
+  createdAt DateTime @default(now()) // É bom ter data de criação
+  updatedAt DateTime @updatedAt // É bom ter data de atualização
 
   @@map("transacoes")
 }
@@ -107,8 +108,8 @@ model Transacao {
 model Evento {
   id        String   @id @default(uuid())
   titulo    String
-  descricao String?  
-  local     String?  
+  descricao String?
+  local     String?
   data      DateTime
   tipo      String   @default("TAREFA")
   concluido Boolean  @default(false)
@@ -117,4 +118,37 @@ model Evento {
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 
   @@map("eventos")
+}
+
+// ... (seu schema atual)
+
+model Projeto {
+  id         String    @id @default(uuid())
+  nome       String
+  icone      String?   @default("🚀")
+  status     String    @default("gray") // gray, blue, green
+  prazo      DateTime?
+  prioridade String?   @default("Media")
+  isFavorite Boolean   @default(false)
+
+  usuarioId String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+
+  subtarefas Subtarefa[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@map("projetos")
+}
+
+model Subtarefa {
+  id        String  @id @default(uuid())
+  nome      String
+  concluido Boolean @default(false)
+  prazo     DateTime?
+
+  projetoId String
+  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+
+  @@map("subtarefas")
 }

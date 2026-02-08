@@ -458,8 +458,59 @@
                 const novaData = new Date(dataObj); novaData.setMonth(dataObj.getMonth() + i); 
                 const dataStr = novaData.toISOString().split('T')[0]; 
                 
-                lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="" placeholder="Opcional"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01"><input type="hidden" class="p-forma" value="${forma}"></div>`; 
+                // AQUI FOI ALTERADO: Adicionado onchange para recalcular
+                lista.innerHTML += `<div class="parcela-row"><span class="p-idx">${i+1}/${qtd}</span><input type="text" class="p-desc" value="" placeholder="Opcional"><input type="date" class="p-data" value="${dataStr}"><input type="number" class="p-valor" value="${val.toFixed(2)}" step="0.01" onchange="recalcularParcelasRestantes(this, ${i})"><input type="hidden" class="p-forma" value="${forma}"></div>`; 
             } 
+        }
+
+        // --- NOVA FUNÇÃO PARA RECALCULAR PARCELAS ---
+        function recalcularParcelasRestantes(el, index) {
+            // Só recalcula se for a primeira parcela (index 0) e houver mais de uma
+            if (index !== 0) return;
+
+            const total = parseFloat(document.getElementById('valor').value) || 0;
+            const qtd = parseInt(document.getElementById('parcelas').value) || 1;
+            
+            if (qtd <= 1) return;
+
+            const inputs = document.querySelectorAll('.p-valor');
+            const val1 = parseFloat(el.value) || 0;
+
+            // Validação simples para não exceder o total
+            if (val1 >= total) {
+                Swal.fire('Atenção', 'O valor da primeira parcela não pode ser maior ou igual ao total.', 'warning');
+                // Reseta para o valor médio padrão
+                el.value = (total / qtd).toFixed(2);
+                // Recalcula tudo como padrão
+                let somaReset = 0;
+                const mediaReset = total / qtd;
+                for(let k=0; k<qtd; k++) {
+                    let v = parseFloat(mediaReset.toFixed(2));
+                    if(k === qtd-1) v = total - somaReset;
+                    somaReset += v;
+                    inputs[k].value = v.toFixed(2);
+                }
+                return;
+            }
+
+            const restante = total - val1;
+            const qtdRestante = qtd - 1;
+            const media = restante / qtdRestante;
+            
+            let soma = val1;
+
+            // Distribui o restante nas outras parcelas
+            for (let i = 1; i < qtd; i++) {
+                let valNovo = parseFloat(media.toFixed(2));
+                
+                // Ajuste de centavos na última
+                if (i === qtd - 1) {
+                    valNovo = total - soma;
+                }
+                
+                inputs[i].value = valNovo.toFixed(2);
+                soma += valNovo;
+            }
         }
 
         async function salvarConta() {

@@ -121,9 +121,18 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .parcel-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .parcel-table th { text-align: left; padding: 15px; color: #1e293b; background: rgba(168, 85, 247, 0.1); font-weight: 800; font-size: 10px; border-bottom: 2px solid #e2e8f0; }
-        .parcel-table td { padding: 15px; color: #334155; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 12px; }
+        .parcel-table th { text-align: left; padding: 15px; color: #1e293b; background: rgba(168, 85, 247, 0.1); font-weight: 800; font-size: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+        .parcel-table td { padding: 15px; color: #334155; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 12px; white-space: nowrap; }
         
+        /* ESTILO PARA TRUNCAR O TEXTO (Reticências) */
+        .truncate-text {
+            max-width: 180px; /* Largura máxima da coluna */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
         /* LINHA CLICÁVEL COM EFEITO HOVER */
         .clickable-row { cursor: pointer; transition: background 0.2s; }
         .clickable-row:hover { background-color: #f3e8ff !important; }
@@ -178,7 +187,8 @@
     <div class="content">
         <div class="page-header">
             <div>
-                <h1 class="page-title">RELATÓRIOS FINANCEIROS</h1>
+                <h1 class="page-title">RELATÓRIOS E INTELIGÊNCIA</h1>
+                <div class="page-sub">VISÃO COMPLETA DA SAÚDE FINANCEIRA.</div>
             </div>
             <button class="btn-galaxy-main" onclick="mostrarParcelamentos()">
                 <i class="fas fa-layer-group"></i> VER CONTAS PARCELADAS
@@ -323,7 +333,7 @@
             carregarProjecaoMensal(); 
         });
 
-        // --- GESTÃO DE PARCELAMENTOS (LÓGICA DO VALOR ORIGINAL CORRIGIDA) ---
+        // --- GESTÃO DE PARCELAMENTOS (COM CORREÇÃO DE VALOR E TRUNCAMENTO) ---
         async function mostrarParcelamentos() {
             const painel = document.getElementById('painelParcelas');
             const tbody = document.getElementById('listaParcelamentos');
@@ -351,8 +361,8 @@
                             nome: t.fornecedor,
                             totalParcelasEsperadas: totalParcelasDoItem,
                             itens: [],
-                            valorTotal: 0,
-                            valorPago: 0,
+                            valorTotalOriginal: 0, 
+                            valorTotalPago: 0,     
                             totalJuros: 0,
                             pagasQtd: 0
                         };
@@ -361,20 +371,13 @@
                     const g = grupos[chaveGrupo];
                     g.itens.push(t);
                     
-                    // --- MUDANÇA CRUCIAL AQUI ---
-                    // Somamos o VALOR ORIGINAL (se disponível) para manter a coluna "Valor Parcela"
-                    // sem os juros.
-                    const valItemOriginal = t.valorOriginal ? parseFloat(t.valorOriginal) : parseFloat(t.valor);
-                    g.valorTotal += valItemOriginal;
+                    // Soma o valor ORIGINAL
+                    const valorBase = t.valorOriginal ? parseFloat(t.valorOriginal) : parseFloat(t.valor);
+                    g.valorTotalOriginal += valorBase;
                     
                     if(t.status === 'PAGO') {
-                        // Valor Original da parcela específica
-                        let valOriginal = valItemOriginal;
-                        
-                        // Valor Realmente Pago (com juros)
+                        let valOriginal = valorBase;
                         let valPagoReal = t.valorPago ? parseFloat(t.valorPago) : parseFloat(t.valor);
-
-                        // Cálculo de Juros
                         let valJuros = 0;
                         if(t.juros) {
                             valJuros = parseFloat(t.juros);
@@ -382,7 +385,7 @@
                             valJuros = valPagoReal - valOriginal;
                         }
 
-                        g.valorPago += valPagoReal; 
+                        g.valorTotalPago += valPagoReal; 
                         g.totalJuros += valJuros;   
                         g.pagasQtd++;
                     }
@@ -390,7 +393,7 @@
 
                 cacheParcelamentos = grupos;
                 const listaFinal = Object.values(grupos);
-                listaFinal.sort((a,b) => b.valorTotal - a.valorTotal); 
+                listaFinal.sort((a,b) => b.valorTotalOriginal - a.valorTotalOriginal); 
 
                 tbody.innerHTML = '';
 
@@ -406,16 +409,31 @@
                     const progresso = (g.pagasQtd / totalQtd) * 100;
                     const statusClass = (g.pagasQtd >= totalQtd) ? 'status-done' : 'status-active';
                     const statusText = (g.pagasQtd >= totalQtd) ? 'CONCLUÍDO' : 'EM ANDAMENTO';
-                    const valorParcelaMedia = g.valorTotal / totalQtd;
+
+                    // --- ENCONTRA A PRÓXIMA PARCELA (Lógica Corrigida) ---
+                    g.itens.sort((a, b) => {
+                         const pA = a.parcelaInfo ? parseInt(a.parcelaInfo.split('/')[0]) : 0;
+                         const pB = b.parcelaInfo ? parseInt(b.parcelaInfo.split('/')[0]) : 0;
+                         return pA - pB;
+                    });
+
+                    const proximaPendente = g.itens.find(i => i.status === 'PENDENTE');
                     
-                    // Dívida Total Real (Sem Juros) - (O que paguei - Juros que paguei) = Restante do Principal
-                    const principalPago = g.valorPago - g.totalJuros;
-                    const valorRestante = Math.max(0, g.valorTotal - principalPago);
+                    let valorParcelaExibido = 0;
+                    if (proximaPendente) {
+                        valorParcelaExibido = proximaPendente.valorOriginal ? parseFloat(proximaPendente.valorOriginal) : parseFloat(proximaPendente.valor);
+                    } else {
+                        const ultima = g.itens[g.itens.length - 1];
+                        valorParcelaExibido = ultima.valorOriginal ? parseFloat(ultima.valorOriginal) : parseFloat(ultima.valor);
+                    }
+
+                    const principalPago = g.valorTotalPago - g.totalJuros;
+                    const valorRestante = Math.max(0, g.valorTotalOriginal - principalPago);
 
                     tbody.innerHTML += `
                         <tr onclick="abrirExtratoParcelas('${chaveOriginal}')" class="clickable-row" title="Clique para ver extrato">
                             <td>
-                                <div style="font-weight:800; color:#1e293b; font-size:13px;">${g.nome}</div>
+                                <div class="truncate-text" style="font-weight:800; color:#1e293b; font-size:13px;" title="${g.nome}">${g.nome}</div>
                             </td>
                             <td style="text-align:center; width: 120px;">
                                 <div style="font-size:10px; font-weight:700; margin-bottom:3px; display:flex; justify-content:space-between;">
@@ -427,13 +445,13 @@
                                 </div>
                             </td>
                             <td><span class="badge-status ${statusClass}">${statusText}</span></td>
-                            <td style="font-size:12px;">${fmt.format(valorParcelaMedia)}</td>
-                            <td class="value-paid">${fmt.format(g.valorPago)}</td>
                             
+                            <td style="font-size:12px;">${fmt.format(valorParcelaExibido)}</td>
+                            
+                            <td class="value-paid">${fmt.format(g.valorTotalPago)}</td>
                             <td style="color:#f59e0b; font-weight:800;">${fmt.format(g.totalJuros)}</td>
-                            
                             <td class="value-left">${fmt.format(valorRestante)}</td>
-                            <td class="value-total">${fmt.format(g.valorTotal)}</td>
+                            <td class="value-total">${fmt.format(g.valorTotalOriginal)}</td>
                         </tr>
                     `;
                 });
@@ -469,7 +487,7 @@
                     const totalParc = p.parcelaInfo ? p.parcelaInfo.split('/')[1] : '?';
                     
                     const valOriginal = parseFloat(p.valor);
-                    const valPagoReal = p.valorPago ? parseFloat(p.valorPago) : valOriginal;
+                    const valPagoReal = p.valorPago ? parseFloat(p.valorPago) : parseFloat(p.valor);
 
                     tbody.innerHTML += `
                         <tr>
