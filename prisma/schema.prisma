@@ -51,19 +51,16 @@ model Banco {
 
 // Cartões de Crédito
 model Cartao {
-  id            String @id @default(uuid())
-  nome          String
-  limite        Float? @default(0.0)
-  diaFechamento Int? // Dia que a fatura fecha
-  diaVencimento Int? // Dia que a fatura vence
-
-  usuarioId String
-  usuario   Usuario @relation(fields: [usuarioId], references: [id])
-
-  transacoes Transacao[] // Relacionamento com as transações
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String      @id @default(uuid())
+  nome        String
+  limite      Float       @default(0)
+  fechamento  Int         // Dia que fecha a fatura
+  vencimento  Int         // Dia que vence a fatura
+  
+  usuarioId   String
+  usuario     Usuario     @relation(fields: [usuarioId], references: [id])
+  
+  transacoes  Transacao[] // Relacionamento com as compras
 
   @@map("cartoes")
 }
@@ -83,7 +80,7 @@ model Transacao {
   parcelas      Int?    @default(1)
   parcelaInfo   String?
 
-  // Relação com Cartão (CORRIGIDO)
+  // Relação com Cartão
   cartaoId String?
   cartao   Cartao? @relation(fields: [cartaoId], references: [id])
 

@@ -310,6 +310,162 @@ app.post('/auth/login', async (req, res) => {
     } catch(e) { res.status(500).json({ erro: "Erro login" }); } 
 });
 
+// --- ROTAS DE CARTÕES DE CRÉDITO ---
+
+// Listar Cartões
+app.get('/cartoes', async (req, res) => {
+    const { usuarioId } = req.query;
+    if(!usuarioId) return res.json([]);
+    try {
+        const cartoes = await prisma.cartao.findMany({ 
+            where: { usuarioId },
+            orderBy: { nome: 'asc' }
+        });
+        res.json(cartoes);
+    } catch(e) { res.status(500).json({erro: "Erro ao buscar cartões"}); }
+});
+
+// Criar Cartão
+app.post('/cartoes', async (req, res) => {
+    const { nome, limite, fechamento, vencimento, usuarioId } = req.body;
+    try {
+        const novo = await prisma.cartao.create({
+            data: {
+                nome,
+                limite: parseFloat(limite),
+                fechamento: parseInt(fechamento),
+                vencimento: parseInt(vencimento),
+                usuario: { connect: { id: usuarioId } }
+            }
+        });
+        res.json(novo);
+    } catch(e) { res.status(500).json({erro: "Erro ao criar cartão"}); }
+});
+
+// Atualizar Cartão
+app.put('/cartoes/:id', async (req, res) => {
+    const { nome, limite, fechamento, vencimento } = req.body;
+    try {
+        const at = await prisma.cartao.update({
+            where: { id: req.params.id },
+            data: {
+                nome,
+                limite: parseFloat(limite),
+                fechamento: parseInt(fechamento),
+                vencimento: parseInt(vencimento)
+            }
+        });
+        res.json(at);
+    } catch(e) { res.status(500).json({erro: "Erro ao atualizar"}); }
+});
+
+// Excluir Cartão (e desvincular transações, mas não apagá-las)
+app.delete('/cartoes/:id', async (req, res) => {
+    try {
+        // Opcional: Primeiro desvincula as transações desse cartão para não dar erro
+        await prisma.transacao.updateMany({
+            where: { cartaoId: req.params.id },
+            data: { cartaoId: null }
+        });
+        
+        await prisma.cartao.delete({ where: { id: req.params.id } });
+        res.status(204).send();
+    } catch(e) { res.status(500).json({erro: "Erro ao excluir"}); }
+});
+
+// --- INTELIGÊNCIA DA FATURA ---
+app.get('/cartoes/:id/fatura', async (req, res) => {
+    const { id } = req.params;
+    const { mes, ano, diaFechamento } = req.query; // Mês e Ano de VENCIMENTO da fatura
+
+    try {
+        const m = parseInt(mes);
+        const a = parseInt(ano);
+        const diaFecha = parseInt(diaFechamento);
+
+        // Lógica de Datas:
+        // Se a fatura vence em Março (03), e fecha dia 10.
+        // O período de compra é: de 11 de Fevereiro até 10 de Março.
+        
+        // Data Final do ciclo (Dia do fechamento no mês de referência)
+        const dataFimCiclo = new Date(a, m - 1, diaFecha, 23, 59, 59);
+        
+        // Data Inicial do ciclo (Dia seguinte ao fechamento do mês anterior)
+        const dataInicioCiclo = new Date(a, m - 2, diaFecha + 1, 0, 0, 0);
+
+        const itens = await prisma.transacao.findMany({
+            where: {
+                cartaoId: id,
+                data: {
+                    gte: dataInicioCiclo,
+                    lte: dataFimCiclo
+                },
+                tipo: 'DESPESA' // Apenas gastos entram na fatura
+            },
+            orderBy: { data: 'desc' }
+        });
+
+        const total = itens.reduce((acc, t) => acc + parseFloat(t.valor), 0);
+        
+        // Verifica se a fatura já está paga (se todos os itens estão PAGOS)
+        const pendentes = itens.filter(t => t.status === 'PENDENTE');
+        const statusFatura = (itens.length > 0 && pendentes.length === 0) ? 'PAGA' : 'ABERTA';
+
+        res.json({
+            itens,
+            total,
+            status: statusFatura,
+            periodo: `${dataInicioCiclo.toLocaleDateString('pt-BR')} a ${dataFimCiclo.toLocaleDateString('pt-BR')}`
+        });
+
+    } catch(e) { 
+        console.error(e);
+        res.status(500).json({erro: "Erro ao calcular fatura"}); 
+    }
+});
+
+// --- PAGAR FATURA ---
+app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
+    const { idsTransacoes, valorTotal, bancoPagamentoId, dataPagamento, nomeCartao, usuarioId } = req.body;
+
+    try {
+        const dt = new Date(dataPagamento + "T12:00:00");
+
+        await prisma.$transaction([
+            // 1. Atualiza todos os itens da fatura para PAGO
+            prisma.transacao.updateMany({
+                where: { id: { in: idsTransacoes } },
+                data: { status: 'PAGO' } // Não definimos bancoId aqui pois o item individual não saiu do banco, foi a fatura global
+            }),
+
+            // 2. Cria uma transação única de saída no banco referente ao pagamento da fatura
+            prisma.transacao.create({
+                data: {
+                    descricao: `Pagamento Fatura - ${nomeCartao}`,
+                    fornecedor: nomeCartao,
+                    valor: parseFloat(valorTotal),
+                    tipo: 'DESPESA',
+                    categoria: 'Pagamento de Fatura',
+                    status: 'PAGO',
+                    formaPagamento: 'Boleto', // Ou débito em conta
+                    data: dt,
+                    dataPagamento: dt,
+                    dataVencimento: dt,
+                    banco: { connect: { id: bancoPagamentoId } },
+                    usuario: { connect: { id: usuarioId } },
+                    parcelas: 1,
+                    parcelaInfo: '1/1'
+                }
+            })
+        ]);
+
+        res.json({ ok: true });
+    } catch(e) {
+        console.error(e);
+        res.status(500).json({erro: "Erro ao pagar fatura"});
+    }
+});
+
 app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });
 app.get('/limpar-tudo', async (req, res) => { await prisma.transacao.deleteMany({}); await prisma.banco.deleteMany({}); await prisma.evento.deleteMany({}); res.send("Sistema Zerado."); });
 
