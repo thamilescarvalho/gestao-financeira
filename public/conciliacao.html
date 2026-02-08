@@ -424,9 +424,31 @@
             input.value = '';
         }
 
-        // --- FUNÇÕES DE LIMPEZA E EXTRAÇÃO DE NOMES ---
+        // --- FUNÇÕES DE LIMPEZA E EXTRAÇÃO DE NOMES (MELHORADA PARA NUBANK) ---
         function limparNome(nomeCru) {
             if (!nomeCru) return "Desconhecido";
+            
+            // Tratamento específico para NUBANK
+            if (nomeCru.includes(' - ')) {
+                const partes = nomeCru.split(' - ');
+                
+                // Caso: Transferência Pix
+                if (nomeCru.includes('Transferência') && nomeCru.includes('Pix')) {
+                    if (partes.length >= 2) return partes[1].trim();
+                }
+
+                // Caso: Compra no Débito/Crédito
+                if (nomeCru.includes('Compra no')) {
+                    if (partes.length >= 2) return partes[1].trim();
+                }
+
+                // Caso: Boleto
+                if (nomeCru.includes('boleto')) {
+                    if (partes.length >= 2) return partes[1].trim();
+                }
+            }
+
+            // Fallback genérico
             return nomeCru
                 .replace(/Pix enviado:/gi, "")
                 .replace(/Pix recebido:/gi, "")
@@ -453,16 +475,14 @@
         // --- VERIFICAÇÃO ROBUSTA DE DUPLICATAS ---
         function verificarDuplicidade(fitid, data, valor, tipo) {
             return transacoesCache.some(t => {
-                // 1. Checa por ID único do arquivo (se existir)
                 if (fitid && t.fitid && t.fitid === fitid) return true;
                 
-                // 2. Fallback: Checa por Data + Valor + Tipo (Para evitar reimportação se o banco não gravou fitid)
                 const dbData = (t.data || t.dataPagamento || "").split('T')[0];
                 const dbValor = parseFloat(t.valor);
                 const fileValor = parseFloat(valor);
                 
                 const mesmaData = dbData === data;
-                const mesmoValor = Math.abs(dbValor - fileValor) < 0.01; // Margem para float
+                const mesmoValor = Math.abs(dbValor - fileValor) < 0.01; 
                 const mesmoTipo = t.tipo === tipo;
                 
                 return mesmaData && mesmoValor && mesmoTipo;
@@ -489,7 +509,7 @@
                 transacoes.push({
                     data: dataFmt, 
                     fornecedor: nomeFinal, 
-                    descricao: "", 
+                    descricao: "", // Forçar descrição vazia
                     valor: valor, tipo: tipo,
                     forma: forma, fitid: idTrans, 
                     duplicata: duplicada, duplicataInfo: duplicada ? 'Já existe' : ''
@@ -532,7 +552,7 @@
                     transacoes.push({
                         data: dataFmt, 
                         fornecedor: nomeLimpo, 
-                        descricao: "", 
+                        descricao: "", // Forçar descrição vazia
                         valor: Math.abs(valorRaw), tipo: tipoFinal,
                         forma: forma, fitid: idTrans, 
                         duplicata: duplicada, duplicataInfo: duplicada ? 'Já existe' : ''
