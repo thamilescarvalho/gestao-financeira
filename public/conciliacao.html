@@ -195,7 +195,7 @@
     </nav>
 
     <div class="content">
-        <input type="file" id="inputOfx" accept=".ofx,.txt,.xml" onchange="lerArquivoLocal(this)" style="display: none;">
+        <input type="file" id="inputOfx" accept="*" onchange="lerArquivoLocal(this)" style="display: none;">
         
         <div class="glass-panel">
             <div class="panel-header"> 
@@ -242,7 +242,7 @@
             <div class="ofx-header"> 
                 <div class="ofx-title">
                     <i class="fas fa-file-invoice" style="color:#a855f7;"></i> Importar Transações
-                </div>
+                </div> 
                 <button onclick="fecharModalOfx()" style="border: none; background: transparent; cursor: pointer; color: #94a3b8; font-size: 18px;"><i class="fas fa-times"></i></button> 
             </div>
             
@@ -397,14 +397,23 @@
                 let resultado;
 
                 try {
+                    // Tenta primeiro parsear como JSON Infinity (formato específico)
                     const json = JSON.parse(text);
                     if (json.data && Array.isArray(json.data)) {
                         resultado = parseJSON_Infinity(json);
                     } else {
-                        throw new Error("Não é JSON Infinity");
+                        // Se for JSON mas não Infinity, força erro para cair no catch
+                        throw new Error("Formato JSON não reconhecido");
                     }
                 } catch (err) {
+                    // Se falhar o JSON, assume que é OFX/TXT padrão
                     resultado = parseOFX_Standard(text);
+                }
+
+                if(!resultado || resultado.transacoes.length === 0) {
+                     Swal.fire('Erro', 'Formato de arquivo inválido ou vazio.', 'error');
+                     input.value = '';
+                     return;
                 }
 
                 transacoesParaImportar = resultado.transacoes;
@@ -530,7 +539,7 @@
                     });
                 });
             }
-            return { transacoes, resumo: { totalEntradas, totalSaidas, totalItens: transacoes.length } };
+            return { transacoes: transacoes, resumo: { totalEntradas, totalSaidas, totalItens: transacoes.length } };
         }
 
         function preencherModalOfx(dados) {
@@ -582,7 +591,6 @@
                 const idx = chk.getAttribute('data-index');
                 const t = transacoesParaImportar[idx];
                 
-                // Se descrição estiver vazia, salva como vazia mesmo
                 const descEditada = document.getElementById(`desc-${idx}`).value;
 
                 const payload = { 
