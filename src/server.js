@@ -496,6 +496,91 @@ app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
     }
 });
 
+// --- ROTAS DE PROJETOS ---
+app.get('/projetos', async (req, res) => {
+    const { usuarioId } = req.query;
+    if(!usuarioId) return res.json([]);
+    try {
+        const projetos = await prisma.projeto.findMany({
+            where: { usuarioId },
+            include: { subtarefas: { orderBy: { id: 'asc' } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(projetos);
+    } catch(e) { res.status(500).json([]); }
+});
+
+app.post('/projetos', async (req, res) => {
+    const { nome, icone, status, prazo, usuarioId } = req.body;
+    try {
+        const novo = await prisma.projeto.create({
+            data: {
+                nome, icone, status,
+                prazo: prazo ? new Date(prazo) : null,
+                usuario: { connect: { id: usuarioId } }
+            }
+        });
+        res.json(novo);
+    } catch(e) { res.status(500).send(); }
+});
+
+app.put('/projetos/:id', async (req, res) => {
+    const { nome, icone, status, prazo, isFavorite } = req.body;
+    try {
+        const dados = {};
+        if(nome) dados.nome = nome;
+        if(icone) dados.icone = icone;
+        if(status) dados.status = status;
+        if(prazo !== undefined) dados.prazo = prazo ? new Date(prazo) : null;
+        if(isFavorite !== undefined) dados.isFavorite = isFavorite;
+
+        const at = await prisma.projeto.update({
+            where: { id: req.params.id },
+            data: dados
+        });
+        res.json(at);
+    } catch(e) { res.status(500).send(); }
+});
+
+app.delete('/projetos/:id', async (req, res) => {
+    try {
+        await prisma.projeto.delete({ where: { id: req.params.id } });
+        res.status(204).send();
+    } catch(e) { res.status(500).send(); }
+});
+
+// --- ROTAS DE SUBTAREFAS ---
+app.post('/subtarefas', async (req, res) => {
+    const { nome, projetoId } = req.body;
+    try {
+        const sub = await prisma.subtarefa.create({
+            data: { nome, projeto: { connect: { id: projetoId } } }
+        });
+        res.json(sub);
+    } catch(e) { res.status(500).send(); }
+});
+
+app.put('/subtarefas/:id', async (req, res) => {
+    const { nome, concluido } = req.body;
+    try {
+        const sub = await prisma.subtarefa.update({
+            where: { id: req.params.id },
+            data: { 
+                nome: nome !== undefined ? nome : undefined,
+                concluido: concluido !== undefined ? concluido : undefined
+            }
+        });
+        res.json(sub);
+    } catch(e) { res.status(500).send(); }
+});
+
+app.delete('/subtarefas/:id', async (req, res) => {
+    try {
+        await prisma.subtarefa.delete({ where: { id: req.params.id } });
+        res.status(204).send();
+    } catch(e) { res.status(500).send(); }
+});
+
 app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });
 app.get('/limpar-tudo', async (req, res) => { await prisma.transacao.deleteMany({}); await prisma.banco.deleteMany({}); await prisma.evento.deleteMany({}); res.send("Sistema Zerado."); });
 
