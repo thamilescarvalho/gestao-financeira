@@ -58,28 +58,73 @@
         }
         .clean-table { width: 100%; border-collapse: collapse; }
         .clean-table thead tr { background-color: rgba(168, 85, 247, 0.1); border-bottom: 2px solid #fff; }
-        .clean-table thead th { text-align: left; padding: 16px 24px; font-size: 10px; font-weight: 800; color: var(--text-dark); letter-spacing: 1px; }
+        .clean-table thead th { text-align: left; padding: 12px 20px; font-size: 10px; font-weight: 800; color: var(--text-dark); letter-spacing: 1px; }
         .clean-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
         .clean-table tbody tr:hover { background-color: #f8fafc; }
-        .clean-table tbody td { padding: 16px 24px; font-size: 13px; color: #334155; vertical-align: middle; font-weight: 600; }
+        
+        /* Ajuste de altura e alinhamento das células */
+        .clean-table tbody td { 
+            padding: 12px 20px; /* Mais compacto */
+            font-size: 12px; 
+            color: #334155; 
+            vertical-align: middle; 
+            font-weight: 600; 
+        }
 
         .user-row { display: flex; align-items: center; gap: 12px; }
-        .user-avatar-small { width: 36px; height: 36px; border-radius: 10px; background: #e0e7ff; color: #4338ca; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; border: 1px solid #c7d2fe; }
+        .user-avatar-small { width: 32px; height: 32px; border-radius: 8px; background: #e0e7ff; color: #4338ca; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; border: 1px solid #c7d2fe; flex-shrink: 0; }
+        
+        /* TRUNCAMENTO DE NOME (3 PONTINHOS) */
+        .user-info-desktop { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            max-width: 250px; /* Largura máxima para ativar os 3 pontinhos */
+        }
+        .truncate-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 800;
+            color: #1e293b;
+            font-size: 13px;
+        }
 
         /* BADGES */
-        .badge-role { padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .badge-role { padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 800; text-transform: uppercase; display: inline-block; }
         .role-admin { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
         .role-user { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
 
-        .badge-online { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 5px #22c55e; }
-        .badge-offline { width: 8px; height: 8px; background: #cbd5e1; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .badge-online { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 5px #22c55e; }
+        .badge-offline { width: 6px; height: 6px; background: #cbd5e1; border-radius: 50%; display: inline-block; margin-right: 5px; }
 
-        /* AÇÕES */
-        .action-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; color: #64748b; margin-left: 5px; font-size: 12px; }
+        /* AÇÕES (Botões lado a lado) */
+        .actions-cell {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; 
+            gap: 6px; 
+            height: 100%;
+        }
+
+        .action-btn { 
+            width: 28px; height: 28px; 
+            border-radius: 6px; 
+            border: 1px solid #e2e8f0; 
+            background: white; 
+            cursor: pointer; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.2s; 
+            color: #64748b; 
+            font-size: 11px; 
+            margin: 0; 
+        }
         .btn-edit:hover { border-color: var(--purple-primary); color: var(--purple-primary); background: #faf5ff; }
         .btn-del:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
 
-        /* --- MOBILE CARD DESIGN (MODERNIZADO) --- */
+        /* --- MOBILE CARD DESIGN --- */
         @media (max-width: 768px) {
             .content { padding: 20px 10px; }
             .page-title { font-size: 22px; }
@@ -91,11 +136,11 @@
             .clean-table tr {
                 background: rgba(255, 255, 255, 0.95); 
                 backdrop-filter: blur(10px);
-                margin-bottom: 20px; 
-                border-radius: 20px;
+                margin-bottom: 15px; 
+                border-radius: 16px;
                 border: 1px solid rgba(255,255,255,0.6); 
                 padding: 0; 
-                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.05);
                 position: relative;
                 overflow: hidden;
             }
@@ -103,61 +148,58 @@
             .clean-table tr.card-admin::before { background: #ef4444; }
             .clean-table tr.card-user::before { background: #10b981; }
             .clean-table tr::before {
-                content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; z-index: 2;
+                content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; z-index: 2;
             }
 
-            .clean-table td:nth-child(1) { /* Avatar/Nome */
-                padding: 20px 20px 5px 20px;
+            .clean-table td:nth-child(1) { 
+                padding: 15px 15px 5px 15px;
                 background: transparent;
                 border: none;
                 position: relative;
             }
-            .user-row { flex-direction: row; align-items: center; gap: 15px; }
+            .user-row { flex-direction: row; align-items: center; gap: 12px; }
             .user-avatar-small { 
-                width: 55px; height: 55px; font-size: 20px; border-radius: 50%; 
+                width: 45px; height: 45px; font-size: 16px; border-radius: 50%; 
                 box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
             }
-            .user-info-mobile { display: flex; flex-direction: column; }
-            .user-name-mobile { font-size: 15px; font-weight: 800; color: #1e293b; line-height: 1.2; }
-            .user-sub-mobile { font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+            /* Reset do truncate no mobile para mostrar nome todo se quiser, ou manter */
+            .user-info-desktop { max-width: 100%; } 
+            .truncate-name { font-size: 14px; white-space: normal; } /* Quebra linha no mobile */
 
-            .clean-table td:nth-child(4) { /* Permissão */
-                position: absolute; top: 15px; right: 15px; padding: 0; border: none; width: auto;
+            .clean-table td:nth-child(4) { 
+                position: absolute; top: 12px; right: 12px; padding: 0; border: none; width: auto;
             }
             
-            /* EMAIL */
             .clean-table td:nth-child(2) { 
-                padding: 5px 20px 5px 20px;
+                padding: 5px 15px 5px 15px;
                 border: none;
                 display: flex; align-items: center; gap: 8px;
-                font-size: 13px; color: #475569 !important;
+                font-size: 12px; color: #475569 !important;
             }
-            .clean-table td:nth-child(2)::before {
-                content: '\f0e0'; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #cbd5e1;
-            }
-
-            /* ULTIMO ACESSO NO MOBILE - SÓ APARECE SE FOR ADMIN (CONTROLADO PELO JS) */
+            
             .clean-table td.cell-acesso-mobile {
-                padding: 5px 20px 20px 20px;
+                padding: 5px 15px 15px 15px;
                 border: none;
                 display: flex; align-items: center; gap: 8px;
-                font-size: 12px; color: #64748b !important;
-            }
-            .clean-table td.cell-acesso-mobile::before {
-                content: '\f017'; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #cbd5e1;
+                font-size: 11px; color: #64748b !important;
             }
 
-            /* AÇÕES */
             .clean-table td:last-child {
                 padding: 0;
                 display: flex;
                 background: #f8fafc;
                 border-top: 1px solid #f1f5f9;
             }
+            .actions-cell {
+                width: 100%;
+                justify-content: stretch;
+                gap: 0;
+            }
             .action-btn { 
-                flex: 1; height: 45px; margin: 0; border-radius: 0; border: none; border-right: 1px solid #e2e8f0;
-                font-size: 14px; background: transparent; font-weight: 700;
-                display: flex; align-items: center; justify-content: center; gap: 8px;
+                flex: 1; height: 40px; margin: 0; border-radius: 0; border: none; border-right: 1px solid #e2e8f0;
+                font-size: 12px; background: transparent; font-weight: 700;
+                display: flex; align-items: center; justify-content: center; gap: 6px;
+                width: auto; 
             }
             .action-btn:last-child { border-right: none; }
             .action-btn.btn-edit::after { content: 'EDITAR'; }
@@ -166,24 +208,24 @@
 
         /* MODAL */
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3000; backdrop-filter: blur(5px); }
-        .modal { background: #ffffff; width: 95%; max-width: 450px; padding: 30px; border-radius: 20px; box-shadow: 0 25px 60px -12px rgba(0,0,0,0.3); border: 1px solid #e2e8f0; color: var(--text-dark); animation: zoomIn 0.2s ease-out; }
+        .modal { background: #ffffff; width: 95%; max-width: 400px; padding: 25px; border-radius: 16px; box-shadow: 0 25px 60px -12px rgba(0,0,0,0.3); border: 1px solid #e2e8f0; color: var(--text-dark); animation: zoomIn 0.2s ease-out; }
         @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        .form-group label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 8px; }
-        .form-group input, .form-group select { width: 100%; padding: 14px; border: 1px solid #cbd5e0; border-radius: 12px; font-size: 13px; outline: none; background: #f8fafc; font-weight: 600; color: #334155; transition: 0.2s; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--purple-primary); background: white; box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1); }
-        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 10px; font-size: 12px; outline: none; background: #f8fafc; font-weight: 600; color: #334155; transition: 0.2s; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--purple-primary); background: white; box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1); }
+        .form-group { margin-bottom: 15px; }
         
         .input-group-icon { position: relative; }
         .input-group-icon input { padding-right: 40px; }
         .btn-toggle-pass { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; }
 
-        .btn-link-pass { background: white; border: 1px dashed #cbd5e0; color: #64748b; width: 100%; padding: 12px; border-radius: 10px; cursor: pointer; font-size: 11px; font-weight: 800; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+        .btn-link-pass { background: white; border: 1px dashed #cbd5e0; color: #64748b; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 10px; font-weight: 800; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
         .btn-link-pass:hover { border-color: var(--purple-primary); color: var(--purple-primary); background: #f3e8ff; }
         
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 30px; }
-        .btn-outline { padding: 12px 25px; border: 1px solid #cbd5e0; background: white; border-radius: 10px; cursor: pointer; color: #4a5568; font-weight: 800; font-size: 11px; }
-        .btn-main { background: var(--purple-primary); color: white; border: none; padding: 12px 30px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 11px; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 25px; }
+        .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 10px; cursor: pointer; color: #4a5568; font-weight: 800; font-size: 10px; }
+        .btn-main { background: var(--purple-primary); color: white; border: none; padding: 10px 25px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 10px; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3); }
         
         div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
         div:where(.swal2-popup) { background: #ffffff !important; color: #1e293b !important; border-radius: 16px !important; }
@@ -204,6 +246,7 @@
         <div class="page-header">
             <div>
                 <h1 class="page-title">GESTÃO DE USUÁRIOS</h1>
+                <div class="page-subtitle">CONTROLE DE ACESSO</div>
             </div>
             <div id="aviso-admin" style="display:none; background: rgba(250, 204, 21, 0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid #facc15; color: #fde047; font-size: 11px; font-weight: 700;">
                 <i class="fas fa-shield-alt"></i> MODO ADMINISTRADOR
@@ -220,7 +263,7 @@
 
     <div class="modal-overlay" id="modalEditar">
         <div class="modal">
-            <h2 style="font-weight: 800; color: var(--purple-primary); margin-bottom: 25px; font-size: 18px; margin-top: 0; text-align:center;">EDITAR DADOS</h2>
+            <h2 style="font-weight: 800; color: var(--purple-primary); margin-bottom: 20px; font-size: 16px; margin-top: 0; text-align:center;">EDITAR DADOS</h2>
             <input type="hidden" id="editId">
             
             <div class="form-group">
@@ -244,7 +287,7 @@
                     <input type="password" id="editSenha" placeholder="Deixe vazio para manter a atual">
                     <button class="btn-toggle-pass" onclick="toggleSenha('editSenha')"><i class="far fa-eye"></i></button>
                 </div>
-                <div style="font-size: 10px; color: #94a3b8; margin-top: 5px;">* A senha atual não pode ser exibida por segurança. Digite uma nova para alterar.</div>
+                <div style="font-size: 9px; color: #94a3b8; margin-top: 4px;">* Digite apenas se desejar alterar a senha.</div>
             </div>
             
             <button class="btn-link-pass" onclick="enviarLinkRecuperacao()">
@@ -279,7 +322,6 @@
                     usuariosCache = todosUsuarios;
                 } else {
                     document.getElementById('aviso-admin').style.display = 'none';
-                    // Se não for admin, só vê a si mesmo
                     usuariosCache = todosUsuarios.filter(u => u.id === usuarioLogado.id);
                 }
                 renderizarTabela(usuariosCache, souAdmin);
@@ -290,22 +332,19 @@
             const thead = document.getElementById('tabela-head');
             const tbody = document.getElementById('lista-usuarios');
             
-            // --- CABEÇALHO DINÂMICO ---
-            // Se souAdmin é false, a coluna de acesso não entra no HTML
             let headerHTML = `
                 <tr>
-                    <th width="${souAdmin ? '35%' : '45%'}">USUÁRIO</th>
+                    <th width="${souAdmin ? '30%' : '40%'}">USUÁRIO</th>
                     <th width="${souAdmin ? '25%' : '35%'}">EMAIL</th>
                     ${souAdmin ? '<th width="20%">ÚLTIMO ACESSO</th>' : ''}
                     <th width="10%" style="text-align: center;">PERMISSÃO</th>
-                    <th width="10%" style="text-align: right;">AÇÕES</th>
+                    <th width="15%" style="text-align: right;">AÇÕES</th>
                 </tr>
             `;
             thead.innerHTML = headerHTML;
 
             tbody.innerHTML = '';
             if (lista.length === 0) { 
-                // Colspan ajustado dinamicamente
                 const colspan = souAdmin ? 5 : 4;
                 tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align:center; padding:30px; color:#94a3b8;">NENHUM USUÁRIO.</td></tr>`; 
                 return; 
@@ -318,7 +357,6 @@
                 const roleLabel = user.role === 'ADMIN' ? 'ADMIN' : 'USUÁRIO';
                 const cardClass = user.role === 'ADMIN' ? 'card-admin' : 'card-user'; 
 
-                // Formatar Data e Célula de Acesso
                 let cellAcesso = '';
                 if(souAdmin) {
                     let dataAcesso = "Nunca acessou";
@@ -333,8 +371,7 @@
                             statusBadge = '<span class="badge-online"></span>';
                         }
                     }
-                    // A classe 'cell-acesso-mobile' ajuda o CSS mobile a colocar o ícone
-                    cellAcesso = `<td class="date-cell cell-acesso-mobile" style="color: #475569; font-size:12px; font-weight:700;">${statusBadge} ${dataAcesso}</td>`;
+                    cellAcesso = `<td class="date-cell cell-acesso-mobile" style="color: #475569; font-size:11px; font-weight:700;">${statusBadge} ${dataAcesso}</td>`;
                 }
 
                 let botoesHtml = '';
@@ -351,9 +388,8 @@
                     <td>
                         <div class="user-row">
                             <div class="user-avatar-small">${iniciais}</div>
-                            <div class="user-info-mobile">
-                                <div class="user-name-mobile" style="font-weight: 800;">${user.nome}</div>
-                                <div class="user-sub-mobile" style="font-size:10px; color:#94a3b8;">ID: ${user.id.substring(0,8)}...</div>
+                            <div class="user-info-desktop">
+                                <div class="truncate-name" title="${user.nome}">${user.nome}</div>
                             </div>
                         </div>
                     </td>
@@ -362,7 +398,11 @@
                     ${cellAcesso}
                     
                     <td style="text-align: center;"><span class="badge-role ${roleClass}">${roleLabel}</span></td>
-                    <td style="text-align: right; padding-right: 24px;">${botoesHtml}</td>
+                    <td style="text-align: right;">
+                        <div class="actions-cell">
+                            ${botoesHtml}
+                        </div>
+                    </td>
                 </tr>`;
             });
         }
@@ -376,13 +416,8 @@
             document.getElementById('editSenha').value = ''; 
             
             const euAtualizado = usuariosCache.find(u => u.id === usuarioLogado.id);
-            // Verifica permissão no momento de abrir
             const souAdmin = (euAtualizado && euAtualizado.role === 'ADMIN');
-            
-            // Só habilita trocar o nível de acesso se for admin e não estiver editando a si mesmo (segurança extra visual)
-            // Se quiser permitir editar o próprio nível (cuidado), remova o '&& id !== usuarioLogado.id'
             document.getElementById('editRole').disabled = !souAdmin; 
-            
             document.getElementById('modalEditar').style.display = 'flex';
         }
 
