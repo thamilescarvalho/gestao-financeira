@@ -21,7 +21,7 @@ function gerarMenuLateral() {
     if (!sidebar) return;
 
     // Lê o usuário do localStorage
-    const usuario = JSON.parse(localStorage.getItem('usuario_logado')) || { id: '0', nome: 'Visitante', email: 'admin' };
+    const usuario = JSON.parse(localStorage.getItem('usuario_logado')) || { id: '0', nome: 'Visitante', email: 'admin', role: 'USER' };
     const primeiroNome = usuario.nome.split(' ')[0]; 
     const iniciais = usuario.nome.substring(0, 2).toUpperCase();
 
@@ -35,29 +35,32 @@ function gerarMenuLateral() {
         avatarHtml = `<div class="header-avatar-img display-initials" ${clickAction}>${iniciais}</div>`;
     }
 
-    // --- CSS DO MENU (CORRIGIDO PARA MOBILE) ---
+    // --- LÓGICA DE PERMISSÃO ---
+    // Cria o link HTML apenas se for ADMIN, caso contrário fica vazio
+    const menuUsuariosLink = (usuario.role === 'ADMIN') 
+        ? `<a href="usuarios.html" class="link-navegacao">Usuários</a>` 
+        : '';
+
+    // --- CSS DO MENU ---
     const styleMenu = `
         <style>
             /* CONTAINER PRINCIPAL */
             .sidebar {
                 position: fixed; left: -280px; top: 0; width: 280px; 
-                /* Garante que o menu ocupe 100% da altura visível real do dispositivo */
-                height: 100vh; 
-                height: 100dvh; 
+                height: 100vh; height: 100dvh; 
                 background: rgba(30, 27, 46, 0.98); backdrop-filter: blur(25px);
                 z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                 box-shadow: 5px 0 30px rgba(0,0,0,0.7); 
                 display: flex; flex-direction: column; 
                 border-right: 1px solid rgba(168, 85, 247, 0.3);
-                overflow: hidden; /* Impede rolagem no container pai */
+                overflow: hidden; 
             }
             .sidebar.active { left: 0; }
 
-            /* CABEÇALHO (FIXO NO TOPO) */
+            /* CABEÇALHO */
             .sidebar-header {
                 padding: 20px 20px !important;
-                flex-shrink: 0; /* Não encolhe */
-                height: 80px; /* Altura fixa para cálculo */
+                flex-shrink: 0; height: 80px; 
                 display: flex; justify-content: space-between; align-items: center;
                 background: rgba(255,255,255,0.02);
                 border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -79,18 +82,12 @@ function gerarMenuLateral() {
             .display-initials { background: linear-gradient(135deg, #a855f7, #6366f1); }
             .header-user-name { font-size: 15px !important; font-weight: 800 !important; color: white; letter-spacing: 0.5px; text-transform: uppercase; }
 
-            /* ÁREA DE SCROLL DO MENU (O CORAÇÃO DO AJUSTE) */
+            /* ÁREA DE SCROLL DO MENU */
             .sidebar-menu {
-                flex-grow: 1; /* Ocupa o espaço restante */
-                height: calc(100% - 140px); /* Altura total menos cabeçalho (80px) e rodapé (60px) */
-                overflow-y: auto !important; /* Habilita o scroll vertical */
-                overflow-x: hidden;
-                padding-bottom: 40px; /* Espaço extra no final */
-                padding-top: 10px;
-                
-                /* Esconde a barra de rolagem visualmente, mas mantém funcional */
-                scrollbar-width: none; 
-                -ms-overflow-style: none; 
+                flex-grow: 1; height: calc(100% - 140px); 
+                overflow-y: auto !important; overflow-x: hidden;
+                padding-bottom: 40px; padding-top: 10px;
+                scrollbar-width: none; -ms-overflow-style: none; 
             }
             .sidebar-menu::-webkit-scrollbar { display: none; }
 
@@ -111,7 +108,6 @@ function gerarMenuLateral() {
 
             /* SUBMENUS */
             .submenu { overflow: hidden !important; max-height: 0; transition: max-height 0.3s ease-out; background: rgba(0,0,0,0.2); }
-            /* Se tiver muitos itens, a altura máxima permite ver todos */
             .submenu.open { max-height: 2000px; } 
             
             .sidebar-menu .submenu a { 
@@ -121,13 +117,12 @@ function gerarMenuLateral() {
             }
             .sidebar-menu .submenu a:hover, .sidebar-menu .submenu a.active-link { color: #fff !important; background: rgba(168, 85, 247, 0.1); border-right: 3px solid #a855f7; }
 
-            /* RODAPÉ (FIXO EMBAIXO) */
+            /* RODAPÉ */
             .user-profile {
-                flex-shrink: 0; /* Não encolhe */
-                height: 60px; /* Altura fixa */
+                flex-shrink: 0; height: 60px; 
                 border-top: 1px solid rgba(255,255,255,0.1);
                 padding: 0 20px !important; display: flex; justify-content: space-between; 
-                align-items: center; background: rgba(30, 27, 46, 1); /* Fundo sólido para cobrir itens rolando por trás */
+                align-items: center; background: rgba(30, 27, 46, 1);
                 z-index: 10; position: relative;
                 box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
                 box-sizing: border-box;
@@ -159,8 +154,7 @@ function gerarMenuLateral() {
             </div>
             <div class="submenu">
                 <a href="perfil.html" class="link-navegacao">Meu Perfil</a>
-                <a href="usuarios.html" class="link-navegacao">Usuários</a>
-            </div>
+                ${menuUsuariosLink} </div>
 
             <div class="menu-item" onclick="toggleSubmenu(this)">
                 <div class="menu-content"><i class="fas fa-wallet"></i> FINANCEIRO</div>
@@ -237,14 +231,12 @@ function toggleSubmenu(element) {
     if (submenu.style.maxHeight) { 
         submenu.style.maxHeight = null; 
     } else { 
-        // Define uma altura grande fixa para garantir que mostre tudo
         submenu.style.maxHeight = "1500px"; 
     }
 }
 
 function highlightActiveLink() {
     const path = window.location.pathname.split("/").pop() || 'index.html';
-    // Seletor mais robusto para achar o link certo
     const activeLink = document.querySelector(`.sidebar a[href="${path}"]`);
     
     if (activeLink) {
