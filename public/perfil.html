@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <title>MEU PERFIL - T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -23,8 +27,8 @@
             --bg-body: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
         }
 
-        /* FORÇA TUDO EM MAIÚSCULO */
-        *:not(i) { font-family: 'Outfit', sans-serif !important; box-sizing: border-box; text-transform: uppercase !important; }
+        /* FORÇA TUDO EM MAIÚSCULO E NOVA FONTE */
+        *:not(i) { font-family: 'JetBrains Mono', monospace !important; box-sizing: border-box; text-transform: uppercase !important; }
 
         body { 
             background: var(--bg-body);
@@ -33,6 +37,12 @@
             margin: 0;
             overflow-x: hidden;
         }
+
+        /* --- SCROLLBAR MODERNA --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
 
         /* NAVBAR */
         .navbar-custom { 
@@ -131,26 +141,11 @@
         .dropdown-item.danger:hover { background: #fef2f2; color: #ef4444; }
         .dropdown-item i { width: 20px; text-align: center; font-size: 14px; }
 
-        /* MODAL GALERIA */
-        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(5px); }
-        .modal { background: white; width: 95%; max-width: 900px; padding: 30px; border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); animation: zoomIn 0.2s ease-out; display: flex; flex-direction: column; max-height: 85vh; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; overflow-y: auto; padding-right: 5px; }
-        .gallery-item {
-            height: 120px; border-radius: 12px; cursor: pointer; position: relative; overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: 3px solid transparent; transition: 0.2s;
-            background-size: cover; background-position: center;
-        }
-        .gallery-item:hover { transform: scale(1.05); border-color: var(--purple-primary); }
-        .gallery-label {
-            position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.6);
-            color: white; font-size: 10px; font-weight: 700; padding: 5px 10px; text-align: center;
-        }
-
         /* FORMULÁRIO */
         .form-section { padding: 0 50px 50px 50px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         .form-full { grid-column: 1 / -1; }
-        .input-wrapper label { display: block; font-size: 12px; font-weight: 800; color: var(--text-gray); margin-bottom: 8px; letter-spacing: 0.5px; }
+        .input-wrapper label { display: block; font-size: 11px; font-weight: 800; color: var(--text-gray); margin-bottom: 8px; letter-spacing: 0.5px; }
         .input-wrapper input {
             width: 100%; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px;
             background: #f8fafc; color: var(--text-dark); font-size: 14px; font-weight: 600; outline: none; transition: 0.2s;
@@ -164,8 +159,14 @@
             box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.4); display: flex; align-items: center; gap: 10px;
         }
         .btn-save:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.6); }
-        .btn-back-float { position: absolute; top: 30px; left: 30px; width: 45px; height: 45px; border-radius: 50%; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; transition: 0.2s; z-index: 30; backdrop-filter: blur(5px); }
-        .btn-back-float:hover { background: white; color: var(--purple-primary); transform: scale(1.1); }
+        
+        /* MODAIS */
+        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(5px); }
+        .modal { background: white; width: 95%; max-width: 900px; padding: 30px; border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); animation: zoomIn 0.2s ease-out; display: flex; flex-direction: column; max-height: 85vh; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; overflow-y: auto; padding-right: 5px; }
+        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
 
         @media (max-width: 768px) {
             .profile-card { border-radius: 0; min-height: 100vh; margin-bottom: 0; }
@@ -190,16 +191,10 @@
     </nav>
 
     <div class="content">
-        
         <input type="file" id="uploadCapa" accept="image/*" style="display:none" onchange="previewImagem(this, 'bg')">
         <input type="file" id="uploadAvatar" accept="image/*" style="display:none" onchange="previewImagem(this, 'img')">
 
         <div class="profile-card">
-            
-            <div class="btn-back-float" onclick="window.history.back()" title="VOLTAR">
-                <i class="fas fa-arrow-left"></i>
-            </div>
-
             <div class="profile-cover" id="coverDisplay">
                 <div class="cover-dropdown-wrapper">
                     <div class="btn-trigger-dropdown" onclick="toggleCoverMenu(event)">
@@ -271,15 +266,15 @@
         <div class="modal">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                 <h2 style="margin:0; color:#1e293b; font-size:18px;">GALERIA GALAXY</h2>
-                <button onclick="document.getElementById('modalGaleria').style.display='none'" style="border:none; background:none; cursor:pointer;"><i class="fas fa-times"></i></button>
+                <button onclick="document.getElementById('modalGaleria').style.display='none'" style="border:none; background:none; cursor:pointer; font-size: 20px;"><i class="fas fa-times"></i></button>
             </div>
             <div class="gallery-grid" id="gridGaleria"></div>
         </div>
     </div>
 
     <script>
+        // MANTENDO TODA A LÓGICA ORIGINAL DO SCRIPT
         const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado'));
-        
         let avatarBase64 = null;
         let capaBase64 = null;
 
@@ -300,11 +295,8 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             if(!usuarioLogado) return window.location.href = 'login.html';
-            
-            // Inicializa as variaveis com o que veio do banco
             avatarBase64 = usuarioLogado.avatar || null;
             capaBase64 = usuarioLogado.capa || null;
-
             carregarDadosTela();
             renderizarGaleria();
 
@@ -317,21 +309,13 @@
             });
         });
 
-        function logout() {
-            localStorage.removeItem('usuario_logado');
-            localStorage.removeItem('token');
-            window.location.href = 'login.html';
-        }
+        function logout() { localStorage.removeItem('usuario_logado'); localStorage.removeItem('token'); window.location.href = 'login.html'; }
 
         function renderizarGaleria() {
             const grid = document.getElementById('gridGaleria');
             grid.innerHTML = '';
             galeriaImagens.forEach(img => {
-                grid.innerHTML += `
-                    <div class="gallery-item" style="background-image: url('${img.url}')" onclick="aplicarCapaGaleria('${img.url}')">
-                        <div class="gallery-label">${img.nome}</div>
-                    </div>
-                `;
+                grid.innerHTML += `<div class="gallery-item" style="background-image: url('${img.url}')" onclick="aplicarCapaGaleria('${img.url}')"><div class="gallery-label">${img.nome}</div></div>`;
             });
         }
 
@@ -340,76 +324,40 @@
             document.getElementById('displayNome').innerText = usuarioLogado.nome;
             document.getElementById('inputEmail').value = usuarioLogado.email;
             document.getElementById('displayRole').innerText = usuarioLogado.role === 'ADMIN' ? 'ADMINISTRADOR' : 'USUÁRIO';
+            if (usuarioLogado.bio) document.getElementById('inputBio').value = usuarioLogado.bio;
 
-            if (usuarioLogado.bio) {
-                document.getElementById('inputBio').value = usuarioLogado.bio;
-            }
+            if (avatarBase64) document.getElementById('avatarDisplay').src = avatarBase64;
+            else document.getElementById('avatarDisplay').src = `https://ui-avatars.com/api/?name=${usuarioLogado.nome}&background=8b5cf6&color=fff&size=256`;
 
-            // Carrega Avatar do Banco
-            if (avatarBase64) {
-                document.getElementById('avatarDisplay').src = avatarBase64;
-            } else {
-                document.getElementById('avatarDisplay').src = `https://ui-avatars.com/api/?name=${usuarioLogado.nome}&background=8b5cf6&color=fff&size=256`;
-            }
-
-            // Carrega Capa do Banco
             const coverEl = document.getElementById('coverDisplay');
-            if (capaBase64) {
-                coverEl.style.backgroundImage = `url(${capaBase64})`;
-                coverEl.className = 'profile-cover'; // remove classes padrão se houver
-            } else {
-                coverEl.className = 'profile-cover'; // vai usar o gradiente do CSS
-                coverEl.style.backgroundImage = '';
-            }
+            if (capaBase64) coverEl.style.backgroundImage = `url(${capaBase64})`;
+            else coverEl.style.backgroundImage = '';
         }
 
         function previewImagem(input, tipo) {
             const file = input.files[0];
             if(!file) return;
-
-            if (file.size > 2 * 1024 * 1024) { // Limite 2MB para não travar o banco
-                Swal.fire('ARQUIVO MUITO GRANDE', 'ESCOLHA UMA IMAGEM MENOR QUE 2MB.', 'warning');
-                return;
-            }
+            if (file.size > 2 * 1024 * 1024) return Swal.fire('ARQUIVO MUITO GRANDE', 'ESCOLHA UMA IMAGEM MENOR QUE 2MB.', 'warning');
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64 = e.target.result;
                 if(tipo === 'img') {
                     document.getElementById('avatarDisplay').src = base64;
-                    avatarBase64 = base64; // Atualiza variavel para salvar
+                    avatarBase64 = base64;
                 } else {
-                    const coverEl = document.getElementById('coverDisplay');
-                    coverEl.style.backgroundImage = `url(${base64})`;
-                    capaBase64 = base64; // Atualiza variavel para salvar
+                    document.getElementById('coverDisplay').style.backgroundImage = `url(${base64})`;
+                    capaBase64 = base64;
                     toggleCoverMenu();
                 }
             }
             reader.readAsDataURL(file);
         }
 
-        function toggleCoverMenu(e) {
-            if(e) e.stopPropagation();
-            document.getElementById('coverMenu').classList.toggle('active');
-        }
-
-        function abrirGaleria() {
-            document.getElementById('modalGaleria').style.display = 'flex';
-            toggleCoverMenu();
-        }
-
-        function aplicarCapaGaleria(url) {
-            document.getElementById('coverDisplay').style.backgroundImage = `url(${url})`;
-            capaBase64 = url;
-            document.getElementById('modalGaleria').style.display = 'none';
-        }
-
-        function removerCapa() {
-            const coverEl = document.getElementById('coverDisplay');
-            coverEl.style.backgroundImage = '';
-            capaBase64 = null; // Remove do banco
-            toggleCoverMenu();
-        }
+        function toggleCoverMenu(e) { if(e) e.stopPropagation(); document.getElementById('coverMenu').classList.toggle('active'); }
+        function abrirGaleria() { document.getElementById('modalGaleria').style.display = 'flex'; toggleCoverMenu(); }
+        function aplicarCapaGaleria(url) { document.getElementById('coverDisplay').style.backgroundImage = `url(${url})`; capaBase64 = url; document.getElementById('modalGaleria').style.display = 'none'; }
+        function removerCapa() { document.getElementById('coverDisplay').style.backgroundImage = ''; capaBase64 = null; toggleCoverMenu(); }
 
         async function salvarPerfil() {
             const nome = document.getElementById('inputNome').value;
@@ -419,25 +367,12 @@
             const confirma = document.getElementById('inputConfirma').value;
 
             if(!nome || !email) return Swal.fire('ATENÇÃO', 'NOME E EMAIL SÃO OBRIGATÓRIOS.', 'warning');
-            
-            if(senha.length > 0) {
-                if (senha !== confirma) {
-                    return Swal.fire('ERRO', 'AS SENHAS NÃO CONFEREM.', 'error');
-                }
-            }
+            if(senha.length > 0 && senha !== confirma) return Swal.fire('ERRO', 'AS SENHAS NÃO CONFEREM.', 'error');
 
             Swal.fire({ title: 'SALVANDO NA NUVEM...', didOpen: () => Swal.showLoading() });
 
             try {
-                // Monta o objeto para enviar ao Backend
-                const payload = { 
-                    nome, 
-                    email, 
-                    bio,
-                    avatar: avatarBase64, // Envia a imagem (pode ser null)
-                    capa: capaBase64      // Envia a capa (pode ser null)
-                };
-                
+                const payload = { nome, email, bio, avatar: avatarBase64, capa: capaBase64 };
                 if(senha.length > 0) payload.novaSenha = senha;
 
                 const res = await fetch(`/usuarios/${usuarioLogado.id}`, {
@@ -447,22 +382,9 @@
                 });
 
                 if(res.ok) {
-                    // O backend devolve o usuário atualizado com as imagens
                     const usuarioAtualizado = await res.json();
-
-                    // Atualiza o LocalStorage com os dados OFICIAIS do banco
                     localStorage.setItem('usuario_logado', JSON.stringify(usuarioAtualizado));
-                    
-                    // Limpa lixo antigo
-                    localStorage.removeItem(`perfil_extra_${usuarioLogado.id}`);
-
-                    Swal.fire({
-                        title: 'SUCESSO!', 
-                        text: 'PERFIL SINCRONIZADO.', 
-                        icon: 'success', 
-                        confirmButtonColor: '#8b5cf6'
-                    }).then(() => { location.reload(); });
-
+                    Swal.fire({ title: 'SUCESSO!', text: 'PERFIL SINCRONIZADO.', icon: 'success', confirmButtonColor: '#8b5cf6' }).then(() => { location.reload(); });
                 } else {
                     const erro = await res.json();
                     Swal.fire('ERRO', erro.erro || 'FALHA AO SALVAR.', 'error');

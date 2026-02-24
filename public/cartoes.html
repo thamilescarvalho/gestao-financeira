@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <title>Meus Cartões T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -20,7 +24,8 @@
             --text-white: #ffffff;
         }
 
-        * { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        /* APLICAÇÃO DA NOVA FONTE MONOESPAÇADA */
+        * { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; }
 
         body { 
@@ -32,6 +37,17 @@
             background-image: radial-gradient(white, rgba(255,255,255,.3) 2px, transparent 6px);
             background-size: 550px 550px; opacity: 0.4; z-index: -1; pointer-events: none;
         }
+
+        /* --- SCROLLBAR MODERNA (GLOBAL E MODAL) --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
+
+        .modal::-webkit-scrollbar { width: 6px; }
+        .modal::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
+        .modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .modal::-webkit-scrollbar-thumb:hover { background: var(--purple-primary); }
 
         .navbar-custom { background: rgba(30, 27, 46, 0.9); backdrop-filter: blur(10px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); }
         .navbar-custom .menu-btn { color: white !important; font-size: 24px; background: none; border: none; cursor: pointer; }
@@ -114,13 +130,48 @@
         .bg-pago { background: #dcfce7; color: #166534; }
         .bg-pendente { background: #fee2e2; color: #991b1b; }
 
-        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; font-family: 'Outfit'; font-size: 12px; text-transform: uppercase; font-weight: 600; outline: none; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 10px; font-size: 12px; text-transform: uppercase; font-weight: 600; outline: none; }
         input:focus, select:focus { border-color: #1e293b; }
         
         .btn-outline { padding: 10px 20px; border: 1px solid #cbd5e0; background: white; border-radius: 8px; cursor: pointer; color: #4a5568; font-weight: 700; font-size: 11px; }
         .btn-outline:hover { background: #f8fafc; color: #1e293b; }
 
-        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
+
+        /* --- AJUSTES MOBILE --- */
+        @media (max-width: 768px) {
+            .content { padding: 20px 10px; }
+            
+            /* Título Centralizado com Botão Lateral */
+            .page-header { 
+                position: relative; 
+                display: flex;
+                flex-direction: row; 
+                align-items: center; 
+                justify-content: flex-end; 
+                margin-bottom: 20px; 
+                min-height: 40px; 
+            }
+            .page-title { 
+                font-size: 18px; 
+                margin: 0; 
+                position: absolute; 
+                left: 50%; 
+                transform: translateX(-50%); 
+                white-space: nowrap; 
+            }
+            
+            .hide-on-mobile { display: none; }
+            
+            .btn-new { 
+                width: 38px; height: 38px; 
+                border-radius: 50%; 
+                padding: 0; 
+                display: flex; align-items: center; justify-content: center; 
+                margin: 0; flex-shrink: 0;
+            }
+            .btn-new i { margin: 0; font-size: 16px; }
+        }
     </style>
 </head>
 <body>
@@ -138,7 +189,7 @@
         <div class="page-header">
             <h1 class="page-title">Meus Cartões</h1>
             <button class="btn-new" onclick="abrirModalNovo()">
-                <i class="fas fa-plus"></i> Novo Cartão
+                <i class="fas fa-plus"></i> <span class="hide-on-mobile">Novo Cartão</span>
             </button>
         </div>
 
@@ -151,13 +202,13 @@
         <div class="modal">
             <h2 id="tituloModal" style="font-weight: 800; color: var(--purple-primary); margin-top: 0; margin-bottom:20px;">Novo Cartão</h2>
             <input type="hidden" id="editId">
-            <label style="font-weight:700; color:#64748b;">Nome do Cartão</label>
+            <label style="font-weight:700; color:#64748b; font-size: 10px;">Nome do Cartão</label>
             <input type="text" id="inputNome" placeholder="Ex: Nubank">
-            <label style="font-weight:700; color:#64748b;">Limite Total (R$)</label>
+            <label style="font-weight:700; color:#64748b; font-size: 10px;">Limite Total (R$)</label>
             <input type="number" id="inputLimite" step="0.01">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                <div><label style="font-weight:700; color:#64748b;">Dia Fechamento</label><input type="number" id="inputFechamento"></div>
-                <div><label style="font-weight:700; color:#64748b;">Dia Vencimento</label><input type="number" id="inputVencimento"></div>
+                <div><label style="font-weight:700; color:#64748b; font-size: 10px;">Dia Fechamento</label><input type="number" id="inputFechamento"></div>
+                <div><label style="font-weight:700; color:#64748b; font-size: 10px;">Dia Vencimento</label><input type="number" id="inputVencimento"></div>
             </div>
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; border-top:1px solid #f1f5f9; padding-top:20px;">
                 <button onclick="document.getElementById('modalCartao').style.display='none'" class="btn-outline">CANCELAR</button>
@@ -204,19 +255,19 @@
     <div class="modal-overlay" id="modalPagarFaturaConfirm">
         <div class="modal" style="max-width:400px;">
             <h2 style="font-weight: 800; color: #10b981; margin-top: 0;">Pagar Fatura?</h2>
-            <p style="color:#64748b; font-size:12px; line-height:1.5;">
+            <p style="color:#64748b; font-size:11px; line-height:1.5;">
                 Isso baixará os itens da fatura, liberando seu limite, e criará uma despesa única no banco.
             </p>
             
-            <label style="font-weight:800; color:#1e293b; display:block; margin-top:20px;">SAIR DINHEIRO DE:</label>
+            <label style="font-weight:800; color:#1e293b; display:block; margin-top:20px; font-size: 10px;">SAIR DINHEIRO DE:</label>
             <select id="selectBancoPagto"></select>
             
-            <label style="font-weight:800; color:#1e293b; display:block; margin-top:10px;">DATA DO PAGAMENTO:</label>
+            <label style="font-weight:800; color:#1e293b; display:block; margin-top:10px; font-size: 10px;">DATA DO PAGAMENTO:</label>
             <input type="date" id="dataPagtoFatura">
 
             <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:25px; border-top:1px solid #f1f5f9; padding-top:20px;">
                 <button onclick="document.getElementById('modalPagarFaturaConfirm').style.display='none'" class="btn-outline">VOLTAR</button>
-                <button onclick="confirmarPagamentoFatura()" style="background:#10b981; color:white; border:none; padding:10px 25px; border-radius:8px; font-weight:800; cursor:pointer;">CONFIRMAR PAGAMENTO</button>
+                <button onclick="confirmarPagamentoFatura()" style="background:#10b981; color:white; border:none; padding:10px 25px; border-radius:8px; font-weight:800; cursor:pointer;">CONFIRMAR</button>
             </div>
         </div>
     </div>
@@ -240,14 +291,11 @@
             carregarDados();
         });
 
-        // --- CARREGAMENTO DE DADOS AGORA VIA API ---
         async function carregarDados() {
             try {
-                // Busca cartões
                 const resCartoes = await fetch(`/cartoes?usuarioId=${usuario.id}`);
                 cartoesCache = await resCartoes.json();
 
-                // Busca transações
                 const resTrans = await fetch(`/transacoes?usuarioId=${usuario.id}&tipo=DESPESA`);
                 transacoesCache = await resTrans.json();
 
@@ -255,13 +303,9 @@
             } catch (e) { console.error(e); }
         }
 
-        // --- LÓGICA DE LIMITE CORRIGIDA ---
         function calcularUsoCartao(cartao) {
             const gastos = transacoesCache.filter(t => 
                 (String(t.cartaoId) === String(cartao.id)) && 
-                // AQUI ESTÁ A CORREÇÃO:
-                // Considera PENDENTE (agendado), VENCIDA e PAGO (passou o cartão).
-                // Só libera o limite quando vira 'FATURADO' (Pago a fatura).
                 (t.status === 'PENDENTE' || t.status === 'VENCIDA' || t.status === 'PAGO')
             );
             return gastos.reduce((acc, t) => acc + parseFloat(t.valor), 0);
@@ -355,7 +399,6 @@
                 document.getElementById('faturaPeriodo').innerText = dados.periodo || "Período Calculado";
                 const badge = document.getElementById('faturaStatusBadge');
                 
-                // Verifica se já foi pago (agora usando status FATURADO para garantir)
                 if (dados.status === 'PAGA') {
                     badge.innerHTML = '<span class="badge-status bg-pago">FATURA PAGA</span>';
                     document.getElementById('btnPagarFatura').style.display = 'none';
@@ -463,9 +506,13 @@
             Swal.fire({ title: 'Excluir?', icon:'warning', showCancelButton:true, confirmButtonColor:'#dc2626' }).then(async r => {
                 if(r.isConfirmed) {
                     try {
-                        await fetch(`/cartoes/${id}`, { method: 'DELETE' });
-                        carregarDados();
-                        Swal.fire({ title: 'Excluído', icon: 'success', timer: 1500, showConfirmButton: false });
+                        const res = await fetch(`/cartoes/${id}`, { method: 'DELETE' });
+                        if(res.ok) {
+                            carregarDados();
+                            Swal.fire({ title: 'Excluído', icon: 'success', timer: 1500, showConfirmButton: false });
+                        } else {
+                            Swal.fire('Erro', 'Este cartão possui transações vinculadas.', 'error');
+                        }
                     } catch(e) { console.error(e); }
                 }
             });

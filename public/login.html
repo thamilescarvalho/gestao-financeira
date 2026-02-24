@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <title>LOGIN T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        /* CORES GALAXY / FUTURISTA */
         :root {
             --bg-dark: #0a0a12;
             --panel-dark: #13131f;
@@ -21,25 +24,21 @@
             --input-bg: #1e1e2e;
         }
 
-        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        
+        *:not(i) { 
+            font-family: 'JetBrains Mono', monospace !important; 
+            box-sizing: border-box; 
+            text-transform: uppercase !important; 
+        }
+
+        input, .swal2-input, .swal2-html-container { text-transform: none !important; }
+
         body { 
             margin: 0; padding: 0; height: 100vh; width: 100vw; 
-            display: flex; overflow: hidden; background-color: var(--bg-dark); 
+            display: flex; background-color: var(--bg-dark); 
+            overflow: hidden; /* Mantém a tela travada sem barras */
         }
 
-        /* --- REMOVER BARRA DE ROLAGEM (MAS MANTER ROLAGEM) --- */
-        /* Para Chrome, Safari e Opera */
-        .right-panel::-webkit-scrollbar, body::-webkit-scrollbar {
-            display: none;
-        }
-        /* Para IE, Edge e Firefox */
-        .right-panel, body {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-
-        /* --- LADO ESQUERDO (GALÁXIA DECORATIVA) --- */
+        /* --- LADO ESQUERDO --- */
         .left-panel {
             width: 50%;
             background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
@@ -51,175 +50,107 @@
         
         .left-panel::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 4px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            opacity: 0.4;
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 5px);
+            background-size: 550px 550px; opacity: 0.4;
         }
 
         .circle { position: absolute; border-radius: 50%; opacity: 0.3; filter: blur(60px); }
         .c1 { width: 300px; height: 300px; background: var(--purple-primary); top: -50px; left: -50px; }
         .c2 { width: 500px; height: 500px; background: var(--purple-secondary); bottom: -100px; right: -100px; }
 
-        .left-content { z-index: 2; animation: fadeIn 1s ease-out; text-shadow: 0 0 10px rgba(138, 43, 226, 0.5); }
-        .logo-big { font-size: 46px; font-weight: 800; margin-bottom: 15px; letter-spacing: 1px; color: var(--text-white); }
-        .logo-desc { font-size: 16px; color: var(--text-light-purple); max-width: 400px; line-height: 1.6; }
+        .left-content { z-index: 2; animation: fadeIn 1s ease-out; }
+        .logo-big { font-size: 46px; font-weight: 800; margin-bottom: 15px; letter-spacing: 1px; }
+        .logo-desc { font-size: 14px; color: var(--text-light-purple); max-width: 400px; line-height: 1.6; }
 
-        /* SELO DE SEGURANÇA (DESKTOP) */
         .security-seal-desktop {
             position: absolute; bottom: 30px; left: 0; width: 100%;
-            text-align: center; opacity: 0.5; z-index: 2;
-            font-size: 10px; letter-spacing: 1px; color: #a78bfa;
+            text-align: center; opacity: 0.5; font-size: 10px; color: #a78bfa;
             display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
 
-        /* --- LADO DIREITO (FORMULÁRIO) --- */
+        /* --- LADO DIREITO --- */
         .right-panel {
             width: 50%; display: flex; justify-content: center; align-items: center;
-            background: var(--panel-dark); position: relative;
-            padding: 20px;
-            overflow-y: auto; /* Permite rolar se a tela for pequena */
+            background: var(--panel-dark); position: relative; padding: 20px;
         }
 
         .auth-box { 
-            width: 100%; max-width: 400px; padding: 40px; animation: slideIn 0.5s ease-out; 
+            width: 100%; max-width: 400px; padding: 40px; 
             background: rgba(255, 255, 255, 0.03); 
-            border-radius: 20px;
-            border: 1px solid rgba(138, 43, 226, 0.2); 
+            border-radius: 24px; border: 1px solid rgba(138, 43, 226, 0.2); 
             box-shadow: 0 10px 30px rgba(0,0,0,0.3), var(--neon-glow); 
-            backdrop-filter: blur(10px);
-            /* Evita que o card estoure a tela em celulares pequenos */
-            margin: auto 0; 
+            backdrop-filter: blur(10px); animation: slideIn 0.5s ease-out;
         }
 
         .auth-header { margin-bottom: 30px; text-align: center; }
-        .auth-title { font-size: 32px; font-weight: 800; color: var(--text-white); margin: 0; letter-spacing: 1px; text-shadow: 0 0 5px rgba(255,255,255,0.3); }
-        .auth-subtitle { color: var(--text-light-purple); font-size: 14px; margin-top: 8px; }
+        .auth-title { font-size: 28px; font-weight: 800; color: var(--text-white); margin: 0; }
+        .auth-subtitle { color: var(--text-light-purple); font-size: 11px; margin-top: 10px; }
 
-        .tabs { 
-            display: flex; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 12px; 
-            margin-bottom: 25px; border: 1px solid rgba(138, 43, 226, 0.1);
-        }
-        .tab { 
-            flex: 1; text-align: center; padding: 12px; cursor: pointer; 
-            font-weight: 700; font-size: 12px; color: var(--text-light-purple); border-radius: 8px; 
-            transition: 0.3s; text-transform: uppercase; letter-spacing: 1px;
-        }
-        .tab.active { 
-            background: var(--purple-primary); color: var(--text-white); 
-            box-shadow: 0 0 10px rgba(138, 43, 226, 0.5); 
-        }
+        .tabs { display: flex; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 12px; margin-bottom: 25px; }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: 700; font-size: 10px; color: var(--text-light-purple); border-radius: 8px; transition: 0.3s; }
+        .tab.active { background: var(--purple-primary); color: var(--text-white); }
 
-        /* INPUTS (CORRIGIDO PARA O OLHO NÃO SOBREPOR) */
         .input-group { position: relative; margin-bottom: 20px; }
-        
-        /* Ícone Esquerdo (Email/Cadeado) - Pointer events none para não bloquear clique */
-        .input-group > i:first-child { 
-            position: absolute; left: 15px; top: 50%; transform: translateY(-50%); 
-            color: var(--purple-primary); font-size: 16px; transition: 0.2s; 
-            text-shadow: 0 0 5px rgba(138, 43, 226, 0.5); z-index: 2; pointer-events: none;
-        }
+        .input-group > i:first-child { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--purple-primary); font-size: 16px; z-index: 2; }
         
         .input-field {
-            width: 100%; 
-            /* PADDING AJUSTADO: 50px na direita para o ícone do olho não ficar em cima do texto */
-            padding: 16px 50px 16px 50px; 
+            width: 100%; padding: 16px 50px 16px 50px; 
             border: 2px solid rgba(138, 43, 226, 0.3); border-radius: 12px; 
-            font-size: 14px; outline: none; transition: 0.3s; 
+            font-size: 13px; outline: none; transition: 0.3s; 
             background: var(--input-bg); color: var(--text-white); font-weight: 600;
         }
-        .input-field::placeholder { color: rgba(209, 179, 255, 0.5); }
-        .input-field:focus { 
-            border-color: var(--purple-primary); 
-            box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
-            background: rgba(30, 30, 46, 0.9);
-        }
+        .input-field:focus { border-color: var(--purple-primary); box-shadow: 0 0 15px rgba(138, 43, 226, 0.4); }
 
-        /* REMOVE ÍCONE PADRÃO DE SENHA DO NAVEGADOR (EDGE/IE) */
-        input::-ms-reveal, input::-ms-clear { display: none; }
+        .toggle-pass { position: absolute; right: 0; top: 0; bottom: 0; width: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-light-purple); z-index: 5; }
 
-        /* Botão do Olho (Senha) */
-        .toggle-pass { 
-            position: absolute; right: 0; top: 0; bottom: 0; width: 50px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: var(--text-light-purple); z-index: 5;
-        }
-        .toggle-pass:hover { color: var(--text-white); }
-
-        /* BOTÕES */
         .btn-primary {
             width: 100%; padding: 16px; border: none; border-radius: 12px;
             background: linear-gradient(to right, var(--purple-secondary), var(--purple-primary));
-            color: white; font-weight: 800; font-size: 14px; cursor: pointer; 
-            transition: 0.3s; text-transform: uppercase; letter-spacing: 2px;
-            margin-top: 15px; box-shadow: var(--neon-glow);
+            color: white; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.3s; margin-top: 15px;
         }
-        .btn-primary:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 0 25px rgba(138, 43, 226, 0.8);
-            filter: brightness(1.1);
-        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(138, 43, 226, 0.8); }
 
         .btn-google {
             width: 100%; padding: 14px; border: 2px solid rgba(138, 43, 226, 0.3); border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05); color: var(--text-white); 
-            font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.3s; 
-            margin-top: 25px; display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .btn-google:hover { 
-            background: rgba(138, 43, 226, 0.1); border-color: var(--purple-primary); 
-            box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+            background: rgba(255, 255, 255, 0.05); color: var(--text-white); font-weight: 700; font-size: 11px; margin-top: 25px; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
-        .forgot-link { 
-            display: block; text-align: right; font-size: 12px; color: var(--text-light-purple); 
-            margin-top: 10px; text-decoration: none; font-weight: 600; transition: 0.2s;
-        }
-        .forgot-link:hover { color: var(--text-white); text-shadow: 0 0 5px var(--purple-primary); }
+        .forgot-link { display: block; text-align: right; font-size: 10px; color: var(--text-light-purple); margin-top: 10px; text-decoration: none; font-weight: 700; }
 
-        .msg-box { 
-            font-size: 12px; text-align: center; margin-top: 15px; font-weight: 700; 
-            padding: 12px; border-radius: 8px; display: none; 
-        }
+        .msg-box { font-size: 10px; text-align: center; margin-top: 15px; font-weight: 700; padding: 12px; border-radius: 8px; display: none; }
         .msg-error { background: rgba(239, 68, 68, 0.2); color: #ff6b6b; border: 1px solid #ef4444; }
         .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+
+        /* --- MODAL RECUPERAR (CORREÇÃO DE POSICIONAMENTO) --- */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: rgba(0,0,0,0.85); 
+            z-index: 9999; /* Garante que fica na frente de tudo */
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(8px); 
+        }
+        .modal { 
+            background: var(--panel-dark); 
+            padding: 35px; 
+            border-radius: 24px; 
+            width: 90%; max-width: 400px; 
+            border: 1px solid rgba(138, 43, 226, 0.4); 
+            box-shadow: var(--neon-glow);
+            position: relative; /* Garante que não fuja do overlay */
+        }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* SELO MOBILE (SÓ APARECE NO CELULAR) */
-        .security-seal-mobile { display: none; }
-
-        /* RESPONSIVO MOBILE */
         @media (max-width: 850px) {
             .left-panel { display: none; }
-            .right-panel { 
-                width: 100%; height: 100vh; background: var(--bg-dark); 
-                padding: 15px;
-            }
-            .auth-box { 
-                background: var(--panel-dark); box-shadow: var(--neon-glow); 
-                border: 1px solid rgba(138, 43, 226, 0.2); 
-                padding: 30px 25px;
-            }
-            
-            /* Selo no fundo do form no mobile */
-            .security-seal-mobile {
-                display: flex; flex-direction: column; align-items: center; gap: 5px;
-                margin-top: 30px; opacity: 0.4;
-                font-size: 10px; color: #a78bfa; letter-spacing: 1px; font-weight: 600;
-            }
+            .right-panel { width: 100%; }
         }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal { background: var(--panel-dark); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; animation: slideIn 0.2s; border: 1px solid rgba(138, 43, 226, 0.3); box-shadow: var(--neon-glow); }
-        .modal h3 { margin-top: 0; color: var(--text-white); }
-        
-        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; }
-        div:where(.swal2-popup) { background: #1e1e2e !important; color: white !important; }
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
     </style>
 </head>
 <body>
@@ -231,7 +162,6 @@
             <div class="logo-big">T-SYSTEM</div>
             <div class="logo-desc">Explore o universo da gestão financeira.</div>
         </div>
-        
         <div class="security-seal-desktop">
             <i class="fas fa-shield-alt"></i>
             <span>AMBIENTE 100% SEGURO</span>
@@ -240,7 +170,6 @@
 
     <div class="right-panel">
         <div class="auth-box">
-            
             <div class="auth-header">
                 <h1 class="auth-title">Bem-vindo</h1>
                 <p class="auth-subtitle">Conecte-se ao seu universo particular.</p>
@@ -256,69 +185,41 @@
                     <i class="fas fa-envelope"></i>
                     <input type="email" id="loginEmail" class="input-field" placeholder="Seu e-mail">
                 </div>
-                
                 <div class="input-group">
                     <i class="fas fa-lock"></i>
                     <input type="password" id="loginSenha" class="input-field" placeholder="Sua senha">
-                    <div class="toggle-pass" onclick="togglePass('loginSenha', this)">
-                        <i class="fas fa-eye"></i>
-                    </div>
+                    <div class="toggle-pass" onclick="togglePass('loginSenha', this)"><i class="fas fa-eye"></i></div>
                 </div>
-
                 <a href="#" class="forgot-link" onclick="abrirModalRecuperar()">Esqueceu a senha?</a>
-
                 <button class="btn-primary" onclick="fazerLogin()">ACESSAR SISTEMA</button>
                 <div id="msgLogin" class="msg-box"></div>
             </div>
 
             <div id="form-register" style="display: none;">
-                <div class="input-group">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="cadNome" class="input-field" placeholder="Nome Completo">
-                </div>
-
-                <div class="input-group">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="cadEmail" class="input-field" placeholder="Seu melhor e-mail">
-                </div>
-                
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="cadSenha" class="input-field" placeholder="Crie uma senha forte">
-                    <div class="toggle-pass" onclick="togglePass('cadSenha', this)">
-                        <i class="fas fa-eye"></i>
-                    </div>
-                </div>
-
+                <div class="input-group"><i class="fas fa-user"></i><input type="text" id="cadNome" class="input-field" placeholder="Nome Completo"></div>
+                <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="cadEmail" class="input-field" placeholder="E-mail"></div>
+                <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="cadSenha" class="input-field" placeholder="Senha"><div class="toggle-pass" onclick="togglePass('cadSenha', this)"><i class="fas fa-eye"></i></div></div>
                 <button class="btn-primary" onclick="fazerCadastro()">CRIAR CONTA GRÁTIS</button>
                 <div id="msgCadastro" class="msg-box"></div>
             </div>
 
-            <button class="btn-google" onclick="alert('Integração com Google em breve!')">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" style="filter: brightness(0.8) contrast(1.2);">
-                Continuar com Google
+            <button class="btn-google" onclick="alert('Em breve!')">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Continuar com Google
             </button>
-
-            <div class="security-seal-mobile">
-                <i class="fas fa-shield-alt"></i> AMBIENTE SEGURO
-            </div>
-
         </div>
     </div>
 
     <div class="modal-overlay" id="modalRecuperar">
         <div class="modal">
-            <h3>Recuperar Senha</h3>
-            <p style="color:var(--text-light-purple); font-size:13px; margin-bottom:20px;">Digite seu e-mail para receber um link de redefinição.</p>
-            
+            <h3 style="margin-top: 0; color: white;">Recuperar Senha</h3>
+            <p style="color:var(--text-light-purple); font-size:11px; margin-bottom:20px;">Digite seu e-mail abaixo.</p>
             <div class="input-group">
-                <i class="far fa-envelope input-icon-left" style="left: 15px; top: 50%; transform: translateY(-50%); position:absolute; color:var(--purple-primary);"></i>
+                <i class="far fa-envelope" style="left: 15px; top: 50%; transform: translateY(-50%); position:absolute; color:var(--purple-primary);"></i>
                 <input type="email" id="emailRecuperar" class="input-field" placeholder="E-mail cadastrado">
             </div>
-
             <div style="display:flex; justify-content:flex-end; gap:10px;">
-                <button onclick="document.getElementById('modalRecuperar').style.display='none'" style="background:transparent; border:1px solid rgba(138, 43, 226, 0.3); padding:10px 15px; border-radius:8px; cursor:pointer; font-weight:700; color:var(--text-light-purple);">Cancelar</button>
-                <button onclick="enviarRecuperacao()" style="background:var(--purple-primary); border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:700; color:white; box-shadow: var(--neon-glow);">Enviar Link</button>
+                <button onclick="document.getElementById('modalRecuperar').style.display='none'" class="btn-outline" style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:white; padding:10px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                <button onclick="enviarRecuperacao()" style="background:var(--purple-primary); border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:700; color:white;">Enviar Link</button>
             </div>
         </div>
     </div>
@@ -327,106 +228,52 @@
         function switchTab(tab) {
             document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
             document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-            
             document.getElementById('tab-login').className = tab === 'login' ? 'tab active' : 'tab';
             document.getElementById('tab-register').className = tab === 'register' ? 'tab active' : 'tab';
-            
-            document.querySelectorAll('.msg-box').forEach(el => el.style.display = 'none');
         }
-
-        function togglePass(id, divWrapper) {
-            const input = document.getElementById(id);
-            const icon = divWrapper.querySelector('i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+        function togglePass(id, div) {
+            const i = document.getElementById(id);
+            const icon = div.querySelector('i');
+            i.type = i.type === 'password' ? 'text' : 'password';
+            icon.className = i.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
         }
-
         function showMsg(id, text, type) {
             const el = document.getElementById(id);
             el.innerText = text;
             el.className = 'msg-box ' + (type === 'error' ? 'msg-error' : 'msg-success');
             el.style.display = 'block';
         }
-
         async function fazerLogin() {
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
-
-            if(!email || !senha) return showMsg('msgLogin', 'Preencha todos os campos.', 'error');
-
-            showMsg('msgLogin', 'Autenticando...', 'success');
-
+            if(!email || !senha) return showMsg('msgLogin', 'Preencha tudo', 'error');
             try {
-                const res = await fetch('/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, senha })
-                });
-                
+                const res = await fetch('/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, senha}) });
                 const dados = await res.json();
-
-                if(res.ok) {
-                    localStorage.setItem('usuario_logado', JSON.stringify(dados));
-                    window.location.href = 'index.html';
-                } else {
-                    showMsg('msgLogin', dados.erro || 'Credenciais inválidas.', 'error');
-                }
-            } catch (e) {
-                showMsg('msgLogin', 'Erro de conexão com o servidor.', 'error');
-            }
+                if(res.ok) { localStorage.setItem('usuario_logado', JSON.stringify(dados)); window.location.href='index.html'; }
+                else showMsg('msgLogin', dados.erro, 'error');
+            } catch(e) { showMsg('msgLogin', 'Erro no servidor', 'error'); }
         }
-
         async function fazerCadastro() {
             const nome = document.getElementById('cadNome').value;
             const email = document.getElementById('cadEmail').value;
             const senha = document.getElementById('cadSenha').value;
-
-            if(!nome || !email || !senha) return showMsg('msgCadastro', 'Preencha todos os campos.', 'error');
-
-            showMsg('msgCadastro', 'Criando sua conta...', 'success');
-
+            if(!nome || !email || !senha) return showMsg('msgCadastro', 'Preencha tudo', 'error');
             try {
-                const res = await fetch('/auth/registrar', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, email, senha })
-                });
-                const dados = await res.json();
-
-                if(res.ok) {
-                    showMsg('msgCadastro', 'Conta criada com sucesso! Faça login.', 'success');
-                    setTimeout(() => switchTab('login'), 2000);
-                } else {
-                    showMsg('msgCadastro', dados.erro || 'Erro ao criar conta.', 'error');
-                }
-            } catch (e) {
-                showMsg('msgCadastro', 'Erro de conexão.', 'error');
-            }
+                const res = await fetch('/auth/registrar', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({nome, email, senha}) });
+                if(res.ok) { showMsg('msgCadastro', 'Conta criada!', 'success'); setTimeout(()=>switchTab('login'), 2000); }
+                else { const d = await res.json(); showMsg('msgCadastro', d.erro, 'error'); }
+            } catch(e) { showMsg('msgCadastro', 'Erro', 'error'); }
         }
-
-        function abrirModalRecuperar() {
-            document.getElementById('modalRecuperar').style.display = 'flex';
-        }
-
+        function abrirModalRecuperar() { document.getElementById('modalRecuperar').style.display = 'flex'; }
         async function enviarRecuperacao() {
             const email = document.getElementById('emailRecuperar').value;
-            if(!email) return alert('Digite seu e-mail.');
-
+            if(!email) return alert('Digite o e-mail');
             try {
-                const res = await fetch(`/usuarios/${email}/reset-link`, { method: 'POST' });
-                alert(`Link de recuperação enviado para ${email} (Simulação).`);
+                await fetch(`/usuarios/${email}/reset-link`, { method: 'POST' });
+                alert('Link enviado!');
                 document.getElementById('modalRecuperar').style.display = 'none';
-            } catch (e) {
-                alert('Erro ao enviar solicitação.');
-            }
+            } catch(e) { alert('Erro'); }
         }
     </script>
 </body>

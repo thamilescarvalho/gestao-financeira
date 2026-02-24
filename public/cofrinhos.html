@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <title>Cofrinhos T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -16,32 +20,51 @@
         :root { --purple-primary: #a855f7; --text-white: #ffffff; }
         
         /* --- CORREÇÃO DE TIPOGRAFIA E EMOJIS --- */
-        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; box-sizing: border-box; }
+        *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
         input, select, textarea, .cofre-icon { text-transform: none !important; }
-        .fas, .far, .fab, .fa { text-transform: none !important; font-style: normal; }
+        .fas, .far, .fab, .fa { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
+        .cofre-icon { font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif !important; }
 
         body { background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #1e3a8a 100%); color: var(--text-white); font-size: 11px; min-height: 100vh; }
-        .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(white, rgba(255,255,255,.3) 2px, transparent 6px);
+            background-size: 550px 550px; opacity: 0.4; z-index: -1; pointer-events: none;
+        }
+        
+        /* --- SCROLLBAR MODERNA --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
+
+        .modal::-webkit-scrollbar { width: 6px; }
+        .modal::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
+        .modal::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .modal::-webkit-scrollbar-thumb:hover { background: var(--purple-primary); }
+
+        .content { padding: 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
         
         /* NAVBAR */
         .navbar-custom { background: rgba(30, 27, 46, 0.9); backdrop-filter: blur(12px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); }
         .navbar-custom .menu-btn { color: white; background: none; border: none; font-size: 24px; cursor: pointer; }
         .navbar-custom .logo { font-size: 20px; font-weight: 800; color: white; }
-        .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; }
+        .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-logout:hover { background-color: #ef4444; color: white; }
 
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .page-title { font-size: 28px; font-weight: 800; color: white; }
-        .btn-new { background: white; color: var(--purple-primary); padding: 12px 25px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 12px; transition: 0.2s; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        /* HEADER */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: relative; }
+        .page-title { font-size: 28px; font-weight: 800; color: white; margin: 0; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .btn-new { background: white; color: var(--purple-primary); padding: 12px 25px; border-radius: 12px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 11px; transition: 0.2s; box-shadow: 0 0 15px rgba(255,255,255,0.2); }
         .btn-new:hover { transform: translateY(-3px); box-shadow: 0 0 25px rgba(255,255,255,0.4); }
 
         /* GRID COFRINHOS */
         .cofrinhos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
         
         .cofre-card { 
-            /* BASE DO CARD CLAREADA */
-            background: rgba(255, 255, 255, 0.15); /* Aumentei a opacidade do branco */
-            backdrop-filter: blur(15px); /* Desfoque maior */
-            border: 1px solid rgba(255, 255, 255, 0.3); /* Borda mais visível */
+            background: rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
             border-radius: 24px; 
             padding: 25px;
             position: relative; overflow: hidden; transition: 0.3s;
@@ -50,39 +73,26 @@
         }
         .cofre-card:hover { 
             transform: translateY(-5px); 
-            background: rgba(255, 255, 255, 0.25); /* Fica ainda mais claro ao passar o mouse */
+            background: rgba(255, 255, 255, 0.25); 
             box-shadow: 0 15px 40px rgba(0,0,0,0.2); 
             border-color: rgba(255, 255, 255, 0.6);
         }
         
         /* CORES SUAVES E ILUMINADAS */
-        .card-purple { 
-            background: linear-gradient(135deg, rgba(192, 132, 252, 0.4), rgba(255, 255, 255, 0.1)); 
-            border: 1px solid rgba(192, 132, 252, 0.5);
-        }
-        .card-pink { 
-            background: linear-gradient(135deg, rgba(244, 114, 182, 0.4), rgba(255, 255, 255, 0.1)); 
-            border: 1px solid rgba(244, 114, 182, 0.5);
-        }
-        .card-blue { 
-            background: linear-gradient(135deg, rgba(96, 165, 250, 0.4), rgba(255, 255, 255, 0.1)); 
-            border: 1px solid rgba(96, 165, 250, 0.5);
-        }
-        .card-green { 
-            background: linear-gradient(135deg, rgba(74, 222, 128, 0.4), rgba(255, 255, 255, 0.1)); 
-            border: 1px solid rgba(74, 222, 128, 0.5);
-        }
+        .card-purple { background: linear-gradient(135deg, rgba(192, 132, 252, 0.4), rgba(255, 255, 255, 0.1)); border: 1px solid rgba(192, 132, 252, 0.5); }
+        .card-pink { background: linear-gradient(135deg, rgba(244, 114, 182, 0.4), rgba(255, 255, 255, 0.1)); border: 1px solid rgba(244, 114, 182, 0.5); }
+        .card-blue { background: linear-gradient(135deg, rgba(96, 165, 250, 0.4), rgba(255, 255, 255, 0.1)); border: 1px solid rgba(96, 165, 250, 0.5); }
+        .card-green { background: linear-gradient(135deg, rgba(74, 222, 128, 0.4), rgba(255, 255, 255, 0.1)); border: 1px solid rgba(74, 222, 128, 0.5); }
 
         .cofre-header { display: flex; justify-content: space-between; align-items: flex-start; }
         
         .cofre-icon { 
             font-size: 32px; 
-            background: rgba(255,255,255,0.4); /* Fundo do ícone mais branco */
+            background: rgba(255,255,255,0.4); 
             width: 60px; height: 60px; 
             border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            text-transform: none !important; 
             border: 1px solid rgba(255,255,255,0.5);
         }
         
@@ -90,10 +100,10 @@
         .btn-icon { width: 30px; height: 30px; border-radius: 8px; border: none; background: rgba(255,255,255,0.3); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-icon:hover { background: white; color: var(--purple-primary); }
 
-        .cofre-info h3 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.5px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .cofre-info h3 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: 0.5px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .cofre-saldos { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 10px; }
-        .saldo-atual { font-size: 26px; font-weight: 900; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .saldo-meta { font-size: 11px; color: rgba(255,255,255,0.9); font-weight: 700; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 6px; }
+        .saldo-atual { font-size: 24px; font-weight: 900; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.2); letter-spacing: -0.5px; }
+        .saldo-meta { font-size: 10px; color: rgba(255,255,255,0.9); font-weight: 700; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 6px; }
 
         /* BARRA DE PROGRESSO */
         .progress-container { background: rgba(255,255,255,0.2); height: 8px; border-radius: 4px; overflow: hidden; position: relative; margin-top: 5px; }
@@ -106,7 +116,7 @@
         .bar-green { background: #4ade80; box-shadow: 0 0 10px #22c55e; }
 
         .btn-action-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-cofre { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 800; font-size: 11px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-cofre { flex: 1; padding: 12px; border-radius: 12px; border: none; font-weight: 800; font-size: 11px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; letter-spacing: 0.5px; }
         .btn-depositar { background: white; color: #1e293b; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .btn-resgatar { background: rgba(255,255,255,0.3); color: white; border: 1px solid rgba(255,255,255,0.4); }
         .btn-depositar:hover { background: #f1f5f9; transform: translateY(-2px); }
@@ -119,13 +129,54 @@
         
         input, select { 
             width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; margin-bottom: 15px; 
-            font-weight: 700; color: #1e293b; outline: none; 
+            font-weight: 700; color: #1e293b; outline: none; font-size: 12px;
             text-transform: none !important; 
         }
+        input:focus, select:focus { border-color: var(--purple-primary); box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1); }
         
-        label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 5px; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
-        .btn-confirm { background: var(--purple-primary); color: white; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; }
+        label { display: block; font-size: 10px; font-weight: 800; color: #64748b; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+        .btn-confirm { background: var(--purple-primary); color: white; padding: 10px 20px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 11px;}
+        .btn-confirm:hover { background: #9333ea; }
+
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
+
+        /* --- MOBILE REFINADO --- */
+        @media (max-width: 768px) {
+            .content { padding: 20px 15px; }
+            
+            /* Título Centralizado com Botão Lateral */
+            .page-header { 
+                display: flex;
+                flex-direction: row; 
+                align-items: center; 
+                justify-content: flex-end; /* Empurra o botão pra direita */
+                margin-bottom: 20px; 
+                min-height: 40px; 
+            }
+            .page-title { 
+                font-size: 18px; 
+                margin: 0; 
+                position: absolute; 
+                left: 50%; 
+                transform: translateX(-50%); 
+                white-space: nowrap; 
+            }
+            
+            .hide-on-mobile { display: none; }
+            
+            /* Botão Flutuante (Circular) */
+            .btn-new { 
+                width: 38px; height: 38px; 
+                border-radius: 50%; 
+                padding: 0; 
+                display: flex; align-items: center; justify-content: center; 
+                margin: 0; flex-shrink: 0;
+            }
+            .btn-new i { margin: 0; font-size: 16px; }
+
+            .cofrinhos-grid { grid-template-columns: 1fr; gap: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -143,23 +194,24 @@
         <div class="page-header">
             <h1 class="page-title">MEUS COFRINHOS</h1>
             <button class="btn-new" onclick="abrirModalNovo()">
-                <i class="fas fa-plus"></i> NOVA META
+                <i class="fas fa-plus"></i> <span class="hide-on-mobile">NOVA META</span>
             </button>
         </div>
 
         <div class="cofrinhos-grid" id="listaCofrinhos">
-            </div>
+            <div style="grid-column:1/-1; text-align:center; padding:50px; opacity:0.6;">Carregando...</div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="modalNovo">
         <div class="modal">
-            <h2 style="color:var(--purple-primary); font-weight:900; margin-top:0;">CRIAR NOVA META</h2>
+            <h2 style="color:var(--purple-primary); font-weight:900; margin-top:0; font-size: 18px; margin-bottom: 20px;">CRIAR NOVA META</h2>
             <label>NOME DO OBJETIVO</label>
             <input type="text" id="novoNome" placeholder="Ex: Viagem, Carro...">
             <label>VALOR DA META (R$)</label>
             <input type="number" id="novoMeta" step="0.01">
             <label>ÍCONE (Emoji)</label>
-            <input type="text" id="novoIcone" value="✈️" style="font-size:20px; text-align:center;">
+            <input type="text" id="novoIcone" value="✈️" style="font-size:24px; text-align:center;">
             <label>COR DO CARD</label>
             <select id="novoCor">
                 <option value="purple">ROXO (Padrão)</option>
@@ -168,7 +220,7 @@
                 <option value="pink">ROSA</option>
             </select>
             <div class="modal-footer">
-                <button class="btn-logout" onclick="document.getElementById('modalNovo').style.display='none'" style="color:#64748b; border:1px solid #cbd5e1; background:white;">CANCELAR</button>
+                <button class="btn-logout" onclick="document.getElementById('modalNovo').style.display='none'" style="color:#64748b; border:1px solid #cbd5e1; background:white; font-size: 11px;">CANCELAR</button>
                 <button class="btn-confirm" onclick="criarCofrinho()">CRIAR</button>
             </div>
         </div>
@@ -176,16 +228,18 @@
 
     <div class="modal-overlay" id="modalMovimento">
         <div class="modal">
-            <h2 id="tituloMov" style="color:var(--purple-primary); font-weight:900; margin-top:0;">MOVIMENTAR</h2>
+            <h2 id="tituloMov" style="color:var(--purple-primary); font-weight:900; margin-top:0; font-size: 18px; margin-bottom: 20px;">MOVIMENTAR</h2>
             <input type="hidden" id="movId">
-            <input type="hidden" id="movTipo"> <label id="lblBanco">ORIGEM DO DINHEIRO</label>
+            <input type="hidden" id="movTipo"> 
+            
+            <label id="lblBanco">ORIGEM DO DINHEIRO</label>
             <select id="movBanco"></select>
             
             <label>VALOR (R$)</label>
             <input type="number" id="movValor" step="0.01">
             
             <div class="modal-footer">
-                <button class="btn-logout" onclick="document.getElementById('modalMovimento').style.display='none'" style="color:#64748b; border:1px solid #cbd5e1; background:white;">CANCELAR</button>
+                <button class="btn-logout" onclick="document.getElementById('modalMovimento').style.display='none'" style="color:#64748b; border:1px solid #cbd5e1; background:white; font-size: 11px;">CANCELAR</button>
                 <button class="btn-confirm" onclick="confirmarMovimento()">CONFIRMAR</button>
             </div>
         </div>
@@ -195,9 +249,12 @@
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        document.addEventListener('DOMContentLoaded', carregarCofrinhos);
+        document.addEventListener('DOMContentLoaded', () => {
+            if(!usuario) return window.location.href = 'login.html';
+            carregarCofrinhos();
+        });
+        
         function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'login.html'; }
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').classList.toggle('active'); }
 
         async function carregarCofrinhos() {
             try {
@@ -264,7 +321,7 @@
 
             await fetch('/cofrinhos', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ nome, meta, icone, cor, usuarioId: usuario.id })
+                body: JSON.stringify({ nome, meta: parseFloat(meta), icone, cor, usuarioId: usuario.id })
             });
             document.getElementById('modalNovo').style.display='none';
             carregarCofrinhos();
@@ -298,7 +355,7 @@
 
             const res = await fetch(`/cofrinhos/${id}/${tipo}`, {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ bancoId, valor, usuarioId: usuario.id })
+                body: JSON.stringify({ bancoId, valor: parseFloat(valor), usuarioId: usuario.id })
             });
 
             if(res.ok) {

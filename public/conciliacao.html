@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <title>Conciliação T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -22,9 +26,10 @@
             --text-muted: #64748b;
         }
 
-        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; box-sizing: border-box; }
+        /* APLICAÇÃO DA NOVA FONTE MONOESPAÇADA */
+        *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
         input, .clean-table td, .os-value, .notion-title-input, .ofx-table td { text-transform: none !important; }
-        .fas, .far, .fab, .fa, i { text-transform: none !important; font-style: normal; }
+        .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
         body { 
             background: linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #1e3a8a 100%);
@@ -96,7 +101,7 @@
         .clean-table td { padding: 16px 24px; color: var(--text-main); border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 13px; }
         .clean-table tr:hover td { background: #f8fafc; }
         
-        .saldo-val { font-weight: 800; font-family: 'Outfit', sans-serif; font-size: 14px; }
+        .saldo-val { font-weight: 800; font-size: 14px; }
         .val-pos { color: #10b981; } .val-neg { color: #ef4444; }
 
         .card-footer { padding-top: 25px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
@@ -151,7 +156,7 @@
         .tag-rec { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
         .tag-desp { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
         
-        .col-forma-text { font-family: 'Outfit', sans-serif !important; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; }
+        .col-forma-text { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; }
 
         .row-duplicada td { background-color: #fffbeb !important; color: #b45309 !important; opacity: 0.9; }
         .aviso-dup { font-size: 10px; color: #d97706; display: flex; align-items: center; gap: 4px; margin-top: 2px; font-weight: 800; }
@@ -169,6 +174,8 @@
         .backdrop.ativo { display: block; }
         .detalhe-header { padding: 25px; background: #f8fafc; color: var(--text-main); display: flex; justify-content: space-between; align-items: start; border-bottom: 1px solid #e2e8f0; }
         .btn-fechar { background: #e2e8f0; border: none; color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
 
         @media (max-width: 768px) {
             .glass-panel { padding: 20px; }
@@ -354,7 +361,7 @@
                 totalGeral += banco.saldoAtual;
                 const corSaldo = banco.saldoAtual >= 0 ? 'val-pos' : 'val-neg';
                 tbody.innerHTML += `
-                    <tr class="row-clickable" onclick="abrirDetalhes('${banco.id}')">
+                    <tr class="row-clickable" onclick="abrirDetalhes('${banco.id}')" style="cursor: pointer;">
                         <td><div style="font-weight: 800; color: #1e293b;">${banco.nome}</div></td>
                         <td><span class="${corSaldo}" style="font-weight:800;">${fmt.format(banco.saldoAtual)}</span></td>
                         <td style="color: #64748b;">${banco.agencia || '-'}</td>
@@ -594,7 +601,7 @@
                         </td>
                         <td class="col-forma-text">${t.forma}</td>
                         <td><span class="tag-tipo ${badgeClass}">${t.tipo}</span></td>
-                        <td class="${corValor}" style="text-align: right; background:none;">${fmt.format(t.valor)}</td>
+                        <td class="${corValor}" style="text-align: right; background:none; font-weight: 800;">${fmt.format(t.valor)}</td>
                     </tr>`;
             });
         }
@@ -653,7 +660,7 @@
                 lista.innerHTML += `
                     <div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #f1f5f9;">
                         <div>
-                            <div style="font-size:12px; font-weight:700; color:#1e293b;">${m.descricao}</div>
+                            <div style="font-size:12px; font-weight:700; color:#1e293b;">${m.descricao || m.fornecedor}</div>
                             <div style="font-size:10px; opacity:0.6; color:#64748b;">${new Date(m.data).toLocaleDateString('pt-BR')}</div>
                         </div>
                         <div style="font-weight:800; color:${cor};">${sinal} ${fmt.format(m.valor)}</div>

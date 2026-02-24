@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <title>Relatório Financeiro T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -21,7 +24,8 @@
             --text-white: #ffffff;
         }
 
-        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        /* ATUALIZADO: APLICAÇÃO DA FONTE MONOESPAÇADA */
+        *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
         /* FUNDO GALAXY VIBRANTE */
@@ -333,7 +337,7 @@
             carregarProjecaoMensal(); 
         });
 
-        // --- GESTÃO DE PARCELAMENTOS (COM CORREÇÃO DE VALOR E TRUNCAMENTO) ---
+        // --- GESTÃO DE PARCELAMENTOS ---
         async function mostrarParcelamentos() {
             const painel = document.getElementById('painelParcelas');
             const tbody = document.getElementById('listaParcelamentos');
@@ -371,7 +375,6 @@
                     const g = grupos[chaveGrupo];
                     g.itens.push(t);
                     
-                    // Soma o valor ORIGINAL
                     const valorBase = t.valorOriginal ? parseFloat(t.valorOriginal) : parseFloat(t.valor);
                     g.valorTotalOriginal += valorBase;
                     
@@ -410,7 +413,6 @@
                     const statusClass = (g.pagasQtd >= totalQtd) ? 'status-done' : 'status-active';
                     const statusText = (g.pagasQtd >= totalQtd) ? 'CONCLUÍDO' : 'EM ANDAMENTO';
 
-                    // --- ENCONTRA A PRÓXIMA PARCELA (Lógica Corrigida) ---
                     g.itens.sort((a, b) => {
                          const pA = a.parcelaInfo ? parseInt(a.parcelaInfo.split('/')[0]) : 0;
                          const pB = b.parcelaInfo ? parseInt(b.parcelaInfo.split('/')[0]) : 0;
@@ -445,9 +447,7 @@
                                 </div>
                             </td>
                             <td><span class="badge-status ${statusClass}">${statusText}</span></td>
-                            
                             <td style="font-size:12px;">${fmt.format(valorParcelaExibido)}</td>
-                            
                             <td class="value-paid">${fmt.format(g.valorTotalPago)}</td>
                             <td style="color:#f59e0b; font-weight:800;">${fmt.format(g.totalJuros)}</td>
                             <td class="value-left">${fmt.format(valorRestante)}</td>
@@ -485,8 +485,6 @@
                     const dtPag = p.dataPagamento ? new Date(p.dataPagamento).toLocaleDateString('pt-BR') : '-';
                     const numParc = p.parcelaInfo ? p.parcelaInfo.split('/')[0] : '?';
                     const totalParc = p.parcelaInfo ? p.parcelaInfo.split('/')[1] : '?';
-                    
-                    const valOriginal = parseFloat(p.valor);
                     const valPagoReal = p.valorPago ? parseFloat(p.valorPago) : parseFloat(p.valor);
 
                     tbody.innerHTML += `
@@ -499,7 +497,6 @@
                     `;
                 });
             }
-
             modal.style.display = 'flex';
         }
 
@@ -620,6 +617,17 @@
                 const select = document.getElementById('filtroBanco');
                 bancos.forEach(b => select.innerHTML += `<option value="${b.id}">${b.nome}</option>`);
             } catch(e) {}
+        }
+
+        function logout() {
+            localStorage.removeItem('usuario_logado');
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+        
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.overlay').classList.toggle('active');
         }
     </script>
 </body>

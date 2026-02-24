@@ -5,9 +5,11 @@
     <title>Painel T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="auth.js"></script>
@@ -32,7 +34,8 @@
             --border-card: #e2e8f0;
         }
 
-        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        /* APLICAÇÃO DA NOVA FONTE MONOESPAÇADA */
+        *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
         /* FUNDO MANTIDO (ROXO VIBRANTE) */
@@ -51,6 +54,12 @@
             background-position: 0 0, 50px 50px;
             opacity: 0.3; z-index: -1; pointer-events: none;
         }
+
+        /* --- SCROLLBAR MODERNA --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
 
         /* NAVBAR */
         .navbar-custom { 
@@ -192,7 +201,8 @@
             transform: translateY(-2px);
         }
 
-        /* CUSTOM SWEETALERT */
+        /* CUSTOM SWEETALERT COM FONTE NOVA */
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
         div:where(.swal2-popup) {
             background: #ffffff !important;
             color: #1e293b !important;
@@ -201,6 +211,10 @@
         div:where(.swal2-title) { color: #1e293b !important; }
         div:where(.swal2-html-container) { color: #64748b !important; }
 
+        @media (max-width: 768px) {
+            .content { padding: 20px 15px; }
+            .welcome-title { font-size: 24px; }
+        }
     </style>
 </head>
 <body>

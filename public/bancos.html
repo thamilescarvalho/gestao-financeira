@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <title>Meus Bancos T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -21,7 +25,8 @@
             --text-white: #ffffff;
         }
 
-        *:not(i) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        /* APLICAÇÃO DA NOVA FONTE MONOESPAÇADA */
+        *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
         /* FUNDO GALAXY VIBRANTE */
@@ -126,7 +131,8 @@
         .btn-main-modal { background: var(--purple-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 11px; }
         .btn-main-modal:hover { background: var(--purple-secondary); }
 
-        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        /* MODIFICADO: APLICADA A FONTE JETBRAINS NOS ALERTAS DO SWEETALERT */
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
         
         @media (max-width: 600px) {
             .bank-list { grid-template-columns: 1fr; }
