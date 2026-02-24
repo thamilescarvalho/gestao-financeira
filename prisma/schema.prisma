@@ -25,6 +25,7 @@ model Usuario {
   eventos    Evento[]
   cartoes    Cartao[]
   projetos   Projeto[]
+  cofrinhos Cofrinho[]
 
   @@map("usuarios")
 }
@@ -80,7 +81,6 @@ model Transacao {
   parcelas      Int?    @default(1)
   parcelaInfo   String?
 
-  // Relação com Cartão
   cartaoId String?
   cartao   Cartao? @relation(fields: [cartaoId], references: [id])
 
@@ -118,8 +118,6 @@ model Evento {
   @@map("eventos")
 }
 
-// ... (seu schema atual)
-
 model Projeto {
   id         String    @id @default(uuid())
   nome       String
@@ -149,4 +147,19 @@ model Subtarefa {
   projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
 
   @@map("subtarefas")
+}
+
+model Cofrinho {
+  id          String   @id @default(uuid())
+  nome        String   // Ex: "Viagem Disney", "Reserva Emergência"
+  meta        Float    // Valor alvo (ex: 10.000)
+  saldo       Float    @default(0) // Valor atual guardado
+  icone       String   @default("🐷")
+  cor         String   @default("purple") // purple, pink, blue, green
+  concluido   Boolean  @default(false)
+  
+  usuarioId   String
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+
+  @@map("cofrinhos")
 }

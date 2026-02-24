@@ -162,6 +162,7 @@ function gerarMenuLateral() {
             </div>
             <div class="submenu">
                 <a href="bancos.html" class="link-navegacao">Meus Bancos</a>
+                <a href="cofrinhos.html" class="link-navegacao">Cofrinhos</a>
                 <a href="receber.html" class="link-navegacao">Contas a Receber</a>
                 <a href="pagar.html" class="link-navegacao">Contas a Pagar</a>
                 <a href="movimento.html" class="link-navegacao">Extrato / Movimentação</a> 

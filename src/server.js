@@ -141,46 +141,57 @@ app.get('/transacoes', async (req, res) => {
 app.put('/transacoes/:id', async (req, res) => {
     const { id } = req.params;
     const body = req.body;
+    
     try {
         let dados = {};
         
-        // Lógica de Atualização Inteligente
-        if (body.status === 'PENDENTE' && !body.bancoId && !body.descricao) {
-            // Estorno / Voltar para Pendente
+        // 1. ESTORNO: Vem do botão "Estornar" (tem status PENDENTE, mas não envia fornecedor/valor)
+        if (body.status === 'PENDENTE' && body.fornecedor === undefined && body.valor === undefined) {
             const tr = await prisma.transacao.findUnique({ where: { id } });
-            dados = { status: 'PENDENTE', banco: { disconnect: true }, dataPagamento: null, valor: tr.valorOriginal || tr.valor, valorOriginal: null };
+            dados = { 
+                status: 'PENDENTE', 
+                dataPagamento: null, 
+                valor: tr.valorOriginal || tr.valor, 
+                valorOriginal: null 
+            };
+            if (tr.bancoId) dados.banco = { disconnect: true };
         } 
-        else if (body.status === 'PAGO' || body.status === 'RECEBIDO') {
-            // Baixa Simples
-            const tr = await prisma.transacao.findUnique({ where: { id } });
-            dados = { status: body.status, dataPagamento: new Date(body.dataPagamento), valor: parseFloat(body.valorFinal || body.valor), valorOriginal: tr.valorOriginal || tr.valor };
-            if(body.bancoId) dados.banco = { connect: { id: body.bancoId } };
-        } 
+        // 2. EDIÇÃO COMPLETA: Vem do modal de editar conta (Pagar/Receber/Movimento)
         else {
-            // Edição Completa
-            const { itensParcelados, usuarioId, id: _id, cartaoId, ...resto } = body; // Extrai cartaoId
+            const { itensParcelados, usuarioId, id: _id, cartaoId, ...resto } = body; 
             dados = { ...resto };
             
-            if(body.dataVencimento) {
+            // Se vier data de vencimento, formata corretamente
+            if (body.dataVencimento) {
                 const dt = new Date(body.dataVencimento.includes('T') ? body.dataVencimento : `${body.dataVencimento}T12:00:00`);
                 dados.dataVencimento = dt;
                 dados.data = dt; 
             }
-            if(body.valor) dados.valor = parseFloat(body.valor);
             
-            // Lógica do Cartão na Edição
-            if (cartaoId) {
-                dados.cartao = { connect: { id: cartaoId } };
-            } else if (cartaoId === null) { // Se passar null explicitamente, desconecta
-                dados.cartao = { disconnect: true };
+            // Se vier valor
+            if (body.valor) {
+                dados.valor = parseFloat(body.valor);
+            }
+            
+            // Trata vínculo de cartão (apenas se vier a propriedade cartaoId)
+            if (cartaoId !== undefined) {
+                if (cartaoId) {
+                    dados.cartao = { connect: { id: cartaoId } };
+                } else {
+                    dados.cartao = { disconnect: true };
+                }
             }
         }
         
-        const atualizado = await prisma.transacao.update({ where: { id }, data: dados });
+        const atualizado = await prisma.transacao.update({ 
+            where: { id }, 
+            data: dados 
+        });
+        
         res.json(atualizado);
     } catch (e) { 
-        console.error("Erro PUT:", e);
-        res.status(500).json({ erro: "Erro ao atualizar." }); 
+        console.error("Erro PUT /transacoes/:id :", e);
+        res.status(500).json({ erro: "Erro ao atualizar a transação." }); 
     }
 });
 
@@ -189,7 +200,7 @@ app.delete('/transacoes/:id', async (req, res) => { try { await prisma.transacao
 // --- ROTA DE BAIXA DE TRANSAÇÃO (CARTÃO) ---
 app.put('/transacoes/:id/baixar', async (req, res) => {
     const { id } = req.params;
-    const { bancoId, dataPagamento, valorPago, juros } = req.body;
+    const { bancoId, dataPagamento, valorPago, juros, descricao, formaPagamento} = req.body;
 
     try {
         const tr = await prisma.transacao.findUnique({ where: { id } });
@@ -213,6 +224,10 @@ app.put('/transacoes/:id/baixar', async (req, res) => {
             valorOriginal: tr.valorOriginal || tr.valor,
             juros: valorJuros
         };
+        // Atualiza a descrição se vier
+        if (descricao !== undefined) {
+            dadosAtualizacao.descricao = descricao;
+        }
 
         if (tr.formaPagamento === 'Cartão' || tr.cartaoId) {
             // É compra no cartão: Mantém o vínculo com o cartão e NÃO vincula a banco
@@ -579,6 +594,107 @@ app.delete('/subtarefas/:id', async (req, res) => {
         await prisma.subtarefa.delete({ where: { id: req.params.id } });
         res.status(204).send();
     } catch(e) { res.status(500).send(); }
+});
+
+// --- ROTAS DE COFRINHOS (METAS) ---
+
+// Listar Cofrinhos
+app.get('/cofrinhos', async (req, res) => {
+    const { usuarioId } = req.query;
+    try {
+        const metas = await prisma.cofrinho.findMany({ where: { usuarioId }, orderBy: { saldo: 'desc' } });
+        res.json(metas);
+    } catch(e) { res.status(500).json([]); }
+});
+
+// Criar Novo Cofrinho
+app.post('/cofrinhos', async (req, res) => {
+    const { nome, meta, icone, cor, usuarioId } = req.body;
+    try {
+        const novo = await prisma.cofrinho.create({
+            data: { nome, meta: parseFloat(meta), icone, cor, usuario: { connect: { id: usuarioId } } }
+        });
+        res.json(novo);
+    } catch(e) { 
+        console.error(e); // <--- Adicione isso para ver o erro no terminal
+        res.status(500).json({erro: "Erro ao criar"}); 
+    }
+});
+
+// GUARDAR DINHEIRO (Tira do Banco -> Põe no Cofrinho)
+app.post('/cofrinhos/:id/depositar', async (req, res) => {
+    const { id } = req.params; // ID do Cofrinho
+    const { bancoId, valor, usuarioId } = req.body;
+    const val = parseFloat(valor);
+
+    try {
+        await prisma.$transaction([
+            // 1. Aumenta saldo do Cofrinho
+            prisma.cofrinho.update({
+                where: { id },
+                data: { saldo: { increment: val } }
+            }),
+            // 2. Tira dinheiro do Banco (Cria uma transação de SAÍDA)
+            prisma.transacao.create({
+                data: {
+                    descricao: `Guardado no Cofrinho`,
+                    fornecedor: 'Minha Poupança',
+                    valor: val,
+                    tipo: 'DESPESA',
+                    categoria: 'Investimento',
+                    status: 'PAGO',
+                    formaPagamento: 'Transferência',
+                    data: new Date(), dataPagamento: new Date(), dataVencimento: new Date(),
+                    banco: { connect: { id: bancoId } },
+                    usuario: { connect: { id: usuarioId } },
+                    parcelas: 1, parcelaInfo: '1/1'
+                }
+            })
+        ]);
+        res.json({ ok: true });
+    } catch(e) { console.error(e); res.status(500).json({erro: "Erro ao depositar"}); }
+});
+
+// RESGATAR DINHEIRO (Tira do Cofrinho -> Devolve pro Banco)
+app.post('/cofrinhos/:id/resgatar', async (req, res) => {
+    const { id } = req.params;
+    const { bancoId, valor, usuarioId } = req.body;
+    const val = parseFloat(valor);
+
+    try {
+        const cofre = await prisma.cofrinho.findUnique({ where: { id } });
+        if(cofre.saldo < val) return res.status(400).json({erro: "Saldo insuficiente no cofrinho"});
+
+        await prisma.$transaction([
+            // 1. Diminui saldo do Cofrinho
+            prisma.cofrinho.update({
+                where: { id },
+                data: { saldo: { decrement: val } }
+            }),
+            // 2. Coloca dinheiro no Banco (Cria uma transação de ENTRADA)
+            prisma.transacao.create({
+                data: {
+                    descricao: `Resgate do Cofrinho: ${cofre.nome}`,
+                    fornecedor: 'Resgate',
+                    valor: val,
+                    tipo: 'RECEITA',
+                    categoria: 'Resgate',
+                    status: 'RECEBIDO',
+                    formaPagamento: 'Transferência',
+                    data: new Date(), dataPagamento: new Date(), dataVencimento: new Date(),
+                    banco: { connect: { id: bancoId } },
+                    usuario: { connect: { id: usuarioId } },
+                    parcelas: 1, parcelaInfo: '1/1'
+                }
+            })
+        ]);
+        res.json({ ok: true });
+    } catch(e) { res.status(500).json({erro: "Erro ao resgatar"}); }
+});
+
+app.delete('/cofrinhos/:id', async (req, res) => {
+    try { await prisma.cofrinho.delete({ where: { id: req.params.id } }); res.status(204).send(); } 
+    catch(e) { res.status(500).send(); } 
 });
 
 app.post('/auth/registrar', async (req, res) => { try { const { nome, email, senha } = req.body; const hash = await bcrypt.hash(senha, 10); const u = await prisma.usuario.create({ data: { nome, email, senha: hash, role: 'USER' } }); res.json(u); } catch(e) { res.status(500).json({ erro: "Erro registro" }); } });
