@@ -272,12 +272,8 @@
         <div class="page-header">
             <h1 class="page-title">Contas a Pagar</h1>
             <div class="header-actions">
-                <input type="file" id="fileImport" accept=".ofx, .csv" style="display: none;" onchange="processarArquivo()">
                 <button id="btnMassDelete" class="btn-mass-delete" onclick="excluirMassa()">
                     <i class="fas fa-trash"></i> EXCLUIR (<span id="countSelected">0</span>)
-                </button>
-                <button class="btn-import" onclick="document.getElementById('fileImport').click()">
-                    <i class="fas fa-file-import"></i> Importar
                 </button>
                 <button class="btn-new" onclick="abrirModalNovo()">
                     <i class="fas fa-plus"></i> Nova Despesa
