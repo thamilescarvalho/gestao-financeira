@@ -28,20 +28,19 @@
             --text-light-purple: #e9d5ff;
             
             /* CORES INTERNAS DOS CARDS (AGORA BRANCOS) */
-            --card-bg-white: rgba(255, 255, 255, 0.95); /* Fundo branco sólido com leve transparência */
-            --text-card-main: #1e293b; /* Texto escuro dentro dos cards */
-            --text-card-sub: #64748b; /* Texto cinza dentro dos cards */
+            --card-bg-white: rgba(255, 255, 255, 0.95); 
+            --text-card-main: #1e293b; 
+            --text-card-sub: #64748b; 
             --border-card: #e2e8f0;
         }
 
-        /* APLICAÇÃO DA NOVA FONTE MONOESPAÇADA */
+        /* CONFIGURAÇÃO GLOBAL DE FONTE E RESET */
         *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
-        /* FUNDO MANTIDO (ROXO VIBRANTE) */
         body { 
             background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #60a5fa 100%);
-            color: var(--text-white); font-size: 11px; min-height: 100vh; position: relative;
+            color: var(--text-white); font-size: 11px; min-height: 100vh; position: relative; margin: 0; padding: 0;
         }
         
         /* Poeira Estelar */
@@ -80,9 +79,44 @@
 
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
 
-        /* HEADER */
+        /* HEADER E ANIMAÇÃO DE DIGITAÇÃO */
         .welcome-header { margin-bottom: 40px; display: flex; flex-direction: column; gap: 5px; }
-        .welcome-title { font-size: 32px; font-weight: 800; color: var(--text-white); margin: 0; letter-spacing: -0.5px; text-shadow: 0 0 15px rgba(255,255,255,0.3); }
+        
+        .welcome-title { 
+            font-size: 32px; font-weight: 800; color: var(--text-white); margin: 0; 
+            letter-spacing: -0.5px; text-shadow: 0 0 15px rgba(255,255,255,0.3);
+            /* Animação */
+            display: inline-block;
+            overflow: hidden; 
+            white-space: nowrap; 
+            border-right: 4px solid transparent; /* O cursor inicia oculto (transparente) */
+            width: 0; 
+        }
+        
+        /* O span do ponto de exclamação (verde limão neon) */
+        .welcome-title span {
+            color: #ccff00; 
+            text-shadow: 0 0 15px rgba(204, 255, 0, 0.8);
+        }
+        
+        /* A classe de animação com limite de tempo no cursor */
+        .typewriter-effect {
+            /* Digita em 1.5s, o cursor pisca 5 vezes (2.5s no total) e depois finaliza transparente */
+            animation: 
+                typing 1.5s steps(40, end) forwards, 
+                blink-caret 0.5s step-end 5;
+        }
+
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% } 
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--text-white); }
+        }
+
         .welcome-date { color: var(--text-light-purple); font-size: 13px; font-weight: 700; letter-spacing: 1px; opacity: 0.9; }
 
         /* GRID */
@@ -97,25 +131,20 @@
             text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
         }
 
-        /* --- CARDS FINANCEIROS (BRANCOS E DEFINIDOS) --- */
+        /* CARDS */
         .fin-card {
-            background: var(--card-bg-white); /* BRANCO */
+            background: var(--card-bg-white);
             backdrop-filter: blur(10px);
-            border: 1px solid white; /* Borda branca para destacar */
+            border: 1px solid white;
             border-radius: 16px;
             padding: 20px; 
             margin-bottom: 0; 
             transition: 0.2s;
             position: relative; overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15); /* Sombra para dar profundidade */
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
-        .fin-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
-            background: #ffffff;
-        }
+        .fin-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); background: #ffffff; }
 
-        /* ALERTAS DO RADAR */
         .alert-urgent { border-left: 5px solid #ef4444; }
         .alert-warning { border-left: 5px solid #f59e0b; }
         .alert-info { border-left: 5px solid #3b82f6; }
@@ -123,7 +152,6 @@
         .card-row { display: flex; justify-content: space-between; align-items: center; }
         .card-main { display: flex; flex-direction: column; gap: 6px; } 
         
-        /* TEXTO ESCURO DENTRO DOS CARDS */
         .card-title { font-weight: 800; font-size: 15px; color: var(--text-card-main); }
         .card-sub { font-size: 11px; color: var(--text-card-sub); font-weight: 600; }
         .card-value { font-weight: 800; font-size: 16px; color: var(--text-card-main); }
@@ -135,7 +163,7 @@
         /* AGENDA BRANCA */
         .task-item { 
             display: flex; align-items: center; gap: 15px; padding: 15px; 
-            background: var(--card-bg-white); /* BRANCO */
+            background: var(--card-bg-white);
             backdrop-filter: blur(10px);
             border-radius: 12px; border: 1px solid white;
             transition: 0.2s; cursor: pointer; 
@@ -201,13 +229,9 @@
             transform: translateY(-2px);
         }
 
-        /* CUSTOM SWEETALERT COM FONTE NOVA */
+        /* SWEETALERT DEFAULT */
         div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
-        div:where(.swal2-popup) {
-            background: #ffffff !important;
-            color: #1e293b !important;
-            border-radius: 16px !important;
-        }
+        div:where(.swal2-popup) { background: #ffffff !important; color: #1e293b !important; border-radius: 16px !important; }
         div:where(.swal2-title) { color: #1e293b !important; }
         div:where(.swal2-html-container) { color: #64748b !important; }
 
@@ -234,7 +258,7 @@
     <div class="content">
         
         <div class="welcome-header">
-            <h1 class="welcome-title" id="txtSaudacao">CARREGANDO...</h1>
+            <h1 class="welcome-title" id="txtSaudacao"></h1>
             <div class="welcome-date" id="txtData">...</div>
         </div>
 
@@ -275,7 +299,7 @@
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
         document.addEventListener('DOMContentLoaded', () => {
-            configurarData();
+            configurarDataEAnimacao();
             carregarFeedFinanceiro();
             carregarFeedAgenda();
             carregarAniversariantes();
@@ -301,8 +325,19 @@
             });
         }
 
-        function configurarData() {
-            if(usuario) document.getElementById('txtSaudacao').innerText = `OLÁ, ${usuario.nome.split(' ')[0]}!`;
+        // --- CONFIGURA O TEXTO E DISPARA A ANIMAÇÃO ---
+        function configurarDataEAnimacao() {
+            const h1Saudacao = document.getElementById('txtSaudacao');
+            
+            if(usuario) {
+                const primeiroNome = usuario.nome.split(' ')[0];
+                h1Saudacao.innerHTML = `OLÁ, ${primeiroNome}<span>!</span>`;
+                h1Saudacao.classList.add('typewriter-effect');
+            } else {
+                h1Saudacao.innerHTML = "OLÁ<span>!</span>";
+                h1Saudacao.classList.add('typewriter-effect');
+            }
+            
             const hoje = new Date();
             const opcoes = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('txtData').innerText = hoje.toLocaleDateString('pt-BR', opcoes); 
