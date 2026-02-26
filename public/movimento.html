@@ -24,22 +24,18 @@
             --text-white: #ffffff;
         }
 
-        /* APLICAÇÃO DA NOVA FONTE MONOESPAÇADA */
+        /* CONFIGURAÇÃO GLOBAL */
         *:not(i) { 
             font-family: 'JetBrains Mono', monospace !important; 
             text-transform: uppercase !important; 
             box-sizing: border-box; 
         }
         input, select, textarea { text-transform: none !important; }
-        .fas, .far, .fab, .fa, i { 
-            font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; 
-            text-transform: none !important; 
-            font-style: normal; 
-        }
+        .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
         body { 
             background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #60a5fa 100%);
-            color: var(--text-white); font-size: 11px; min-height: 100vh; position: relative; overflow-x: hidden;
+            color: var(--text-white); font-size: 11px; min-height: 100vh; position: relative; overflow-x: hidden; margin: 0; padding: 0;
         }
         body::before {
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -47,76 +43,136 @@
             background-size: 450px 450px; opacity: 0.3; z-index: -1; pointer-events: none;
         }
 
-        /* --- SCROLLBAR MODERNA --- */
+        /* --- SCROLLBAR GERAL DA PÁGINA --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
 
-        .content { padding: 20px; width: 96%; max-width: 1800px; margin: 0 auto; position: relative; z-index: 1; }
+        .content { padding: 20px; width: 96%; max-width: 1800px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; }
 
         /* NAVBAR */
-        .navbar-custom { background: rgba(45, 40, 70, 0.9); backdrop-filter: blur(12px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .navbar-custom .menu-btn { color: white !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: white; text-shadow: 0 0 15px rgba(168, 85, 247, 0.8); letter-spacing: 1px; }
-        .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .navbar-custom { background: rgba(45, 40, 70, 0.9); backdrop-filter: blur(12px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .logo { font-size: 20px; font-weight: 800; color: white; }
+        .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; }
 
-        /* HEADER */
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; width: 100%; position: relative; }
-        .header-left { display: flex; align-items: center; gap: 20px; }
-        .page-title { font-size: 28px; font-weight: 800; color: white; margin: 0; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        /* HEADER ESTRUTURA */
+        .page-header { display: flex; flex-direction: column; gap: 15px; width: 100%; margin-bottom: 10px; }
+        .page-title { font-size: 22px; font-weight: 800; color: white; margin: 0; text-align: center; width: 100%; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+        .header-main-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
 
         /* ABAS */
-        .header-tabs { display: flex; gap: 5px; background: rgba(255,255,255,0.15); padding: 4px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); }
-        .tab-link { text-decoration: none; color: white; font-weight: 700; font-size: 10px; padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; border: none; background: transparent; opacity: 0.8; }
-        .tab-link.active { background: white; color: var(--purple-primary); opacity: 1; }
+        .header-tabs { 
+            flex: 1; display: flex; gap: 2px; background: rgba(255,255,255,0.15); padding: 4px; 
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+        }
+        .tab-link { 
+            flex: 1; text-align: center; text-decoration: none; color: white; 
+            font-weight: 800; font-size: 13px; 
+            padding: 12px 5px; border-radius: 10px; cursor: pointer; border: none; background: transparent; opacity: 0.7; 
+        }
+        .tab-link.active { background: white; color: var(--purple-primary); opacity: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-        /* BOTÕES */
-        .header-actions { display: flex; gap: 10px; align-items: center; }
-        .btn-import { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 11px; transition: 0.2s; height: 38px; }
-        .btn-transf { background: #0f172a; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); font-size: 11px; transition: 0.2s; height: 38px; }
-        .btn-mass-delete { background-color: #ef4444; color: white; padding: 10px 20px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 11px; transition: 0.2s; height: 38px; }
-
-        /* TOOLBAR */
-        .desktop-toolbar { background: #ffffff; padding: 15px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
-        .total-badge { background: #f1f5f9; color: var(--text-dark); padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; border: 1px solid #e2e8f0; white-space: nowrap; }
-        .divider { width: 1px; height: 25px; background-color: #cbd5e1; }
-        .filter-item { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 8px 12px; border-radius: 10px; border: 1px solid #e2e8f0; flex: 1; height: 38px; }
-        .date-input, .clean-input, .clean-select { border: none; background: transparent; outline: none; font-size: 11px; color: var(--text-dark); font-weight: 600; width: 100%; }
-
-        /* MOBILE FILTERS */
-        .mobile-filter-chips { display: none; overflow-x: auto; white-space: nowrap; gap: 8px; padding: 5px 2px 15px 2px; }
-        .chip { display: inline-flex; align-items: center; gap: 6px; background: white; padding: 8px 14px; border-radius: 20px; color: #475569; font-size: 11px; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; }
-        .chip.active { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
-
-        /* TABELA */
-        .table-container { background: rgba(255, 255, 255, 0.95); border-radius: 16px; border: 1px solid white; box-shadow: 0 10px 40px rgba(0,0,0,0.15); overflow-x: auto; }
-        .clean-table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        .clean-table thead { border-bottom: 3px solid var(--purple-primary); }
-        .clean-table th { text-align: left; padding: 16px 20px; background: #1e293b; color: white; font-weight: 800; font-size: 10px; letter-spacing: 0.5px; }
-        .clean-table td { padding: 12px 20px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 12px; }
-        
-        .badge-valor { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 11px; }
-        .bg-receita { background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
-        .bg-despesa { background-color: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
-
-        /* --- MOBILE REFINADO --- */
-        @media (max-width: 768px) {
-            .content { padding: 15px 10px; width: 100%; }
-            .page-header { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-            .header-left { flex-direction: column; align-items: center; width: auto; flex: 1; }
-            .page-title { font-size: 18px; position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; padding-left: 90px; }
-            .header-tabs { width: 100%; margin-top: 50px; }
-            
-            .header-actions { width: auto; flex-shrink: 0; gap: 8px; }
-            .btn-transf, .btn-import, .btn-mass-delete { width: 38px; height: 38px; border-radius: 50%; padding: 0; justify-content: center; }
-            .hide-on-mobile { display: none; }
-            
-            .desktop-toolbar { display: none; }
-            .mobile-filter-chips { display: flex; }
+        /* BOTÃO TRANSFERIR DESKTOP */
+        .btn-transf-top { 
+            background: #0f172a; color: white; padding: 10px 20px; border-radius: 8px; 
+            font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; 
+            justify-content: center; gap: 6px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); font-size: 13px; 
+            height: 38px; flex-shrink: 0;
         }
 
-        /* MODAIS */
+        /* TOOLBAR DESKTOP */
+        .desktop-toolbar { background: #ffffff; padding: 15px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .total-badge { background: #f1f5f9; color: var(--text-dark); padding: 8px 12px; border-radius: 8px; font-weight: 800; font-size: 13px; border: 1px solid #e2e8f0; white-space: nowrap; }
+        .divider { width: 1px; height: 25px; background-color: #cbd5e1; }
+        .filter-item { display: flex; align-items: center; gap: 8px; background: #f1f5f9; padding: 8px 12px; border-radius: 10px; border: 1px solid #e2e8f0; flex: 1; height: 38px; }
+        .date-input, .clean-input, .clean-select { border: none; background: transparent; outline: none; font-size: 12px; color: var(--text-dark); font-weight: 700; width: 100%; }
+
+        /* FILTROS CHIPS */
+        .mobile-filter-chips { display: none; overflow-x: auto; white-space: nowrap; gap: 8px; padding: 5px 2px 10px 2px; align-items: center; }
+        .chip { 
+            display: inline-flex; align-items: center; gap: 6px; background: white; padding: 10px 16px; 
+            border-radius: 20px; color: #475569; font-size: 13px; font-weight: 800; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; 
+        }
+        .chip.active { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
+        
+        .chip-transf-mobile { background: #0f172a; color: white; border: none; }
+
+        /* --- TABELA E SCROLLBAR INTERNA (NOVIDADE) --- */
+        .table-container { 
+            background: rgba(255, 255, 255, 0.95); 
+            border-radius: 16px; 
+            border: 1px solid white; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15); 
+            overflow-x: auto; 
+            overflow-y: auto; /* Permite rolagem vertical dentro da caixa */
+            display: block; 
+            width: 100%; 
+            margin-top: 5px; 
+            max-height: 65vh; /* Trava a altura máxima para a scrollbar ficar sempre visível */
+        }
+
+        /* Estilo Exclusivo da Barra de Rolagem da Tabela */
+        .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-container::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.8); border-radius: 8px; margin: 0 10px; }
+        .table-container::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.7); border-radius: 8px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 1); }
+
+        .clean-table { width: 100%; border-collapse: collapse; min-width: 850px; }
+        
+        /* Cabeçalho Fixo (Sticky) */
+        .clean-table th { 
+            text-align: left; 
+            padding: 16px 20px; 
+            background: #1e293b; 
+            color: white; 
+            font-weight: 800; 
+            font-size: 13px; 
+            letter-spacing: 0.5px; 
+            border-bottom: 3px solid var(--purple-primary); 
+            position: sticky; 
+            top: 0; 
+            z-index: 10; /* Garante que o cabeçalho fique por cima dos dados rolando */
+        }
+        
+        .clean-table td { padding: 14px 20px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; font-weight: 700; font-size: 12px; }
+        
+        .badge-valor { padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 12px; }
+        .bg-receita { background-color: #ecfdf5; color: #059669; }
+        .bg-despesa { background-color: #fef2f2; color: #ef4444; }
+
+        @media (max-width: 768px) {
+            .content { padding: 15px 10px; width: 100%; }
+            .btn-transf-top { display: none !important; }
+            .header-main-row { justify-content: center; }
+            .header-tabs { width: 100%; display: flex; }
+            .desktop-toolbar { display: none; }
+            .mobile-filter-chips { display: flex; }
+            .table-container { max-height: 60vh; } /* No mobile deixa a tabela ligeiramente menor para encaixar perfeitamente na tela */
+        }
+
+        @media (min-width: 1024px) {
+            .page-header { flex-direction: row; justify-content: space-between; align-items: center; }
+            .page-title { text-align: left; width: auto; font-size: 28px; margin-bottom: 0; }
+            .header-main-row { width: auto; justify-content: flex-end; }
+            .header-tabs { flex: none; width: auto; }
+            .mobile-filter-chips { display: none; }
+            .table-container { max-height: 70vh; }
+        }
+
+        /* BOTTOM SHEET */
+        .bottom-sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(4px); }
+        .bottom-sheet { position: fixed; bottom: -100%; left: 0; width: 100%; background: white; border-radius: 24px 24px 0 0; padding: 25px; box-shadow: 0 -10px 40px rgba(0,0,0,0.3); z-index: 2001; transition: bottom 0.3s cubic-bezier(0.16, 1, 0.3, 1); display: flex; flex-direction: column; gap: 15px; color: var(--text-dark); }
+        .bs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; }
+        .bs-title { font-size: 14px; font-weight: 800; color: var(--purple-primary); }
+        .bs-close { background: none; border: none; font-size: 24px; color: #94a3b8; cursor: pointer; }
+        .form-group-bs label { display: block; font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 8px; }
+        .form-input-bs { width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 14px; outline: none; background: #f8fafc; font-weight: 700; color: #1e293b; transition: 0.2s;}
+        .form-input-bs:focus { border-color: var(--purple-primary); background: white; }
+        .btn-bs-apply { background: var(--purple-primary); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 800; font-size: 13px; width: 100%; margin-top: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);}
+
+        /* MODAIS DEFAULT */
         .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 3000; backdrop-filter: blur(5px); }
         .modal { background: white; width: 95%; max-width: 450px; border-radius: 20px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); color: var(--text-dark); }
         input.form-input, select.form-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; margin-bottom: 15px; font-weight: 700; outline: none; }
@@ -127,6 +183,7 @@
     
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
+    <div class="bottom-sheet-overlay" id="bsOverlay" onclick="fecharBottomSheet()"></div>
     
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
@@ -135,23 +192,21 @@
     </nav>
 
     <div class="content">
-        <div class="page-header"> 
-            <div class="header-left">
-                <h1 class="page-title">MOVIMENTAÇÃO</h1>
+        <header class="page-header"> 
+            <h1 class="page-title">MOVIMENTAÇÃO</h1>
+            
+            <div class="header-main-row">
                 <div class="header-tabs">
                     <button onclick="setAba('TODOS', this)" class="tab-link active">TODAS</button>
                     <button onclick="setAba('RECEITA', this)" class="tab-link">ENTRADAS</button>
                     <button onclick="setAba('DESPESA', this)" class="tab-link">SAÍDAS</button>
                 </div>
-            </div>
-            <div class="header-actions">
-                <button id="btnMassDelete" class="btn-mass-delete" onclick="excluirMassa()">
-                    <i class="fas fa-trash"></i> <span class="hide-on-mobile">EXCLUIR (<span id="countSelected">0</span>)</span>
+                
+                <button class="btn-transf-top" onclick="abrirModalTransferencia()">
+                    <i class="fas fa-exchange-alt"></i> TRANSFERIR
                 </button>
-                <button class="btn-import" onclick="location.href='conciliacao.html'"><i class="fas fa-file-import"></i> <span class="hide-on-mobile">IMPORTAR</span></button>
-                <button class="btn-transf" onclick="abrirModalTransferencia()"><i class="fas fa-exchange-alt"></i> <span class="hide-on-mobile">TRANSFERIR</span></button>
             </div>
-        </div>
+        </header>
 
         <div class="desktop-toolbar">
             <div class="total-badge">TOTAL: <span id="total-display">R$ 0,00</span></div>
@@ -160,7 +215,7 @@
             <div class="filter-item"><i class="far fa-user"></i><input type="text" id="filtroFornecedor" class="clean-input" placeholder="NOME..." onkeyup="aplicarFiltros()"></div>
             <div class="filter-item"><i class="far fa-credit-card"></i><select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()"><option value="">FORMA...</option></select></div>
             <div class="filter-item"><i class="fas fa-university"></i><select id="filtroBanco" class="clean-select" onchange="aplicarFiltros()"><option value="">BANCO...</option></select></div>
-            <button class="btn-limpar" onclick="limparFiltros()">LIMPAR</button>
+            <button class="btn-limpar" onclick="limparFiltros()" style="background:none; border:none; color:#64748b; font-weight:800; cursor:pointer; font-size:12px;">LIMPAR</button>
         </div>
 
         <div class="mobile-filter-chips">
@@ -168,7 +223,11 @@
             <div class="chip" id="chipPessoa" onclick="abrirBottomSheet('pessoa')"><i class="far fa-user"></i> NOME</div>
             <div class="chip" id="chipForma" onclick="abrirBottomSheet('forma')"><i class="far fa-credit-card"></i> FORMA</div>
             <div class="chip" id="chipBanco" onclick="abrirBottomSheet('banco')"><i class="fas fa-university"></i> BANCO</div>
-            <div class="chip" onclick="limparFiltros()"><i class="fas fa-undo"></i></div>
+            <div class="chip" onclick="limparFiltros()"><i class="fas fa-undo"></i> LIMPAR</div>
+            
+            <div class="chip chip-transf-mobile" onclick="abrirModalTransferencia()">
+                <i class="fas fa-exchange-alt"></i> TRANSFERIR
+            </div>
         </div>
 
         <div class="table-container">
@@ -188,6 +247,15 @@
                 <tbody id="lista"></tbody> 
             </table>
         </div>
+    </div>
+
+    <div class="bottom-sheet" id="bsFiltro">
+        <div class="bs-header">
+            <span class="bs-title" id="bsTitleText">FILTRAR</span>
+            <button class="bs-close" onclick="fecharBottomSheet()">&times;</button>
+        </div>
+        <div id="bsContent"></div>
+        <button class="btn-bs-apply" onclick="fecharBottomSheet()">APLICAR FILTRO</button>
     </div>
 
     <div class="modal-overlay" id="modalTransferencia">
@@ -212,10 +280,60 @@
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         let transacoesCache = []; let bancosCache = []; let abaAtual = 'TODOS';
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true });
 
         document.addEventListener('DOMContentLoaded', () => { carregar(); carregarBancosParaFiltroEModal(); });
         function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'login.html'; }
+
+        // LÓGICA DO BOTTOM SHEET (MOBILE)
+        function abrirBottomSheet(tipo) {
+            const bs = document.getElementById('bsFiltro');
+            const overlay = document.getElementById('bsOverlay');
+            const content = document.getElementById('bsContent');
+            const title = document.getElementById('bsTitleText');
+            
+            overlay.style.display = 'block';
+            setTimeout(() => { overlay.style.opacity = '1'; bs.style.bottom = '0'; }, 10);
+
+            if(tipo === 'data') {
+                title.innerText = 'FILTRAR POR PERÍODO';
+                content.innerHTML = `<div class="form-group-bs"><label>INÍCIO</label><input type="date" class="form-input-bs" value="${document.getElementById('filtroInicio').value}" onchange="sincronizarFiltro('inicio', this.value)"></div><div class="form-group-bs"><label>FIM</label><input type="date" class="form-input-bs" value="${document.getElementById('filtroFim').value}" onchange="sincronizarFiltro('fim', this.value)"></div>`;
+            } else if(tipo === 'pessoa') {
+                title.innerText = 'FILTRAR POR NOME';
+                content.innerHTML = `<input type="text" class="form-input-bs" placeholder="DIGITE O NOME..." value="${document.getElementById('filtroFornecedor').value}" onkeyup="sincronizarFiltro('forn', this.value)">`;
+            } else if(tipo === 'forma') {
+                title.innerText = 'FORMA DE PAGAMENTO';
+                const sel = document.getElementById('filtroPagto').cloneNode(true);
+                sel.id = 'mobPagto'; sel.className = 'form-input-bs'; sel.onchange = (e) => sincronizarFiltro('pagto', e.target.value);
+                content.innerHTML = ''; content.appendChild(sel);
+            } else if(tipo === 'banco') {
+                title.innerText = 'FILTRAR POR BANCO';
+                const sel = document.getElementById('filtroBanco').cloneNode(true);
+                sel.id = 'mobBanco'; sel.className = 'form-input-bs'; sel.onchange = (e) => sincronizarFiltro('banco', e.target.value);
+                content.innerHTML = ''; content.appendChild(sel);
+            }
+        }
+
+        function fecharBottomSheet() {
+            const bs = document.getElementById('bsFiltro');
+            const overlay = document.getElementById('bsOverlay');
+            bs.style.bottom = '-100%';
+            overlay.style.opacity = '0';
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
+        }
+
+        function sincronizarFiltro(campo, valor) {
+            if(campo === 'inicio') document.getElementById('filtroInicio').value = valor;
+            if(campo === 'fim') document.getElementById('filtroFim').value = valor;
+            if(campo === 'forn') document.getElementById('filtroFornecedor').value = valor;
+            if(campo === 'pagto') document.getElementById('filtroPagto').value = valor;
+            if(campo === 'banco') document.getElementById('filtroBanco').value = valor;
+            aplicarFiltros();
+            
+            document.getElementById('chipData').classList.toggle('active', document.getElementById('filtroInicio').value !== '' || document.getElementById('filtroFim').value !== '');
+            document.getElementById('chipPessoa').classList.toggle('active', document.getElementById('filtroFornecedor').value !== '');
+            document.getElementById('chipForma').classList.toggle('active', document.getElementById('filtroPagto').value !== '');
+            document.getElementById('chipBanco').classList.toggle('active', document.getElementById('filtroBanco').value !== '');
+        }
 
         async function carregar() {
             if(!usuario) return;
@@ -234,6 +352,12 @@
                 const filtroSel = document.getElementById('filtroBanco');
                 filtroSel.innerHTML = '<option value="">BANCO...</option>';
                 bancosCache.forEach(b => { filtroSel.innerHTML += `<option value="${b.id}">${b.nome}</option>`; });
+                
+                const s = document.getElementById('transfOrigem');
+                const d = document.getElementById('transfDestino');
+                let o = '<option value="">SELECIONE...</option>';
+                bancosCache.forEach(b => { o += `<option value="${b.id}">${b.nome}</option>`; });
+                s.innerHTML = o; d.innerHTML = o;
             } catch(e) { console.error(e); }
         }
 
@@ -286,7 +410,7 @@
             const tbody = document.getElementById('lista'); tbody.innerHTML = '';
             let total = 0;
             if (lista.length === 0) { 
-                tbody.innerHTML = '<tr class="empty-tr"><td colspan="8" style="text-align:center; padding:30px;">NENHUM REGISTRO ENCONTRADO.</td></tr>'; 
+                tbody.innerHTML = '<tr class="empty-tr"><td colspan="8" style="text-align:center; padding:40px; color:#94a3b8; font-size:12px;">NENHUM REGISTRO ENCONTRADO.</td></tr>'; 
                 document.getElementById('total-display').innerText = 'R$ 0,00'; 
                 return; 
             }
@@ -305,30 +429,26 @@
                         <td style="text-align:center;">${item.parcelaInfo || '1/1'}</td>
                         <td>${new Date(dataRef.split('T')[0] + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
                         <td title="${item.descricao || ''}">${item.descricao || ''}</td>
-                        <td><input type="checkbox" class="chk-item chk-row" value="${item.id}" onchange="atualizarBotaoMassa()"></td>
+                        <td class="col-acao" style="text-align: center;"><input type="checkbox" class="chk-item chk-row" value="${item.id}" onchange="atualizarBotaoMassa()"></td>
                     </tr>`;
             });
             document.getElementById('total-display').innerText = fmt.format(total);
-            atualizarBotaoMassa();
         }
 
-        function abrirModalTransferencia() { 
-            const s=document.getElementById('transfOrigem'); const d=document.getElementById('transfDestino'); 
-            let o='<option value="">SELECIONE...</option>'; bancosCache.forEach(b=>{o+=`<option value="${b.id}">${b.nome}</option>`}); 
-            s.innerHTML=o; d.innerHTML=o; document.getElementById('modalTransferencia').style.display='flex'; 
-        }
+        function abrirModalTransferencia() { document.getElementById('modalTransferencia').style.display='flex'; }
 
         async function realizarTransferencia() {
             const ori=document.getElementById('transfOrigem').value; const des=document.getElementById('transfDestino').value; 
             const val=document.getElementById('transfValor').value; const dat=document.getElementById('transfData').value;
             if(!ori||!des||!val||!dat) return Swal.fire('ERRO','PREENCHA TUDO','warning');
-            await fetch('/transacoes/transferencia', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoOrigemId: ori, bancoDestinoId: des, valor: parseFloat(val), data: dat, usuarioId: usuario.id }) });
-            document.getElementById('modalTransferencia').style.display='none'; carregar(); Toast.fire({ icon: 'success', title: 'SUCESSO!' });
+            const res = await fetch('/transacoes/transferencia', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bancoOrigemId: ori, bancoDestinoId: des, valor: parseFloat(val), data: dat, usuarioId: usuario.id }) });
+            if(res.ok) { document.getElementById('modalTransferencia').style.display='none'; carregar(); Toast.fire({ icon: 'success', title: 'SUCESSO!' }); }
         }
 
         function toggleTodos(src) { document.querySelectorAll('.chk-item').forEach(c => c.checked = src.checked); atualizarBotaoMassa(); }
-        function atualizarBotaoMassa() { const n = document.querySelectorAll('.chk-item:checked').length; const b = document.getElementById('btnMassDelete'); document.getElementById('countSelected').innerText = n; b.style.display = n > 0 ? 'inline-flex' : 'none'; }
+        function atualizarBotaoMassa() { const n = document.querySelectorAll('.chk-item:checked').length; const b = document.getElementById('btnMassDelete'); if(b) b.style.display = n > 0 ? 'inline-flex' : 'none'; }
         async function excluirMassa() { const c = document.querySelectorAll('.chk-item:checked'); if(!c.length)return; if((await Swal.fire({title:`EXCLUIR ${c.length} ITENS?`,showCancelButton:true})).isConfirmed) { for(const k of c) await fetch(`/transacoes/${k.value}`,{method:'DELETE'}); carregar(); } }
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').classList.toggle('active'); }
     </script>
 </body>
 </html>
