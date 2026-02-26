@@ -35,10 +35,96 @@
         body { 
             margin: 0; padding: 0; height: 100vh; width: 100vw; 
             display: flex; background-color: var(--bg-dark); 
-            overflow: hidden; /* Mantém a tela travada sem barras */
+            overflow: hidden; 
         }
 
-        /* --- LADO ESQUERDO --- */
+        /* --- TELA DE SPLASH --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999; cursor: pointer; color: white; overflow: hidden;
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        /* Canvas do Universo 3D */
+        #space-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        .splash-content { z-index: 2; text-align: center; user-select: none; padding: 20px; }
+        
+        /* Container do Logo para a animação de digitação */
+        .splash-logo-container {
+            font-size: 54px; font-weight: 800; margin-bottom: 15px; letter-spacing: 2px; 
+            text-shadow: var(--neon-glow);
+            display: inline-block;
+        }
+
+        /* Animação Terminal IA */
+        .typewriter-logo {
+            display: inline-block;
+            overflow: hidden; 
+            white-space: nowrap; 
+            border-right: 4px solid transparent; /* Começa oculto */
+            width: 0; 
+            /* Digita em 1.2s, pisca 5 vezes e depois some */
+            animation: typing-logo 1.2s steps(12, end) forwards, blink-caret-logo 0.5s step-end 5;
+            vertical-align: bottom;
+        }
+
+        .neon-slash {
+            color: #ccff00; /* Verde Limão Neon */
+            text-shadow: 0 0 15px rgba(204, 255, 0, 0.8);
+        }
+
+        @keyframes typing-logo { from { width: 0 } to { width: 100% } }
+        @keyframes blink-caret-logo { from, to { border-color: transparent } 50% { border-color: var(--text-white); } }
+
+        .splash-instruction { 
+            font-size: 13px; color: var(--text-light-purple); font-weight: 700; 
+            letter-spacing: 1px; animation: pulse 2s infinite; 
+            max-width: 400px; margin: 0 auto; line-height: 1.6;
+            opacity: 0; animation: fadeInText 1s ease-out 1.5s forwards, pulse 2s infinite 1.5s; 
+        }
+
+        /* Rodapé do Splash Screen (Novo) */
+        .splash-security-seal {
+            position: absolute; bottom: 30px; left: 0; width: 100%;
+            text-align: center; font-size: 11px; color: #a78bfa;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            z-index: 2; opacity: 0;
+            animation: fadeInText 1s ease-out 1.5s forwards; /* Aparece junto com a instrução */
+        }
+        .splash-security-seal .seal-title {
+            display: flex; align-items: center; gap: 5px; font-weight: 700;
+        }
+        .splash-security-seal .creator-credits {
+            font-size: 9px; color: var(--text-light-purple); opacity: 0.7; letter-spacing: 1px;
+        }
+
+        /* Animação do Efeito Água (Ripple) */
+        .ripple {
+            position: absolute; border-radius: 50%; transform: scale(0);
+            animation: ripple-anim 0.8s ease-out forwards;
+            background: radial-gradient(circle, rgba(138,43,226,0.6) 0%, rgba(138,43,226,0) 70%);
+            pointer-events: none; z-index: 1;
+        }
+        @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+        @keyframes pulse { 0% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.03); } 100% { opacity: 0.5; transform: scale(1); } }
+        @keyframes fadeInText { to { opacity: 1; } }
+
+        /* --- WRAPPER PRINCIPAL DO LOGIN (Escondido no início) --- */
+        .main-wrapper {
+            display: flex; width: 100vw; height: 100vh;
+            opacity: 0; pointer-events: none; transition: opacity 1s ease 0.3s;
+        }
+        .main-wrapper.active {
+            opacity: 1; pointer-events: auto;
+        }
+
+        /* --- LADO ESQUERDO (DESKTOP) --- */
         .left-panel {
             width: 50%;
             background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
@@ -68,7 +154,7 @@
             display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
 
-        /* --- LADO DIREITO --- */
+        /* --- LADO DIREITO (LOGIN) --- */
         .right-panel {
             width: 50%; display: flex; justify-content: center; align-items: center;
             background: var(--panel-dark); position: relative; padding: 20px;
@@ -84,7 +170,7 @@
 
         .auth-header { margin-bottom: 30px; text-align: center; }
         .auth-title { font-size: 28px; font-weight: 800; color: var(--text-white); margin: 0; }
-        .auth-subtitle { color: var(--text-light-purple); font-size: 11px; margin-top: 10px; }
+        .auth-subtitle { color: var(--text-light-purple); font-size: 11px; margin-top: 10px; line-height: 1.5; }
 
         .tabs { display: flex; background: rgba(255, 255, 255, 0.05); padding: 5px; border-radius: 12px; margin-bottom: 25px; }
         .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: 700; font-size: 10px; color: var(--text-light-purple); border-radius: 8px; transition: 0.3s; }
@@ -113,7 +199,9 @@
         .btn-google {
             width: 100%; padding: 14px; border: 2px solid rgba(138, 43, 226, 0.3); border-radius: 12px;
             background: rgba(255, 255, 255, 0.05); color: var(--text-white); font-weight: 700; font-size: 11px; margin-top: 25px; display: flex; align-items: center; justify-content: center; gap: 10px;
+            cursor: pointer; transition: 0.2s;
         }
+        .btn-google:hover { background: rgba(255,255,255,0.1); }
 
         .forgot-link { display: block; text-align: right; font-size: 10px; color: var(--text-light-purple); margin-top: 10px; text-decoration: none; font-weight: 700; }
 
@@ -121,25 +209,14 @@
         .msg-error { background: rgba(239, 68, 68, 0.2); color: #ff6b6b; border: 1px solid #ef4444; }
         .msg-success { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
 
-        /* --- MODAL RECUPERAR (CORREÇÃO DE POSICIONAMENTO) --- */
+        /* --- MODAL RECUPERAR --- */
         .modal-overlay { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: rgba(0,0,0,0.85); 
-            z-index: 9999; /* Garante que fica na frente de tudo */
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(8px); 
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px); 
         }
         .modal { 
-            background: var(--panel-dark); 
-            padding: 35px; 
-            border-radius: 24px; 
-            width: 90%; max-width: 400px; 
-            border: 1px solid rgba(138, 43, 226, 0.4); 
-            box-shadow: var(--neon-glow);
-            position: relative; /* Garante que não fuja do overlay */
+            background: var(--panel-dark); padding: 35px; border-radius: 24px; width: 90%; max-width: 400px; 
+            border: 1px solid rgba(138, 43, 226, 0.4); box-shadow: var(--neon-glow); position: relative; 
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -155,57 +232,76 @@
 </head>
 <body>
 
-    <div class="left-panel">
-        <div class="circle c1"></div>
-        <div class="circle c2"></div>
-        <div class="left-content">
-            <div class="logo-big">T-SYSTEM</div>
-            <div class="logo-desc">Explore o universo da gestão financeira.</div>
+    <div id="splash-screen" onclick="iniciarSistema(event)">
+        <canvas id="space-canvas"></canvas>
+        
+        <div class="splash-content">
+            <div class="splash-logo-container">
+                <span class="typewriter-logo">&lt;T-SYSTEM<span class="neon-slash">/</span>&gt;</span>
+            </div>
+            <div class="splash-instruction">Clique aqui e conecte-se ao universo da gestão financeira</div>
         </div>
-        <div class="security-seal-desktop">
-            <i class="fas fa-shield-alt"></i>
-            <span>AMBIENTE 100% SEGURO</span>
+        
+        <div class="splash-security-seal">
+            <div class="seal-title"><i class="fas fa-shield-alt"></i> AMBIENTE 100% SEGURO</div>
+            <div class="creator-credits">CRIADO POR THAMILES CARVALHO</div>
         </div>
     </div>
 
-    <div class="right-panel">
-        <div class="auth-box">
-            <div class="auth-header">
-                <h1 class="auth-title">Bem-vindo</h1>
-                <p class="auth-subtitle">Conecte-se ao seu universo particular.</p>
+    <div class="main-wrapper" id="main-wrapper">
+        <div class="left-panel">
+            <div class="circle c1"></div>
+            <div class="circle c2"></div>
+            <div class="left-content">
+                <div class="logo-big">&lt;T-SYSTEM<span class="neon-slash" style="color: #ccff00; text-shadow: 0 0 15px rgba(204, 255, 0, 0.8);">/</span>&gt;</div>
+                <div class="logo-desc">Explore o universo da gestão financeira.</div>
             </div>
-
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('login')" id="tab-login">Entrar</div>
-                <div class="tab" onclick="switchTab('register')" id="tab-register">Criar Conta</div>
+            <div class="security-seal-desktop">
+                <i class="fas fa-shield-alt"></i>
+                <span>AMBIENTE 100% SEGURO</span>
+                <span style="font-size: 9px; margin-top: 3px; opacity: 0.7;">CRIADO POR THAMILES CARVALHO</span>
             </div>
+        </div>
 
-            <div id="form-login">
-                <div class="input-group">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="loginEmail" class="input-field" placeholder="Seu e-mail">
+        <div class="right-panel">
+            <div class="auth-box">
+                <div class="auth-header">
+                    <h1 class="auth-title">Bem-vindo</h1>
+                    <p class="auth-subtitle">Conecte-se ao seu universo particular.</p>
                 </div>
-                <div class="input-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="loginSenha" class="input-field" placeholder="Sua senha">
-                    <div class="toggle-pass" onclick="togglePass('loginSenha', this)"><i class="fas fa-eye"></i></div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('login')" id="tab-login">Entrar</div>
+                    <div class="tab" onclick="switchTab('register')" id="tab-register">Criar Conta</div>
                 </div>
-                <a href="#" class="forgot-link" onclick="abrirModalRecuperar()">Esqueceu a senha?</a>
-                <button class="btn-primary" onclick="fazerLogin()">ACESSAR SISTEMA</button>
-                <div id="msgLogin" class="msg-box"></div>
-            </div>
 
-            <div id="form-register" style="display: none;">
-                <div class="input-group"><i class="fas fa-user"></i><input type="text" id="cadNome" class="input-field" placeholder="Nome Completo"></div>
-                <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="cadEmail" class="input-field" placeholder="E-mail"></div>
-                <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="cadSenha" class="input-field" placeholder="Senha"><div class="toggle-pass" onclick="togglePass('cadSenha', this)"><i class="fas fa-eye"></i></div></div>
-                <button class="btn-primary" onclick="fazerCadastro()">CRIAR CONTA GRÁTIS</button>
-                <div id="msgCadastro" class="msg-box"></div>
-            </div>
+                <div id="form-login">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" class="input-field" placeholder="Seu e-mail">
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginSenha" class="input-field" placeholder="Sua senha">
+                        <div class="toggle-pass" onclick="togglePass('loginSenha', this)"><i class="fas fa-eye"></i></div>
+                    </div>
+                    <a href="#" class="forgot-link" onclick="abrirModalRecuperar()">Esqueceu a senha?</a>
+                    <button class="btn-primary" onclick="fazerLogin()">ACESSAR SISTEMA</button>
+                    <div id="msgLogin" class="msg-box"></div>
+                </div>
 
-            <button class="btn-google" onclick="alert('Em breve!')">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Continuar com Google
-            </button>
+                <div id="form-register" style="display: none;">
+                    <div class="input-group"><i class="fas fa-user"></i><input type="text" id="cadNome" class="input-field" placeholder="Nome Completo"></div>
+                    <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="cadEmail" class="input-field" placeholder="E-mail"></div>
+                    <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="cadSenha" class="input-field" placeholder="Senha"><div class="toggle-pass" onclick="togglePass('cadSenha', this)"><i class="fas fa-eye"></i></div></div>
+                    <button class="btn-primary" onclick="fazerCadastro()">CRIAR CONTA GRÁTIS</button>
+                    <div id="msgCadastro" class="msg-box"></div>
+                </div>
+
+                <button class="btn-google" onclick="alert('Em breve!')">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Continuar com Google
+                </button>
+            </div>
         </div>
     </div>
 
@@ -225,6 +321,134 @@
     </div>
 
     <script>
+        // --- SCRIPT DO UNIVERSO 3D INTERATIVO ---
+        const canvas = document.getElementById('space-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let mouseX = 0, mouseY = 0;
+        let targetMouseX = 0, targetMouseY = 0;
+        let animationFrameId;
+        let splashActive = true;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Cria as estrelas/poeira
+        for(let i=0; i<200; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 2 + 0.5,
+                d: Math.random() * 100 + 10, // Profundidade (Parallax)
+                color: `rgba(${Math.random()*100 + 155}, ${Math.random()*100 + 155}, 255, ${Math.random()})`,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                isPlanet: false
+            });
+        }
+
+        // Cria os planetas/nebulosas flutuantes maiores
+        for(let i=0; i<4; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 40 + 20,
+                d: Math.random() * 50 + 20,
+                color: `rgba(${Math.random()*200 + 55}, ${Math.random()*50}, 255, 0.15)`,
+                vx: (Math.random() - 0.5) * 0.2,
+                vy: (Math.random() - 0.5) * 0.2,
+                isPlanet: true
+            });
+        }
+
+        // Captura o mouse para o efeito Parallax
+        document.getElementById('splash-screen').addEventListener('mousemove', (e) => {
+            targetMouseX = e.clientX - width / 2;
+            targetMouseY = e.clientY - height / 2;
+        });
+
+        function animateSpace() {
+            if(!splashActive) return; // Para a animação quando o splash sumir para poupar CPU
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Movimento suave do mouse
+            mouseX += (targetMouseX - mouseX) * 0.05;
+            mouseY += (targetMouseY - mouseY) * 0.05;
+
+            particles.forEach(p => {
+                // Movimento base
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Efeito Parallax baseado na profundidade
+                let px = p.x - (mouseX / p.d) * 10;
+                let py = p.y - (mouseY / p.d) * 10;
+
+                // Reposiciona se sair da tela
+                if (px < -100) p.x = width + 100;
+                if (px > width + 100) p.x = -100;
+                if (py < -100) p.y = height + 100;
+                if (py > height + 100) p.y = -100;
+
+                ctx.beginPath();
+                ctx.arc(px, py, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                
+                if (p.isPlanet) {
+                    ctx.shadowBlur = 30;
+                    ctx.shadowColor = p.color;
+                } else {
+                    ctx.shadowBlur = 0;
+                }
+                
+                ctx.fill();
+            });
+            
+            animationFrameId = requestAnimationFrame(animateSpace);
+        }
+        animateSpace();
+
+        // --- FUNÇÃO DO EFEITO DE ÁGUA E TRANSIÇÃO ---
+        function iniciarSistema(e) {
+            const splash = document.getElementById('splash-screen');
+            const main = document.getElementById('main-wrapper');
+            
+            // Cria o círculo da animação (Ripple)
+            const circle = document.createElement('div');
+            const diameter = Math.max(splash.clientWidth, splash.clientHeight) * 1.5;
+            const radius = diameter / 2;
+
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX) || window.innerWidth / 2;
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY) || window.innerHeight / 2;
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${clientX - radius}px`;
+            circle.style.top = `${clientY - radius}px`;
+            circle.classList.add('ripple');
+
+            splash.appendChild(circle);
+
+            // Transição suave
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.transform = 'scale(1.1)'; 
+                main.classList.add('active'); 
+                
+                setTimeout(() => {
+                    splash.style.display = 'none'; 
+                    splashActive = false; // Desliga a animação do canvas para otimizar
+                    cancelAnimationFrame(animationFrameId);
+                }, 800);
+            }, 300);
+        }
+
+        // --- FUNÇÕES DE LOGIN MANTIDAS ---
         function switchTab(tab) {
             document.getElementById('form-login').style.display = tab === 'login' ? 'block' : 'none';
             document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';

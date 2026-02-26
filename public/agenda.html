@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <title>Minha Agenda T-SYSTEM</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,10 +16,11 @@
     <script src="script.js"></script>
 
     <style>
-        /* PADRONIZAÇÃO GLOBAL */
+        /* PADRONIZAÇÃO GLOBAL COM NOVA FONTE */
         *:not(i) {
-            font-family: 'Outfit', sans-serif !important;
+            font-family: 'JetBrains Mono', monospace !important;
             text-transform: uppercase !important; 
+            box-sizing: border-box;
         }
 
         /* PROTEÇÃO DOS ÍCONES */
@@ -30,6 +35,7 @@
             background-color: #e2e8f0; 
             color: #1e293b; 
             font-size: 11px; 
+            margin: 0;
         }
         
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; }
@@ -169,7 +175,12 @@
         
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; gap: 6px; }
         .form-group label { font-size: 11px; font-weight: 800; color: #64748b; letter-spacing: 0.5px; }
-        .form-group input, .form-group select, .form-group textarea { padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; transition: 0.2s; font-family: 'Outfit', sans-serif; background: #f8fafc; font-weight: 600; }
+        
+        /* INPUTS DO MODAL COM NOVA FONTE */
+        .form-group input, .form-group select, .form-group textarea { 
+            padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; 
+            transition: 0.2s; font-family: 'JetBrains Mono', monospace !important; background: #f8fafc; font-weight: 600; 
+        }
         .form-group textarea { resize: vertical; min-height: 80px; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #8b5cf6; background: white; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1); }
         
@@ -209,7 +220,8 @@
         .btn-edit-modern { background: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 11px; }
         .btn-edit-modern:hover { background: #7c3aed; }
 
-        div:where(.swal2-container) { font-family: 'Outfit', sans-serif !important; text-transform: uppercase !important; }
+        /* SWEET ALERT */
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
     </style>
 </head>
 <body>
@@ -553,6 +565,9 @@
         function isSameDate(d1, d2) {
             return d1.getFullYear()===d2.getFullYear() && d1.getMonth()===d2.getMonth() && d1.getDate()===d2.getDate();
         }
+        
+        function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'login.html'; }
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.overlay').classList.toggle('active'); }
     </script>
 </body>
 </html>

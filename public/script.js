@@ -177,8 +177,7 @@ function gerarMenuLateral() {
             </div>
             <div class="submenu">
                 <a href="agenda.html" class="link-navegacao">Calendário</a>
-                <a href="projetos.html" class="link-navegacao">Projetos (Em teste)</a>
-                <a href="feed-pv.html" class="link-navegacao" style="color: #d8b4fe !important;">Meu Feed (Em teste)</a>
+               <a href="feed-pv.html" class="link-navegacao" style="color: #d8b4fe !important;">Meu Feed (Em teste)</a>
             </div>
         </div>
 
