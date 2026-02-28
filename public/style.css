@@ -104,10 +104,19 @@ body {
     list-style: none; padding: 15px; margin: 0; flex: 1; overflow-y: auto;
     display: flex; flex-direction: column; gap: 5px;
 }
-/* Scrollbar fina */
-.sidebar-menu::-webkit-scrollbar { width: 4px; }
-.sidebar-menu::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+/* --- SCROLLBAR MODERNA E DISCRETA (CHUMBO) --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        /* Cinza claro/médio transparente no estado normal */
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
+        /* Cor Chumbo/Slate Profissional ao passar o mouse */
+        ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.9); }
 
+        /* SCROLLBAR ESPECÍFICA PARA TABELAS E CONTAINERS CLAROS */
+        .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
+        .table-container::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.8); border-radius: 8px; margin: 0 10px; }
+        .table-container::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.6); border-radius: 8px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #475569; /* Cor Chumbo Sólida */ }
 /* ITEM DE MENU */
 .menu-item {
     display: flex; align-items: center; justify-content: space-between;
