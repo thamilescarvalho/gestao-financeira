@@ -692,6 +692,31 @@ app.post('/cofrinhos/:id/resgatar', async (req, res) => {
     } catch(e) { res.status(500).json({erro: "Erro ao resgatar"}); }
 });
 
+// ROTA PARA EDITAR UM COFRINHO
+app.put('/cofrinhos/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nome, meta, icone, cor } = req.body;
+
+        // Atualiza os dados do cofrinho no banco de dados
+        // (Ajuste "prisma.cofrinho" caso o nome da sua tabela no Prisma seja diferente)
+        const cofrinhoAtualizado = await prisma.cofrinho.update({
+            where: { id: String(id) },
+            data: {
+                nome,
+                meta: parseFloat(meta),
+                icone,
+                cor
+            }
+        });
+
+        res.status(200).json(cofrinhoAtualizado);
+    } catch (error) {
+        console.error("Erro ao atualizar cofrinho:", error);
+        res.status(500).json({ erro: "Erro ao atualizar o cofrinho." });
+    }
+});
+
 app.delete('/cofrinhos/:id', async (req, res) => {
     try { await prisma.cofrinho.delete({ where: { id: req.params.id } }); res.status(204).send(); } 
     catch(e) { res.status(500).send(); } 

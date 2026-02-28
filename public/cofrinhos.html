@@ -32,11 +32,11 @@
             background-size: 550px 550px; opacity: 0.4; z-index: -1; pointer-events: none;
         }
         
-        /* --- SCROLLBAR MODERNA --- */
+        /* --- SCROLLBAR MODERNA DISCRETA (CHUMBO) --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.5); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.9); }
 
         .modal::-webkit-scrollbar { width: 6px; }
         .modal::-webkit-scrollbar-track { background: #f8fafc; border-radius: 10px; }
@@ -145,12 +145,11 @@
         @media (max-width: 768px) {
             .content { padding: 20px 15px; }
             
-            /* Título Centralizado com Botão Lateral */
             .page-header { 
                 display: flex;
                 flex-direction: row; 
                 align-items: center; 
-                justify-content: flex-end; /* Empurra o botão pra direita */
+                justify-content: flex-end;
                 margin-bottom: 20px; 
                 min-height: 40px; 
             }
@@ -165,7 +164,6 @@
             
             .hide-on-mobile { display: none; }
             
-            /* Botão Flutuante (Circular) */
             .btn-new { 
                 width: 38px; height: 38px; 
                 border-radius: 50%; 
@@ -205,7 +203,10 @@
 
     <div class="modal-overlay" id="modalNovo">
         <div class="modal">
-            <h2 style="color:var(--purple-primary); font-weight:900; margin-top:0; font-size: 18px; margin-bottom: 20px;">CRIAR NOVA META</h2>
+            <h2 id="tituloModalNovo" style="color:var(--purple-primary); font-weight:900; margin-top:0; font-size: 18px; margin-bottom: 20px;">CRIAR NOVA META</h2>
+            
+            <input type="hidden" id="cofreId">
+            
             <label>NOME DO OBJETIVO</label>
             <input type="text" id="novoNome" placeholder="Ex: Viagem, Carro...">
             <label>VALOR DA META (R$)</label>
@@ -221,7 +222,7 @@
             </select>
             <div class="modal-footer">
                 <button class="btn-logout" onclick="document.getElementById('modalNovo').style.display='none'" style="color:#64748b; border:1px solid #cbd5e1; background:white; font-size: 11px;">CANCELAR</button>
-                <button class="btn-confirm" onclick="criarCofrinho()">CRIAR</button>
+                <button class="btn-confirm" onclick="salvarCofrinho()">SALVAR</button>
             </div>
         </div>
     </div>
@@ -248,6 +249,8 @@
     <script>
         const usuario = JSON.parse(localStorage.getItem('usuario_logado'));
         const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        let cofrinhosCache = []; // Variável para armazenar os cofrinhos carregados e usar na edição
 
         document.addEventListener('DOMContentLoaded', () => {
             if(!usuario) return window.location.href = 'login.html';
@@ -260,6 +263,7 @@
             try {
                 const res = await fetch(`/cofrinhos?usuarioId=${usuario.id}`);
                 const lista = await res.json();
+                cofrinhosCache = lista; // Guarda a lista
                 renderizar(lista);
             } catch(e) { console.error(e); }
         }
@@ -281,7 +285,8 @@
                         <div class="cofre-header">
                             <div class="cofre-icon">${c.icone}</div>
                             <div class="cofre-actions">
-                                <button class="btn-icon" onclick="excluir('${c.id}')"><i class="fas fa-trash"></i></button>
+                                <button class="btn-icon" onclick="abrirModalEditar('${c.id}')" title="Editar Meta"><i class="fas fa-pen"></i></button>
+                                <button class="btn-icon" onclick="excluir('${c.id}')" title="Excluir"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                         <div class="cofre-info">
@@ -311,7 +316,35 @@
             });
         }
 
-        async function criarCofrinho() {
+        // --- FUNÇÃO PARA ABRIR MODAL DE CRIAÇÃO ---
+        function abrirModalNovo() { 
+            document.getElementById('cofreId').value = ''; // Limpa o ID
+            document.getElementById('tituloModalNovo').innerText = 'CRIAR NOVA META';
+            document.getElementById('novoNome').value = '';
+            document.getElementById('novoMeta').value = '';
+            document.getElementById('novoIcone').value = '🐷';
+            document.getElementById('novoCor').value = 'purple';
+            document.getElementById('modalNovo').style.display='flex'; 
+        }
+
+        // --- NOVA FUNÇÃO PARA ABRIR MODAL DE EDIÇÃO ---
+        function abrirModalEditar(id) {
+            const cofre = cofrinhosCache.find(c => c.id === id);
+            if (!cofre) return;
+
+            document.getElementById('cofreId').value = cofre.id;
+            document.getElementById('tituloModalNovo').innerText = 'EDITAR META';
+            document.getElementById('novoNome').value = cofre.nome;
+            document.getElementById('novoMeta').value = cofre.meta;
+            document.getElementById('novoIcone').value = cofre.icone;
+            document.getElementById('novoCor').value = cofre.cor || 'purple';
+            
+            document.getElementById('modalNovo').style.display='flex';
+        }
+
+        // --- FUNÇÃO ÚNICA PARA SALVAR (CRIAÇÃO OU ATUALIZAÇÃO) ---
+        async function salvarCofrinho() {
+            const id = document.getElementById('cofreId').value;
             const nome = document.getElementById('novoNome').value;
             const meta = document.getElementById('novoMeta').value;
             const icone = document.getElementById('novoIcone').value || '🐷';
@@ -319,12 +352,29 @@
 
             if(!nome || !meta) return Swal.fire('Erro', 'Preencha nome e meta!', 'warning');
 
-            await fetch('/cofrinhos', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ nome, meta: parseFloat(meta), icone, cor, usuarioId: usuario.id })
-            });
-            document.getElementById('modalNovo').style.display='none';
-            carregarCofrinhos();
+            const payload = { nome, meta: parseFloat(meta), icone, cor, usuarioId: usuario.id };
+            
+            const url = id ? `/cofrinhos/${id}` : '/cofrinhos';
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, {
+                    method: method, 
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                
+                if (res.ok) {
+                    document.getElementById('modalNovo').style.display='none';
+                    Swal.fire({icon: 'success', title: 'Salvo com sucesso!', timer: 1500, showConfirmButton: false});
+                    carregarCofrinhos();
+                } else {
+                    Swal.fire('Erro', 'Houve um problema ao salvar.', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                Swal.fire('Erro', 'Falha na conexão.', 'error');
+            }
         }
 
         async function abrirMovimento(id, tipo, nome) {
@@ -367,8 +417,6 @@
                 Swal.fire('Erro', erro.erro || 'Falha', 'error');
             }
         }
-
-        function abrirModalNovo() { document.getElementById('modalNovo').style.display='flex'; }
         
         function excluir(id) {
             Swal.fire({ title: 'Excluir Meta?', text:'O dinheiro sumirá do controle!', icon:'warning', showCancelButton:true, confirmButtonColor:'#d33' }).then(async r => {
