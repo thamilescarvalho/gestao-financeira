@@ -46,9 +46,7 @@
         /* --- SCROLLBAR MODERNA E DISCRETA (CHUMBO) --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        /* Cinza claro/médio transparente no estado normal */
         ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
-        /* Cor Chumbo/Slate Profissional ao passar o mouse */
         ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.9); }
 
         .content { padding: 20px; width: 96%; max-width: 1800px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1; }
@@ -58,7 +56,6 @@
         .logo { font-size: 20px; font-weight: 800; color: white; }
         .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; }
         
-        /* AJUSTE MENU HAMBÚRGUER: COR BRANCA PARA CONTRASTE */
         .navbar-custom .menu-btn { color: white !important; background: transparent; border: none; font-size: 20px; cursor: pointer; padding: 5px; }
 
         /* HEADER ESTRUTURA */
@@ -104,7 +101,7 @@
         
         .chip-transf-mobile { background: #0f172a; color: white; border: none; }
 
-        /* --- TABELA E SCROLLBAR INTERNA (NOVIDADE) --- */
+        /* --- TABELA E SCROLLBAR INTERNA --- */
         .table-container { 
             background: rgba(255, 255, 255, 0.95); 
             border-radius: 16px; 
@@ -118,15 +115,13 @@
             max-height: 65vh; 
         }
 
-        /* SCROLLBAR ESPECÍFICA PARA TABELAS E CONTAINERS CLAROS */
         .table-container::-webkit-scrollbar { width: 6px; height: 6px; }
         .table-container::-webkit-scrollbar-track { background: rgba(241, 245, 249, 0.8); border-radius: 8px; margin: 0 10px; }
         .table-container::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.6); border-radius: 8px; }
-        .table-container::-webkit-scrollbar-thumb:hover { background: #475569; /* Cor Chumbo Sólida */ }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #475569; }
 
         .clean-table { width: 100%; border-collapse: collapse; min-width: 850px; }
         
-        /* Cabeçalho Fixo (Sticky) */
         .clean-table th { 
             text-align: left; 
             padding: 16px 20px; 
@@ -316,7 +311,6 @@
         document.addEventListener('DOMContentLoaded', () => { carregar(); carregarBancosParaFiltroEModal(); });
         function logout() { localStorage.removeItem('usuario_logado'); window.location.href = 'login.html'; }
 
-        // LÓGICA DO BOTTOM SHEET (MOBILE)
         function abrirBottomSheet(tipo) {
             const bs = document.getElementById('bsFiltro');
             const overlay = document.getElementById('bsOverlay');
@@ -412,7 +406,6 @@
             const bancoId = document.getElementById('filtroBanco').value;
 
             const filtrados = transacoesCache.filter(item => {
-                // SÓ MOSTRA PAGO OU RECEBIDO (MOVIMENTAÇÃO EFETIVADA)
                 if(!['PAGO', 'RECEBIDO'].includes(item.status)) return false; 
                 
                 if (abaAtual !== 'TODOS' && item.tipo !== abaAtual) return false;
@@ -443,7 +436,6 @@
             const tbody = document.getElementById('lista'); tbody.innerHTML = '';
             let total = 0;
             
-            // Reseta Checkboxes e Botão Massa
             document.getElementById('chkTodos').checked = false;
             atualizarBotaoMassa();
 
@@ -479,7 +471,6 @@
             document.getElementById('total-display').innerText = fmt.format(total);
         }
 
-        // --- FUNÇÃO DE ESTORNO INDIVIDUAL ---
         async function confirmarEstorno(id, nome, valor, tipo) {
             const msgTipo = tipo === 'RECEITA' ? 'RECEBIMENTO' : 'PAGAMENTO';
             const msgDestino = tipo === 'RECEITA' ? 'CONTAS A RECEBER' : 'CONTAS A PAGAR';
@@ -489,26 +480,29 @@
                 html: `Deseja desfazer o ${msgTipo} de <b>${nome}</b> no valor de <b>${fmt.format(valor)}</b>?<br><br>O registro voltará para status PENDENTE em ${msgDestino}.`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#0f172a', // Botão Escuro (Moderno)
+                confirmButtonColor: '#0f172a', 
                 cancelButtonColor: '#cbd5e1',
                 confirmButtonText: 'SIM, ESTORNAR',
                 cancelButtonText: 'CANCELAR'
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     try {
-                        // Rota PATCH para alterar apenas o status
                         const res = await fetch(`/transacoes/${id}/status`, {
                             method: 'PATCH',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: 'PENDENTE' }) // Volta para pendente
+                            body: JSON.stringify({ status: 'PENDENTE' }) 
                         });
                         
                         if (res.ok) {
-                            Toast.fire({ icon: 'success', title: 'MOVIMENTAÇÃO ESTORNADA!' });
-                            carregar(); // Recarrega a lista
+                            Swal.fire({ icon: 'success', title: 'MOVIMENTAÇÃO ESTORNADA!', timer: 2000, showConfirmButton: false });
+                            carregar(); 
                         } else {
-                            const erro = await res.json();
-                            Swal.fire('ERRO', erro.erro || 'Falha ao estornar.', 'error');
+                            let msgErro = 'Falha ao estornar.';
+                            try {
+                                const erro = await res.json();
+                                if (erro.erro) msgErro = erro.erro;
+                            } catch(e) {}
+                            Swal.fire('ERRO', msgErro, 'error');
                         }
                     } catch(e) {
                         console.error(e);
@@ -532,24 +526,25 @@
                     carregar(); 
                     Swal.fire({ icon: 'success', title: 'Transferência Concluída!', timer: 2000, showConfirmButton: false }); 
                 } else {
-                    const erro = await res.json();
-                    Swal.fire('ERRO', erro.erro || 'Erro ao transferir', 'error');
+                    let msgErro = 'Erro ao transferir';
+                    try {
+                        const erro = await res.json();
+                        if (erro.erro) msgErro = erro.erro;
+                    } catch(e) {}
+                    Swal.fire('ERRO', msgErro, 'error');
                 }
             } catch(e) { console.error(e); }
         }
 
-        // LÓGICA DE SELEÇÃO EM MASSA
         function toggleTodos(src) { document.querySelectorAll('.chk-item').forEach(c => c.checked = src.checked); atualizarBotaoMassa(); }
         
         function atualizarBotaoMassa() { 
             const n = document.querySelectorAll('.chk-item:checked').length; 
             const container = document.getElementById('btnMassUndoContainer'); 
             document.getElementById('countSelected').innerText = n;
-            // Mostra o container (que tem o botão escuro) apenas se houver itens selecionados
             if(container) container.style.display = n > 0 ? 'block' : 'none'; 
         }
         
-        // --- FUNÇÃO ESTORNAR EM MASSA ---
         async function estornarMassa() { 
             const checkeds = document.querySelectorAll('.chk-item:checked'); 
             if(!checkeds.length) return; 
@@ -559,23 +554,26 @@
                 text: "Os registros selecionados voltarão para status PENDENTE nas telas de Contas.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#0f172a', // Botão Escuro
+                confirmButtonColor: '#0f172a',
                 cancelButtonColor: '#cbd5e1',
                 confirmButtonText: 'SIM, ESTORNAR TODOS',
                 cancelButtonText: 'CANCELAR'
             }).then(async (result) => {
                 if(result.isConfirmed) {
                     try {
-                        // Processa os estornos (pode ser otimizado no backend para uma rota /bulk-status)
+                        let sucessos = 0;
                         for(const k of checkeds) {
-                            await fetch(`/transacoes/${k.value}/status`, {
+                            const res = await fetch(`/transacoes/${k.value}/status`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ status: 'PENDENTE' })
                             });
+                            if(res.ok) sucessos++;
                         }
                         carregar(); 
-                        Toast.fire({ icon: 'success', title: `${checkeds.length} ITENS ESTORNADOS!` });
+                        if (sucessos > 0) {
+                            Swal.fire({ icon: 'success', title: `${sucessos} ITENS ESTORNADOS!`, timer: 1500, showConfirmButton: false });
+                        }
                     } catch(e) {
                         console.error(e);
                         Swal.fire('ERRO', 'Falha ao processar estorno em massa.', 'error');

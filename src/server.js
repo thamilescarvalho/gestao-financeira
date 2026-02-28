@@ -248,6 +248,24 @@ app.put('/transacoes/:id/baixar', async (req, res) => {
         res.status(500).json({ erro: "Erro na baixa" });
     }
 });
+// ROTA PARA ESTORNAR/ALTERAR STATUS DA TRANSAÇÃO
+app.patch('/transacoes/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        // Atualiza apenas o status no banco de dados
+        const transacaoAtualizada = await prisma.transacao.update({
+            where: { id: String(id) },
+            data: { status }
+        });
+
+        res.status(200).json(transacaoAtualizada);
+    } catch (error) {
+        console.error("Erro ao atualizar status da transação:", error);
+        res.status(500).json({ erro: "Erro ao estornar a transação." });
+    }
+});
 
 app.post('/importar/ler-csv', async (req, res) => { try { const { conteudo, usuarioId } = req.body; if (!conteudo) return res.status(400).json({ erro: "Vazio" }); const linhas = conteudo.split(/\r?\n/); const lista = []; for (let i = 1; i < linhas.length; i++) { const cols = linhas[i].split(';'); if (cols.length < 5) continue; const fornecedor = cols[0]; const dataRaw = cols[1]; const total = parseInt(cols[3]) || 1; const atual = parseInt(cols[4]) || 1; const valor = parseFloat(cols[5].replace('R$', '').replace(/\./g, '').replace(',', '.').trim()); if(!fornecedor || !dataRaw) continue; const [d, m, y] = dataRaw.split('/'); const dataBase = new Date(y, m-1, d, 12, 0, 0); const formaDetectada = detectarFormaPagamento(fornecedor); for (let p = atual; p <= total; p++) { const dt = new Date(dataBase); dt.setMonth(dataBase.getMonth() + (p - atual)); const dataIso = dt.toISOString().split('T')[0]; let desc = fornecedor; let info = "1/1"; if(total > 1) { desc = `${fornecedor} (${p}/${total})`; info = `${p}/${total}`; } lista.push({ data: dataIso, descricao: desc, fornecedor, valor, tipo: 'DESPESA', parcelas: total, parcelaInfo: info, formaPagamento: formaDetectada, id_transacao: `csv-${i}-${p}` }); } } const verificados = await checarDuplicidade(usuarioId, lista); res.json(verificados); } catch (e) { res.status(500).json({ erro: "Erro CSV" }); } });
 app.post('/conciliacao/ler-ofx', upload.single('arquivo'), async (req, res) => { try { if (!req.file) return res.status(400).json({ erro: "Nenhum arquivo enviado." }); const usuarioId = req.body.usuarioId; const fileContent = req.file.buffer.toString('utf8'); let transacoesLimpas = []; if (fileContent.trim().startsWith('{')) { try { const json = JSON.parse(fileContent); if (json.data && Array.isArray(json.data)) { transacoesLimpas = json.data.map(t => { let forma = "Outros"; const tipoBanco = (t.type || "").toLowerCase(); if (tipoBanco.includes('pix')) forma = "Pix"; else if (tipoBanco.includes('cartão') || tipoBanco.includes('credit')) forma = "Cartão"; else if (tipoBanco.includes('boleto')) forma = "Boleto"; if (forma === "Outros") forma = detectarFormaPagamento(t.title); return { data: t.dateTime.split('T')[0], descricao: t.title, valor: Math.abs(t.rawAmount/100), tipo: t.direction === 'in' ? 'RECEITA' : 'DESPESA', formaPagamento: forma }; }); } } catch(e) {} } else { const data = ofx.parse(fileContent); let listaBruta = data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST?.STMTTRN || data.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST?.STMTTRN; if (listaBruta) { const arr = Array.isArray(listaBruta) ? listaBruta : [listaBruta]; transacoesLimpas = arr.map(t => { const rawDate = (t.DTPOSTED || "").substring(0, 8); const dt = rawDate.length === 8 ? `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}` : new Date().toISOString().split('T')[0]; const val = parseFloat(String(t.TRNAMT).replace(',', '.')); const nome = t.MEMO || "Sem descrição"; const tipoOfx = (t.TRNTYPE || "").toLowerCase(); let forma = "Outros"; if (tipoOfx === 'debit' || tipoOfx === 'pos') forma = "Cartão"; else forma = detectarFormaPagamento(nome); return { data: dt, descricao: nome, valor: Math.abs(val), tipo: val < 0 ? 'DESPESA' : 'RECEITA', formaPagamento: forma }; }); } } if (transacoesLimpas.length === 0) return res.status(400).json({ erro: "Formato desconhecido." }); const transacoesVerificadas = await checarDuplicidade(usuarioId, transacoesLimpas); let totalEntradas = 0, totalSaidas = 0; transacoesVerificadas.forEach(t => { if (t.tipo === 'RECEITA') totalEntradas += t.valor; else totalSaidas += t.valor; }); const resumo = { totalEntradas, totalSaidas, saldoPeriodo: totalEntradas - totalSaidas, totalItens: transacoesVerificadas.length }; res.json({ transacoes: transacoesVerificadas, resumo }); } catch (e) { console.error(e); res.status(500).json({ erro: "Erro ao ler arquivo." }); } });
