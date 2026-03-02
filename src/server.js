@@ -66,10 +66,9 @@ app.post('/transacoes/transferencia', async (req, res) => {
     } catch (e) { res.status(500).json({ erro: "Erro ao processar transferência." }); }
 });
 
-// --- ROTA POST TRANSACOES (CORRIGIDA PARA SALVAR CARTÃO) ---
+// --- ROTA POST TRANSACOES ---
 app.post('/transacoes', async (req, res) => {
     try {
-        // ADICIONADO: cartaoId na extração do body
         const { descricao, valor, tipo, categoria, status, data, dataPagamento, bancoId, usuarioId, fornecedor, formaPagamento, parcelas, itensParcelados, parcelaInfo, cartaoId } = req.body;
         
         if (!usuarioId) return res.status(400).json({ erro: "ID obrigatório" });
@@ -93,7 +92,6 @@ app.post('/transacoes', async (req, res) => {
                         parcelas: parseInt(parcelas) || 1,
                         banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
                         usuario: { connect: { id: usuarioId } },
-                        // ADICIONADO: Conexão com Cartão
                         cartao: (cartaoId) ? { connect: { id: cartaoId } } : undefined 
                     }
                 }));
@@ -118,7 +116,6 @@ app.post('/transacoes', async (req, res) => {
                     parcelaInfo: parcelaInfo || "1/1", 
                     banco: (bancoId) ? { connect: { id: bancoId } } : undefined,
                     usuario: { connect: { id: usuarioId } },
-                    // ADICIONADO: Conexão com Cartão
                     cartao: (cartaoId) ? { connect: { id: cartaoId } } : undefined
                 }
             }));
@@ -145,7 +142,6 @@ app.put('/transacoes/:id', async (req, res) => {
     try {
         let dados = {};
         
-        // 1. ESTORNO: Vem do botão "Estornar" (tem status PENDENTE, mas não envia fornecedor/valor)
         if (body.status === 'PENDENTE' && body.fornecedor === undefined && body.valor === undefined) {
             const tr = await prisma.transacao.findUnique({ where: { id } });
             dados = { 
@@ -156,24 +152,20 @@ app.put('/transacoes/:id', async (req, res) => {
             };
             if (tr.bancoId) dados.banco = { disconnect: true };
         } 
-        // 2. EDIÇÃO COMPLETA: Vem do modal de editar conta (Pagar/Receber/Movimento)
         else {
             const { itensParcelados, usuarioId, id: _id, cartaoId, ...resto } = body; 
             dados = { ...resto };
             
-            // Se vier data de vencimento, formata corretamente
             if (body.dataVencimento) {
                 const dt = new Date(body.dataVencimento.includes('T') ? body.dataVencimento : `${body.dataVencimento}T12:00:00`);
                 dados.dataVencimento = dt;
                 dados.data = dt; 
             }
             
-            // Se vier valor
             if (body.valor) {
                 dados.valor = parseFloat(body.valor);
             }
             
-            // Trata vínculo de cartão (apenas se vier a propriedade cartaoId)
             if (cartaoId !== undefined) {
                 if (cartaoId) {
                     dados.cartao = { connect: { id: cartaoId } };
@@ -214,9 +206,6 @@ app.put('/transacoes/:id/baixar', async (req, res) => {
              valorJuros = parseFloat(valorPago) - tr.valor;
         }
 
-        // LÓGICA DE CARTÃO DE CRÉDITO
-        // Se for Cartão, não precisa de bancoId (o dinheiro não sai da conta agora)
-        // Se NÃO for cartão, precisa de bancoId (dinheiro sai da conta)
         let dadosAtualizacao = {
             status,
             dataPagamento: dt,
@@ -224,16 +213,12 @@ app.put('/transacoes/:id/baixar', async (req, res) => {
             valorOriginal: tr.valorOriginal || tr.valor,
             juros: valorJuros
         };
-        // Atualiza a descrição se vier
         if (descricao !== undefined) {
             dadosAtualizacao.descricao = descricao;
         }
 
         if (tr.formaPagamento === 'Cartão' || tr.cartaoId) {
-            // É compra no cartão: Mantém o vínculo com o cartão e NÃO vincula a banco
-            // O item fica como 'PAGO' na visão da loja, mas pendente na fatura
         } else {
-            // É pagamento normal (Pix, Dinheiro, etc): Sai do banco
             dadosAtualizacao.bancoId = bancoId;
         }
 
@@ -248,13 +233,13 @@ app.put('/transacoes/:id/baixar', async (req, res) => {
         res.status(500).json({ erro: "Erro na baixa" });
     }
 });
+
 // ROTA PARA ESTORNAR/ALTERAR STATUS DA TRANSAÇÃO
 app.patch('/transacoes/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
 
-        // Atualiza apenas o status no banco de dados
         const transacaoAtualizada = await prisma.transacao.update({
             where: { id: String(id) },
             data: { status }
@@ -270,7 +255,6 @@ app.patch('/transacoes/:id/status', async (req, res) => {
 app.post('/importar/ler-csv', async (req, res) => { try { const { conteudo, usuarioId } = req.body; if (!conteudo) return res.status(400).json({ erro: "Vazio" }); const linhas = conteudo.split(/\r?\n/); const lista = []; for (let i = 1; i < linhas.length; i++) { const cols = linhas[i].split(';'); if (cols.length < 5) continue; const fornecedor = cols[0]; const dataRaw = cols[1]; const total = parseInt(cols[3]) || 1; const atual = parseInt(cols[4]) || 1; const valor = parseFloat(cols[5].replace('R$', '').replace(/\./g, '').replace(',', '.').trim()); if(!fornecedor || !dataRaw) continue; const [d, m, y] = dataRaw.split('/'); const dataBase = new Date(y, m-1, d, 12, 0, 0); const formaDetectada = detectarFormaPagamento(fornecedor); for (let p = atual; p <= total; p++) { const dt = new Date(dataBase); dt.setMonth(dataBase.getMonth() + (p - atual)); const dataIso = dt.toISOString().split('T')[0]; let desc = fornecedor; let info = "1/1"; if(total > 1) { desc = `${fornecedor} (${p}/${total})`; info = `${p}/${total}`; } lista.push({ data: dataIso, descricao: desc, fornecedor, valor, tipo: 'DESPESA', parcelas: total, parcelaInfo: info, formaPagamento: formaDetectada, id_transacao: `csv-${i}-${p}` }); } } const verificados = await checarDuplicidade(usuarioId, lista); res.json(verificados); } catch (e) { res.status(500).json({ erro: "Erro CSV" }); } });
 app.post('/conciliacao/ler-ofx', upload.single('arquivo'), async (req, res) => { try { if (!req.file) return res.status(400).json({ erro: "Nenhum arquivo enviado." }); const usuarioId = req.body.usuarioId; const fileContent = req.file.buffer.toString('utf8'); let transacoesLimpas = []; if (fileContent.trim().startsWith('{')) { try { const json = JSON.parse(fileContent); if (json.data && Array.isArray(json.data)) { transacoesLimpas = json.data.map(t => { let forma = "Outros"; const tipoBanco = (t.type || "").toLowerCase(); if (tipoBanco.includes('pix')) forma = "Pix"; else if (tipoBanco.includes('cartão') || tipoBanco.includes('credit')) forma = "Cartão"; else if (tipoBanco.includes('boleto')) forma = "Boleto"; if (forma === "Outros") forma = detectarFormaPagamento(t.title); return { data: t.dateTime.split('T')[0], descricao: t.title, valor: Math.abs(t.rawAmount/100), tipo: t.direction === 'in' ? 'RECEITA' : 'DESPESA', formaPagamento: forma }; }); } } catch(e) {} } else { const data = ofx.parse(fileContent); let listaBruta = data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST?.STMTTRN || data.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST?.STMTTRN; if (listaBruta) { const arr = Array.isArray(listaBruta) ? listaBruta : [listaBruta]; transacoesLimpas = arr.map(t => { const rawDate = (t.DTPOSTED || "").substring(0, 8); const dt = rawDate.length === 8 ? `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}` : new Date().toISOString().split('T')[0]; const val = parseFloat(String(t.TRNAMT).replace(',', '.')); const nome = t.MEMO || "Sem descrição"; const tipoOfx = (t.TRNTYPE || "").toLowerCase(); let forma = "Outros"; if (tipoOfx === 'debit' || tipoOfx === 'pos') forma = "Cartão"; else forma = detectarFormaPagamento(nome); return { data: dt, descricao: nome, valor: Math.abs(val), tipo: val < 0 ? 'DESPESA' : 'RECEITA', formaPagamento: forma }; }); } } if (transacoesLimpas.length === 0) return res.status(400).json({ erro: "Formato desconhecido." }); const transacoesVerificadas = await checarDuplicidade(usuarioId, transacoesLimpas); let totalEntradas = 0, totalSaidas = 0; transacoesVerificadas.forEach(t => { if (t.tipo === 'RECEITA') totalEntradas += t.valor; else totalSaidas += t.valor; }); const resumo = { totalEntradas, totalSaidas, saldoPeriodo: totalEntradas - totalSaidas, totalItens: transacoesVerificadas.length }; res.json({ transacoes: transacoesVerificadas, resumo }); } catch (e) { console.error(e); res.status(500).json({ erro: "Erro ao ler arquivo." }); } });
 
-// --- ROTA GET USUARIOS (ATUALIZADA) ---
 app.get('/usuarios', async (req, res) => { 
     try { 
         const u = await prisma.usuario.findMany({ 
@@ -292,7 +276,6 @@ app.get('/usuarios', async (req, res) => {
 app.patch('/usuarios/:id/role', async (req, res) => { try { const u = await prisma.usuario.update({ where: { id: req.params.id }, data: { role: req.body.role } }); res.json(u); } catch (e) { res.status(500).json({ erro: "Erro role" }); } });
 app.delete('/usuarios/:id', async (req, res) => { try { await prisma.usuario.delete({ where: { id: req.params.id } }); res.status(204).send(); } catch (e) { res.status(500).json({ erro: "Erro excluir" }); } });
 
-// --- ROTA DE ATUALIZAÇÃO DO USUÁRIO ---
 app.put('/usuarios/:id', async (req, res) => {
     const { id } = req.params;
     const { nome, email, role, novaSenha, avatar, capa, bio } = req.body; 
@@ -425,10 +408,9 @@ app.put('/cartoes/:id', async (req, res) => {
     } catch(e) { res.status(500).json({erro: "Erro ao atualizar"}); }
 });
 
-// Excluir Cartão (e desvincular transações, mas não apagá-las)
+// Excluir Cartão
 app.delete('/cartoes/:id', async (req, res) => {
     try {
-        // Opcional: Primeiro desvincula as transações desse cartão para não dar erro
         await prisma.transacao.updateMany({
             where: { cartaoId: req.params.id },
             data: { cartaoId: null }
@@ -442,21 +424,14 @@ app.delete('/cartoes/:id', async (req, res) => {
 // --- INTELIGÊNCIA DA FATURA ---
 app.get('/cartoes/:id/fatura', async (req, res) => {
     const { id } = req.params;
-    const { mes, ano, diaFechamento } = req.query; // Mês e Ano de VENCIMENTO da fatura
+    const { mes, ano, diaFechamento } = req.query; 
 
     try {
         const m = parseInt(mes);
         const a = parseInt(ano);
         const diaFecha = parseInt(diaFechamento);
-
-        // Lógica de Datas:
-        // Se a fatura vence em Março (03), e fecha dia 10.
-        // O período de compra é: de 11 de Fevereiro até 10 de Março.
         
-        // Data Final do ciclo (Dia do fechamento no mês de referência)
         const dataFimCiclo = new Date(a, m - 1, diaFecha, 23, 59, 59);
-        
-        // Data Inicial do ciclo (Dia seguinte ao fechamento do mês anterior)
         const dataInicioCiclo = new Date(a, m - 2, diaFecha + 1, 0, 0, 0);
 
         const itens = await prisma.transacao.findMany({
@@ -466,14 +441,13 @@ app.get('/cartoes/:id/fatura', async (req, res) => {
                     gte: dataInicioCiclo,
                     lte: dataFimCiclo
                 },
-                tipo: 'DESPESA' // Apenas gastos entram na fatura
+                tipo: 'DESPESA' 
             },
             orderBy: { data: 'desc' }
         });
 
         const total = itens.reduce((acc, t) => acc + parseFloat(t.valor), 0);
         
-        // Verifica se a fatura já está paga (se todos os itens estão PAGOS)
         const pendentes = itens.filter(t => t.status === 'PENDENTE');
         const statusFatura = (itens.length > 0 && pendentes.length === 0) ? 'PAGA' : 'ABERTA';
 
@@ -490,7 +464,7 @@ app.get('/cartoes/:id/fatura', async (req, res) => {
     }
 });
 
-// --- PAGAR FATURA (LIBERA LIMITE) ---
+// --- PAGAR FATURA ---
 app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
     const { idsTransacoes, valorTotal, bancoPagamentoId, dataPagamento, nomeCartao, usuarioId } = req.body;
 
@@ -498,13 +472,11 @@ app.post('/cartoes/:id/pagar-fatura', async (req, res) => {
         const dt = new Date(dataPagamento + "T12:00:00");
 
         await prisma.$transaction([
-            // 1. Muda o status dos itens para 'FATURADO' (Isso libera o limite no cálculo do front)
             prisma.transacao.updateMany({
                 where: { id: { in: idsTransacoes } },
                 data: { status: 'FATURADO' } 
             }),
 
-            // 2. Cria a saída do dinheiro do banco
             prisma.transacao.create({
                 data: {
                     descricao: `Pagamento Fatura - ${nomeCartao}`,
@@ -634,32 +606,33 @@ app.post('/cofrinhos', async (req, res) => {
         });
         res.json(novo);
     } catch(e) { 
-        console.error(e); // <--- Adicione isso para ver o erro no terminal
+        console.error(e); 
         res.status(500).json({erro: "Erro ao criar"}); 
     }
 });
 
 // GUARDAR DINHEIRO (Tira do Banco -> Põe no Cofrinho)
 app.post('/cofrinhos/:id/depositar', async (req, res) => {
-    const { id } = req.params; // ID do Cofrinho
+    const { id } = req.params; 
     const { bancoId, valor, usuarioId } = req.body;
     const val = parseFloat(valor);
 
     try {
+        const cofre = await prisma.cofrinho.findUnique({ where: { id } });
+        if(!cofre) return res.status(404).json({erro: "Cofrinho não encontrado"});
+
         await prisma.$transaction([
-            // 1. Aumenta saldo do Cofrinho
             prisma.cofrinho.update({
                 where: { id },
                 data: { saldo: { increment: val } }
             }),
-            // 2. Tira dinheiro do Banco (Cria uma transação de SAÍDA)
             prisma.transacao.create({
                 data: {
-                    descricao: `Guardado no Cofrinho`,
-                    fornecedor: 'Minha Poupança',
+                    descricao: `GUARDADO NO COFRINHO: ${cofre.nome.toUpperCase()}`,
+                    fornecedor: 'COFRINHO',
                     valor: val,
                     tipo: 'DESPESA',
-                    categoria: 'Investimento',
+                    categoria: 'COFRINHO', // Usado para filtro no extrato
                     status: 'PAGO',
                     formaPagamento: 'Transferência',
                     data: new Date(), dataPagamento: new Date(), dataVencimento: new Date(),
@@ -673,51 +646,112 @@ app.post('/cofrinhos/:id/depositar', async (req, res) => {
     } catch(e) { console.error(e); res.status(500).json({erro: "Erro ao depositar"}); }
 });
 
-// RESGATAR DINHEIRO (Tira do Cofrinho -> Devolve pro Banco)
+// --- RESGATAR DINHEIRO COM RENDIMENTOS ---
 app.post('/cofrinhos/:id/resgatar', async (req, res) => {
-    const { id } = req.params;
-    const { bancoId, valor, usuarioId } = req.body;
-    const val = parseFloat(valor);
-
     try {
-        const cofre = await prisma.cofrinho.findUnique({ where: { id } });
-        if(cofre.saldo < val) return res.status(400).json({erro: "Saldo insuficiente no cofrinho"});
+        const { id } = req.params;
+        const { bancoId, valor, rendimento, usuarioId } = req.body;
 
-        await prisma.$transaction([
-            // 1. Diminui saldo do Cofrinho
-            prisma.cofrinho.update({
-                where: { id },
-                data: { saldo: { decrement: val } }
-            }),
-            // 2. Coloca dinheiro no Banco (Cria uma transação de ENTRADA)
-            prisma.transacao.create({
-                data: {
-                    descricao: `Resgate do Cofrinho: ${cofre.nome}`,
-                    fornecedor: 'Resgate',
-                    valor: val,
-                    tipo: 'RECEITA',
-                    categoria: 'Resgate',
-                    status: 'RECEBIDO',
-                    formaPagamento: 'Transferência',
-                    data: new Date(), dataPagamento: new Date(), dataVencimento: new Date(),
-                    banco: { connect: { id: bancoId } },
-                    usuario: { connect: { id: usuarioId } },
-                    parcelas: 1, parcelaInfo: '1/1'
-                }
-            })
-        ]);
-        res.json({ ok: true });
-    } catch(e) { res.status(500).json({erro: "Erro ao resgatar"}); }
+        const cofre = await prisma.cofrinho.findUnique({ where: { id: String(id) } });
+        if (!cofre) return res.status(404).json({ erro: 'Cofrinho não encontrado' });
+
+        const valorPrincipal = parseFloat(valor) || 0;
+        const valorRendimento = parseFloat(rendimento) || 0;
+
+        if (valorPrincipal > 0 && cofre.saldo < valorPrincipal) {
+            return res.status(400).json({ erro: 'Saldo insuficiente no cofrinho.' });
+        }
+
+        const transacoesParaCriar = [];
+
+        if (valorPrincipal > 0) {
+            transacoesParaCriar.push(
+                prisma.cofrinho.update({
+                    where: { id: String(id) },
+                    data: { saldo: cofre.saldo - valorPrincipal }
+                })
+            );
+
+            transacoesParaCriar.push(
+                prisma.transacao.create({
+                    data: {
+                        descricao: `RESGATE DO COFRINHO: ${cofre.nome.toUpperCase()}`,
+                        fornecedor: 'COFRINHO',
+                        valor: valorPrincipal,
+                        tipo: 'RECEITA',
+                        status: 'RECEBIDO', 
+                        formaPagamento: 'TRANSFERÊNCIA',
+                        data: new Date(), dataPagamento: new Date(),
+                        bancoId: String(bancoId),
+                        usuarioId: String(usuarioId),
+                        categoria: 'COFRINHO'
+                    }
+                })
+            );
+        }
+
+        if (valorRendimento > 0) {
+            transacoesParaCriar.push(
+                prisma.transacao.create({
+                    data: {
+                        descricao: `RENDIMENTO DO COFRINHO: ${cofre.nome.toUpperCase()}`,
+                        fornecedor: 'RENDIMENTO',
+                        valor: valorRendimento,
+                        tipo: 'RECEITA',
+                        status: 'RECEBIDO',
+                        formaPagamento: 'TRANSFERÊNCIA',
+                        data: new Date(), dataPagamento: new Date(),
+                        bancoId: String(bancoId),
+                        usuarioId: String(usuarioId),
+                        categoria: 'RENDIMENTO'
+                    }
+                })
+            );
+        }
+
+        await prisma.$transaction(transacoesParaCriar);
+        res.status(200).json({ mensagem: 'Resgate realizado com sucesso!' });
+    } catch (error) {
+        console.error("Erro ao resgatar:", error);
+        res.status(500).json({ erro: 'Erro interno ao realizar resgate.' });
+    }
 });
 
-// ROTA PARA EDITAR UM COFRINHO
+// --- ROTA DE DESFAZER MOVIMENTAÇÃO ---
+app.delete('/cofrinhos/:id/movimento/:transacaoId', async (req, res) => {
+    const { id, transacaoId } = req.params;
+    try {
+        const tr = await prisma.transacao.findUnique({ where: { id: transacaoId } });
+        const cofre = await prisma.cofrinho.findUnique({ where: { id } });
+        
+        if(tr && cofre) {
+            const desc = tr.descricao.toUpperCase();
+            
+            // Se foi Guardar (Saiu do banco, entrou no cofre) -> Tem que devolver do Cofre
+            if(tr.tipo === 'DESPESA' && desc.includes('GUARDADO')) {
+                await prisma.cofrinho.update({ where: { id }, data: { saldo: cofre.saldo - tr.valor } });
+            }
+            // Se foi Resgatar Principal (Entrou no banco, saiu do cofre) -> Tem que devolver pro Cofre
+            else if(tr.tipo === 'RECEITA' && desc.includes('RESGATE')) {
+                await prisma.cofrinho.update({ where: { id }, data: { saldo: cofre.saldo + tr.valor } });
+            }
+            // Se for rendimento, é só apagar do banco, não mexe no cofre.
+            
+            // Apaga a transação
+            await prisma.transacao.delete({ where: { id: transacaoId } });
+        }
+        res.status(204).send();
+    } catch(e) {
+        console.error(e);
+        res.status(500).json({erro: "Erro ao desfazer"});
+    }
+});
+
 app.put('/cofrinhos/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { nome, meta, icone, cor } = req.body;
 
-        // Atualiza os dados do cofrinho no banco de dados
-        // (Ajuste "prisma.cofrinho" caso o nome da sua tabela no Prisma seja diferente)
         const cofrinhoAtualizado = await prisma.cofrinho.update({
             where: { id: String(id) },
             data: {
