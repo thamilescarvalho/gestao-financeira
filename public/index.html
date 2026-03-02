@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Painel T-SYSTEM</title>
+    <title>T-SYSTEM - PAINEL</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,16 +18,14 @@
     <style>
         /* TEMA GALAXY LILÁS SUAVE */
         :root {
-            --panel-dark: rgba(45, 40, 70, 0.9);
+            --panel-dark: rgba(30, 27, 46, 0.9);
             --purple-primary: #a855f7;
             --purple-secondary: #c084fc;
             --neon-glow: 0 0 20px rgba(168, 85, 247, 0.3);
             
-            /* CORES PARA O FUNDO ROXO */
             --text-white: #ffffff;
             --text-light-purple: #e9d5ff;
             
-            /* CORES INTERNAS DOS CARDS (AGORA BRANCOS) */
             --card-bg-white: rgba(255, 255, 255, 0.95); 
             --text-card-main: #1e293b; 
             --text-card-sub: #64748b; 
@@ -38,36 +36,46 @@
         *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
+        /* NOVIDADE: FUNDO UNIVERSO ESTÁTICO (IMAGEM) */
         body { 
-            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #60a5fa 100%);
-            color: var(--text-white); font-size: 11px; min-height: 100vh; position: relative; margin: 0; padding: 0;
+            margin: 0; padding: 0; min-height: 100vh; position: relative;
+            background-color: #0f0c29; /* Cor de backup escura */
+            background-image: url('https://cdn.pixabay.com/photo/2016/10/20/18/35/earth-1756274_1280.jpg'); /* Imagem do Universo 3D */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text-white); font-size: 11px;
         }
         
-        /* Poeira Estelar */
+        /* Camada para escurecer a imagem e garantir leitura dos textos brancos */
         body::before {
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.4) 2px, transparent 6px),
-                radial-gradient(white, rgba(255,255,255,.3) 1px, transparent 4px);
-            background-size: 450px 450px, 250px 250px;
-            background-position: 0 0, 50px 50px;
-            opacity: 0.3; z-index: -1; pointer-events: none;
+            background: linear-gradient(135deg, rgba(15, 12, 41, 0.6) 0%, rgba(48, 43, 99, 0.8) 50%, rgba(36, 36, 62, 0.7) 100%);
+            z-index: -1; pointer-events: none;
         }
 
-        /* --- SCROLLBAR MODERNA --- */
+        /* --- SCROLLBAR MODERNA DISCRETA (CHUMBO) --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.5); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.9); }
 
         /* NAVBAR */
         .navbar-custom { 
             background: var(--panel-dark); backdrop-filter: blur(12px);
             padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); 
         }
         .navbar-custom .menu-btn { color: var(--text-white) !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: var(--text-white); text-shadow: 0 0 15px rgba(168, 85, 247, 0.8); letter-spacing: 1px; }
+        
+        /* NOVO DESIGN DO LOGO COM A BARRA VERDE LIMÃO */
+        .navbar-custom .logo { 
+            font-size: 20px; font-weight: 800; color: var(--text-white); 
+            text-shadow: var(--neon-glow); letter-spacing: 1px; 
+            display: flex; align-items: center;
+        }
+        .neon-slash-logo { color: #ccff00; text-shadow: 0 0 10px rgba(204, 255, 0, 0.8); }
         
         /* BOTÃO SAIR */
         .btn-logout { 
@@ -84,40 +92,21 @@
         
         .welcome-title { 
             font-size: 32px; font-weight: 800; color: var(--text-white); margin: 0; 
-            letter-spacing: -0.5px; text-shadow: 0 0 15px rgba(255,255,255,0.3);
-            /* Animação */
-            display: inline-block;
-            overflow: hidden; 
-            white-space: nowrap; 
-            border-right: 4px solid transparent; /* O cursor inicia oculto (transparente) */
-            width: 0; 
+            letter-spacing: -0.5px; text-shadow: 0 2px 15px rgba(0,0,0,0.5);
+            display: inline-block; overflow: hidden; white-space: nowrap; 
+            border-right: 4px solid transparent; width: 0; 
         }
-        
         /* O span do ponto de exclamação (verde limão neon) */
-        .welcome-title span {
-            color: #ccff00; 
-            text-shadow: 0 0 15px rgba(204, 255, 0, 0.8);
-        }
+        .welcome-title span { color: #ccff00; text-shadow: 0 0 15px rgba(204, 255, 0, 0.8); }
         
-        /* A classe de animação com limite de tempo no cursor */
         .typewriter-effect {
-            /* Digita em 1.5s, o cursor pisca 5 vezes (2.5s no total) e depois finaliza transparente */
-            animation: 
-                typing 1.5s steps(40, end) forwards, 
-                blink-caret 0.5s step-end 5;
+            animation: typing 1.5s steps(40, end) forwards, blink-caret 0.5s step-end 5;
         }
 
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% } 
-        }
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--text-white); } }
 
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: var(--text-white); }
-        }
-
-        .welcome-date { color: var(--text-light-purple); font-size: 13px; font-weight: 700; letter-spacing: 1px; opacity: 0.9; }
+        .welcome-date { color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 700; letter-spacing: 1px; }
 
         /* GRID */
         .feed-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 30px; }
@@ -128,22 +117,19 @@
         .section-title { 
             font-size: 12px; font-weight: 800; color: var(--text-white); 
             letter-spacing: 1px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; 
-            text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
         }
 
-        /* CARDS */
+        /* CARDS (Translúcidos no Fundo Estelar) */
         .fin-card {
-            background: var(--card-bg-white);
-            backdrop-filter: blur(10px);
-            border: 1px solid white;
-            border-radius: 16px;
-            padding: 20px; 
-            margin-bottom: 0; 
-            transition: 0.2s;
-            position: relative; overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 16px; padding: 20px; margin-bottom: 0; 
+            transition: 0.2s; position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        .fin-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.2); background: #ffffff; }
+        .fin-card:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,0,0,0.4); background: #ffffff; }
 
         .alert-urgent { border-left: 5px solid #ef4444; }
         .alert-warning { border-left: 5px solid #f59e0b; }
@@ -163,13 +149,13 @@
         /* AGENDA BRANCA */
         .task-item { 
             display: flex; align-items: center; gap: 15px; padding: 15px; 
-            background: var(--card-bg-white);
-            backdrop-filter: blur(10px);
-            border-radius: 12px; border: 1px solid white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.4);
             transition: 0.2s; cursor: pointer; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
-        .task-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); background: #ffffff; }
+        .task-item:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); background: #ffffff; }
 
         .task-check { 
             width: 24px; height: 24px; border-radius: 8px; border: 2px solid #cbd5e1; 
@@ -186,21 +172,17 @@
 
         /* ANIVERSÁRIOS BRANCOS */
         .niver-card { 
-            background: var(--card-bg-white); padding: 0; border-radius: 16px; 
-            border: 1px solid white; overflow: hidden;
-            backdrop-filter: blur(10px); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95); padding: 0; border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.4); overflow: hidden;
+            backdrop-filter: blur(15px); box-shadow: 0 8px 20px rgba(0,0,0,0.2);
         }
-        .niver-item { 
-            padding: 15px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; 
-            transition: 0.2s;
-        }
+        .niver-item { padding: 15px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 15px; transition: 0.2s; }
         .niver-item:last-child { border-bottom: none; }
         .niver-item:hover { background: #fff1f2; }
         
         .niver-icon { 
             width: 42px; height: 42px; background: #ffe4e6; border-radius: 12px; color: #be123c; 
-            display: flex; align-items: center; justify-content: center; font-size: 18px;
-            border: 1px solid #fecdd3;
+            display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid #fecdd3;
         }
         .niver-info { flex: 1; }
         .niver-name { font-size: 14px; font-weight: 700; color: var(--text-card-main); }
@@ -209,7 +191,8 @@
         /* Empty State */
         .empty-state { 
             text-align: center; padding: 40px; color: var(--text-card-sub); 
-            background: rgba(255, 255, 255, 0.85); border-radius: 16px; border: 1px dashed #cbd5e1; 
+            background: rgba(255, 255, 255, 0.90); backdrop-filter: blur(10px);
+            border-radius: 16px; border: 1px dashed #cbd5e1; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .empty-icon { font-size: 30px; margin-bottom: 10px; color: #cbd5e1; }
 
@@ -218,18 +201,11 @@
             margin: 10px auto; width: fit-content;
             padding: 10px 25px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer;
             display: flex; align-items: center; gap: 8px; transition: 0.3s;
-            background: white;
-            border: 2px solid var(--purple-primary); 
-            color: var(--purple-primary);
+            background: white; border: 2px solid var(--purple-primary); color: var(--purple-primary);
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .btn-glass-soft:hover {
-            background: var(--purple-primary); color: #ffffff;
-            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4);
-            transform: translateY(-2px);
-        }
+        .btn-glass-soft:hover { background: var(--purple-primary); color: #ffffff; box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4); transform: translateY(-2px); }
 
-        /* SWEETALERT DEFAULT */
         div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
         div:where(.swal2-popup) { background: #ffffff !important; color: #1e293b !important; border-radius: 16px !important; }
         div:where(.swal2-title) { color: #1e293b !important; }
@@ -248,7 +224,8 @@
     
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
-        <div class="logo">T-SYSTEM</div> 
+        
+        <div class="logo">&lt;T-SYSTEM<span class="neon-slash-logo">/</span>&gt;</div> 
         
         <button class="btn-logout" onclick="logoutDireto()" title="Sair do Sistema">
             <i class="fas fa-sign-out-alt"></i>
@@ -259,7 +236,7 @@
         
         <div class="welcome-header">
             <h1 class="welcome-title" id="txtSaudacao"></h1>
-            <div class="welcome-date" id="txtData">...</div>
+            <div class="welcome-date" id="txtData">..</div>
         </div>
 
         <div class="feed-grid">
@@ -269,7 +246,7 @@
                 <div id="financeiro-feed" style="display: flex; flex-direction: column; gap: 10px;">
                     <div class="empty-state">
                         <i class="fas fa-spinner fa-spin empty-icon"></i>
-                        <p>ANALISANDO CONTAS...</p>
+                        <p>ANALISANDO CONTAS</p>
                     </div>
                 </div>
             </div>
@@ -279,14 +256,14 @@
                 <div id="agenda-feed">
                     <div class="empty-state">
                         <i class="fas fa-coffee empty-icon"></i>
-                        <p>BUSCANDO SUA AGENDA...</p>
+                        <p>BUSCANDO SUA AGENDA</p>
                     </div>
                 </div>
 
                 <div class="section-title"><i class="fas fa-birthday-cake"></i> Aniversariantes do Mês</div>
                 <div id="niver-feed" class="niver-card">
                     <div style="padding: 20px; text-align: center; color: var(--text-card-sub); font-size: 12px;">
-                        CARREGANDO...
+                        CARREGANDO
                     </div>
                 </div>
             </div>
@@ -305,7 +282,6 @@
             carregarAniversariantes();
         });
 
-        // --- FUNÇÃO DE LOGOUT DIRETA ---
         function logoutDireto() {
             Swal.fire({
                 title: 'Sair?',
@@ -325,7 +301,6 @@
             });
         }
 
-        // --- CONFIGURA O TEXTO E DISPARA A ANIMAÇÃO ---
         function configurarDataEAnimacao() {
             const h1Saudacao = document.getElementById('txtSaudacao');
             

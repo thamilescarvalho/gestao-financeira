@@ -60,7 +60,15 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); 
         }
         .navbar-custom .menu-btn { color: white !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: white; text-shadow: 0 0 15px rgba(168, 85, 247, 0.8); letter-spacing: 1px; }
+        
+        /* NOVO DESIGN DO LOGO COM A BARRA VERDE LIMÃO */
+        .navbar-custom .logo { 
+            font-size: 20px; font-weight: 800; color: white; 
+            text-shadow: 0 0 15px rgba(255,255,255,0.8); letter-spacing: 1px; 
+            display: flex; align-items: center;
+        }
+        .neon-slash-logo { color: #ccff00; text-shadow: 0 0 10px rgba(204, 255, 0, 0.8); }
+        
         .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-logout:hover { background-color: #ef4444; color: white; }
 
@@ -112,14 +120,18 @@
         .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .kpi-icon-small { font-size: 16px; color: #cbd5e1; }
 
-        /* PARCELAS (ESTILO GALAXY) */
+        /* BOTÃO PARCELAS (VERDE DO PROGRESSO - COMPACTO E ELEGANTE) */
         .btn-galaxy-main {
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-            color: white; padding: 12px 25px; border-radius: 12px; font-weight: 800;
-            border: none; cursor: pointer; display: flex; align-items: center; gap: 10px;
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); transition: 0.3s; font-size: 12px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff; 
+            padding: 8px 18px; 
+            border-radius: 8px; 
+            font-weight: 800;
+            border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; justify-content: center;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); transition: 0.3s; font-size: 11px;
+            text-shadow: none; 
         }
-        .btn-galaxy-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6); }
+        .btn-galaxy-main:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.5); }
 
         #painelParcelas { display: none; animation: slideUp 0.4s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -130,7 +142,7 @@
         
         /* ESTILO PARA TRUNCAR O TEXTO (Reticências) */
         .truncate-text {
-            max-width: 180px; /* Largura máxima da coluna */
+            max-width: 180px; 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -144,9 +156,11 @@
         .progress-container { width: 100px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
         .progress-bar { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 4px; }
         
-        .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 800; display: inline-block; }
-        .status-active { background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; }
-        .status-done { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3d0; }
+        .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 900; display: inline-block; }
+        /* COR DO STATUS EM ANDAMENTO - PRETO COM FUNDO CINZA CLARO */
+        .status-active { background: #f1f5f9; color: #000000d0; border: 1px solid #0b0b257e; }
+        /* COR DO STATUS CONCLUÍDO - VERDE */
+        .status-done { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3ba; }
 
         .value-total { color: #1e293b; font-weight: 800; }
         .value-paid { color: #10b981; }
@@ -175,18 +189,45 @@
         .extrato-table td { padding: 12px 15px; font-size: 12px; color: #334155; border-bottom: 1px solid #f1f5f9; }
         .extrato-table tr:last-child td { border-bottom: none; }
 
+        /* AJUSTES PARA DISPOSITIVOS MÓVEIS (ORGANIZAÇÃO DO HEADER) */
         @media (max-width: 900px) { 
             .projecao-grid, .kpi-grid { grid-template-columns: 1fr; }
             .content { padding: 10px; width: 100%; } 
+            
+            /* Título centralizado e botão na linha de baixo */
+            .page-header { 
+                flex-direction: column; 
+                text-align: center; 
+                align-items: center; 
+                justify-content: center;
+                gap: 15px;
+            }
+            .page-header > div {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+            .btn-galaxy-main {
+                width: auto;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
-    <nav class="navbar-custom"> <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> <div class="logo">T-SYSTEM</div> <button class="btn-logout" onclick="logout()" title="Sair do Sistema">
-        <i class="fas fa-sign-out-alt"></i>
-    </button> </nav>
+    
+    <nav class="navbar-custom"> 
+        <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
+        
+        <div class="logo">&lt;T-SYSTEM<span class="neon-slash-logo">/</span>&gt;</div> 
+        
+        <button class="btn-logout" onclick="logout()" title="Sair do Sistema">
+            <i class="fas fa-sign-out-alt"></i>
+        </button> 
+    </nav>
 
     <div class="content">
         <div class="page-header">
@@ -195,14 +236,14 @@
                 <div class="page-sub">VISÃO COMPLETA DA SAÚDE FINANCEIRA.</div>
             </div>
             <button class="btn-galaxy-main" onclick="mostrarParcelamentos()">
-                <i class="fas fa-layer-group"></i> VER CONTAS PARCELADAS
+                <i class="fas fa-layer-group"></i> CONTAS PARCELADAS
             </button>
         </div>
 
         <div id="painelParcelas" class="glass-panel">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2 style="margin:0; color:#1e293b; font-size:18px; display:flex; align-items:center; gap:10px;">
-                    <i class="fas fa-credit-card" style="color:#a855f7;"></i> CONTAS PARCELADAS
+                    <i class="fas fa-credit-card" style="color:#3331b6;"></i> CONTAS PARCELADAS
                 </h2>
                 <button onclick="document.getElementById('painelParcelas').style.display='none'" style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i class="fas fa-times"></i></button>
             </div>

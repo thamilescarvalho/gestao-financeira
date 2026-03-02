@@ -50,7 +50,14 @@
             color: white;
         }
         .navbar-custom .menu-btn { color: #ffffff !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 18px; font-weight: 800; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); }
+        
+        /* NOVO DESIGN DO LOGO COM A BARRA VERDE LIMÃO */
+        .navbar-custom .logo { 
+            font-size: 18px; font-weight: 800; color: #a78bfa; 
+            text-shadow: 0 0 10px rgba(167, 139, 250, 0.5); 
+            display: flex; align-items: center;
+        }
+        .neon-slash-logo { color: #ccff00; text-shadow: 0 0 10px rgba(204, 255, 0, 0.8); }
 
         /* LAYOUT DUPLO */
         .agenda-container {
@@ -231,10 +238,12 @@
     
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
-        <div class="logo">T-SYSTEM</div> 
+        
+        <div class="logo" style="color: white !important;">&lt;T-SYSTEM<span class="neon-slash-logo">/</span>&gt;</div> 
+        
         <button class="btn-logout" onclick="logout()" title="Sair do Sistema">
-        <i class="fas fa-sign-out-alt"></i>
-    </button> 
+            <i class="fas fa-sign-out-alt"></i>
+        </button> 
     </nav>
 
     <div class="content">

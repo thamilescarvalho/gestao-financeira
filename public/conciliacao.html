@@ -24,6 +24,7 @@
             --glass-border: 1px solid rgba(255, 255, 255, 0.6);
             --text-main: #1e293b; 
             --text-muted: #64748b;
+            --success-color: #10b981;
         }
 
         *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
@@ -43,7 +44,11 @@
         /* Navbar */
         .navbar-custom { background: rgba(30, 27, 46, 0.9); backdrop-filter: blur(12px); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); }
         .navbar-custom .menu-btn { color: white !important; font-size: 24px; background: none; border: none; cursor: pointer; }
-        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: white; text-shadow: 0 0 15px rgba(168, 85, 247, 0.8); letter-spacing: 1px; }
+        
+        /* NOVO DESIGN DO LOGO COM A BARRA VERDE LIMÃO */
+        .navbar-custom .logo { font-size: 20px; font-weight: 800; color: white; text-shadow: 0 0 15px rgba(255,255,255,0.8); letter-spacing: 1px; display: flex; align-items: center; }
+        .neon-slash-logo { color: #ccff00; text-shadow: 0 0 10px rgba(204, 255, 0, 0.8); }
+        
         .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; }
 
         .content { padding: 40px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
@@ -62,13 +67,14 @@
         /* --- DROPDOWN DO BOTÃO DE IMPORTAÇÃO --- */
         .dropdown-container { position: relative; display: inline-block; }
         
+        /* Botão Ações de Importação (Modificado para Verde Claro) */
         .btn-ofx { 
-            background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%); color: white; border: none;
+            background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%); color: white; border: none;
             padding: 12px 25px; border-radius: 12px; font-size: 11px; font-weight: 800; 
             cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); white-space: nowrap; 
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); white-space: nowrap; 
         }
-        .btn-ofx:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(168, 85, 247, 0.6); }
+        .btn-ofx:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6); }
 
         .dropdown-menu {
             position: absolute; right: 0; top: 110%; background: white; border-radius: 12px;
@@ -83,7 +89,7 @@
             border-bottom: 1px solid #f1f5f9;
         }
         .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background: #f8fafc; color: var(--purple-primary); }
+        .dropdown-item:hover { background: #ecfdf5; color: var(--success-color); }
 
         .search-input { 
             width: 100%; padding: 14px 20px; border: 1px solid #e2e8f0; border-radius: 12px; 
@@ -197,7 +203,9 @@
     
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
-        <div class="logo">T-SYSTEM</div> 
+        
+        <div class="logo">&lt;T-SYSTEM<span class="neon-slash-logo">/</span>&gt;</div> 
+        
         <button class="btn-logout" onclick="logout()" title="Sair"><i class="fas fa-sign-out-alt"></i></button> 
     </nav>
 
@@ -216,10 +224,10 @@
                     </button> 
                     <div class="dropdown-menu" id="ofxDropdown">
                         <div class="dropdown-item" onclick="document.getElementById('inputOfx').click()">
-                            <i class="fas fa-upload" style="width: 20px;"></i> Importar Novo Arquivo
+                            <i class="fas fa-upload" style="width: 20px; color: var(--success-color);"></i> Importar Novo Arquivo
                         </div>
                         <div class="dropdown-item" onclick="abrirModalHistorico()">
-                            <i class="fas fa-history" style="width: 20px;"></i> Histórico de Arquivos
+                            <i class="fas fa-history" style="width: 20px; color: var(--purple-primary);"></i> Histórico de Arquivos
                         </div>
                     </div>
                 </div>

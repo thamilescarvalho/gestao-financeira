@@ -28,6 +28,12 @@
             --card-border: 1px solid rgba(255, 255, 255, 0.8);
             --shadow-soft: 0 4px 20px rgba(0,0,0,0.1);
         }
+        /* Adicione isso dentro do seu <style> */
+            .neon-slash-logo {
+                color: #ccff00 !important; /* Verde limão neon */
+                text-shadow: 0 0 5px #ccff00, 0 0 10px #ccff00;
+            }       
+
 
         /* --- REGRA DE OURO: NOVA FONTE E TUDO MAIÚSCULO --- */
         *:not(i) { 
@@ -157,6 +163,21 @@
         .sticky-note { height: 160px; padding: 18px; border-radius: 16px; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.2s, box-shadow 0.2s; cursor: grab; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.15), inset 0 0 20px rgba(0,0,0,0.05); border-bottom: 3px solid rgba(0,0,0,0.1); }
         .sticky-note:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.25); z-index: 10; }
         .sticky-note:active { cursor: grabbing; transform: scale(0.98); }
+
+        /* FORÇAR LOGO BRANCO E VERDE */
+        .logo-container {
+            font-size: 20px !important;
+            font-weight: 800 !important;
+            color: #FFFFFF !important; /* Branco puro */
+            letter-spacing: 1px !important;
+            font-family: 'JetBrains Mono', monospace !important;
+            text-transform: uppercase !important;
+        }
+        .neon-slash {
+            color: #ccff00 !important; /* Verde Limão Neon */
+            text-shadow: 0 0 8px rgba(204, 255, 0, 0.8) !important;
+            margin: 0 2px !important;
+        }
         
         .note-yellow { background: linear-gradient(135deg, #fef08a, #facc15); color: #854d0e; }
         .note-blue { background: linear-gradient(135deg, #bfdbfe, #60a5fa); color: #1e3a8a; }
@@ -211,7 +232,7 @@
     
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
-        <div class="logo">T-SYSTEM</div> 
+        <div class="logo-container">&lt;T-SYSTEM<span class="neon-slash">/</span>&gt;</div> 
         <button class="btn-logout" onclick="logout()" title="Sair"><i class="fas fa-sign-out-alt"></i></button> 
     </nav>
 
