@@ -16,390 +16,357 @@
     <script src="script.js"></script>
 
     <style>
-        /* --- TEMA GALAXY PREMIUM --- */
+        /* --- TEMA GALAXY UNIFICADO (BASEADO NO INDEX) --- */
         :root {
-            --purple-primary: #8b5cf6;
-            --purple-dark: #6d28d9;
-            --purple-light: #a78bfa;
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --text-dark: #1e293b;
-            --text-gray: #64748b;
-            --bg-body: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            --panel-dark: rgba(30, 27, 46, 0.9);
+            --purple-primary: #a855f7;
+            --purple-secondary: #c084fc;
+            --neon-glow: 0 0 20px rgba(168, 85, 247, 0.3);
+            
+            --text-white: #ffffff;
+            --text-light-purple: #e9d5ff;
+            
+            --card-bg-white: rgba(255, 255, 255, 0.95); 
+            --text-card-main: #1e293b; 
+            --text-card-sub: #64748b; 
+            --border-card: #e2e8f0;
         }
 
-        /* FORÇA TUDO EM MAIÚSCULO E NOVA FONTE */
-        *:not(i) { font-family: 'JetBrains Mono', monospace !important; box-sizing: border-box; text-transform: uppercase !important; }
+        /* TIPOGRAFIA ATUALIZADA */
+        *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
+        input, select, textarea { text-transform: none !important; }
+        .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
 
+        /* FUNDO ESTÁTICO DO UNIVERSO (IMAGEM DO INDEX) */
         body { 
-            background: var(--bg-body);
-            color: var(--text-dark);
-            min-height: 100vh;
-            margin: 0;
+            margin: 0; padding: 0; min-height: 100vh; position: relative;
+            background-color: #0f0c29; 
+            background-image: url('https://cdn.pixabay.com/photo/2016/10/20/18/35/earth-1756274_1280.jpg'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: var(--text-white); font-size: 11px;
             overflow-x: hidden;
         }
+        
+        /* Camada para escurecer a imagem e garantir leitura dos textos brancos */
+        body::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(15, 12, 41, 0.6) 0%, rgba(48, 43, 99, 0.8) 50%, rgba(36, 36, 62, 0.7) 100%);
+            z-index: -1; pointer-events: none;
+        }
 
-        /* --- SCROLLBAR MODERNA --- */
+        /* --- SCROLLBAR MODERNA DISCRETA (CHUMBO) --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.5); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.8); }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.9); }
+
+        .content { padding: 40px; max-width: 800px; margin: 0 auto; position: relative; z-index: 1; }
 
         /* NAVBAR */
         .navbar-custom { 
-            background: rgba(30, 27, 46, 0.9); backdrop-filter: blur(12px);
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; 
-            position: sticky; top: 0; z-index: 100; 
+            background: var(--panel-dark); backdrop-filter: blur(12px);
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(168, 85, 247, 0.3); 
         }
         .navbar-custom .menu-btn { color: white !important; font-size: 24px; background: none; border: none; cursor: pointer; }
         
-        /* NOVO DESIGN DO LOGO COM A BARRA VERDE LIMÃO */
+        /* LOGO T-SYSTEM NEON */
         .navbar-custom .logo { 
-            font-size: 20px; font-weight: 800; color: white; 
+            font-size: 20px; font-weight: 800; color: white !important; 
             text-shadow: 0 0 15px rgba(255,255,255,0.8); letter-spacing: 1px; 
-            display: flex; align-items: center;
+            display: flex; align-items: center; 
         }
-        .neon-slash-logo { color: #ccff00; text-shadow: 0 0 10px rgba(204, 255, 0, 0.8); }
-        
-        .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; font-size: 16px; cursor: pointer; transition: 0.2s; padding: 8px 12px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .neon-slash-logo { color: #ccff00 !important; text-shadow: 0 0 10px rgba(204, 255, 0, 0.8); margin: 0 2px; }
+
+        .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-logout:hover { background-color: #ef4444; color: white; transform: scale(1.05); }
 
-        .content { padding: 40px 20px; width: 100%; display: flex; justify-content: center; position: relative; z-index: 1; }
+        /* HEADER DA PÁGINA */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 10px; }
+        .page-title { font-size: 28px; font-weight: 800; color: white; margin: 0; letter-spacing: 1px; text-shadow: 0 2px 15px rgba(0,0,0,0.5); }
+        .page-subtitle { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 5px; font-weight: 600; letter-spacing: 1px; }
 
-        /* CARD DE PERFIL */
-        .profile-card {
-            width: 100%; max-width: 1200px;
-            background: var(--glass-bg);
-            border-radius: 24px; overflow: visible;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            position: relative; animation: fadeIn 0.5s ease-out; margin-bottom: 40px;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* CAPA */
-        .profile-cover {
-            height: 320px;
-            background: linear-gradient(45deg, #f43f5e, #ec4899, #8b5cf6);
-            background-size: cover; background-position: center;
-            position: relative; border-radius: 24px 24px 0 0;
-        }
-        
-        /* HEADER DO USUÁRIO */
-        .user-header {
-            padding: 0 50px;
-            display: flex;
-            align-items: flex-end; 
-            position: relative;
-            margin-bottom: 30px;
-            margin-top: -80px; 
+        /* CAIXA DE PERFIL */
+        .profile-container { 
+            background: var(--card-bg-white); backdrop-filter: blur(15px);
+            border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); 
+            border: 1px solid rgba(255,255,255,0.4); overflow: hidden;
+            padding: 40px; color: var(--text-card-main);
+            display: flex; flex-direction: column; gap: 30px;
         }
 
-        .avatar-container {
-            width: 160px; height: 160px;
-            border-radius: 50%;
-            border: 6px solid white;
-            background: #f1f5f9;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            cursor: pointer; position: relative; overflow: hidden; flex-shrink: 0;
-            z-index: 10;
-        }
-        .avatar-img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
-        .avatar-overlay {
-            position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.5); color: white;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; transition: 0.3s;
-        }
-        .avatar-container:hover .avatar-overlay { opacity: 1; }
-        .avatar-container:hover .avatar-img { transform: scale(1.1); }
-
-        .user-names { 
-            margin-left: 30px; 
-            padding-bottom: 10px; 
-            padding-top: 85px; 
-            flex: 1; 
-        }
-        .user-real-name { font-size: 32px; font-weight: 800; color: var(--text-dark); margin: 0; line-height: 1.1; letter-spacing: -1px; }
-        .user-badge {
-            display: inline-block; background: linear-gradient(135deg, #a855f7, #ec4899);
-            color: white; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 20px;
-            margin-top: 8px; letter-spacing: 0.5px;
+        .profile-header-area {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; border-bottom: 1px solid var(--border-card); padding-bottom: 30px;
         }
 
-        /* BOTÃO DROPDOWN CAPA */
-        .cover-dropdown-wrapper { position: absolute; bottom: 20px; right: 20px; z-index: 20; }
-        .btn-trigger-dropdown {
-            background: rgba(0, 0, 0, 0.6); color: white; padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
-            font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; backdrop-filter: blur(4px);
+        /* Avatar com botão de upload sobreposto */
+        .avatar-wrapper { position: relative; display: inline-block; }
+        .avatar-img { 
+            width: 120px; height: 120px; border-radius: 50%; object-fit: cover; 
+            border: 4px solid white; box-shadow: 0 5px 20px rgba(0,0,0,0.1); 
+            background: #f1f5f9; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: #cbd5e1;
         }
-        .btn-trigger-dropdown:hover { background: rgba(0, 0, 0, 0.8); border-color: white; transform: translateY(-2px); }
-        .cover-dropdown-menu {
-            position: absolute; top: 110%; right: 0; width: 220px;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px); border-radius: 12px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.5);
-            padding: 8px; display: flex; flex-direction: column; gap: 5px;
-            opacity: 0; visibility: hidden; transform: translateY(-10px); transition: 0.2s ease-in-out;
+        .btn-upload-avatar {
+            position: absolute; bottom: 0; right: 0; background: var(--purple-primary); color: white;
+            border: 2px solid white; width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .cover-dropdown-menu.active { opacity: 1; visibility: visible; transform: translateY(0); }
-        .dropdown-item {
-            padding: 12px 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px;
-            color: var(--text-dark); font-size: 12px; font-weight: 700; transition: 0.2s; cursor: pointer;
+        .btn-upload-avatar:hover { transform: scale(1.1); background: var(--purple-secondary); }
+
+        .profile-name-display { font-size: 22px; font-weight: 800; color: var(--text-card-main); text-align: center; }
+        .profile-role-badge { 
+            display: inline-block; padding: 6px 15px; border-radius: 20px; font-size: 10px; font-weight: 800; 
+            background: #f3e8ff; color: var(--purple-primary); border: 1px solid #e9d5ff;
         }
-        .dropdown-item:hover { background: #f1f5f9; color: var(--purple-primary); }
-        .dropdown-item.danger:hover { background: #fef2f2; color: #ef4444; }
-        .dropdown-item i { width: 20px; text-align: center; font-size: 14px; }
 
         /* FORMULÁRIO */
-        .form-section { padding: 0 50px 50px 50px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .form-full { grid-column: 1 / -1; }
-        .input-wrapper label { display: block; font-size: 11px; font-weight: 800; color: var(--text-gray); margin-bottom: 8px; letter-spacing: 0.5px; }
-        .input-wrapper input {
-            width: 100%; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px;
-            background: #f8fafc; color: var(--text-dark); font-size: 14px; font-weight: 600; outline: none; transition: 0.2s;
-        }
-        .input-wrapper input:focus { background: white; border-color: var(--purple-primary); box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
-        .action-bar { margin-top: 40px; padding-top: 30px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; }
-        .btn-save {
-            background: linear-gradient(135deg, var(--purple-primary) 0%, var(--purple-dark) 100%);
-            color: white; border: none; padding: 16px 40px; border-radius: 12px;
-            font-size: 14px; font-weight: 800; letter-spacing: 1px; cursor: pointer; transition: 0.3s;
-            box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.4); display: flex; align-items: center; gap: 10px;
-        }
-        .btn-save:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -5px rgba(139, 92, 246, 0.6); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group label { font-size: 11px; font-weight: 800; color: var(--text-card-sub); letter-spacing: 0.5px; }
         
-        /* MODAIS */
-        .modal-overlay { display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; backdrop-filter: blur(5px); }
-        .modal { background: white; width: 95%; max-width: 900px; padding: 30px; border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.5); animation: zoomIn 0.2s ease-out; display: flex; flex-direction: column; max-height: 85vh; }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; overflow-y: auto; padding-right: 5px; }
-        @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
-
-        @media (max-width: 768px) {
-            .profile-card { border-radius: 0; min-height: 100vh; margin-bottom: 0; }
-            .profile-cover { height: 200px; border-radius: 0; }
-            .user-header { flex-direction: column; align-items: center; text-align: center; margin-top: 0; padding: 0 20px; }
-            .avatar-container { margin-top: -75px; } 
-            .user-names { margin-left: 0; padding-top: 15px; width: 100%; }
-            .form-section { padding: 30px 20px; }
-            .form-grid { grid-template-columns: 1fr; gap: 20px; }
-            .btn-save { width: 100%; justify-content: center; }
+        .form-input { 
+            width: 100%; padding: 15px; border: 1px solid #cbd5e0; border-radius: 12px; font-size: 13px; 
+            outline: none; background: #f8fafc; font-weight: 600; color: var(--text-card-main); transition: 0.2s; box-sizing: border-box;
         }
+        .form-input:focus { border-color: var(--purple-primary); background: white; box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15); }
+        .form-input:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; border-style: dashed; }
+
+        .input-group-icon { position: relative; }
+        .input-group-icon input { padding-right: 40px; }
+        .btn-toggle-pass { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 16px; }
+
+        .actions-footer { display: flex; justify-content: flex-end; gap: 15px; border-top: 1px solid var(--border-card); padding-top: 30px; margin-top: 10px; }
+        
+        .btn-main { 
+            background: var(--purple-primary); color: white; border: none; padding: 15px 40px; 
+            border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 13px; 
+            box-shadow: 0 5px 15px rgba(168, 85, 247, 0.3); transition: 0.2s; display: flex; align-items: center; gap: 10px;
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5); }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .content { padding: 20px 15px; }
+            .form-grid { grid-template-columns: 1fr; gap: 20px; }
+            .profile-container { padding: 25px; }
+            .actions-footer { flex-direction: column; }
+            .btn-main { width: 100%; justify-content: center; }
+            .page-header { flex-direction: column; align-items: center; text-align: center; }
+        }
+
+        /* SWEETALERT */
+        div:where(.swal2-container) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; }
+        div:where(.swal2-popup) { background: #ffffff !important; color: #1e293b !important; border-radius: 16px !important; }
     </style>
 </head>
 <body>
-
+    
     <div class="sidebar" id="sidebar"></div>
     <div class="overlay" onclick="toggleMenu()"></div>
+    
     <nav class="navbar-custom"> 
         <button class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></button> 
-        
         <div class="logo">&lt;T-SYSTEM<span class="neon-slash-logo">/</span>&gt;</div> 
-        
-        <button class="btn-logout" onclick="logout()" title="Sair"><i class="fas fa-sign-out-alt"></i></button> 
+        <button class="btn-logout" onclick="logout()" title="Sair do Sistema"><i class="fas fa-sign-out-alt"></i></button> 
     </nav>
 
     <div class="content">
-        <input type="file" id="uploadCapa" accept="image/*" style="display:none" onchange="previewImagem(this, 'bg')">
-        <input type="file" id="uploadAvatar" accept="image/*" style="display:none" onchange="previewImagem(this, 'img')">
-
-        <div class="profile-card">
-            <div class="profile-cover" id="coverDisplay">
-                <div class="cover-dropdown-wrapper">
-                    <div class="btn-trigger-dropdown" onclick="toggleCoverMenu(event)">
-                        <i class="fas fa-camera"></i> ALTERAR CAPA
-                    </div>
-                    <div class="cover-dropdown-menu" id="coverMenu">
-                        <div class="dropdown-item" onclick="document.getElementById('uploadCapa').click()">
-                            <i class="fas fa-cloud-upload-alt" style="color: var(--purple-primary);"></i> UPLOAD
-                        </div>
-                        <div class="dropdown-item" onclick="abrirGaleria()">
-                            <i class="fas fa-globe-americas" style="color: #3b82f6;"></i> GALERIA GALAXY
-                        </div>
-                        <div class="dropdown-item danger" onclick="removerCapa()">
-                            <i class="fas fa-trash"></i> REMOVER
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="user-header">
-                <div class="avatar-container" onclick="document.getElementById('uploadAvatar').click()">
-                    <img src="" id="avatarDisplay" class="avatar-img" alt="Avatar">
-                    <div class="avatar-overlay">
-                        <i class="fas fa-camera"></i>
-                        <span style="font-size: 10px; font-weight: 700; margin-top: 5px;">EDITAR</span>
-                    </div>
-                </div>
-                
-                <div class="user-names">
-                    <h1 class="user-real-name" id="displayNome">...</h1>
-                    <div class="user-badge" id="displayRole">USUÁRIO</div>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <div class="form-grid">
-                    <div class="input-wrapper form-full">
-                        <label>FRASE DE EFEITO / BIO</label>
-                        <input type="text" id="inputBio" placeholder="EX: FOCADO NOS OBJETIVOS 🚀">
-                    </div>
-                    <div class="input-wrapper">
-                        <label>NOME COMPLETO</label>
-                        <input type="text" id="inputNome">
-                    </div>
-                    <div class="input-wrapper">
-                        <label>EMAIL (LOGIN)</label>
-                        <input type="email" id="inputEmail">
-                    </div>
-                    <div class="input-wrapper">
-                        <label>NOVA SENHA (OPCIONAL)</label>
-                        <input type="password" id="inputSenha" placeholder="DIGITE PARA ALTERAR..." autocomplete="new-password">
-                    </div>
-                    <div class="input-wrapper">
-                        <label>CONFIRMAR SENHA</label>
-                        <input type="password" id="inputConfirma" placeholder="REPITA A NOVA SENHA..." autocomplete="new-password">
-                    </div>
-                </div>
-
-                <div class="action-bar">
-                    <button class="btn-save" onclick="salvarPerfil()">
-                        <i class="fas fa-save"></i> SALVAR ALTERAÇÕES
-                    </button>
-                </div>
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">MEU PERFIL</h1>
+                <div class="page-subtitle">GERENCIE SUAS INFORMAÇÕES PESSOAIS</div>
             </div>
         </div>
-    </div>
 
-    <div class="modal-overlay" id="modalGaleria">
-        <div class="modal">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h2 style="margin:0; color:#1e293b; font-size:18px;">GALERIA GALAXY</h2>
-                <button onclick="document.getElementById('modalGaleria').style.display='none'" style="border:none; background:none; cursor:pointer; font-size: 20px;"><i class="fas fa-times"></i></button>
+        <div class="profile-container">
+            
+            <div class="profile-header-area">
+                <div class="avatar-wrapper">
+                    <img id="avatarDisplay" src="" class="avatar-img" onerror="this.src=''; this.alt='User';">
+                    <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(this)">
+                    <button class="btn-upload-avatar" onclick="document.getElementById('avatarInput').click()" title="Alterar Foto">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <div class="profile-name-display" id="displayName">Carregando...</div>
+                <div class="profile-role-badge" id="displayRole">USER</div>
             </div>
-            <div class="gallery-grid" id="gridGaleria"></div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>NOME COMPLETO</label>
+                    <input type="text" id="inputNome" class="form-input" placeholder="Seu nome completo">
+                </div>
+                
+                <div class="form-group">
+                    <label>EMAIL (LOGIN)</label>
+                    <input type="email" id="inputEmail" class="form-input" disabled title="Não é possível alterar o email">
+                </div>
+
+                <div class="form-group">
+                    <label>NOVA SENHA</label>
+                    <div class="input-group-icon">
+                        <input type="password" id="inputSenha" class="form-input" placeholder="Deixe em branco para manter">
+                        <button class="btn-toggle-pass" onclick="toggleSenha('inputSenha')"><i class="far fa-eye"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>CONFIRME A NOVA SENHA</label>
+                    <div class="input-group-icon">
+                        <input type="password" id="inputSenhaConfirma" class="form-input" placeholder="Repita a nova senha">
+                        <button class="btn-toggle-pass" onclick="toggleSenha('inputSenhaConfirma')"><i class="far fa-eye"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-footer">
+                <button class="btn-main" onclick="salvarPerfil()">
+                    <i class="fas fa-save"></i> SALVAR ALTERAÇÕES
+                </button>
+            </div>
+
         </div>
     </div>
 
     <script>
-        // MANTENDO TODA A LÓGICA ORIGINAL DO SCRIPT
         const usuarioLogado = JSON.parse(localStorage.getItem('usuario_logado'));
         let avatarBase64 = null;
-        let capaBase64 = null;
-
-        const galeriaImagens = [
-            { url: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=1000', nome: 'NEBULOSA ROXA' },
-            { url: 'https://images.unsplash.com/photo-1538370965046-79c0d6907d00?q=80&w=1000', nome: 'GALÁXIA ESPIRAL' },
-            { url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000', nome: 'REDE GLOBAL' },
-            { url: 'https://images.unsplash.com/photo-1515630278258-407f66498911?q=80&w=1000', nome: 'CIDADE CYBERPUNK' },
-            { url: 'https://images.unsplash.com/photo-1614730341194-75c60740a2d3?q=80&w=1000', nome: 'PLANETA VERMELHO' },
-            { url: 'https://images.unsplash.com/photo-1465101162946-4377e57745c3?q=80&w=1000', nome: 'BURACO NEGRO' },
-            { url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1000', nome: 'RETROWAVE' },
-            { url: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1000', nome: 'ASTRONAUTA' },
-            { url: 'https://images.unsplash.com/photo-1519608487953-e999c9dc2968?q=80&w=1000', nome: 'TUNEL DE LUZ' },
-            { url: 'https://images.unsplash.com/photo-1614728853913-1e22ba6e9a7e?q=80&w=1000', nome: 'FLUIDO NEON' },
-            { url: 'https://images.unsplash.com/photo-1506318137071-a8bcbf6755dd?q=80&w=1000', nome: 'AURORA BOREAL' },
-            { url: 'https://images.unsplash.com/photo-1484589065579-248aad0d8b13?q=80&w=1000', nome: 'ESPAÇO DEEP' }
-        ];
 
         document.addEventListener('DOMContentLoaded', () => {
-            if(!usuarioLogado) return window.location.href = 'login.html';
-            avatarBase64 = usuarioLogado.avatar || null;
-            capaBase64 = usuarioLogado.capa || null;
-            carregarDadosTela();
-            renderizarGaleria();
-
-            document.addEventListener('click', function(e) {
-                const menu = document.getElementById('coverMenu');
-                const trigger = document.querySelector('.btn-trigger-dropdown');
-                if (menu && trigger && !trigger.contains(e.target) && !menu.contains(e.target)) {
-                    menu.classList.remove('active');
-                }
-            });
+            if(!usuarioLogado) {
+                window.location.href = 'login.html';
+                return;
+            }
+            carregarDadosUsuario();
         });
 
-        function logout() { localStorage.removeItem('usuario_logado'); localStorage.removeItem('token'); window.location.href = 'login.html'; }
-
-        function renderizarGaleria() {
-            const grid = document.getElementById('gridGaleria');
-            grid.innerHTML = '';
-            galeriaImagens.forEach(img => {
-                grid.innerHTML += `<div class="gallery-item" style="background-image: url('${img.url}')" onclick="aplicarCapaGaleria('${img.url}')"><div class="gallery-label">${img.nome}</div></div>`;
-            });
+        function logout() { 
+            localStorage.removeItem('usuario_logado'); 
+            localStorage.removeItem('token');
+            window.location.href = 'login.html'; 
         }
 
-        function carregarDadosTela() {
-            document.getElementById('inputNome').value = usuarioLogado.nome;
-            document.getElementById('displayNome').innerText = usuarioLogado.nome;
-            document.getElementById('inputEmail').value = usuarioLogado.email;
-            document.getElementById('displayRole').innerText = usuarioLogado.role === 'ADMIN' ? 'ADMINISTRADOR' : 'USUÁRIO';
-            if (usuarioLogado.bio) document.getElementById('inputBio').value = usuarioLogado.bio;
-
-            if (avatarBase64) document.getElementById('avatarDisplay').src = avatarBase64;
-            else document.getElementById('avatarDisplay').src = `https://ui-avatars.com/api/?name=${usuarioLogado.nome}&background=8b5cf6&color=fff&size=256`;
-
-            const coverEl = document.getElementById('coverDisplay');
-            if (capaBase64) coverEl.style.backgroundImage = `url(${capaBase64})`;
-            else coverEl.style.backgroundImage = '';
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.overlay').classList.toggle('active');
         }
 
-        function previewImagem(input, tipo) {
-            const file = input.files[0];
-            if(!file) return;
-            if (file.size > 2 * 1024 * 1024) return Swal.fire('ARQUIVO MUITO GRANDE', 'ESCOLHA UMA IMAGEM MENOR QUE 2MB.', 'warning');
+        function toggleSenha(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                if(tipo === 'img') {
-                    document.getElementById('avatarDisplay').src = base64;
-                    avatarBase64 = base64;
-                } else {
-                    document.getElementById('coverDisplay').style.backgroundImage = `url(${base64})`;
-                    capaBase64 = base64;
-                    toggleCoverMenu();
+        async function carregarDadosUsuario() {
+            try {
+                // Busca os dados atualizados no backend
+                const res = await fetch(`/usuarios`);
+                const usuarios = await res.json();
+                const dadosCapa = usuarios.find(u => u.id === usuarioLogado.id);
+                
+                if(dadosCapa) {
+                    document.getElementById('inputNome').value = dadosCapa.nome;
+                    document.getElementById('inputEmail').value = dadosCapa.email;
+                    document.getElementById('displayName').innerText = dadosCapa.nome;
+                    document.getElementById('displayRole').innerText = dadosCapa.role === 'ADMIN' ? 'ADMINISTRADOR' : 'USUÁRIO PADRÃO';
+                    
+                    if (dadosCapa.avatar) {
+                        document.getElementById('avatarDisplay').src = dadosCapa.avatar;
+                        avatarBase64 = dadosCapa.avatar;
+                    } else {
+                        document.getElementById('avatarDisplay').src = `https://ui-avatars.com/api/?name=${dadosCapa.nome}&background=a855f7&color=fff&size=150`;
+                    }
                 }
+            } catch (e) {
+                console.error("Erro ao carregar dados", e);
+                Swal.fire('Erro', 'Não foi possível carregar as informações.', 'error');
             }
-            reader.readAsDataURL(file);
         }
 
-        function toggleCoverMenu(e) { if(e) e.stopPropagation(); document.getElementById('coverMenu').classList.toggle('active'); }
-        function abrirGaleria() { document.getElementById('modalGaleria').style.display = 'flex'; toggleCoverMenu(); }
-        function aplicarCapaGaleria(url) { document.getElementById('coverDisplay').style.backgroundImage = `url(${url})`; capaBase64 = url; document.getElementById('modalGaleria').style.display = 'none'; }
-        function removerCapa() { document.getElementById('coverDisplay').style.backgroundImage = ''; capaBase64 = null; toggleCoverMenu(); }
+        function handleAvatarUpload(input) {
+            const file = input.files[0];
+            if (file) {
+                // Validação de tamanho (ex: max 2MB)
+                if(file.size > 2 * 1024 * 1024) {
+                    Swal.fire('Imagem muito grande', 'Por favor, selecione uma imagem de até 2MB.', 'warning');
+                    input.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    avatarBase64 = e.target.result;
+                    document.getElementById('avatarDisplay').src = avatarBase64;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
         async function salvarPerfil() {
-            const nome = document.getElementById('inputNome').value;
-            const email = document.getElementById('inputEmail').value;
-            const bio = document.getElementById('inputBio').value;
-            const senha = document.getElementById('inputSenha').value;
-            const confirma = document.getElementById('inputConfirma').value;
+            const nome = document.getElementById('inputNome').value.trim();
+            const email = document.getElementById('inputEmail').value; // Apenas para compor o payload, já que não edita
+            const senha1 = document.getElementById('inputSenha').value;
+            const senha2 = document.getElementById('inputSenhaConfirma').value;
 
-            if(!nome || !email) return Swal.fire('ATENÇÃO', 'NOME E EMAIL SÃO OBRIGATÓRIOS.', 'warning');
-            if(senha.length > 0 && senha !== confirma) return Swal.fire('ERRO', 'AS SENHAS NÃO CONFEREM.', 'error');
+            if (!nome) {
+                return Swal.fire('Atenção', 'O nome não pode ficar vazio.', 'warning');
+            }
 
-            Swal.fire({ title: 'SALVANDO NA NUVEM...', didOpen: () => Swal.showLoading() });
+            if (senha1 || senha2) {
+                if (senha1 !== senha2) {
+                    return Swal.fire('Atenção', 'As senhas não coincidem.', 'warning');
+                }
+                if (senha1.length < 6) {
+                    return Swal.fire('Atenção', 'A nova senha deve ter pelo menos 6 caracteres.', 'warning');
+                }
+            }
+
+            Swal.fire({ title: 'Salvando...', didOpen: () => { Swal.showLoading() } });
+
+            const payload = {
+                nome: nome,
+                email: email, 
+                role: usuarioLogado.role, // Mantém a role original
+                avatar: avatarBase64
+            };
+
+            if (senha1) {
+                payload.novaSenha = senha1;
+            }
 
             try {
-                const payload = { nome, email, bio, avatar: avatarBase64, capa: capaBase64 };
-                if(senha.length > 0) payload.novaSenha = senha;
-
                 const res = await fetch(`/usuarios/${usuarioLogado.id}`, {
                     method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if(res.ok) {
-                    const usuarioAtualizado = await res.json();
-                    localStorage.setItem('usuario_logado', JSON.stringify(usuarioAtualizado));
-                    Swal.fire({ title: 'SUCESSO!', text: 'PERFIL SINCRONIZADO.', icon: 'success', confirmButtonColor: '#8b5cf6' }).then(() => { location.reload(); });
+                if (res.ok) {
+                    // Atualiza o local storage para refletir mudanças no nome/avatar no app todo
+                    const userAtualizado = { ...usuarioLogado, nome: nome, avatar: avatarBase64 };
+                    localStorage.setItem('usuario_logado', JSON.stringify(userAtualizado));
+
+                    Swal.fire({ title: 'Perfil Atualizado!', icon: 'success', timer: 2000, showConfirmButton: false });
+                    
+                    document.getElementById('inputSenha').value = '';
+                    document.getElementById('inputSenhaConfirma').value = '';
+                    document.getElementById('displayName').innerText = nome;
+                    
+                    // Atualiza a sidebar se ela estiver carregada
+                    if(typeof carregarSidebar === 'function') carregarSidebar();
                 } else {
-                    const erro = await res.json();
-                    Swal.fire('ERRO', erro.erro || 'FALHA AO SALVAR.', 'error');
+                    const err = await res.json();
+                    Swal.fire('Erro', err.erro || 'Falha ao atualizar perfil.', 'error');
                 }
-            } catch(e) { console.error(e); Swal.fire('ERRO', 'ERRO DE CONEXÃO.', 'error'); }
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+            }
         }
     </script>
 </body>
