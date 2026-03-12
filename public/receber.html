@@ -16,7 +16,7 @@
     <script src="script.js"></script>
 
     <style>
-        /* --- TEMA GALAXY UNIFICADO --- */
+        /* TEMA */
         :root {
             --panel-dark: rgba(30, 27, 46, 0.95);
             --purple-primary: #a855f7;
@@ -34,8 +34,9 @@
         *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
         input, select { text-transform: none !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
+        ::placeholder { text-transform: uppercase !important; color: #94a3b8 !important; opacity: 1; }
 
-        /* FUNDO ESTÁTICO DO UNIVERSO 3D */
+        /* FUNDO ESTÁTICO */
         body { 
             margin: 0; padding: 0; min-height: 100vh; position: relative;
             background-color: #0f0c29; 
@@ -54,7 +55,7 @@
             z-index: -1; pointer-events: none;
         }
 
-        /* --- SCROLLBAR --- */
+        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
@@ -86,41 +87,66 @@
         .btn-logout { background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #ffadad; padding: 8px 12px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
         .btn-logout:hover { background-color: #ef4444; color: white; transform: scale(1.05); }
 
-        /* HEADER DA PÁGINA */
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        /* HEADER DA PÁGINA (Desktop) */
+        .page-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 25px; flex-wrap: wrap; gap: 15px; position: relative;
+        }
         .page-title { font-size: 28px; font-weight: 800; color: white; margin: 0; text-shadow: 0 2px 15px rgba(0,0,0,0.5); display: flex; align-items: center; }
         .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-        .btn-new { background-color: var(--success-color); color: white; padding: 10px 20px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); font-size: 11px; transition: 0.2s; letter-spacing: 0.5px; }
+        .btn-new { background-color: var(--success-color); color: white; padding: 10px 20px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); font-size: 11px; transition: 0.2s; letter-spacing: 0.5px; z-index: 2; }
         .btn-new:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6); }
-        .btn-mass-delete { background-color: #ef4444; color: white; padding: 10px 20px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 11px; transition: 0.2s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); letter-spacing: 0.5px; }
+        .btn-mass-delete { background-color: #ef4444; color: white; padding: 10px 20px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 11px; transition: 0.2s; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); letter-spacing: 0.5px; z-index: 2;}
         .btn-mass-delete:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5); }
 
-        /* TOOLBAR FILTROS (GLASS) */
+        /* FILTROS*/
         .modern-toolbar { 
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px);
-            padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.3); 
+            background: rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(15px); 
+            padding: 15px; 
+            border-radius: 16px; 
+            border: 1px solid rgba(255,255,255,0.4); 
             box-shadow: 0 8px 30px rgba(0,0,0,0.2); 
             display: flex; align-items: center; gap: 10px; margin-bottom: 20px; 
             flex-wrap: wrap; 
         }
+        
+        .split-row { display: contents; } /* itens fluidos no Desktop */
+        
         .total-badge { background: var(--success-light); color: var(--success-color); padding: 10px 15px; border-radius: 8px; font-weight: 800; font-size: 12px; border: 1px solid #a7f3d0; white-space: nowrap; flex-shrink: 0; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
         .divider { width: 1px; height: 30px; background-color: rgba(255,255,255,0.3); flex-shrink: 0; display: block; }
         
         .search-box { 
-            display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.9); 
-            padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.5); 
-            flex: 1; min-width: 130px; transition: 0.3s;
+            display: flex; align-items: center; gap: 8px; 
+            background: rgba(255,255,255,0.95); 
+            padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.8); 
+            flex: 1; min-width: 130px; transition: 0.3s; box-sizing: border-box;
         }
+        
+        /* Overflow das Datas no Desktop */
+        .sb-dates { flex: 0 0 auto; min-width: 290px; }
+        .dates-inputs { display: flex; align-items: center; gap: 5px; width: 100%; flex: 1; }
+        .dates-inputs span { font-size: 10px; color: #94a3b8 !important; font-weight: 800; }
+        
         .search-box:focus-within { background: white; border-color: var(--success-color); box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
         
-        .dates-inputs { display: flex; align-items: center; gap: 8px; width: 100%; flex: 1; }
-        .clean-input, .clean-select { border: none; background: transparent; outline: none; font-size: 11px; color: var(--text-dark); font-weight: 700; width: 100%; }
+        /* CORES DOS INPUTS */
+        .clean-input, .clean-select, .date-input { 
+            border: none; background: transparent; outline: none; font-size: 11px; 
+            color: #64748b !important; font-weight: 800 !important; width: 100%; 
+            text-transform: uppercase !important; min-width: 10px; flex: 1;
+        }
+        .clean-select option { color: #1e293b; font-weight: 800; }
         
-        .btn-limpar { font-size: 10px; color: #e2e8f0; cursor: pointer; border: none; background: none; font-weight: 800; white-space: nowrap; transition: 0.2s; padding: 5px 10px; letter-spacing: 0.5px; }
-        .btn-limpar:hover { color: #ffffff; text-decoration: underline; }
+        ::-webkit-datetime-edit-text, ::-webkit-datetime-edit-year-field, ::-webkit-datetime-edit-month-field, ::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-fields-wrapper {
+            color: #64748b !important; text-transform: uppercase !important;
+        }
+        
+        .btn-limpar { font-size: 10px; color: #ffffff; cursor: pointer; border: none; background: none; font-weight: 800; white-space: nowrap; transition: 0.2s; padding: 5px 10px; letter-spacing: 0.5px; opacity: 0.8;}
+        .btn-limpar:hover { opacity: 1; text-decoration: underline; }
 
-        /* TABELA DESKTOP COM EFEITO GLASS */
+        /* TABELA DESKTOP */
         .table-container { 
             background: var(--card-bg-white); backdrop-filter: blur(15px);
             border-radius: 16px; border: 1px solid rgba(255,255,255,0.4); 
@@ -128,24 +154,13 @@
         }
         .clean-table { width: 100%; border-collapse: collapse; min-width: 900px; }
         
-        /* CABEÇALHO DA TABELA COM DESTAQUE (Cor Escura) */
-        .clean-table thead { 
-            border-bottom: 3px solid var(--success-color); 
-            background: var(--panel-dark); 
-        }
-        
-        /* Cabeçalho da Tabela */
-        .clean-table th { 
-            text-align: left; padding: 16px 20px; font-size: 13px; /* 1px maior que td no desktop */
-            font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: 0.5px; 
-        }
+        .clean-table thead { border-bottom: 3px solid var(--success-color); background: var(--panel-dark); }
+        .clean-table th { text-align: left; padding: 16px 20px; font-size: 13px; font-weight: 900; color: #ffffff; white-space: nowrap; letter-spacing: 0.5px; }
         .clean-table th:first-child { border-top-left-radius: 14px; }
         .clean-table th:last-child { border-top-right-radius: 14px; }
         
         .clean-table tbody tr { transition: 0.2s; }
         .clean-table tbody tr:hover { background-color: #ffffff; }
-        
-        /* Linha das contas */
         .clean-table td { padding: 15px 20px; font-size: 12px; color: #475569; border-bottom: 1px solid #f1f5f9; font-weight: 600; white-space: nowrap; }
         
         .col-valor { font-weight: 900; color: var(--success-color); font-size: 13px; }
@@ -178,6 +193,10 @@
         .form-group { margin-bottom: 15px; }
         .grid-auto-fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
 
+        grid-receita-linha1 { display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 15px; margin-bottom: 15px; }
+        .grid-receita-linha2 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 15px; }
+        .grid-receita-linha1 .form-group, .grid-receita-linha2 .form-group { margin-bottom: 0; }
+
         /* Caixa de Total */
         .total-pay-box { background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%); padding: 25px; border-radius: 16px; margin-top: 15px; border: 1px solid #a7f3d0; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 8px; box-shadow: inset 0 2px 5px rgba(255,255,255,0.6), 0 5px 15px rgba(16, 185, 129, 0.1); }
         .total-row { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
@@ -201,62 +220,135 @@
         .parcela-row input:focus { background: #fff; border-color: var(--success-color); }
         .p-valor { font-weight: 900 !important; color: var(--success-color) !important; }
 
-        /* --- RESPONSIVIDADE MOBILE --- */
+        /* RESPONSIVIDADE MOBILE */
         @media (max-width: 768px) {
-            .content { padding: 15px; width: 100%; box-sizing: border-box; }
+            .content { padding: 15px; width: 95%; box-sizing: border-box; }
             
-            .page-header { flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 15px; gap: 10px; }
-            .page-title { font-size: 18px; margin: 0; }
+            .page-header { 
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
+                align-items: center;
+                margin-bottom: 20px;
+                width: 100%;
+                position: relative;
+            }
+            .page-header::before {
+                content: '';
+                display: block; 
+            }
+            .page-title { 
+                grid-column: 2;
+                font-size: 18px; 
+                margin: 0; 
+                text-align: center; 
+                white-space: nowrap;
+                position: static;
+                transform: none;
+            }
+            .header-actions { 
+                grid-column: 3;
+                display: flex;
+                justify-content: flex-start; 
+                padding-left: 10px; 
+                position: static;
+                margin: 0;
+            }
             
-            .header-actions { width: auto; display: flex; gap: 8px; }
             .hide-on-mobile { display: none; }
-            .btn-new, .btn-mass-delete { width: 36px; height: 36px; border-radius: 10px; padding: 0; display: flex; align-items: center; justify-content: center; margin: 0; flex-shrink: 0; }
+            .btn-new, .btn-mass-delete { 
+                width: 36px; height: 36px; border-radius: 10px; padding: 0; 
+                display: flex; align-items: center; justify-content: center; 
+                margin: 0; flex-shrink: 0; 
+            }
             .btn-new i, .btn-mass-delete i { margin: 0; font-size: 14px; }
 
-            /* Card de filtros compacto*/
+            /* Card de Filtros*/
             .modern-toolbar { 
-                display: grid; 
-                grid-template-columns: 1fr 1fr; 
-                gap: 8px; /* Espaço bem reduzido */
-                padding: 12px; /* Margens internas menores */
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px; 
+                padding: 12px; 
                 border-radius: 12px; 
-                background: rgba(255,255,255,0.15);
+                background: rgba(255,255,255,0.15); 
+                backdrop-filter: blur(15px);
             }
-            .total-badge { grid-column: 1 / -1; width: 100%; font-size: 12px; padding: 10px; margin-bottom: 0; }
+            .total-badge { width: 100%; font-size: 13px; padding: 12px; margin-bottom: 4px; border-radius: 8px; box-sizing: border-box;}
             .divider { display: none; }
             
-            /* Caixas de input */
-            .search-box { padding: 6px 10px; min-width: 0; border-radius: 8px;}
-            .search-box i { font-size: 11px; }
-            .clean-input, .clean-select { font-size: 10px; padding: 2px 0; }
+            .search-box { padding: 8px 10px; min-width: 0; border-radius: 8px; background: rgba(255,255,255,0.95); width: 100%; box-sizing: border-box;}
+            .search-box i { font-size: 11px; color: #94a3b8; }
+            .clean-input, .clean-select, .date-input { font-size: 10px; padding: 2px 0; width: 100%; }
             
-            /* Organização Exata da Grid (Linha a Linha) */
-            .sb-dates { grid-column: 1 / 2; } /* Esquerda: Datas */
-            .sb-cliente { grid-column: 2 / 3; } /* Direita: Buscar Nome */
-            .sb-desc { grid-column: 1 / 2; } /* Esquerda: Descrição */
-            .sb-forma { grid-column: 2 / 3; } /* Direita: Forma de Pagto */
+            /* linha de Buscar Nome e Forma Pagto 50/50 */
+            .split-row { 
+                display: flex; 
+                flex-direction: row; 
+                width: 100%; 
+                gap: 8px; 
+            }
+            .split-row .search-box { flex: 1; min-width: 0; }
             
-            /* Agrupamento interno das datas para caber na caixinha */
-            .dates-inputs { flex-direction: column; gap: 2px; align-items: stretch; }
-            .icon-hide-mobile { display: none !important; }
+            .sb-dates > i { display: none; } 
+            .dates-inputs { flex-direction: row; align-items: center; justify-content: space-between; gap: 5px; width: 100%; }
+            .date-input { width: 45%; border: none; font-size: 10px; background: transparent; }
+            .icon-hide-mobile { display: block !important; color: #94a3b8 !important; }
             
-            .btn-limpar { grid-column: 1 / -1; justify-self: center; width: auto; padding: 6px 24px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; margin-top: 0; font-size: 10px; color: white;}
+            .btn-limpar { align-self: center; justify-self: center; width: auto; padding: 8px 24px; border: 1px solid rgba(255,255,255,0.4); border-radius: 20px; margin-top: 4px; font-size: 10px; color: white; background: transparent;}
 
             /* Cabeçalho da Tabela no Mobile */
-            .clean-table th { padding: 12px 10px; font-size: 12px; } /* Cabeçalho é MAIOR (12px) */
-            .clean-table td { padding: 10px; font-size: 11px; } /* Linha é MENOR (11px) */
+            .clean-table th { padding: 12px 10px; font-size: 12px; } 
+            .clean-table td { padding: 10px; font-size: 11px; } 
             .col-acao { padding-right: 10px !important; }
 
             /* Modal Mobile */
-            .modal { padding: 25px 20px; width: 100%; max-height: 85vh; border-radius: 16px;}
-            .form-row, .grid-auto-fit { grid-template-columns: 1fr; gap: 0; margin-bottom: 0; }
-            .form-group { margin-bottom: 15px; }
+            .modal { 
+                padding: 20px 15px; 
+                width: 92%;
+                max-width: 450px;
+                max-height: 85vh; 
+                border-radius: 16px; 
+                overflow-y: auto; 
+                box-sizing: border-box;
+                margin: auto; 
+            }
+            .grid-receita-linha1 { 
+                grid-template-columns: 1.8fr 1.2fr; /* Nome maior, data menor */
+                gap: 8px; 
+                margin-bottom: 10px; 
+            }
+            .grid-receita-linha2 { 
+                grid-template-columns: 1fr 0.8fr 1.2fr; /* Valor | Parc | Forma */
+                gap: 8px; 
+                margin-bottom: 10px; 
+            }
             
-            #containerParcelas { overflow-x: auto; }
-            .parcela-header, .parcela-row { min-width: 400px; grid-template-columns: 40px 1fr 110px 90px; }
+            .grid-receita-linha1 .form-group label, 
+            .grid-receita-linha2 .form-group label {
+                font-size: 8.5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-bottom: 4px;
+            }
             
-            .modal-footer { flex-direction: column-reverse; gap: 8px; }
-            .modal-footer button { width: 100%; margin: 0; padding: 14px; }
+            .grid-receita-linha1 .form-group input,
+            .grid-receita-linha2 .form-group input,
+            .grid-receita-linha2 .form-group select {
+                padding: 10px 8px;
+                font-size: 10px;
+                border-radius: 8px;
+            }
+
+            .form-row { grid-template-columns: 1fr 1fr; gap: 10; margin-bottom: 0; }
+            .grid-auto-fit { grid-template-columns: 1fr; gap: 10; margin-bottom: 0; }
+            .form-group { margin-bottom: 10; }
+            
+            #containerParcelas { overflow-x: auto; margin-top: 10px; }
+            .parcela-header, .parcela-row { min-width: 320px; grid-template-columns: 40px 1fr 90px 80px; }
+            
+            .modal-footer { flex-direction: row; justify-content: space-between; gap: 1px; margin-top: 15px; padding-top: 15px; }
+            .modal-footer button { width: 50%; margin: 0; padding: 12px; font-size: 10px;}
         }
     </style>
 </head>
@@ -291,27 +383,29 @@
             <div class="search-box sb-dates">
                 <i class="far fa-calendar icon-hide-mobile" style="color:#94a3b8"></i>
                 <div class="dates-inputs">
-                    <input type="date" id="filtroInicio" class="clean-input" onchange="aplicarFiltros()" title="Data Inicial">
+                    <input type="date" id="filtroInicio" class="clean-input date-input" onchange="aplicarFiltros()" title="Data Inicial">
                     <span class="icon-hide-mobile" style="color: #cbd5e0; font-size: 10px; font-weight: 800;">ATÉ</span>
-                    <input type="date" id="filtroFim" class="clean-input" onchange="aplicarFiltros()" title="Data Final">
+                    <input type="date" id="filtroFim" class="clean-input date-input" onchange="aplicarFiltros()" title="Data Final">
                 </div>
             </div>
             
-            <div class="search-box sb-cliente">
-                <i class="fas fa-user" style="color:#94a3b8"></i>
-                <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Buscar Nome" onkeyup="aplicarFiltros()">
+            <div class="split-row">
+                <div class="search-box sb-cliente">
+                    <i class="fas fa-user" style="color:#94a3b8"></i>
+                    <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Buscar Nome" onkeyup="aplicarFiltros()">
+                </div>
+                
+                <div class="search-box sb-forma">
+                    <i class="far fa-credit-card" style="color:#94a3b8"></i>
+                    <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()">
+                        <option value="">Forma Pagto</option>
+                    </select>
+                </div>
             </div>
-            
+
             <div class="search-box sb-desc">
                 <i class="fas fa-search" style="color:#94a3b8"></i>
                 <input type="text" id="filtroDesc" class="clean-input" placeholder="Buscar Descrição" onkeyup="aplicarFiltros()">
-            </div>
-
-            <div class="search-box sb-forma">
-                <i class="far fa-credit-card" style="color:#94a3b8"></i>
-                <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()">
-                    <option value="">Forma Pagto</option>
-                </select>
             </div>
             
             <button class="btn-limpar" onclick="limparFiltros()"><i class="fas fa-eraser"></i> Limpar Filtros</button>
@@ -369,7 +463,7 @@
                 <div class="form-group">
                     <label><i class="far fa-credit-card"></i> FORMA RECBTO</label>
                     <select id="formaPagto">
-                        <option value="Pix">Pix</option>
+                        <option value="Pix">PIX</option>
                         <option value="Boleto">Boleto</option>
                         <option value="Dinheiro">Dinheiro</option>
                         <option value="Transferência">Transferência</option>
@@ -559,7 +653,6 @@
             document.getElementById('modalConta').style.display = 'flex'; 
         }
 
-        // Lógica de Recálculo Dinâmico das Parcelas
         function recalcularParcelas(inputAlterado) {
             const linhaAlterada = inputAlterado.closest('.parcela-row');
             const idAlterado = parseInt(linhaAlterada.dataset.id);
@@ -569,16 +662,13 @@
             const valorTotal = parseFloat(document.getElementById('valor').value) || 0;
             const linhas = document.querySelectorAll('.parcela-row');
             
-            // Só recalcula se tiver mais de uma parcela e se a parcela alterada NÃO for a última
             if (linhas.length > 1 && idAlterado < linhas.length) {
                 let somaAnteriores = 0;
-                // Soma todas as parcelas até a que foi alterada
                 for (let i = 0; i < idAlterado; i++) {
                     const valInput = parseFloat(linhas[i].querySelector('.p-valor').value.replace(',', '.')) || 0;
                     somaAnteriores += valInput;
                 }
                 
-                // O restante do valor será dividido entre as parcelas que faltam
                 const valorRestante = valorTotal - somaAnteriores;
                 const parcelasRestantes = linhas.length - idAlterado;
                 
@@ -592,7 +682,6 @@
                         showConfirmButton: false,
                         timer: 3000
                     });
-                    // Reverte o valor do input atual para não quebrar a conta
                     gerarParcelasVisuais();
                     return;
                 }
@@ -603,7 +692,6 @@
                 for (let i = idAlterado; i < linhas.length; i++) {
                     let valParaAtualizar = parseFloat(novoValorParcelaBase);
                     
-                    // Joga o arredondamento (centavos) na última parcela
                     if (i === linhas.length - 1) {
                         valParaAtualizar = valorRestante - somaNovoRestante;
                     }
@@ -612,11 +700,10 @@
                     linhas[i].querySelector('.p-valor').value = valParaAtualizar.toFixed(2);
                 }
             } else if (idAlterado === linhas.length) {
-                 // Se tentou alterar a última, verifica se bate o total.
                  let somaTotal = 0;
                  linhas.forEach(l => somaTotal += parseFloat(l.querySelector('.p-valor').value.replace(',', '.')) || 0);
                  
-                 if(Math.abs(somaTotal - valorTotal) > 0.05) { // Tolerância de 5 centavos
+                 if(Math.abs(somaTotal - valorTotal) > 0.05) { 
                      Swal.fire({
                         icon: 'warning',
                         title: 'Atenção',
@@ -659,7 +746,6 @@
                 novaData.setMonth(dataObj.getMonth() + i); 
                 const dataStr = novaData.toISOString().split('T')[0]; 
                 
-                // Adicionado data-id para mapear as linhas e onblur no input de valor
                 lista.innerHTML += `
                     <div class="parcela-row" data-id="${i + 1}">
                         <span class="p-idx">${i+1}/${qtd}</span>
@@ -680,7 +766,6 @@
             
             let itens = [];
             if (!id && qtd > 1) { 
-                // Varre a lista visual para pegar as alterações de valores e datas reais feitas pelo usuário
                 const linhas = document.querySelectorAll('.parcela-row');
                 linhas.forEach((linha, index) => {
                     itens.push({ 
@@ -710,7 +795,6 @@
             
             if(!payload.fornecedor || !payload.valor) return Swal.fire('Atenção', 'Preencha o Nome e o Valor!', 'warning');
             
-            // soma das parcelas editadas deve bater com o total
             if(itens.length > 0) {
                 const somaParcelas = itens.reduce((acc, item) => acc + item.valor, 0);
                 if(Math.abs(somaParcelas - val) > 0.05) {
