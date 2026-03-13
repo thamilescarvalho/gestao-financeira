@@ -112,7 +112,7 @@
             flex-wrap: wrap; 
         }
         
-        .split-row { display: contents; } /* itens fluidos no Desktop */
+        .split-row { display: contents; } 
         
         .total-badge { background: var(--success-light); color: var(--success-color); padding: 10px 15px; border-radius: 8px; font-weight: 800; font-size: 12px; border: 1px solid #a7f3d0; white-space: nowrap; flex-shrink: 0; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
         .divider { width: 1px; height: 30px; background-color: rgba(255,255,255,0.3); flex-shrink: 0; display: block; }
@@ -392,13 +392,13 @@
             <div class="split-row">
                 <div class="search-box sb-cliente">
                     <i class="fas fa-user" style="color:#94a3b8"></i>
-                    <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Buscar Nome" onkeyup="aplicarFiltros()">
+                    <input type="text" id="filtroFornecedor" class="clean-input" placeholder="Nome" onkeyup="aplicarFiltros()">
                 </div>
                 
                 <div class="search-box sb-forma">
                     <i class="far fa-credit-card" style="color:#94a3b8"></i>
                     <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()">
-                        <option value="">Forma Pagto</option>
+                        <option value="">Todas as Formas</option>
                     </select>
                 </div>
             </div>
@@ -415,7 +415,7 @@
             <table class="clean-table">
                 <thead>
                     <tr>
-                        <th class="col-forn">CLIENTE / ORIGEM</th>
+                        <th class="col-forn">NOME</th>
                         <th class="col-venc">VENCIMENTO</th>
                         <th class="col-valor">VALOR</th>
                         <th class="col-forma">FORMA</th>
@@ -602,7 +602,7 @@
             const padrao = ['Pix', 'Boleto', 'Dinheiro', 'Transferência', 'Outros'];
             const doBanco = transacoesCache.map(t => t.formaPagamento).filter(f => f);
             const unicas = [...new Set([...padrao, ...doBanco])].sort();
-            select.innerHTML = '<option value="">Forma Pagto</option>';
+            select.innerHTML = '<option value="">Todas as Formas</option>';
             unicas.forEach(f => { select.innerHTML += `<option value="${f}">${f}</option>`; });
             select.value = valorAtual; 
         }
