@@ -16,7 +16,7 @@
     <script src="script.js"></script>
 
     <style>
-        /* --- TEMA --- */
+        /* --- TEMA GALAXY UNIFICADO --- */
         :root {
             --panel-dark: rgba(30, 27, 46, 0.95);
             --purple-primary: #a855f7;
@@ -27,16 +27,18 @@
             --card-bg-white: rgba(255, 255, 255, 0.95); 
             --text-card-main: #1e293b; 
             
+            /* Cores Específicas para Despesas */
             --danger-color: #ef4444; 
             --danger-light: #fef2f2;
         }
 
+        /* TIPOGRAFIA ATUALIZADA E RESET */
         *:not(i) { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase !important; box-sizing: border-box; }
         input, select { text-transform: none !important; }
         .fas, .far, .fab, .fa, i { font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", sans-serif !important; text-transform: none !important; font-style: normal; }
         ::placeholder { text-transform: uppercase !important; color: #94a3b8 !important; opacity: 1; }
 
-        /* FUNDO */
+        /* FUNDO ESTÁTICO DO UNIVERSO 3D */
         body { 
             margin: 0; padding: 0; min-height: 100vh; position: relative;
             background-color: #0f0c29; 
@@ -55,6 +57,7 @@
             z-index: -1; pointer-events: none;
         }
 
+        /* --- SCROLLBAR --- */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.5); border-radius: 10px; }
@@ -122,7 +125,7 @@
         .btn-mass-delete { background-color: #b91c1c; color: white; padding: 10px 20px; border-radius: 10px; font-weight: 800; border: none; cursor: pointer; display: none; align-items: center; gap: 6px; font-size: 11px; transition: 0.2s; box-shadow: 0 4px 15px rgba(185, 28, 28, 0.3); letter-spacing: 0.5px; z-index: 2;}
         .btn-mass-delete:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(185, 28, 28, 0.5); }
 
-        /* TOOLBAR FILTROS */
+        /* TOOLBAR FILTROS (EFEITO GLASS) */
         .modern-toolbar { 
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(15px); 
@@ -136,7 +139,7 @@
         .total-badge { background: var(--danger-light); color: var(--danger-color); padding: 10px 15px; border-radius: 8px; font-weight: 800; font-size: 12px; border: 1px solid #fecaca; white-space: nowrap; flex-shrink: 0; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
         .divider { width: 1px; height: 30px; background-color: rgba(255,255,255,0.3); flex-shrink: 0; display: block; }
         
-        .split-row { display: contents; }
+        .split-row { display: contents; } 
         
         .search-box { 
             display: flex; align-items: center; gap: 8px; 
@@ -145,7 +148,6 @@
             flex: 1; min-width: 130px; transition: 0.3s; box-sizing: border-box;
         }
         
-        /* caixa de Data no Desktop */
         .sb-dates { flex: 0 0 auto; min-width: 290px; }
         .dates-inputs { display: flex; align-items: center; gap: 8px; width: 100%; flex: 1; }
         .dates-inputs input { min-width: 0; }
@@ -153,7 +155,6 @@
         
         .search-box:focus-within { background: white; border-color: var(--danger-color); box-shadow: 0 0 0 3px rgba(239,68,68,0.2); }
         
-        /* CORES DOS INPUTS CINZA ESCURO*/
         .clean-input, .clean-select, .date-input { 
             border: none; background: transparent; outline: none; font-size: 11px; 
             color: #64748b !important; font-weight: 800 !important; width: 100%; 
@@ -168,7 +169,7 @@
         .btn-limpar { font-size: 10px; color: #ffffff; cursor: pointer; border: none; background: none; font-weight: 800; white-space: nowrap; transition: 0.2s; padding: 5px 10px; letter-spacing: 0.5px; opacity: 0.8;}
         .btn-limpar:hover { opacity: 1; text-decoration: underline; }
 
-        /* TABELA DESKTOP COM EFEITO GLASS */
+        /* TABELA DESKTOP */
         .table-container { 
             background: var(--card-bg-white); backdrop-filter: blur(15px);
             border-radius: 16px; border: 1px solid rgba(255,255,255,0.4); 
@@ -215,18 +216,41 @@
         
         .grid-receita-linha1 { display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 15px; margin-bottom: 15px; }
         .grid-receita-linha2 { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 15px; }
-        .grid-receita-linha1 .form-group, .grid-receita-linha2 .form-group { margin-bottom: 0; }
+        .grid-3-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px; } /* Usada no Modal Baixa */
+
+        .grid-receita-linha1 .form-group, .grid-receita-linha2 .form-group, .grid-3-col .form-group { margin-bottom: 0; }
         
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .form-group { margin-bottom: 15px; }
         .grid-auto-fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
 
+        /* --- Caixa de Total da Baixa com Input Editável --- */
         .total-pay-box { background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%); padding: 25px; border-radius: 16px; margin-top: 15px; border: 1px solid #fecdd3; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 8px; box-shadow: inset 0 2px 5px rgba(255,255,255,0.6), 0 5px 15px rgba(225, 29, 72, 0.1); }
         .total-row { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
         .t-label-small { font-size: 10px; color: #475569; font-weight: 800; }
         .t-val-small { font-size: 13px; color: #334155; font-weight: 800; }
         .t-label-big { font-size: 12px; color: #be123c; font-weight: 900; letter-spacing: 0.5px; }
-        .t-val-big { font-size: 22px; font-weight: 900; color: #ef4444; text-shadow: 0 2px 5px rgba(239, 68, 68, 0.2); }
+        
+        /* Input Final a Pagar (Substitui o span estático) */
+        .input-destaque-final {
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px dashed #fca5a5;
+            border-radius: 8px;
+            color: #ef4444;
+            font-family: inherit;
+            font-size: 20px;
+            font-weight: 900;
+            text-align: right;
+            width: 140px;
+            padding: 4px 10px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .input-destaque-final:focus {
+            background: #ffffff;
+            border-color: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        }
 
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
         .btn-outline { padding: 12px 24px; border: 1px solid #cbd5e0; background: white; border-radius: 10px; cursor: pointer; color: #64748b; font-weight: 800; font-size: 11px; transition: 0.3s; letter-spacing: 0.5px;}
@@ -245,9 +269,9 @@
         .parcela-row input:focus { background: #fff; border-color: var(--danger-color); }
         .p-valor { font-weight: 900 !important; color: var(--danger-color) !important; }
 
-        /* RESPONSIVIDADE MOBILE */
+        /* --- RESPONSIVIDADE MOBILE --- */
         @media (max-width: 768px) {
-            .content { padding: 15px; width: 95%; box-sizing: border-box; }
+            .content { padding: 15px; width: 100%; box-sizing: border-box; }
             
             .page-header { 
                 display: grid;
@@ -257,26 +281,14 @@
                 width: 100%;
                 position: relative;
             }
-            .page-header::before {
-                content: '';
-                display: block; 
-            }
+            .page-header::before { content: ''; display: block; }
             .page-title { 
-                grid-column: 2;
-                font-size: 18px; 
-                margin: 0; 
-                text-align: center; 
-                white-space: nowrap;
-                position: static;
-                transform: none;
+                grid-column: 2; font-size: 18px; margin: 0; text-align: center; 
+                white-space: nowrap; position: static; transform: none;
             }
             .header-actions { 
-                grid-column: 3;
-                display: flex;
-                justify-content: flex-start; 
-                padding-left: 10px; 
-                position: static;
-                margin: 0;
+                grid-column: 3; display: flex; justify-content: flex-start; 
+                padding-left: 10px; position: static; margin: 0;
             }
             
             .hide-on-mobile { display: none; }
@@ -287,31 +299,19 @@
             }
             .btn-new i, .btn-mass-delete i { margin: 0; font-size: 14px; }
 
-            /* Card de Filtros*/
             .modern-toolbar { 
-                display: flex;
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px; 
-                padding: 12px; 
-                border-radius: 12px; 
-                background: rgba(255,255,255,0.15); 
-                backdrop-filter: blur(15px);
+                display: flex; flex-direction: column; align-items: stretch;
+                gap: 8px; padding: 12px; border-radius: 12px; 
+                background: rgba(255,255,255,0.15); backdrop-filter: blur(15px);
             }
-            .total-badge { width: 100%; font-size: 13px; padding: 12px; margin-bottom: 4; border-radius: 8px; box-sizing: border-box;}
+            .total-badge { width: 100%; font-size: 13px; padding: 12px; margin-bottom: 4px; border-radius: 8px; box-sizing: border-box;}
             .divider { display: none; }
             
             .search-box { padding: 8px 10px; min-width: 0; border-radius: 8px; background: rgba(255,255,255,0.95); width: 100%; box-sizing: border-box;}
             .search-box i { font-size: 11px; color: #94a3b8; }
             .clean-input, .clean-select, .date-input { font-size: 10px; padding: 2px 0; width: 100%; }
             
-            /* linha de Buscar Nome e Forma Pagto 50/50 */
-            .split-row { 
-                display: flex; 
-                flex-direction: row; 
-                width: 100%; 
-                gap: 8px; 
-            }
+            .split-row { display: flex; flex-direction: row; width: 100%; gap: 8px; }
             .split-row .search-box { flex: 1; min-width: 0; }
             
             .sb-dates > i { display: none; } 
@@ -321,72 +321,45 @@
             
             .btn-limpar { align-self: center; justify-self: center; width: auto; padding: 8px 24px; border: 1px solid rgba(255,255,255,0.4); border-radius: 20px; margin-top: 4px; font-size: 10px; color: white; background: transparent;}
 
-            /* Cabeçalho da Tabela no Mobile */
             .clean-table th { padding: 12px 10px; font-size: 12px; } 
             .clean-table td { padding: 10px; font-size: 11px; } 
             .col-acao { padding-right: 10px !important; }
 
-            /* MODAL MOBILE */
             .modal { 
-                padding: 20px 15px; 
-                width: 90%;
-                max-width: 450px;
-                max-height: 85vh; 
-                border-radius: 16px; 
-                overflow-y: auto; 
-                box-sizing: border-box;
-                margin: auto; 
+                padding: 20px 15px; width: 90%; max-width: 450px;
+                max-height: 85vh; border-radius: 16px; overflow-y: auto; 
+                box-sizing: border-box; margin: auto; 
             }
             
-            /* proporcional para o celular no modal */
-            .grid-receita-linha1 { 
-                grid-template-columns: 1.8fr 1.2fr; /* Nome maior, data menor */
-                gap: 8px; 
-                margin-bottom: 10px; 
-            }
-            .grid-receita-linha2 { 
-                grid-template-columns: 1fr 0.8fr 1.2fr; /* Valor | Parc | Forma */
-                gap: 8px; 
-                margin-bottom: 10px; 
-            }
-            
+            .grid-receita-linha1 { grid-template-columns: 1.8fr 1.2fr; gap: 8px; margin-bottom: 10px; }
+            .grid-receita-linha2 { grid-template-columns: 1fr 0.8fr 1.2fr; gap: 8px; margin-bottom: 10px; }
+            .grid-3-col { grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+
             .grid-receita-linha1 .form-group label, 
-            .grid-receita-linha2 .form-group label {
-                font-size: 8.5px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                margin-bottom: 4px;
+            .grid-receita-linha2 .form-group label,
+            .grid-3-col .form-group label {
+                font-size: 8.5px; white-space: nowrap; overflow: hidden;
+                text-overflow: ellipsis; margin-bottom: 4px;
             }
             
             .grid-receita-linha1 .form-group input,
             .grid-receita-linha2 .form-group input,
-            .grid-receita-linha2 .form-group select {
-                padding: 10px 8px;
-                font-size: 10px;
-                border-radius: 8px;
+            .grid-receita-linha2 .form-group select,
+            .grid-3-col .form-group input {
+                padding: 10px 8px; font-size: 10px; border-radius: 8px;
             }
 
             .form-row { grid-template-columns: 1fr; gap: 0; margin-bottom: 0; } 
             .grid-auto-fit { grid-template-columns: 1fr; gap: 0; margin-bottom: 0; }
             .form-group { margin-bottom: 10px; }
             
+            .input-destaque-final { font-size: 16px; width: 110px; padding: 4px; }
+            
             #containerParcelas { overflow-x: auto; margin-top: 10px;}
             .parcela-header, .parcela-row { min-width: 320px; grid-template-columns: 40px 1fr 90px 80px; }
             
-            .modal-footer { 
-                flex-direction: row; 
-                justify-content: space-between; 
-                gap: 8px; 
-                margin-top: 15px; 
-                padding-top: 15px; 
-            }
-            .modal-footer button { 
-                width: 50%; 
-                margin: 0; 
-                padding: 12px; 
-                font-size: 10px;
-            }
+            .modal-footer { flex-direction: row; justify-content: space-between; gap: 8px; margin-top: 15px; padding-top: 15px; }
+            .modal-footer button { width: 50%; margin: 0; padding: 12px; font-size: 10px;}
         }
     </style>
 </head>
@@ -430,13 +403,13 @@
             <div class="split-row">
                 <div class="search-box sb-fornecedor">
                     <i class="fas fa-user" style="color:#94a3b8"></i>
-                    <input type="text" id="filtroFornecedor" class="clean-input" placeholder="NOME" onkeyup="aplicarFiltros()">
+                    <input type="text" id="filtroFornecedor" class="clean-input" placeholder="FORNECEDOR" onkeyup="aplicarFiltros()">
                 </div>
                 
                 <div class="search-box sb-forma">
                     <i class="far fa-credit-card" style="color:#94a3b8"></i>
                     <select id="filtroPagto" class="clean-select" onchange="aplicarFiltros()">
-                        <option value="">Todas as Formas</option>
+                        <option value="">FORMA PAGTO</option>
                     </select>
                 </div>
             </div>
@@ -453,7 +426,7 @@
             <table class="clean-table">
                 <thead>
                     <tr>
-                        <th class="col-forn">NOME</th>
+                        <th class="col-forn">FORNECEDOR</th>
                         <th class="col-venc">VENCIMENTO</th>
                         <th class="col-valor">VALOR</th>
                         <th class="col-forma">FORMA</th>
@@ -554,7 +527,7 @@
 
             <input type="hidden" id="baixaId"><input type="hidden" id="baixaValorOriginal">
             
-            <div class="grid-auto-fit">
+            <div class="form-row">
                 <div class="form-group">
                     <label><i class="far fa-credit-card"></i> FORMA DE PAGAMENTO</label>
                     <select id="baixaFormaPagto">
@@ -574,14 +547,18 @@
                 </div>
             </div>
             
-            <div class="grid-auto-fit">
+            <div class="grid-3-col">
                 <div class="form-group">
-                    <label><i class="far fa-calendar-check"></i> DATA PAGAMENTO</label>
+                    <label><i class="far fa-calendar-check"></i> DATA PAGTO.</label>
                     <input type="date" id="baixaData">
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-percent"></i> JUROS / MULTA (R$)</label>
-                    <input type="number" id="baixaJuros" step="0.01" value="0.00" oninput="atualizarTotalBaixa()">
+                    <label><i class="fas fa-percent"></i> JUROS (+)</label>
+                    <input type="number" id="baixaJuros" step="0.01" value="0.00" oninput="atualizarPorJurosOuDesconto()">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tags"></i> DESCONTO (-)</label>
+                    <input type="number" id="baixaDesconto" step="0.01" value="0.00" oninput="atualizarPorJurosOuDesconto()">
                 </div>
             </div>
 
@@ -597,14 +574,17 @@
                 </div>
                 <div style="height: 1px; background: rgba(225, 29, 72, 0.1); margin: 5px 0;"></div>
                 <div class="total-row">
-                    <span class="t-label-big">TOTAL A PAGAR:</span>
-                    <span class="t-val-big" id="baixaTotalFinal">R$ 0,00</span>
+                    <span class="t-label-big" style="display: flex; align-items: center; margin-top: 5px;">VALOR PAGO:</span>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span style="font-size: 16px; font-weight: 900; color: #ef4444;">R$</span>
+                        <input type="number" id="baixaValorPagoInput" class="input-destaque-final" step="0.01" oninput="atualizarPorValorPago()">
+                    </div>
                 </div>
             </div>
 
-            <div class="modal-footer" style="flex-direction: row; justify-content: space-between;">
+            <div class="modal-footer">
                 <button class="btn-outline" style="flex:1" onclick="document.getElementById('modalBaixa').style.display='none'">CANCELAR</button>
-                <button class="btn-confirm" style="flex:1" onclick="confirmarBaixa()"><i class="fas fa-lock"></i> PAGAR</button>
+                <button class="btn-confirm" style="flex:1" onclick="confirmarBaixa()"><i class="fas fa-lock"></i> PAGAR CONTA</button>
             </div>
         </div>
     </div>
@@ -898,6 +878,7 @@
             document.getElementById('baixaId').value = id; 
             document.getElementById('baixaValorOriginal').value = t.valor; 
             document.getElementById('baixaJuros').value = "0.00";
+            document.getElementById('baixaDesconto').value = "0.00";
             
             document.getElementById('baixaDescricao').value = t.descricao || t.fornecedor || '';
             
@@ -911,7 +892,7 @@
 
             document.getElementById('displayValorOriginal').innerText = fmt.format(t.valor); 
             document.getElementById('baixaData').valueAsDate = new Date(); 
-            atualizarTotalBaixa();
+            document.getElementById('baixaValorPagoInput').value = t.valor.toFixed(2);
 
             const divBanco = document.getElementById('divBaixaBanco'); 
             
@@ -932,11 +913,33 @@
             document.getElementById('modalBaixa').style.display = 'flex'; 
         }
 
-        function atualizarTotalBaixa() {
+        // Se o usuário editar os Juros ou o Desconto, recalcula o valor pago total
+        function atualizarPorJurosOuDesconto() {
             const valOriginal = parseFloat(document.getElementById('baixaValorOriginal').value) || 0;
             const valJuros = parseFloat(document.getElementById('baixaJuros').value) || 0;
-            const total = valOriginal + valJuros;
-            document.getElementById('baixaTotalFinal').innerText = fmt.format(total);
+            const valDesconto = parseFloat(document.getElementById('baixaDesconto').value) || 0;
+            
+            let total = valOriginal + valJuros - valDesconto;
+            if (total < 0) total = 0;
+            
+            document.getElementById('baixaValorPagoInput').value = total.toFixed(2);
+        }
+
+        // Se o usuário digitar direto o Valor Pago, recalcula quem muda (se pagou a menos, é desconto. se pagou a mais, é juros)
+        function atualizarPorValorPago() {
+            const valOriginal = parseFloat(document.getElementById('baixaValorOriginal').value) || 0;
+            const valorPago = parseFloat(document.getElementById('baixaValorPagoInput').value) || 0;
+            
+            if (valorPago < valOriginal) {
+                document.getElementById('baixaDesconto').value = (valOriginal - valorPago).toFixed(2);
+                document.getElementById('baixaJuros').value = "0.00";
+            } else if (valorPago > valOriginal) {
+                document.getElementById('baixaJuros').value = (valorPago - valOriginal).toFixed(2);
+                document.getElementById('baixaDesconto').value = "0.00";
+            } else {
+                document.getElementById('baixaJuros').value = "0.00";
+                document.getElementById('baixaDesconto').value = "0.00";
+            }
         }
 
         async function confirmarBaixa() { 
@@ -950,9 +953,9 @@
 
             if (!isCartao && !bid) return Swal.fire({ icon: 'warning', text: 'Selecione a Conta de Saída!' }); 
 
-            const valOriginal = parseFloat(document.getElementById('baixaValorOriginal').value);
             const valJuros = parseFloat(document.getElementById('baixaJuros').value) || 0;
-            const totalPago = valOriginal + valJuros;
+            const valDesconto = parseFloat(document.getElementById('baixaDesconto').value) || 0;
+            const totalPago = parseFloat(document.getElementById('baixaValorPagoInput').value) || 0;
 
             await fetch(`/transacoes/${id}/baixar`, { 
                 method: 'PUT', 
@@ -962,6 +965,7 @@
                     dataPagamento: document.getElementById('baixaData').value, 
                     valorPago: totalPago,
                     juros: valJuros,
+                    desconto: valDesconto,
                     descricao: descricaoInformada,
                     formaPagamento: formaPagtoInformada 
                 }) 

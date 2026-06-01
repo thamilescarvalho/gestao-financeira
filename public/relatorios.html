@@ -133,14 +133,51 @@
         }
         .btn-galaxy-main:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.5); }
 
-        #painelParcelas { display: none; animation: slideUp 0.4s ease-out; }
+        #painelParcelas { display: none; animation: slideUp 0.4s ease-out; padding-bottom: 20px;}
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .parcel-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .parcel-table th { text-align: left; padding: 15px; color: #1e293b; background: rgba(168, 85, 247, 0.1); font-weight: 800; font-size: 10px; border-bottom: 2px solid #e2e8f0; white-space: nowrap; }
+        /* SCROLL CONTAINER DA TABELA PARA RODAPÉ FIXO */
+        .table-scroll-container {
+            max-height: 55vh; 
+            overflow-y: auto; 
+            overflow-x: auto;
+            border-radius: 0 0 12px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .parcel-table { width: 100%; border-collapse: collapse; }
+        
+        /* CABEÇALHO  */
+        .parcel-table th { 
+            text-align: left; 
+            padding: 15px; 
+            color: #1e293b; 
+            background: #f4ebfc; /* Cor lilás sólida */
+            font-weight: 800; 
+            font-size: 10px; 
+            border-bottom: 2px solid #e2e8f0; 
+            white-space: nowrap; 
+            position: sticky; 
+            top: 0; 
+            z-index: 10; 
+        }
+        
         .parcel-table td { padding: 15px; color: #334155; border-bottom: 1px solid #f1f5f9; font-weight: 600; font-size: 12px; white-space: nowrap; }
         
-        /* ESTILO PARA TRUNCAR O TEXTO (Reticências) */
+        /* RODAPÉ FIXO (TOTAL) */
+        .parcel-table tfoot td {
+            position: sticky;
+            bottom: 0;
+            background: #efe4f8;
+            border-top: 2px solid #cbd5e1;
+            border-bottom: none;
+            font-weight: 500;
+            font-size: 11px;
+            color: #11151c;
+            z-index: 10;
+            box-shadow: 0 -4px 10px rgba(0,0,0,0.03);
+        }
+
         .truncate-text {
             max-width: 180px; 
             white-space: nowrap;
@@ -149,7 +186,6 @@
             display: block;
         }
 
-        /* LINHA CLICÁVEL COM EFEITO HOVER */
         .clickable-row { cursor: pointer; transition: background 0.2s; }
         .clickable-row:hover { background-color: #f3e8ff !important; }
 
@@ -157,9 +193,7 @@
         .progress-bar { height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 4px; }
         
         .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 900; display: inline-block; }
-        /* COR DO STATUS EM ANDAMENTO - PRETO COM FUNDO CINZA CLARO */
         .status-active { background: #f1f5f9; color: #000000d0; border: 1px solid #0b0b257e; }
-        /* COR DO STATUS CONCLUÍDO - VERDE */
         .status-done { background: #ecfdf5; color: #10b981; border: 1px solid #a7f3ba; }
 
         .value-total { color: #1e293b; font-weight: 800; }
@@ -194,7 +228,6 @@
             .projecao-grid, .kpi-grid { grid-template-columns: 1fr; }
             .content { padding: 10px; width: 100%; } 
             
-            /* Título centralizado e botão na linha de baixo */
             .page-header { 
                 flex-direction: column; 
                 text-align: center; 
@@ -233,7 +266,7 @@
         <div class="page-header">
             <div>
                 <h1 class="page-title">RELATÓRIOS FINANCEIROS</h1>
-                <div class="page-sub">VISÃO COMPLETA DA SAÚDE FINANCEIRA.</div>
+                <div class="page-sub">VISÃO COMPLETA.</div>
             </div>
             <button class="btn-galaxy-main" onclick="mostrarParcelamentos()">
                 <i class="fas fa-layer-group"></i> CONTAS PARCELADAS
@@ -241,18 +274,18 @@
         </div>
 
         <div id="painelParcelas" class="glass-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h2 style="margin:0; color:#1e293b; font-size:18px; display:flex; align-items:center; gap:10px;">
                     <i class="fas fa-credit-card" style="color:#3331b6;"></i> CONTAS PARCELADAS
                 </h2>
                 <button onclick="document.getElementById('painelParcelas').style.display='none'" style="background:none; border:none; cursor:pointer; color:#94a3b8;"><i class="fas fa-times"></i></button>
             </div>
 
-            <div style="overflow-x:auto;">
+            <div class="table-scroll-container">
                 <table class="parcel-table">
                     <thead>
                         <tr>
-                            <th>FORNECEDOR</th>
+                            <th>NOME</th>
                             <th style="text-align:center;">PROGRESSO</th>
                             <th>STATUS</th>
                             <th>VALOR PARCELA</th>
@@ -263,6 +296,7 @@
                         </tr>
                     </thead>
                     <tbody id="listaParcelamentos"></tbody>
+                    <tfoot id="totalParcelamentos"></tfoot>
                 </table>
             </div>
         </div>
@@ -378,13 +412,15 @@
             carregarProjecaoMensal(); 
         });
 
-        // --- GESTÃO DE PARCELAMENTOS ---
+        // --- CONTAS PARCELADAS ---
         async function mostrarParcelamentos() {
             const painel = document.getElementById('painelParcelas');
             const tbody = document.getElementById('listaParcelamentos');
+            const tfoot = document.getElementById('totalParcelamentos');
             
             painel.style.display = 'block';
             tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px;">CALCULANDO DÍVIDAS...</td></tr>';
+            tfoot.innerHTML = ''; // Limpa os totais enquanto carrega
 
             try {
                 const res = await fetch(`/transacoes?usuarioId=${usuario.id}`);
@@ -446,6 +482,13 @@
                     return;
                 }
 
+                // Variáveis para a soma do Rodapé
+                let sumValorParcela = 0;
+                let sumTotalPago = 0;
+                let sumJuros = 0;
+                let sumFaltaPagar = 0;
+                let sumDivida = 0;
+
                 listaFinal.forEach((g) => {
                     const chaveOriginal = Object.keys(cacheParcelamentos).find(key => cacheParcelamentos[key] === g);
 
@@ -473,6 +516,13 @@
                     const principalPago = g.valorTotalPago - g.totalJuros;
                     const valorRestante = Math.max(0, g.valorTotalOriginal - principalPago);
 
+                    // Acumulando os totais gerais
+                    sumValorParcela += valorParcelaExibido;
+                    sumTotalPago += g.valorTotalPago;
+                    sumJuros += g.totalJuros;
+                    sumFaltaPagar += valorRestante;
+                    sumDivida += g.valorTotalOriginal;
+
                     tbody.innerHTML += `
                         <tr onclick="abrirExtratoParcelas('${chaveOriginal}')" class="clickable-row" title="Clique para ver extrato">
                             <td>
@@ -496,6 +546,18 @@
                         </tr>
                     `;
                 });
+
+                // linha de TOTAL fixada no tfoot
+                tfoot.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: right; color: #64748b; font-size: 9px;">TOTAL:</td>
+                        <td style="color: #1e293b;">${fmt.format(sumValorParcela)}</td>
+                        <td class="value-paid">${fmt.format(sumTotalPago)}</td>
+                        <td style="color:#f59e0b;">${fmt.format(sumJuros)}</td>
+                        <td class="value-left">${fmt.format(sumFaltaPagar)}</td>
+                        <td class="value-total">${fmt.format(sumDivida)}</td>
+                    </tr>
+                `;
 
             } catch (e) {
                 console.error(e);
